@@ -2,6 +2,8 @@
 using System.Text;
 
 using CSGL.Input;
+using CSGL.Vulkan;
+using CSGL.Vulkan.Unmanaged;
 using static CSGL.GLFW.Unmanaged.GLFW_native;
 
 namespace CSGL.GLFW {
@@ -29,18 +31,6 @@ namespace CSGL.GLFW {
 
         static GLFW() {
             glfwSetErrorCallback(InternalError);    //has to be set here, so that errors made before glfwInit() are caught
-        }
-
-        static unsafe string GetString(byte* ptr) {
-            int length = 0;
-            while (ptr[length] != 0) {
-                length++;
-            }
-            byte[] array = new byte[length];
-            for (int i = 0; i < length; i++) {
-                array[i] = ptr[i];
-            }
-            return Encoding.UTF8.GetString(array);
         }
         
         static void CheckError() {      //only way to convert GLFW error to managed exception
@@ -72,7 +62,7 @@ namespace CSGL.GLFW {
         public static string GetVersion() {
             unsafe
             {
-                return GetString(glfwGetVersionString());
+                return Interop.GetString(glfwGetVersionString());
             }
         }
 
@@ -117,7 +107,7 @@ namespace CSGL.GLFW {
             {
                 var s = glfwGetMonitorName(monitor);
                 CheckError();
-                string result = GetString(s);
+                string result = Interop.GetString(s);
                 return result;
             }
         }
@@ -565,7 +555,7 @@ namespace CSGL.GLFW {
             {
                 var s = glfwGetJoystickName(joystick);
                 CheckError();
-                var result = GetString(s);
+                var result = Interop.GetString(s);
                 return result;
             }
         }
@@ -588,7 +578,7 @@ namespace CSGL.GLFW {
             {
                 var s = glfwGetClipboardString(window);
                 CheckError();
-                var result = GetString(s);
+                var result = Interop.GetString(s);
                 return result;
             }
         }
@@ -645,6 +635,50 @@ namespace CSGL.GLFW {
 
         public static IntPtr GetProcAddress(string procName) {
             var result = glfwGetProcAddress(procName);
+            CheckError();
+            return result;
+        }
+
+        public static bool VulkanSupported() {
+            var result = glfwVulkanSupported();
+            CheckError();
+            return result;
+        }
+
+        public static string[] GetRequiredInstanceExceptions() {
+            string[] result;
+            unsafe
+            {
+                uint count;
+                byte** strings = glfwGetRequiredInstanceExtensions(out count);
+
+                if (strings == null) {
+                    result = null;
+                } else {
+                    result = new string[count];
+                    for (int i = 0; i < count; i++) {
+                        result[i] = Interop.GetString(strings[i]);
+                    }
+                }
+            }
+            CheckError();
+            return result;
+        }
+
+        public static IntPtr GetInstanceProcAddress(VkInstance instance, string proc) {
+            var result = glfwGetInstanceProcAddress(instance, proc);
+            CheckError();
+            return result;
+        }
+
+        public static bool GetPhysicalDevicePresentationSupport(VkInstance instance, VkPhysicalDevice device, uint queueFamily) {
+            var result = glfwGetPhysicalDevicePresentationSupport(instance, device, queueFamily);
+            CheckError();
+            return result != 0;
+        }
+
+        public static VkResult CreateWindowSurface(VkInstance instance, WindowPtr ptr, ref VkAllocationCallbacks alloc, ref VkSurfaceKHR surface) {
+            var result = glfwCreateWindowSurface(instance, ptr, ref alloc, ref surface);
             CheckError();
             return result;
         }
