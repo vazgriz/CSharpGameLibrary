@@ -7,6 +7,22 @@ using CSGL.GLFW.Unmanaged;
 
 namespace CSGL.OpenGL.GL4_5_core {
     public static partial class GL {
+        public static void Load() {
+            Type type = typeof(CSGL.OpenGL.Unmanaged.GL);
+            foreach (var name in names) {
+                FieldInfo field = type.GetField(name);
+                IntPtr ptr = GLFW.GLFW.GetProcAddress(name);
+
+                if (ptr == IntPtr.Zero) {
+                    Console.WriteLine("Could not load OpenGL function '{0}'", name);
+                    continue;
+                }
+
+                Delegate del = Marshal.GetDelegateForFunctionPointer(ptr, field.FieldType);
+                field.SetValue(null, del);
+            }
+        }
+
         static readonly string[] names = {"glActiveShaderProgram",
                 "glActiveTexture",
                 "glAttachShader",
@@ -660,22 +676,6 @@ namespace CSGL.OpenGL.GL4_5_core {
                 "glViewportIndexedf",
                 "glViewportIndexedfv",
                 "glWaitSync"};
-
-        public static void Load() {
-            Type type = typeof(CSGL.OpenGL.Unmanaged.GL);
-            foreach (var name in names) {
-                FieldInfo field = type.GetField(name);
-                IntPtr ptr = GLFW.GLFW.GetProcAddress(name);
-
-                if (ptr == IntPtr.Zero) {
-                    Console.WriteLine("Could not load OpenGL function '{0}'", name);
-                    continue;
-                }
-
-                Delegate del = Marshal.GetDelegateForFunctionPointer(ptr, field.FieldType);
-                field.SetValue(null, del);
-            }
-        }
     }
 
     public class OpenGLException : Exception {

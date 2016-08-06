@@ -1,16 +1,52 @@
 ﻿using System;
 
 namespace CSGL.Vulkan.Managed {
-    public struct Version {
+    public struct VkVersion {
         uint version;
 
-        public Version(int major, int minor, int revision) {
+        public VkVersion(uint major, uint minor, uint revision) {
             version = 0;
+            Major = major;
+            Minor = minor;
+            Revision = revision;
         }
 
-        public int Major {
+        public uint Version {
             get {
-                return (int)(version >> 22) & 0b11111111;
+                return version;
+            }
+            set {
+                version = value;
+            }
+        }
+
+        public uint Major {
+            get {
+                return (version >> 22) & 0x3ff;
+            }
+            set {
+                version &= ~0xffc00000;
+                version |= (value << 22);
+            }
+        }
+
+        public uint Minor {
+            get {
+                return (version >> 12) & 0x3ff;
+            }
+            set {
+                version &= ~((uint)0x3ff000);
+                version |= ((value << 12) & 0x3ff000);
+            }
+        }
+
+        public uint Revision {
+            get {
+                return (version) & 0xfff;
+            }
+            set {
+                version &= ~((uint)0xfff);
+                version |= (value & 0xfff);
             }
         }
     }
