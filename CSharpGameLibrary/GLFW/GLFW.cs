@@ -674,7 +674,7 @@ namespace CSGL.GLFW {
         public static bool GetPhysicalDevicePresentationSupport(VkInstance instance, VkPhysicalDevice device, uint queueFamily) {
             var result = glfwGetPhysicalDevicePresentationSupport(instance, device, queueFamily);
             CheckError();
-            return result != 0;
+            return result;
         }
 
         public static VkResult CreateWindowSurface(VkInstance instance, WindowPtr ptr, ref VkAllocationCallbacks alloc, ref VkSurfaceKHR surface) {

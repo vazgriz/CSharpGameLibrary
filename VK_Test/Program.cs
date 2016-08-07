@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 
 using CSGL.GLFW;
+using CSGL.Vulkan;
 using CSGL.Vulkan.Managed;
 
 namespace VK_Test {
@@ -9,16 +10,6 @@ namespace VK_Test {
         static void Main(string[] args) {
             GLFW.Init();
             Vulkan.Init();
-
-            Console.WriteLine("Available extenions:");
-            foreach (var s in Instance.AvailableExtensions) {
-                Console.WriteLine("  {0}", s);
-            }
-
-            Console.WriteLine("Available layers:");
-            foreach (var s in Instance.AvailableLayers) {
-                Console.WriteLine("  {0}", s);
-            }
 
             List<string> ex = new List<string>(GLFW.GetRequiredInstanceExceptions());
             ex.Add("VK_EXT_debug_report");
@@ -36,6 +27,32 @@ namespace VK_Test {
                 Console.WriteLine("Activated layers:");
                 foreach (var s in instance.Layers) {
                     Console.WriteLine("  {0}", s);
+                }
+                Console.WriteLine("Physical devices");
+                foreach (var p in instance.PhysicalDevices) {
+                    Console.WriteLine("  {0}", p.Name);
+                    Console.WriteLine("    API Version: {0}", p.Properties.APIVersion);
+                    Console.WriteLine("    Device Type: {0}", p.Properties.Type);
+                    Console.WriteLine("    Driver Version: {0}", p.Properties.DriverVersion);
+                    Console.WriteLine("    UUID: {0}", p.Properties.PipelineCache.ToString());
+                    Console.WriteLine("    Available extensions:");
+                    foreach (var e in p.AvailableExtensions) {
+                        Console.WriteLine("      {0}", e.Name);
+                    }
+                }
+
+                var pDevice = instance.PhysicalDevices[0];
+                QueueCreateInfo qInfo = new QueueCreateInfo((uint)pDevice.GraphicsIndex, 1, new float[] { 1f });
+                List<string> dEx = new List<string> {
+                    "VK_KHR_swapchain"
+                };
+                List<QueueCreateInfo> qInfos = new List<QueueCreateInfo>{
+                    qInfo
+                };
+                DeviceCreateInfo dInfo = new DeviceCreateInfo(dEx, qInfos);
+
+                using (Device device = new Device(pDevice, dInfo)) {
+
                 }
             }
             GLFW.Terminate();

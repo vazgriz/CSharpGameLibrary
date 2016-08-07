@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 
 namespace CSGL.Vulkan.Managed {
     public struct VkVersion {
@@ -51,6 +52,16 @@ namespace CSGL.Vulkan.Managed {
                 version &= ~((uint)0xfff);
                 version |= (value & 0xfff);
             }
+        }
+
+        public override string ToString() {
+            StringBuilder builder = new StringBuilder();
+            builder.Append(Major);
+            builder.Append('.');
+            builder.Append(Minor);
+            builder.Append('.');
+            builder.Append(Revision);
+            return builder.ToString();
         }
     }
 }

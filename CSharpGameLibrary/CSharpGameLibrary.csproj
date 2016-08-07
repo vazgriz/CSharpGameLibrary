@@ -69,10 +69,16 @@
     <Compile Include="Vulkan\enums.cs" />
     <Compile Include="Vulkan\loader.cs" />
     <Compile Include="Vulkan\Managed\ApplicationInfo.cs" />
+    <Compile Include="Vulkan\Managed\Device.cs" />
+    <Compile Include="Vulkan\Managed\DeviceCreateInfo.cs" />
+    <Compile Include="Vulkan\Managed\Extension.cs" />
     <Compile Include="Vulkan\Managed\Instance.cs" />
     <Compile Include="Vulkan\Managed\InstanceCreateInfo.cs" />
+    <Compile Include="Vulkan\Managed\Layer.cs" />
+    <Compile Include="Vulkan\Managed\PhysicalDevice.cs" />
+    <Compile Include="Vulkan\Managed\QueueCreateInfo.cs" />
     <Compile Include="Vulkan\Managed\VkVersion.cs" />
-    <Compile Include="Vulkan\Managed\VK.cs" />
+    <Compile Include="Vulkan\Managed\Vulkan.cs" />
     <Compile Include="Vulkan\structs.cs" />
   </ItemGroup>
   <ItemGroup>

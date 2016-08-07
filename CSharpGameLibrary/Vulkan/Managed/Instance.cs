@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
 using CSGL;
-//using static CSGL.Vulkan.Unmanaged.VK;
 using CSGL.Vulkan.Unmanaged;
 
 namespace CSGL.Vulkan.Managed {
@@ -13,57 +12,59 @@ namespace CSGL.Vulkan.Managed {
         bool callbacksSet = false;
         bool disposed = false;
 
+        public VkInstance Native {
+            get {
+                return instance;
+            }
+        }
+
         public List<string> Extensions { get; private set; }
         public List<string> Layers { get; private set; }
+        public List<PhysicalDevice> PhysicalDevices { get; private set; }
 
+        vkEnumeratePhysicalDevicesDelegate EnumeratePhysicalDevices;
+        vkGetPhysicalDevicePropertiesDelegate GetPhysicalDeviceProperties;
+
+        vkCreateDeviceDelegate createDevice;
+        vkDestroyDeviceDelegate destroyDevice;
+        vkGetDeviceProcAddrDelegate getDeviceProcAddr;
+
+        public vkCreateDeviceDelegate CreateDevice {
+            get {
+                return createDevice;
+            }
+        }
+
+        public vkDestroyDeviceDelegate DestroyDevice {
+            get {
+                return destroyDevice;
+            }
+        }
+
+        public vkGetDeviceProcAddrDelegate GetDeviceProcAddress {
+            get {
+                return getDeviceProcAddr;
+            }
+        }
+
+        static vkGetInstanceProcAddrDelegate GetProcAddr;
         static vkCreateInstanceDelegate CreateInstance;
         static vkDestroyInstanceDelegate DestroyInstance;
         static vkEnumerateInstanceExtensionPropertiesDelegate EnumerateExtensionProperties;
         static vkEnumerateInstanceLayerPropertiesDelegate EnumerateLayerProperties;
 
-        public static List<string> AvailableExtensions { get; private set; }
-        public static List<string> AvailableLayers { get; private set; }
+        public static List<Extension> AvailableExtensions { get; private set; }
+        public static List<Layer> AvailableLayers { get; private set; }
+
+        static public vkGetInstanceProcAddrDelegate GetProcAddress {
+            get {
+                return GetProcAddr;
+            }
+        }
 
         public unsafe VkAllocationCallbacks* AllocationCallbacks {
             get {
                 return alloc;
-            }
-        }
-
-        internal static void Init() {
-            Vulkan.Load(ref CreateInstance);
-            Vulkan.Load(ref DestroyInstance);
-            Vulkan.Load(ref EnumerateExtensionProperties);
-            Vulkan.Load(ref EnumerateLayerProperties);
-            GetLayersAndExtensions();
-        }
-
-        static void GetLayersAndExtensions() {
-            AvailableExtensions = new List<string>();
-            AvailableLayers = new List<string>();
-            unsafe
-            {
-                uint exCount = 0;
-                VkExtensionProperties* exTemp = null;
-                EnumerateExtensionProperties(null, ref exCount, ref *exTemp);
-                VkExtensionProperties* ex = stackalloc VkExtensionProperties[(int)exCount];
-                EnumerateExtensionProperties(null, ref exCount, ref ex[0]);
-
-                for (int i = 0; i < exCount; i++) {
-                    var p = ex[i];
-                    AvailableExtensions.Add(Interop.GetString(p.extensionName));
-                }
-
-                uint lCount = 0;
-                VkLayerProperties* lTemp = null;
-                EnumerateLayerProperties(ref lCount, ref *lTemp);
-                VkLayerProperties* l = stackalloc VkLayerProperties[(int)lCount];
-                EnumerateLayerProperties(ref lCount, ref l[0]);
-
-                for (int i = 0; i < lCount; i++) {
-                    var p = l[i];
-                    AvailableLayers.Add(Interop.GetString(p.layerName));
-                }
             }
         }
 
@@ -81,6 +82,49 @@ namespace CSGL.Vulkan.Managed {
             CreateInstanceInternal(info);
         }
 
+        internal static void Init() {
+            GetProcAddr = Marshal.GetDelegateForFunctionPointer<vkGetInstanceProcAddrDelegate>(GLFW.GLFW.GetInstanceProcAddress(VkInstance.Null, "vkGetInstanceProcAddr"));
+            Vulkan.Load(ref CreateInstance);
+            Vulkan.Load(ref DestroyInstance);
+            Vulkan.Load(ref EnumerateExtensionProperties);
+            Vulkan.Load(ref EnumerateLayerProperties);
+            GetLayersAndExtensions();
+        }
+
+        static void GetLayersAndExtensions() {
+            AvailableExtensions = new List<Extension>();
+            AvailableLayers = new List<Layer>();
+            unsafe
+            {
+                uint exCount = 0;
+                VkExtensionProperties* exTemp = null;
+                EnumerateExtensionProperties(null, ref exCount, ref *exTemp);
+                VkExtensionProperties* ex = stackalloc VkExtensionProperties[(int)exCount];
+                EnumerateExtensionProperties(null, ref exCount, ref ex[0]);
+
+                for (int i = 0; i < exCount; i++) {
+                    var p = ex[i];
+                    AvailableExtensions.Add(new Extension(Interop.GetString(p.extensionName), p.specVersion));
+                }
+
+                uint lCount = 0;
+                VkLayerProperties* lTemp = null;
+                EnumerateLayerProperties(ref lCount, ref *lTemp);
+                VkLayerProperties* l = stackalloc VkLayerProperties[(int)lCount];
+                EnumerateLayerProperties(ref lCount, ref l[0]);
+
+                for (int i = 0; i < lCount; i++) {
+                    var p = l[i];
+                    var name = Interop.GetString(p.layerName);
+                    var desc = Interop.GetString(p.description);
+                    var spec = p.specVersion;
+                    var impl = p.implementationVersion;
+                    var layer = new Layer(name, desc, spec, impl);
+                    AvailableLayers.Add(layer);
+                }
+            }
+        }
+
         void CreateInstanceInternal(InstanceCreateInfo mInfo) {
             if (mInfo.Extensions == null) {
                 Extensions = new List<string>();
@@ -93,16 +137,46 @@ namespace CSGL.Vulkan.Managed {
                 Layers = mInfo.Layers;
             }
 
+            ValidateExtensions();
+            ValidateLayers();
+
+            MakeVulkanInstance(mInfo);
+
+            Vulkan.Load(ref EnumeratePhysicalDevices, instance);
+            Vulkan.Load(ref GetPhysicalDeviceProperties, instance);
+            Vulkan.Load(ref createDevice, instance);
+            Vulkan.Load(ref destroyDevice, instance);
+            Vulkan.Load(ref getDeviceProcAddr, instance);
+
+            GetPhysicalDevices();
+        }
+
+        void GetPhysicalDevices() {
+            PhysicalDevices = new List<PhysicalDevice>();
+            unsafe
+            {
+                uint count = 0;
+                VkPhysicalDevice* temp = null;
+                EnumeratePhysicalDevices(instance, ref count, ref *temp);
+                VkPhysicalDevice* devices = stackalloc VkPhysicalDevice[(int)count];
+                EnumeratePhysicalDevices(instance, ref count, ref devices[0]);
+
+                for (int i = 0; i < count; i++) {
+                    PhysicalDevices.Add(new PhysicalDevice(this, devices[i]));
+                }
+            }
+        }
+
+        void MakeVulkanInstance(InstanceCreateInfo mInfo) {
             //the managed classes are assembled into Vulkan structs on the stack
             //they can't be members of the class without pinning or fixing them
             //allocating the callback on the unmanaged heap feels messy enough, I didn't want to do that with every struct
+            //nor did I want to make InstanceCreateInfo and ApplicationInfo disposable
 
             unsafe
             {
                 VkApplicationInfo appInfo = new VkApplicationInfo();
                 VkInstanceCreateInfo info = new VkInstanceCreateInfo();
-                info.ppEnabledExtensionNames = null;
-                info.ppEnabledLayerNames = null;
 
                 info.sType = VkStructureType.StructureTypeInstanceCreateInfo;
 
@@ -162,27 +236,57 @@ namespace CSGL.Vulkan.Managed {
             }
         }
 
+        void ValidateLayers() {
+            foreach (var s in Layers) {
+                bool found = false;
+
+                for (int i = 0; i < AvailableLayers.Count; i++) {
+                    if (AvailableLayers[i].Name == s) {
+                        found = true;
+                        break;
+                    }
+                }
+
+                if (!found) throw new InstanceException(string.Format("Requested layer '{0}' is not available", s));
+            }
+        }
+
+        void ValidateExtensions() {
+            foreach (var s in Extensions) {
+                bool found = false;
+
+                for (int i = 0; i < AvailableExtensions.Count; i++) {
+                    if (AvailableExtensions[i].Name == s) {
+                        found = true;
+                        break;
+                    }
+                }
+
+                if (!found) throw new InstanceException(string.Format("Requested exception '{0}' is not available", s));
+            }
+        }
+
         public void Dispose() {
             GC.SuppressFinalize(this);
             Dispose(true);
         }
 
         void Dispose(bool disposing) {
-            if (!disposed) {
-                if (disposing) {
-                    Extensions = null;
-                    Layers = null;
+            if (disposed) return;
+            unsafe
+            {
+                DestroyInstance(instance, alloc);
+                if (callbacksSet) {
+                    Marshal.FreeHGlobal((IntPtr)alloc);
                 }
-                unsafe
-                {
-                    DestroyInstance(instance, alloc);
-                    if (callbacksSet) {
-                        Marshal.FreeHGlobal((IntPtr)alloc);
-                    }
-                }
-                disposed = true;
-                Console.WriteLine("Disposed");
             }
+
+            if (disposing) {
+                Extensions = null;
+                Layers = null;
+            }
+
+            disposed = true;
         }
 
         ~Instance() {
