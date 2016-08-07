@@ -22,6 +22,7 @@ namespace CSGL {
         }
 
         public static byte[] GetUTF8(string s) {
+            if (s == null) return null;
             int length = utf8.GetByteCount(s);
             byte[] result = new byte[length + 1];   //need room for null terminator
             utf8.GetBytes(s, 0, s.Length, result, 0);

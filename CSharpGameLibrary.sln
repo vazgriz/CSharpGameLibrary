@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSharpGameLibrary", "CSharp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GL4_5_core", "GL4_5_core\GL4_5_core.csproj", "{FDEBFC1C-189D-4DB4-A056-0778B0DD7750}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VK_Test", "VK_Test\VK_Test.csproj", "{3D20C9B1-FE8B-415E-9298-0C3E9F777F7D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{FDEBFC1C-189D-4DB4-A056-0778B0DD7750}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FDEBFC1C-189D-4DB4-A056-0778B0DD7750}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FDEBFC1C-189D-4DB4-A056-0778B0DD7750}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3D20C9B1-FE8B-415E-9298-0C3E9F777F7D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3D20C9B1-FE8B-415E-9298-0C3E9F777F7D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3D20C9B1-FE8B-415E-9298-0C3E9F777F7D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3D20C9B1-FE8B-415E-9298-0C3E9F777F7D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

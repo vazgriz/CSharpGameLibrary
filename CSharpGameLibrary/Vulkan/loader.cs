@@ -8,8 +8,8 @@ namespace CSGL.Vulkan.Unmanaged {
         public static void Load() {
             Type type = typeof(VK);
             foreach (string command in commands) {
-                FieldInfo field = type.GetField(command);
-                IntPtr ptr = GLFW.GLFW.GetInstanceProcAddress(default(VkInstance), command);
+                FieldInfo field = type.GetField(command.Substring(2));
+                IntPtr ptr = GLFW.GLFW.GetInstanceProcAddress(VkInstance.Null, command);
 
                 if (ptr == IntPtr.Zero) {
                     Console.WriteLine("Could not load Vulkan function '{0}'", command);

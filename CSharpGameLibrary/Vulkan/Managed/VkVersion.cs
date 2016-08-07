@@ -11,13 +11,16 @@ namespace CSGL.Vulkan.Managed {
             Revision = revision;
         }
 
-        public uint Version {
-            get {
-                return version;
-            }
-            set {
-                version = value;
-            }
+        public VkVersion(uint version) {
+            this.version = version;
+        }
+
+        public static implicit operator uint(VkVersion v) {
+            return v.version;
+        }
+
+        public static implicit operator VkVersion(uint v) {
+            return new VkVersion(v);
         }
 
         public uint Major {

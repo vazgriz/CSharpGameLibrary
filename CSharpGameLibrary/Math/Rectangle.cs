@@ -21,6 +21,7 @@ namespace CSGL.Math {
             Width = rect.Width;
             Height = rect.Height;
         }
+
         public Vector2 Position {
             get {
                 return new Vector2(X, Y);
