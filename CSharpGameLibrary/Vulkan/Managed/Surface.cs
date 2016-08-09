@@ -11,22 +11,16 @@ namespace CSGL.Vulkan.Managed {
 
         PhysicalDevice physicalDevice;
 
-        vkDestroySurfaceKHRDelegate destroySurface;
-        vkGetPhysicalDeviceSurfaceCapabilitiesKHRDelegate getCapabilities;
-        vkGetPhysicalDeviceSurfaceFormatsKHRDelegate getFormats;
-        vkGetPhysicalDeviceSurfacePresentModesKHRDelegate getModes;
+        vkDestroySurfaceKHRDelegate destroySurface = null;
+        vkGetPhysicalDeviceSurfaceCapabilitiesKHRDelegate getCapabilities = null;
+        vkGetPhysicalDeviceSurfaceFormatsKHRDelegate getFormats = null;
+        vkGetPhysicalDeviceSurfacePresentModesKHRDelegate getModes = null;
 
         public Instance Instance { get; private set; }
 
         public List<VkSurfaceFormatKHR> Formats { get; private set; }
         public List<VkPresentModeKHR> Modes { get; private set; }
-
-        VkSurfaceCapabilitiesKHR capabilities;
-        public VkSurfaceCapabilitiesKHR Capabilities {
-            get {
-                return capabilities;
-            }
-        }
+        public VkSurfaceCapabilitiesKHR Capabilities { get; private set; }
 
         public VkSurfaceKHR Native {
             get {
@@ -41,14 +35,15 @@ namespace CSGL.Vulkan.Managed {
             physicalDevice = device;
             Instance = device.Instance;
 
-            Vulkan.Load(ref destroySurface, Instance);
-            Vulkan.Load(ref getCapabilities, Instance);
-            Vulkan.Load(ref getFormats, Instance);
-            Vulkan.Load(ref getModes, Instance);
+            destroySurface = Instance.Commands.destroySurface;
+            getCapabilities = Instance.Commands.getCapabilities;
+            getFormats = Instance.Commands.getFormats;
+            getModes = Instance.Commands.getModes;
 
             CreateSurface(window);
 
-            getCapabilities(physicalDevice.Native, surface, ref capabilities);
+            VkSurfaceCapabilitiesKHR temp = new VkSurfaceCapabilitiesKHR();
+            getCapabilities(physicalDevice.Native, surface, ref temp);
 
             GetFormats();
             GetModes();
@@ -107,10 +102,6 @@ namespace CSGL.Vulkan.Managed {
 
             if (disposing) {
                 Instance = null;
-                destroySurface = null;
-                getCapabilities = null;
-                getFormats = null;
-                getModes = null;
             }
 
             disposed = true;

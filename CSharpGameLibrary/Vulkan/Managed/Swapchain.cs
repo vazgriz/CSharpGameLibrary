@@ -31,9 +31,6 @@ namespace CSGL.Vulkan.Managed {
         VkSwapchainKHR swapchain;
         bool disposed;
 
-        vkCreateSwapchainKHRDelegate createSwapchain;
-        vkDestroySwapchainKHRDelegate destroySwapchain;
-
         public Surface Surface { get; private set; }
 
         public VkSwapchainKHR Native {
@@ -45,15 +42,15 @@ namespace CSGL.Vulkan.Managed {
         public Swapchain(SwapchainCreateInfo info) {
             Surface = info.Surface;
 
-            Vulkan.Load(ref createSwapchain, Surface.Instance);
-            Vulkan.Load(ref destroySwapchain, Surface.Instance);
+            CreateSwapchain(info);
         }
 
         void CreateSwapchain(SwapchainCreateInfo mInfo) {
             unsafe
             {
                 VkSwapchainCreateInfoKHR info = new VkSwapchainCreateInfoKHR();
-                //info.sType = VkStructureType
+                info.sType = VkStructureType.StructureTypeSwapchainCreateInfoKhr;
+                info.surface = mInfo.Surface.Native;
             }
         }
 
@@ -67,9 +64,6 @@ namespace CSGL.Vulkan.Managed {
 
             if (disposing) {
                 Surface = null;
-
-                createSwapchain = null;
-                destroySwapchain = null;
             }
 
             disposed = true;

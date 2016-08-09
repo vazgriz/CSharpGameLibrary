@@ -69,6 +69,7 @@
     <Compile Include="Vulkan\enums.cs" />
     <Compile Include="Vulkan\loader.cs" />
     <Compile Include="Vulkan\Managed\ApplicationInfo.cs" />
+    <Compile Include="Vulkan\Managed\Commands.cs" />
     <Compile Include="Vulkan\Managed\Device.cs" />
     <Compile Include="Vulkan\Managed\Extension.cs" />
     <Compile Include="Vulkan\Managed\Instance.cs" />
@@ -76,6 +77,7 @@
     <Compile Include="Vulkan\Managed\PhysicalDevice.cs" />
     <Compile Include="Vulkan\Managed\Queue.cs" />
     <Compile Include="Vulkan\Managed\Surface.cs" />
+    <Compile Include="Vulkan\Managed\Swapchain.cs" />
     <Compile Include="Vulkan\Managed\VkVersion.cs" />
     <Compile Include="Vulkan\Managed\Vulkan.cs" />
     <Compile Include="Vulkan\structs.cs" />

@@ -24,7 +24,7 @@ namespace CSGL.Vulkan.Managed {
         }
     }
 
-    public class Device : IDisposable {
+    public partial class Device : IDisposable {
         VkDevice device;
         bool disposed = false;
 
@@ -32,7 +32,7 @@ namespace CSGL.Vulkan.Managed {
 
         vkGetDeviceProcAddrDelegate getDeviceProcAddr;
 
-        vkGetDeviceQueueDelegate getDeviceQueue;
+        public DeviceCommands Commands { get; private set; }
 
         public Instance Instance { get; private set; }
         public List<string> Extensions { get; private set; }
@@ -60,7 +60,7 @@ namespace CSGL.Vulkan.Managed {
             CreateDevice(info);
 
             Vulkan.Load(ref getDeviceProcAddr, Instance);
-            Vulkan.Load(ref getDeviceQueue, this);
+            Commands = new DeviceCommands(this);
         }
 
         void CreateDevice(DeviceCreateInfo mInfo) {
@@ -129,7 +129,7 @@ namespace CSGL.Vulkan.Managed {
 
         public Queue GetQueue(uint familyIndex, uint index) {
             var result = new VkQueue();
-            getDeviceQueue(device, familyIndex, index, ref result);
+            Commands.getDeviceQueue(device, familyIndex, index, ref result);
             return new Queue(this, result);
         }
 
@@ -160,7 +160,6 @@ namespace CSGL.Vulkan.Managed {
                 Extensions = null;
 
                 getDeviceProcAddr = null;
-                getDeviceQueue = null;
             }
 
             disposed = true;

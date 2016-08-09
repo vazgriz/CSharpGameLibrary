@@ -29,18 +29,6 @@ namespace CSGL.Vulkan.Managed {
             Load(ref del, instance.Native);
         }
 
-        public static void Load<T>(ref T del, VkDevice device, vkGetDeviceProcAddrDelegate loader) {
-            var command = GetCommand<T>();
-            byte[] array = Interop.GetUTF8(command);
-            unsafe
-            {
-                fixed (byte* s = array) {
-                    IntPtr ptr = loader(device, s);
-                    del = Marshal.GetDelegateForFunctionPointer<T>(ptr);
-                }
-            }
-        }
-
         public static void Load<T>(ref T del, Device device) {
             var command = GetCommand<T>();
             IntPtr ptr = device.GetProcAdddress(command);
