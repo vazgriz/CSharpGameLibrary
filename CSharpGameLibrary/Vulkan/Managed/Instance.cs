@@ -289,6 +289,7 @@ namespace CSGL.Vulkan.Managed {
                 Layers = null;
                 PhysicalDevices = null;
 
+                getProcAddrDel = null;
                 Commands = null;
             }
 

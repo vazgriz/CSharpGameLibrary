@@ -160,6 +160,7 @@ namespace CSGL.Vulkan.Managed {
                 Extensions = null;
 
                 getDeviceProcAddr = null;
+                Commands = null;
             }
 
             disposed = true;

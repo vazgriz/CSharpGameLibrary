@@ -29,7 +29,7 @@ namespace CSGL.Vulkan.Managed {
         }
 
         public Surface(PhysicalDevice device, WindowPtr window) {
-            if (device == null) throw new ArgumentException(string.Format("{0} can not be null", nameof(Instance)));
+            if (device == null) throw new ArgumentException(string.Format("{0} can not be null", nameof(device)));
             if (window == WindowPtr.Null) throw new ArgumentException(string.Format("{0} can not be null", nameof(window)));
 
             physicalDevice = device;
@@ -44,6 +44,7 @@ namespace CSGL.Vulkan.Managed {
 
             VkSurfaceCapabilitiesKHR temp = new VkSurfaceCapabilitiesKHR();
             getCapabilities(physicalDevice.Native, surface, ref temp);
+            Capabilities = temp;
 
             GetFormats();
             GetModes();
@@ -102,6 +103,11 @@ namespace CSGL.Vulkan.Managed {
 
             if (disposing) {
                 Instance = null;
+
+                destroySurface = null;
+                getCapabilities = null;
+                getFormats = null;
+                getModes = null;
             }
 
             disposed = true;
