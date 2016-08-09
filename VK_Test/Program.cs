@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
+using System.Reflection;
 
 using CSGL.GLFW;
 using CSGL.Vulkan;
@@ -8,6 +10,22 @@ using CSGL.Vulkan.Managed;
 namespace VK_Test {
     class Program {
         static void Main(string[] args) {
+            new Program().Run();
+        }
+
+        int width = 800;
+        int height = 600;
+
+        WindowPtr window;
+        Instance instance;
+        PhysicalDevice physicalDevice;
+        Surface surface;
+        Device device;
+        Queue graphicsQueue;
+        Queue presentQueue;
+        Swapchain swapchain;
+
+        void Run() {
             GLFW.Init();
             Vulkan.Init();
 
@@ -20,57 +38,133 @@ namespace VK_Test {
             ApplicationInfo app = new ApplicationInfo(new VkVersion(), "Test", "None", new VkVersion(), new VkVersion());
             InstanceCreateInfo info = new InstanceCreateInfo(app, ex, l);
 
-            WindowPtr window;
+            window = GLFW.CreateWindow(width, height, "Test", MonitorPtr.Null, WindowPtr.Null);
+            instance = new Instance(info);
+            physicalDevice = instance.PhysicalDevices[0];
+            surface = new Surface(physicalDevice, window);
 
-            window = GLFW.CreateWindow(800, 600, "Test", MonitorPtr.Null, WindowPtr.Null);
+            //FieldInfo[] fields = typeof(VkSwapchainCreateInfoKHR).GetFields();
+            //foreach (var f in fields) {
+            //    Console.WriteLine("{0} offset: {1}", f.Name, Marshal.OffsetOf(typeof(VkSwapchainCreateInfoKHR), f.Name));
+            //}
 
-            using (var instance = new Instance(info)) {
-                var pDevice = instance.PhysicalDevices[0];
-                Surface surface = new Surface(pDevice, window);
-
-                int graphicsIndex = -1;
-                int presentIndex = -1;
-                for (int i = 0; i < pDevice.QueueFamilies.Count; i++) {
-                    var q = pDevice.QueueFamilies[i];
-                    if (graphicsIndex == -1 && (q.Flags & VkQueueFlags.QueueGraphicsBit) != 0) {
-                        graphicsIndex = i;
-                    }
-                    if (presentIndex == -1 && (q.SurfaceSupported(surface))) {
-                        presentIndex = i;
-                    }
+            int graphicsIndex = -1;
+            int presentIndex = -1;
+            for (int i = 0; i < physicalDevice.QueueFamilies.Count; i++) {
+                var q = physicalDevice.QueueFamilies[i];
+                if (graphicsIndex == -1 && (q.Flags & VkQueueFlags.QueueGraphicsBit) != 0) {
+                    graphicsIndex = i;
                 }
-                QueueCreateInfo qInfo = new QueueCreateInfo((uint)graphicsIndex, 1, new float[] { 1f });
-                List<string> dEx = new List<string> {
-                    "VK_KHR_swapchain"
-                };
-                List<QueueCreateInfo> qInfos = new List<QueueCreateInfo>{
-                    qInfo
-                };
-                DeviceCreateInfo dInfo = new DeviceCreateInfo(dEx, qInfos);
-
-                using (Device device = new Device(pDevice, dInfo)) {
-                    Queue q = device.GetQueue((uint)graphicsIndex, 0);
-                    Queue presentQ = device.GetQueue((uint)presentIndex, 0);
-
-                    Console.WriteLine("Formats:");
-                    foreach (var f in surface.Formats) {
-                        Console.WriteLine("  {0}", f.format);
-                    }
-
-                    Console.WriteLine("Modes:");
-                    foreach (var m in surface.Modes) {
-                        Console.WriteLine("  {0}", m);
-                    }
-
-                    using (surface) {
-                        while (!GLFW.WindowShouldClose(window)) {
-                            GLFW.PollEvents();
-                        }
-                    }
-                    GLFW.DestroyWindow(window);
+                if (presentIndex == -1 && (q.SurfaceSupported(surface))) {
+                    presentIndex = i;
                 }
             }
+            QueueCreateInfo queueInfo = new QueueCreateInfo((uint)graphicsIndex, 1, new float[] { 1f });
+            List<string> dEx = new List<string> {
+                "VK_KHR_swapchain"
+            };
+            List<QueueCreateInfo> queueInfos = new List<QueueCreateInfo>{
+                queueInfo
+            };
+            DeviceCreateInfo deviceInfo = new DeviceCreateInfo(dEx, queueInfos);
+
+            device = new Device(physicalDevice, deviceInfo);
+            graphicsQueue = device.GetQueue((uint)graphicsIndex, 0);
+            presentQueue = device.GetQueue((uint)presentIndex, 0);
+
+            var swapchainInfo = GetCreateInfo((uint)graphicsIndex, (uint)presentIndex);
+
+            swapchain = new Swapchain(device, swapchainInfo);
+
+            using (instance)
+            using (device)
+            using (surface)
+            using (swapchain) {
+                while (!GLFW.WindowShouldClose(window)) {
+                    GLFW.PollEvents();
+                }
+                GLFW.DestroyWindow(window);
+            }
             GLFW.Terminate();
+        }
+
+        SwapchainCreateInfo GetCreateInfo(uint graphicsIndex, uint presentIndex) {
+            SwapchainCreateInfo info = new SwapchainCreateInfo(surface, null);
+
+            var cap = surface.Capabilities;
+
+            var surfaceFormat = ChooseSwapSurfaceFormat(surface.Formats);
+            var presentMode = ChoosePresentMode(surface.Modes);
+            var extent = ChooseSwapExtent(cap);
+
+            uint imageCount = cap.minImageCount + 1;
+            if (cap.maxImageCount > 0 && imageCount > cap.maxImageCount) {
+                imageCount = cap.maxImageCount;
+            }
+
+            info.MinImageCount = imageCount;
+            info.ImageFormat = surfaceFormat.format;
+            info.ColorSpace = surfaceFormat.colorSpace;
+            info.ImageExtent = extent;
+            info.ImageArrayLayers = 1;
+            info.ImageUsageFlags = VkImageUsageFlags.ImageUsageColorAttachmentBit;
+
+            if (graphicsIndex != presentIndex) {
+                info.ImageSharingMode = VkSharingMode.SharingModeConcurrent;
+                info.QueueFamilyIndices = new List<uint> { graphicsIndex, presentIndex };
+            } else {
+                info.ImageSharingMode = VkSharingMode.SharingModeExclusive;
+            }
+
+            info.PreTransform = cap.currentTransform;
+            info.CompositeAlpha = VkCompositeAlphaFlags.CompositeAlphaOpaqueBitKhr;
+            info.PresentMode = presentMode;
+            info.Clipped = true;
+            info.OldSwapchain = swapchain;
+
+            return info;
+        }
+
+        VkPresentModeKHR ChoosePresentMode(List<VkPresentModeKHR> list) {
+            foreach (var mode in list) {
+                if (mode == VkPresentModeKHR.PresentModeMailboxKhr) {
+                    return mode;
+                }
+            }
+            return VkPresentModeKHR.PresentModeFifoKhr;
+        }
+
+        VkExtent2D ChooseSwapExtent(VkSurfaceCapabilitiesKHR capabilities) {
+            if (capabilities.currentExtent.width != int.MaxValue) {
+                return capabilities.currentExtent;
+            } else {
+                VkExtent2D actualExtent = new VkExtent2D();
+                actualExtent.width = (uint)width;
+                actualExtent.height = (uint)height;
+
+                actualExtent.width = Math.Max(capabilities.minImageExtent.width,
+                    Math.Min(capabilities.maxImageExtent.width, actualExtent.width));
+                actualExtent.height = Math.Max(capabilities.minImageExtent.height,
+                    Math.Min(capabilities.maxImageExtent.height, actualExtent.height));
+
+                return actualExtent;
+            }
+        }
+
+        VkSurfaceFormatKHR ChooseSwapSurfaceFormat(List<VkSurfaceFormatKHR> list) {
+            if (list.Count == 1 && list[0].format == VkFormat.FormatUndefined) {
+                var result = new VkSurfaceFormatKHR();
+                result.format = VkFormat.FormatB8g8r8a8Unorm;
+                result.colorSpace = VkColorSpaceKHR.ColorSpaceSrgbNonlinearKhr;
+                return result;
+            }
+            foreach (var format in list) {
+                if (format.format == VkFormat.FormatB8g8r8a8Unorm
+                    && format.colorSpace == VkColorSpaceKHR.ColorSpaceSrgbNonlinearKhr) {
+                    return format;
+                }
+            }
+            return list[0];
         }
     }
 }
