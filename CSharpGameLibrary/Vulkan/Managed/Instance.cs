@@ -6,6 +6,18 @@ using CSGL;
 using CSGL.Vulkan.Unmanaged;
 
 namespace CSGL.Vulkan.Managed {
+    public class InstanceCreateInfo {
+        public ApplicationInfo ApplicationInfo { get; set; }
+        public List<string> Extensions { get; set; }
+        public List<string> Layers { get; set; }
+
+        public InstanceCreateInfo(ApplicationInfo appInfo, List<string> extensions, List<string> layers) {
+            ApplicationInfo = appInfo;
+            Extensions = extensions;
+            Layers = layers;
+        }
+    }
+
     public class Instance : IDisposable {
         VkInstance instance;
         unsafe VkAllocationCallbacks* alloc = null;
@@ -83,7 +95,7 @@ namespace CSGL.Vulkan.Managed {
                 uint exCount = 0;
                 VkExtensionProperties* exTemp = null;
                 EnumerateExtensionProperties(null, ref exCount, ref *exTemp);
-                VkExtensionProperties* ex = stackalloc VkExtensionProperties[(int)exCount];
+                var ex = stackalloc VkExtensionProperties[(int)exCount];
                 EnumerateExtensionProperties(null, ref exCount, ref ex[0]);
 
                 for (int i = 0; i < exCount; i++) {
@@ -94,7 +106,7 @@ namespace CSGL.Vulkan.Managed {
                 uint lCount = 0;
                 VkLayerProperties* lTemp = null;
                 EnumerateLayerProperties(ref lCount, ref *lTemp);
-                VkLayerProperties* l = stackalloc VkLayerProperties[(int)lCount];
+                var l = stackalloc VkLayerProperties[(int)lCount];
                 EnumerateLayerProperties(ref lCount, ref l[0]);
 
                 for (int i = 0; i < lCount; i++) {
@@ -128,6 +140,7 @@ namespace CSGL.Vulkan.Managed {
 
             Vulkan.Load(ref enumeratePhysicalDevicesDel, instance);
             Vulkan.Load(ref getPhysicalDevicePropertiesDel, instance);
+
             Vulkan.Load(ref createDeviceDel, instance);
             Vulkan.Load(ref destroyDeviceDel, instance);
             Vulkan.Load(ref getDeviceProcAddrDel, instance);
@@ -142,7 +155,7 @@ namespace CSGL.Vulkan.Managed {
                 uint count = 0;
                 VkPhysicalDevice* temp = null;
                 enumeratePhysicalDevicesDel(instance, ref count, ref *temp);
-                VkPhysicalDevice* devices = stackalloc VkPhysicalDevice[(int)count];
+                var devices = stackalloc VkPhysicalDevice[(int)count];
                 enumeratePhysicalDevicesDel(instance, ref count, ref devices[0]);
 
                 for (int i = 0; i < count; i++) {

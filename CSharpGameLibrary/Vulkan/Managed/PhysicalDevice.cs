@@ -8,7 +8,7 @@ namespace CSGL.Vulkan.Managed {
         VkPhysicalDevice device;
 
         public string Name { get; private set; }
-        public Instance instance { get; private set; }
+        public Instance Instance { get; private set; }
         public PhysicalDeviceProperties Properties { get; private set; }
         public List<QueueFamily> QueueFamilies { get; private set; }
         public List<Extension> AvailableExtensions { get; private set; }
@@ -33,7 +33,7 @@ namespace CSGL.Vulkan.Managed {
         vkGetPhysicalDeviceSurfaceSupportKHRDelegate getPresentationSupport;
 
         internal PhysicalDevice(Instance instance, VkPhysicalDevice device) {
-            this.instance = instance;
+            Instance = instance;
             this.device = device;
 
             Vulkan.Load(ref GetProperties, instance);
@@ -86,7 +86,7 @@ namespace CSGL.Vulkan.Managed {
                 uint count = 0;
                 VkExtensionProperties* temp = null;
                 GetExtensions(device, null, ref count, ref *temp);
-                VkExtensionProperties* props = stackalloc VkExtensionProperties[(int)count];
+                var props = stackalloc VkExtensionProperties[(int)count];
                 GetExtensions(device, null, ref count, ref props[0]);
 
                 for (int i = 0; i < count; i++) {

@@ -25,9 +25,9 @@ namespace VK_Test {
             window = GLFW.CreateWindow(800, 600, "Test", MonitorPtr.Null, WindowPtr.Null);
 
             using (var instance = new Instance(info)) {
-                Surface surface = new Surface(instance, window);
-
                 var pDevice = instance.PhysicalDevices[0];
+                Surface surface = new Surface(pDevice, window);
+
                 int graphicsIndex = -1;
                 int presentIndex = -1;
                 for (int i = 0; i < pDevice.QueueFamilies.Count; i++) {
@@ -51,6 +51,16 @@ namespace VK_Test {
                 using (Device device = new Device(pDevice, dInfo)) {
                     Queue q = device.GetQueue((uint)graphicsIndex, 0);
                     Queue presentQ = device.GetQueue((uint)presentIndex, 0);
+
+                    Console.WriteLine("Formats:");
+                    foreach (var f in surface.Formats) {
+                        Console.WriteLine("  {0}", f.format);
+                    }
+
+                    Console.WriteLine("Modes:");
+                    foreach (var m in surface.Modes) {
+                        Console.WriteLine("  {0}", m);
+                    }
 
                     using (surface) {
                         while (!GLFW.WindowShouldClose(window)) {

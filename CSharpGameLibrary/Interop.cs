@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Text;
+using System.Runtime.InteropServices;
 
 namespace CSGL {
     public static class Interop {
@@ -33,6 +34,24 @@ namespace CSGL {
             byte[] result = new byte[length + 1];   //need room for null terminator
             utf8.GetBytes(s, 0, s.Length, result, 0);
             return result;
+        }
+
+        public static unsafe void Copy(void* source, void* dest, int size) {
+            byte* _source = (byte*)source;
+            byte* _dest = (byte*)dest;
+            for (int i = 0; i < size; i++) {
+                _dest[i] = _source[i];
+            }
+        }
+
+        public static unsafe void Copy<T>(T[] source, void* dest, int count) where T : struct {
+            GCHandle handle = GCHandle.Alloc(source, GCHandleType.Pinned);
+            Copy((void*)handle.AddrOfPinnedObject(), dest, count * Marshal.SizeOf<T>());
+            handle.Free();
+        }
+
+        public static unsafe void Copy<T>(T[] source, void* dest) where T : struct {
+            Copy(source, dest, source.Length);
         }
     }
 }
