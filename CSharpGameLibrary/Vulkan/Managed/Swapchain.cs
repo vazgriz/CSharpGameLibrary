@@ -8,9 +8,9 @@ namespace CSGL.Vulkan.Managed {
     public class SwapchainCreateInfo {
         public Surface Surface { get; set; }
         public uint MinImageCount { get; set; }
-        public VkFormat Format { get; set; }
+        public VkFormat ImageFormat { get; set; }
         public VkColorSpaceKHR ColorSpace { get; set; }
-        public VkExtent2D imsageExtent;
+        public VkExtent2D ImageExtent { get; set; }
         public uint ImageArrayLayers { get; set; }
         public VkImageUsageFlags ImageUsageFlags { get; set; }
         public VkSharingMode ImageSharingMode { get; set; }
@@ -31,7 +31,12 @@ namespace CSGL.Vulkan.Managed {
         VkSwapchainKHR swapchain;
         bool disposed;
 
+        vkCreateSwapchainKHRDelegate createSwapchain;
+        vkDestroySwapchainKHRDelegate destroySwapchain;
+
+        public Instance Instance { get; private set; }
         public Surface Surface { get; private set; }
+        public Device Device { get; private set; }
 
         public VkSwapchainKHR Native {
             get {
@@ -39,8 +44,14 @@ namespace CSGL.Vulkan.Managed {
             }
         }
 
-        public Swapchain(SwapchainCreateInfo info) {
+        public Swapchain(Device device, SwapchainCreateInfo info) {
+            if (info.Surface == null) throw new ArgumentNullException(string.Format("{0} can not be null", nameof(info.Surface)));
             Surface = info.Surface;
+            Instance = Surface.Instance;
+            Device = device;
+
+            createSwapchain = Instance.Commands.createSwapchain;
+            destroySwapchain = Instance.Commands.destroySwapchain;
 
             CreateSwapchain(info);
         }
@@ -51,6 +62,37 @@ namespace CSGL.Vulkan.Managed {
                 VkSwapchainCreateInfoKHR info = new VkSwapchainCreateInfoKHR();
                 info.sType = VkStructureType.StructureTypeSwapchainCreateInfoKhr;
                 info.surface = mInfo.Surface.Native;
+                info.minImageCount = mInfo.MinImageCount;
+                info.imageFormat = mInfo.ImageFormat;
+                info.imageColorSpace = mInfo.ColorSpace;
+                info.imageExtent = mInfo.ImageExtent;
+                info.imageArrayLayers = mInfo.ImageArrayLayers;
+                info.imageUsage = mInfo.ImageUsageFlags;
+                info.imageSharingMode = mInfo.ImageSharingMode;
+                info.preTransform = mInfo.PreTransform;
+                info.compositeAlpha = mInfo.CompositeAlpha;
+                info.clipped = mInfo.Clipped;
+
+                uint indCount = 0;
+                if (mInfo.QueueFamilyIndices != null) {
+                    indCount = (uint)mInfo.QueueFamilyIndices.Count;
+                }
+                var indices = stackalloc uint[(int)indCount];
+                for (int i = 0; i < indCount; i++) {
+                    indices[i] = mInfo.QueueFamilyIndices[i];
+                }
+                info.pQueueFamilyIndices = indices;
+                info.queueFamilyIndexCount = indCount;
+
+                if (mInfo.OldSwapchain != null) {
+                    info.oldSwapchain = mInfo.OldSwapchain.Native;
+                }
+
+                unsafe
+                {
+                    var result = createSwapchain(Device.Native, ref info, Instance.AllocationCallbacks, ref swapchain);
+                    if (result != VkResult.Success) throw new SwapchainException(string.Format("Error creating swapchain: {0}", result));
+                }
             }
         }
 
@@ -62,8 +104,16 @@ namespace CSGL.Vulkan.Managed {
         void Dispose(bool disposing) {
             if (disposed) return;
 
+            unsafe {
+                destroySwapchain(Device.Native, swapchain, Instance.AllocationCallbacks);
+            }
             if (disposing) {
                 Surface = null;
+                Device = null;
+                Instance = null;
+
+                createSwapchain = null;
+                destroySwapchain = null;
             }
 
             disposed = true;
@@ -72,5 +122,9 @@ namespace CSGL.Vulkan.Managed {
         ~Swapchain() {
             Dispose(false);
         }
+    }
+
+    public class SwapchainException : Exception {
+        public SwapchainException(string message) : base(message) { }
     }
 }
