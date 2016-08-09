@@ -139,6 +139,9 @@ namespace CSGL.Vulkan.Managed {
                 Instance = null;
                 physicalDevice = null;
                 Extensions = null;
+
+                getDeviceProcAddr = null;
+                getDeviceQueue = null;
             }
 
             disposed = true;
