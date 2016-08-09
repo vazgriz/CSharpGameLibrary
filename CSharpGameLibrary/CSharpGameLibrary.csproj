@@ -76,7 +76,9 @@
     <Compile Include="Vulkan\Managed\InstanceCreateInfo.cs" />
     <Compile Include="Vulkan\Managed\Layer.cs" />
     <Compile Include="Vulkan\Managed\PhysicalDevice.cs" />
+    <Compile Include="Vulkan\Managed\Queue.cs" />
     <Compile Include="Vulkan\Managed\QueueCreateInfo.cs" />
+    <Compile Include="Vulkan\Managed\Surface.cs" />
     <Compile Include="Vulkan\Managed\VkVersion.cs" />
     <Compile Include="Vulkan\Managed\Vulkan.cs" />
     <Compile Include="Vulkan\structs.cs" />

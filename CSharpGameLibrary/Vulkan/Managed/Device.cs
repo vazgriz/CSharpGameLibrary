@@ -11,6 +11,10 @@ namespace CSGL.Vulkan.Managed {
 
         PhysicalDevice physicalDevice;
 
+        vkGetDeviceProcAddrDelegate getDeviceProcAddr;
+
+        vkGetDeviceQueueDelegate getDeviceQueue;
+
         public Instance Instance { get; private set; }
         public List<string> Extensions { get; private set; }
 
@@ -25,7 +29,7 @@ namespace CSGL.Vulkan.Managed {
             if (info == null) throw new ArgumentNullException(string.Format("Argument '{0}' can not be null", nameof(info)));
 
             this.physicalDevice = physicalDevice;
-            Instance = physicalDevice.Instance;
+            Instance = physicalDevice.instance;
 
             if (info.Extensions == null) {
                 Extensions = new List<string>();
@@ -33,7 +37,11 @@ namespace CSGL.Vulkan.Managed {
                 Extensions = info.Extensions;
             }
 
+            ValidateExtensions();
             CreateDevice(info);
+
+            Vulkan.Load(ref getDeviceProcAddr, Instance);
+            Vulkan.Load(ref getDeviceQueue, this);
         }
 
         void CreateDevice(DeviceCreateInfo mInfo) {
@@ -71,7 +79,7 @@ namespace CSGL.Vulkan.Managed {
                 info.enabledExtensionCount = (uint)Extensions.Count;
                 if (Extensions.Count > 0) info.ppEnabledExtensionNames = ppExtensionNames;
 
-                var result = Instance.CreateDevice(physicalDevice.Native, ref info, Instance.AllocationCallbacks, ref device);
+                var result = Instance.CreateDevice(physicalDevice.Native, ref info, ref device);
 
                 for (int i = 0; i < Extensions.Count; i++) {
                     exHandles[i].Free();
@@ -85,6 +93,35 @@ namespace CSGL.Vulkan.Managed {
             }
         }
 
+        void ValidateExtensions() {
+            foreach (string ex in Extensions) {
+                bool found = false;
+
+                for (int i = 0; i < physicalDevice.AvailableExtensions.Count; i++) {
+                    if (physicalDevice.AvailableExtensions[i].Name == ex) {
+                        found = true;
+                        break;
+                    }
+                }
+
+                if (!found) throw new DeviceException(string.Format("Requested extension not available: {0}", ex));
+            }
+        }
+
+        public Queue GetQueue(uint familyIndex, uint index) {
+            var result = new VkQueue();
+            getDeviceQueue(device, familyIndex, index, ref result);
+            return new Queue(this, result);
+        }
+
+        public IntPtr GetProcAdddress(string command) {
+            unsafe {
+                fixed (byte* ptr = Interop.GetUTF8(command)) {
+                    return getDeviceProcAddr(device, ptr);
+                }
+            }
+        }
+
         public void Dispose() {
             Dispose(true);
             GC.SuppressFinalize(this);
@@ -95,7 +132,7 @@ namespace CSGL.Vulkan.Managed {
 
             unsafe
             {
-                Instance.DestroyDevice(device, Instance.AllocationCallbacks);
+                Instance.DestroyDevice(device);
             }
 
             if (disposing) {

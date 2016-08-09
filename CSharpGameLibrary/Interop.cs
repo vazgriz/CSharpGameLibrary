@@ -21,6 +21,12 @@ namespace CSGL {
             return utf8.GetString(array);
         }
 
+        public static string GetString(byte[] array) {
+            int count = 0;
+            while (array[count] != 0) count++;
+            return utf8.GetString(array, 0, count);
+        }
+
         public static byte[] GetUTF8(string s) {
             if (s == null) return null;
             int length = utf8.GetByteCount(s);

@@ -9,9 +9,14 @@ namespace CSGL.Vulkan.Managed {
             Instance.Init();
         }
 
+        static string GetCommand<T>() {
+            Type t = typeof(T);
+            string name = t.Name;
+            return name.Substring(0, name.Length - 8);  //"Delegate".Length == 8
+        }
+
         public static void Load<T>(ref T del, VkInstance instance) {
-            string name = typeof(T).Name;
-            string command = name.Substring(0, name.Length - 8);    //"Delegate".Length == 8
+            var command = GetCommand<T>();
             IntPtr ptr = GLFW.GLFW.GetInstanceProcAddress(instance, command);
             del = Marshal.GetDelegateForFunctionPointer<T>(ptr);
         }
@@ -25,8 +30,7 @@ namespace CSGL.Vulkan.Managed {
         }
 
         public static void Load<T>(ref T del, VkDevice device, vkGetDeviceProcAddrDelegate loader) {
-            string name = typeof(T).Name;
-            string command = name.Substring(0, name.Length - 8);
+            var command = GetCommand<T>();
             byte[] array = Interop.GetUTF8(command);
             unsafe
             {
@@ -35,6 +39,12 @@ namespace CSGL.Vulkan.Managed {
                     del = Marshal.GetDelegateForFunctionPointer<T>(ptr);
                 }
             }
+        }
+
+        public static void Load<T>(ref T del, Device device) {
+            var command = GetCommand<T>();
+            IntPtr ptr = device.GetProcAdddress(command);
+            del = Marshal.GetDelegateForFunctionPointer<T>(ptr);
         }
     }
 }

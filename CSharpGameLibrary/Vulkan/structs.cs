@@ -1143,8 +1143,10 @@ namespace CSGL.Vulkan.Unmanaged {
         public uint vendorID;
         public uint deviceID;
         public VkPhysicalDeviceType deviceType;
-        public unsafe fixed byte deviceName[256];
-        public unsafe fixed byte pipelineCacheUUID[16];
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 256)]
+        public byte[] deviceName;
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 16)]
+        public byte[] pipelineCacheUUID;
         public VkPhysicalDeviceLimits limits;
         public VkPhysicalDeviceSparseProperties sparseProperties;
     }

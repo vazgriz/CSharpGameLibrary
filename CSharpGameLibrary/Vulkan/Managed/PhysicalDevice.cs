@@ -8,7 +8,7 @@ namespace CSGL.Vulkan.Managed {
         VkPhysicalDevice device;
 
         public string Name { get; private set; }
-        public Instance Instance { get; private set; }
+        public Instance instance { get; private set; }
         public PhysicalDeviceProperties Properties { get; private set; }
         public List<QueueFamily> QueueFamilies { get; private set; }
         public List<Extension> AvailableExtensions { get; private set; }
@@ -20,11 +20,6 @@ namespace CSGL.Vulkan.Managed {
             }
         }
 
-        public int GraphicsIndex { get; private set; } = -1;
-        public int ComputeIndex { get; private set; } = -1;
-        public int TransferIndex { get; private set; } = -1;
-        public int SparseBindingIndex { get; private set; } = -1;
-
         public VkPhysicalDevice Native {
             get {
                 return device;
@@ -35,15 +30,17 @@ namespace CSGL.Vulkan.Managed {
         vkGetPhysicalDeviceQueueFamilyPropertiesDelegate GetQueueFamilyProperties;
         vkGetPhysicalDeviceFeaturesDelegate GetFeatures;
         vkEnumerateDeviceExtensionPropertiesDelegate GetExtensions;
+        vkGetPhysicalDeviceSurfaceSupportKHRDelegate getPresentationSupport;
 
         internal PhysicalDevice(Instance instance, VkPhysicalDevice device) {
-            Instance = instance;
+            this.instance = instance;
             this.device = device;
 
             Vulkan.Load(ref GetProperties, instance);
             Vulkan.Load(ref GetQueueFamilyProperties, instance);
             Vulkan.Load(ref GetFeatures, instance);
             Vulkan.Load(ref GetExtensions, instance);
+            Vulkan.Load(ref getPresentationSupport, instance);
 
             GetDeviceProperties();
             GetQueueProperties();
@@ -54,7 +51,9 @@ namespace CSGL.Vulkan.Managed {
         }
 
         void GetDeviceProperties() {
-            Properties = new PhysicalDeviceProperties(device, GetProperties);
+            var prop = new VkPhysicalDeviceProperties();
+            GetProperties(device, ref prop);
+            Properties = new PhysicalDeviceProperties(prop);
         }
 
         void GetQueueProperties() {
@@ -66,13 +65,9 @@ namespace CSGL.Vulkan.Managed {
                 VkQueueFamilyProperties* props = stackalloc VkQueueFamilyProperties[(int)count];
                 GetQueueFamilyProperties(device, ref count, ref props[0]);
 
-                for (int i = 0; i < count; i++) {
-                    var fam = new QueueFamily(props[i]);
+                for (uint i = 0; i < count; i++) {
+                    var fam = new QueueFamily(props[i], this, i);
                     QueueFamilies.Add(fam);
-                    if ((fam.Flags & VkQueueFlags.QueueGraphicsBit) != 0 && GraphicsIndex == -1) GraphicsIndex = i;
-                    if ((fam.Flags & VkQueueFlags.QueueComputeBit) != 0 && ComputeIndex == -1) ComputeIndex = i;
-                    if ((fam.Flags & VkQueueFlags.QueueTransferBit) != 0 && TransferIndex == -1) TransferIndex = i;
-                    if ((fam.Flags & VkQueueFlags.QueueSparseBindingBit) != 0 && SparseBindingIndex == -1) SparseBindingIndex = i;
                 }
             }
         }
@@ -103,6 +98,33 @@ namespace CSGL.Vulkan.Managed {
             }
         }
 
+        public class QueueFamily {
+            public VkQueueFlags Flags { get; private set; }
+            public uint QueueCount { get; private set; }
+            public uint TimestampValidBits { get; private set; }
+            public VkExtent3D MinImageTransferGranularity { get; private set; }
+
+            PhysicalDevice pDevice;
+            uint index;
+
+            internal QueueFamily(VkQueueFamilyProperties prop, PhysicalDevice pDevice, uint index) {
+                this.pDevice = pDevice;
+                this.index = index;
+
+                Flags = prop.queueFlags;
+                QueueCount = prop.queueCount;
+                TimestampValidBits = prop.timestampValidBits;
+                MinImageTransferGranularity = prop.minImageTransferGranularity;
+            }
+
+            public bool SurfaceSupported(Surface surface) {
+                uint support = 0;
+                pDevice.getPresentationSupport(pDevice.Native, index, surface.Native, ref support);
+                return support != 0;
+            }
+        }
+    }
+
         public class PhysicalDeviceProperties {
             public string Name { get; private set; }
             public VkVersion APIVersion { get; private set; }
@@ -114,18 +136,9 @@ namespace CSGL.Vulkan.Managed {
             public VkPhysicalDeviceSparseProperties SparseProperties { get; private set; }
             public Guid PipelineCache { get; private set; }
 
-            internal PhysicalDeviceProperties(VkPhysicalDevice device, vkGetPhysicalDevicePropertiesDelegate getter) {
-                var prop = new VkPhysicalDeviceProperties();
-                getter(device, ref prop);
-                unsafe
-                {
-                    Name = Interop.GetString(prop.deviceName);
-                    byte[] uuid = new byte[16];
-                    for (int i = 0; i < 16; i++) {
-                        uuid[i] = prop.pipelineCacheUUID[i];
-                    }
-                    PipelineCache = new Guid(uuid);
-                }
+            internal PhysicalDeviceProperties(VkPhysicalDeviceProperties prop) {
+                Name = Interop.GetString(prop.deviceName);
+                PipelineCache = new Guid(prop.pipelineCacheUUID);
                 APIVersion = prop.apiVersion;
                 Type = prop.deviceType;
                 DriverVersion = prop.driverVersion;
@@ -135,19 +148,4 @@ namespace CSGL.Vulkan.Managed {
                 SparseProperties = prop.sparseProperties;
             }
         }
-
-        public class QueueFamily {
-            public VkQueueFlags Flags { get; private set; }
-            public uint QueueCount { get; private set; }
-            public uint TimestampValidBits { get; private set; }
-            public VkExtent3D MinImageTransferGranularity { get; private set; }
-
-            internal QueueFamily(VkQueueFamilyProperties prop) {
-                Flags = prop.queueFlags;
-                QueueCount = prop.queueCount;
-                TimestampValidBits = prop.timestampValidBits;
-                MinImageTransferGranularity = prop.minImageTransferGranularity;
-            }
-        }
-    }
 }

@@ -22,30 +22,12 @@ namespace CSGL.Vulkan.Managed {
         public List<string> Layers { get; private set; }
         public List<PhysicalDevice> PhysicalDevices { get; private set; }
 
-        vkEnumeratePhysicalDevicesDelegate EnumeratePhysicalDevices;
-        vkGetPhysicalDevicePropertiesDelegate GetPhysicalDeviceProperties;
+        vkEnumeratePhysicalDevicesDelegate enumeratePhysicalDevicesDel;
+        vkGetPhysicalDevicePropertiesDelegate getPhysicalDevicePropertiesDel;
 
-        vkCreateDeviceDelegate createDevice;
-        vkDestroyDeviceDelegate destroyDevice;
-        vkGetDeviceProcAddrDelegate getDeviceProcAddr;
-
-        public vkCreateDeviceDelegate CreateDevice {
-            get {
-                return createDevice;
-            }
-        }
-
-        public vkDestroyDeviceDelegate DestroyDevice {
-            get {
-                return destroyDevice;
-            }
-        }
-
-        public vkGetDeviceProcAddrDelegate GetDeviceProcAddress {
-            get {
-                return getDeviceProcAddr;
-            }
-        }
+        vkCreateDeviceDelegate createDeviceDel;
+        vkDestroyDeviceDelegate destroyDeviceDel;
+        vkGetDeviceProcAddrDelegate getDeviceProcAddrDel;
 
         static vkGetInstanceProcAddrDelegate GetProcAddr;
         static vkCreateInstanceDelegate CreateInstance;
@@ -56,9 +38,11 @@ namespace CSGL.Vulkan.Managed {
         public static List<Extension> AvailableExtensions { get; private set; }
         public static List<Layer> AvailableLayers { get; private set; }
 
-        static public vkGetInstanceProcAddrDelegate GetProcAddress {
-            get {
-                return GetProcAddr;
+        static public IntPtr GetProcAddress(string command) {
+            unsafe {
+            fixed (byte * ptr = Interop.GetUTF8(command)) {
+                return GetProcAddr(VkInstance.Null, ptr);
+                }
             }
         }
 
@@ -142,11 +126,11 @@ namespace CSGL.Vulkan.Managed {
 
             MakeVulkanInstance(mInfo);
 
-            Vulkan.Load(ref EnumeratePhysicalDevices, instance);
-            Vulkan.Load(ref GetPhysicalDeviceProperties, instance);
-            Vulkan.Load(ref createDevice, instance);
-            Vulkan.Load(ref destroyDevice, instance);
-            Vulkan.Load(ref getDeviceProcAddr, instance);
+            Vulkan.Load(ref enumeratePhysicalDevicesDel, instance);
+            Vulkan.Load(ref getPhysicalDevicePropertiesDel, instance);
+            Vulkan.Load(ref createDeviceDel, instance);
+            Vulkan.Load(ref destroyDeviceDel, instance);
+            Vulkan.Load(ref getDeviceProcAddrDel, instance);
 
             GetPhysicalDevices();
         }
@@ -157,9 +141,9 @@ namespace CSGL.Vulkan.Managed {
             {
                 uint count = 0;
                 VkPhysicalDevice* temp = null;
-                EnumeratePhysicalDevices(instance, ref count, ref *temp);
+                enumeratePhysicalDevicesDel(instance, ref count, ref *temp);
                 VkPhysicalDevice* devices = stackalloc VkPhysicalDevice[(int)count];
-                EnumeratePhysicalDevices(instance, ref count, ref devices[0]);
+                enumeratePhysicalDevicesDel(instance, ref count, ref devices[0]);
 
                 for (int i = 0; i < count; i++) {
                     PhysicalDevices.Add(new PhysicalDevice(this, devices[i]));
@@ -266,6 +250,29 @@ namespace CSGL.Vulkan.Managed {
             }
         }
 
+        public VkResult CreateDevice(VkPhysicalDevice physicalDevice, ref VkDeviceCreateInfo info, ref VkDevice device) {
+            unsafe
+            {
+                return createDeviceDel(physicalDevice, ref info, alloc, ref device);
+            }
+        }
+
+        public void DestroyDevice(VkDevice device) {
+            unsafe
+            {
+                destroyDeviceDel(device, alloc);
+            }
+        }
+
+        public IntPtr GetDeviceProcAddress(VkDevice device, string command) {
+            unsafe
+            {
+                fixed (byte* ptr = Interop.GetUTF8(command)) {
+                    return getDeviceProcAddrDel(device, ptr);
+                }
+            }
+        }
+
         public void Dispose() {
             GC.SuppressFinalize(this);
             Dispose(true);
@@ -284,6 +291,14 @@ namespace CSGL.Vulkan.Managed {
             if (disposing) {
                 Extensions = null;
                 Layers = null;
+                PhysicalDevices = null;
+
+                enumeratePhysicalDevicesDel = null;
+                getPhysicalDevicePropertiesDel = null;
+
+                createDeviceDel = null;
+                destroyDeviceDel = null;
+                getDeviceProcAddrDel = null;
             }
 
             disposed = true;

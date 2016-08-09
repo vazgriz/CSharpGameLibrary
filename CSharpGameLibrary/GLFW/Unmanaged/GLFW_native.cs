@@ -308,6 +308,6 @@ namespace CSGL.GLFW.Unmanaged {
         public static extern bool glfwGetPhysicalDevicePresentationSupport(VkInstance instance, VkPhysicalDevice device, uint queuefamily);
 
         [DllImport(lib)]
-        public static extern VkResult glfwCreateWindowSurface(VkInstance instance, WindowPtr window, ref VkAllocationCallbacks allocator, ref VkSurfaceKHR surface);
+        public static unsafe extern VkResult glfwCreateWindowSurface(VkInstance instance, WindowPtr window, VkAllocationCallbacks* allocator, ref VkSurfaceKHR surface);
     }
 }

@@ -19,30 +19,27 @@ namespace VK_Test {
             };
             ApplicationInfo app = new ApplicationInfo(new VkVersion(), "Test", "None", new VkVersion(), new VkVersion());
             InstanceCreateInfo info = new InstanceCreateInfo(app, ex, l);
+
+            WindowPtr window;
+
+            window = GLFW.CreateWindow(800, 600, "Test", MonitorPtr.Null, WindowPtr.Null);
+
             using (var instance = new Instance(info)) {
-                Console.WriteLine("Activated extensions:");
-                foreach (var s in instance.Extensions) {
-                    Console.WriteLine("  {0}", s);
-                }
-                Console.WriteLine("Activated layers:");
-                foreach (var s in instance.Layers) {
-                    Console.WriteLine("  {0}", s);
-                }
-                Console.WriteLine("Physical devices");
-                foreach (var p in instance.PhysicalDevices) {
-                    Console.WriteLine("  {0}", p.Name);
-                    Console.WriteLine("    API Version: {0}", p.Properties.APIVersion);
-                    Console.WriteLine("    Device Type: {0}", p.Properties.Type);
-                    Console.WriteLine("    Driver Version: {0}", p.Properties.DriverVersion);
-                    Console.WriteLine("    UUID: {0}", p.Properties.PipelineCache.ToString());
-                    Console.WriteLine("    Available extensions:");
-                    foreach (var e in p.AvailableExtensions) {
-                        Console.WriteLine("      {0}", e.Name);
-                    }
-                }
+                Surface surface = new Surface(instance, window);
 
                 var pDevice = instance.PhysicalDevices[0];
-                QueueCreateInfo qInfo = new QueueCreateInfo((uint)pDevice.GraphicsIndex, 1, new float[] { 1f });
+                int graphicsIndex = -1;
+                int presentIndex = -1;
+                for (int i = 0; i < pDevice.QueueFamilies.Count; i++) {
+                    var q = pDevice.QueueFamilies[i];
+                    if (graphicsIndex == -1 && (q.Flags & VkQueueFlags.QueueGraphicsBit) != 0) {
+                        graphicsIndex = i;
+                    }
+                    if (presentIndex == -1 && (q.SurfaceSupported(surface))) {
+                        presentIndex = i;
+                    }
+                }
+                QueueCreateInfo qInfo = new QueueCreateInfo((uint)graphicsIndex, 1, new float[] { 1f });
                 List<string> dEx = new List<string> {
                     "VK_KHR_swapchain"
                 };
@@ -52,7 +49,15 @@ namespace VK_Test {
                 DeviceCreateInfo dInfo = new DeviceCreateInfo(dEx, qInfos);
 
                 using (Device device = new Device(pDevice, dInfo)) {
+                    Queue q = device.GetQueue((uint)graphicsIndex, 0);
+                    Queue presentQ = device.GetQueue((uint)presentIndex, 0);
 
+                    using (surface) {
+                        while (!GLFW.WindowShouldClose(window)) {
+                            GLFW.PollEvents();
+                        }
+                    }
+                    GLFW.DestroyWindow(window);
                 }
             }
             GLFW.Terminate();
