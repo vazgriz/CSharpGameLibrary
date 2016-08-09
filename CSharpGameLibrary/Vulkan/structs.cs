@@ -2,7 +2,7 @@
 using System;
 using System.Runtime.InteropServices;
 
-namespace CSGL.Vulkan.Unmanaged {
+namespace CSGL.Vulkan {
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct VkInstance {
         public IntPtr native;
@@ -2271,6 +2271,7 @@ namespace CSGL.Vulkan.Unmanaged {
         public VkStructureType sType;
         public void* pNext;
         public VkSwapchainCreateFlagsKHR flags;
+        uint dummy1;    //need to pad this struct for native interop. Native version is padded so next field is aligned on memory boundary
         public VkSurfaceKHR surface;
         public uint minImageCount;
         public VkFormat imageFormat;
@@ -2280,6 +2281,7 @@ namespace CSGL.Vulkan.Unmanaged {
         public VkImageUsageFlags imageUsage;
         public VkSharingMode imageSharingMode;
         public uint queueFamilyIndexCount;
+        uint dummy2;    //same here
         public uint* pQueueFamilyIndices;
         public VkSurfaceTransformFlags preTransform;
         public VkCompositeAlphaFlags compositeAlpha;
