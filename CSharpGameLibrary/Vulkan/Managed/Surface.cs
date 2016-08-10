@@ -10,8 +10,7 @@ namespace CSGL.Vulkan.Managed {
         bool disposed = false;
 
         PhysicalDevice physicalDevice;
-
-        vkDestroySurfaceKHRDelegate destroySurface = null;
+        
         vkGetPhysicalDeviceSurfaceCapabilitiesKHRDelegate getCapabilities = null;
         vkGetPhysicalDeviceSurfaceFormatsKHRDelegate getFormats = null;
         vkGetPhysicalDeviceSurfacePresentModesKHRDelegate getModes = null;
@@ -34,8 +33,7 @@ namespace CSGL.Vulkan.Managed {
 
             physicalDevice = device;
             Instance = device.Instance;
-
-            destroySurface = Instance.Commands.destroySurface;
+            
             getCapabilities = Instance.Commands.getCapabilities;
             getFormats = Instance.Commands.getFormats;
             getModes = Instance.Commands.getModes;
@@ -98,13 +96,12 @@ namespace CSGL.Vulkan.Managed {
             if (disposed) return;
             unsafe
             {
-                destroySurface(Instance.Native, surface, Instance.AllocationCallbacks);
+                Instance.Commands.destroySurface(Instance.Native, surface, Instance.AllocationCallbacks);
             }
 
             if (disposing) {
                 Instance = null;
-
-                destroySurface = null;
+                
                 getCapabilities = null;
                 getFormats = null;
                 getModes = null;

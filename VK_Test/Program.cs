@@ -16,6 +16,8 @@ namespace VK_Test {
         int width = 800;
         int height = 600;
 
+        VkFormat swapchainFormat;
+
         WindowPtr window;
         Instance instance;
         PhysicalDevice physicalDevice;
@@ -24,6 +26,7 @@ namespace VK_Test {
         Queue graphicsQueue;
         Queue presentQueue;
         Swapchain swapchain;
+        List<ImageView> swapchainImageViews;
 
         void Run() {
             GLFW.Init();
@@ -43,10 +46,12 @@ namespace VK_Test {
             physicalDevice = instance.PhysicalDevices[0];
             surface = new Surface(physicalDevice, window);
 
-            //FieldInfo[] fields = typeof(VkSwapchainCreateInfoKHR).GetFields();
-            //foreach (var f in fields) {
-            //    Console.WriteLine("{0} offset: {1}", f.Name, Marshal.OffsetOf(typeof(VkSwapchainCreateInfoKHR), f.Name));
-            //}
+            Type t = typeof(VkImageViewCreateInfo);
+            Console.WriteLine("{0} size: {1}", t.Name, Marshal.SizeOf(t));
+            FieldInfo[] fields = t.GetFields();
+            foreach (var f in fields) {
+                Console.WriteLine("{0}: {1}", f.Name, Marshal.OffsetOf(t, f.Name));
+            }
 
             int graphicsIndex = -1;
             int presentIndex = -1;
@@ -80,10 +85,31 @@ namespace VK_Test {
             using (device)
             using (surface)
             using (swapchain) {
+                swapchainImageViews = new List<ImageView>(swapchain.Images.Count);
+                for (int i = 0; i < swapchain.Images.Count; i++) {
+                    ImageViewCreateInfo imageViewInfo = new ImageViewCreateInfo(swapchain.Images[i]);
+                    imageViewInfo.Format = swapchainFormat;
+                    imageViewInfo.Components.r = VkComponentSwizzle.ComponentSwizzleIdentity;
+                    imageViewInfo.Components.g = VkComponentSwizzle.ComponentSwizzleIdentity;
+                    imageViewInfo.Components.b = VkComponentSwizzle.ComponentSwizzleIdentity;
+                    imageViewInfo.Components.a = VkComponentSwizzle.ComponentSwizzleIdentity;
+                    imageViewInfo.SubresourceRange.aspectMask = VkImageAspectFlags.ImageAspectColorBit;
+                    imageViewInfo.SubresourceRange.baseMipLevel = 0;
+                    imageViewInfo.SubresourceRange.levelCount = 1;
+                    imageViewInfo.SubresourceRange.baseArrayLayer = 0;
+                    imageViewInfo.SubresourceRange.layerCount = 1;
+
+                    swapchainImageViews.Add(new ImageView(device, imageViewInfo));
+                }
+
                 while (!GLFW.WindowShouldClose(window)) {
                     GLFW.PollEvents();
                 }
                 GLFW.DestroyWindow(window);
+
+                foreach (var iv in swapchainImageViews) {
+                    iv.Dispose();
+                }
             }
             GLFW.Terminate();
         }
@@ -104,6 +130,7 @@ namespace VK_Test {
 
             info.MinImageCount = imageCount;
             info.ImageFormat = surfaceFormat.format;
+            swapchainFormat = surfaceFormat.format;
             info.ColorSpace = surfaceFormat.colorSpace;
             info.ImageExtent = extent;
             info.ImageArrayLayers = 1;

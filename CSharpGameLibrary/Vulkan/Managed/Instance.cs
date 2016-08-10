@@ -7,9 +7,9 @@ using CSGL.Vulkan.Unmanaged;
 
 namespace CSGL.Vulkan.Managed {
     public class InstanceCreateInfo {
-        public ApplicationInfo ApplicationInfo { get; set; }
-        public List<string> Extensions { get; set; }
-        public List<string> Layers { get; set; }
+        public ApplicationInfo ApplicationInfo;
+        public List<string> Extensions;
+        public List<string> Layers;
 
         public InstanceCreateInfo(ApplicationInfo appInfo, List<string> extensions, List<string> layers) {
             ApplicationInfo = appInfo;
@@ -44,10 +44,12 @@ namespace CSGL.Vulkan.Managed {
         }
 
         public Instance(InstanceCreateInfo info) {
+            if (info == null) throw new ArgumentNullException(nameof(info));
             CreateInstanceInternal(info);
         }
 
         public Instance(InstanceCreateInfo info, VkAllocationCallbacks callbacks) {
+            if (info == null) throw new ArgumentNullException(nameof(info));
             unsafe
             {
                 alloc = (VkAllocationCallbacks*)Marshal.AllocHGlobal(Marshal.SizeOf<VkAllocationCallbacks>());

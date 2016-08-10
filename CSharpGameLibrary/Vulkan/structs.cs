@@ -1431,6 +1431,7 @@ namespace CSGL.Vulkan {
         public VkStructureType sType;
         public void* pNext;
         public VkImageViewCreateFlags flags;
+        uint dummy1;
         public VkImage image;
         public VkImageViewType viewType;
         public VkFormat format;

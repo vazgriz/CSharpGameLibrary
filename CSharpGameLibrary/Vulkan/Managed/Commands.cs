@@ -9,6 +9,16 @@ namespace CSGL.Vulkan.Managed {
         public class DeviceCommands {
             public vkGetDeviceQueueDelegate getDeviceQueue = null;
 
+            public vkCreateSwapchainKHRDelegate createSwapchain = null;
+            public vkDestroySwapchainKHRDelegate destroySwapchain = null;
+            public vkGetSwapchainImagesKHRDelegate getSwapchainImages = null;
+
+            public vkCreateImageViewDelegate createImageView = null;
+            public vkDestroyImageViewDelegate destroyImageView = null;
+
+            public vkCreateImageDelegate createImage = null;
+            public vkDestroyImageDelegate destroyImage = null;
+
             public DeviceCommands(Device device) {
                 Type t = typeof(DeviceCommands);
                 FieldInfo[] fields = t.GetFields();
@@ -30,9 +40,6 @@ namespace CSGL.Vulkan.Managed {
 
             public vkEnumeratePhysicalDevicesDelegate enumeratePhysicalDevices = null;
             public vkGetPhysicalDevicePropertiesDelegate getPhysicalDeviceProperties = null;
-
-            public vkCreateSwapchainKHRDelegate createSwapchain = null;
-            public vkDestroySwapchainKHRDelegate destroySwapchain = null;
 
             public vkDestroySurfaceKHRDelegate destroySurface = null;
             public vkGetPhysicalDeviceSurfaceCapabilitiesKHRDelegate getCapabilities = null;

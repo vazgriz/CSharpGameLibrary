@@ -6,10 +6,9 @@ using CSGL.Vulkan.Unmanaged;
 
 namespace CSGL.Vulkan.Managed {
     public class DeviceCreateInfo {
-        public List<string> Extensions { get; set; }
-        public List<QueueCreateInfo> QueuesCreateInfos { get; set; }
-        public VkPhysicalDeviceFeatures Features { get; set; }
-        public bool FeaturesSet { get; set; }
+        public List<string> Extensions;
+        public List<QueueCreateInfo> QueuesCreateInfos;
+        public VkPhysicalDeviceFeatures Features;
 
         public DeviceCreateInfo(List<string> extensions, List<QueueCreateInfo> queueCreateInfos) {
             Extensions = extensions;
@@ -20,7 +19,6 @@ namespace CSGL.Vulkan.Managed {
             Extensions = extensions;
             QueuesCreateInfos = queueCreateInfos;
             Features = features;
-            FeaturesSet = true;
         }
     }
 
@@ -44,8 +42,8 @@ namespace CSGL.Vulkan.Managed {
         }
 
         public Device(PhysicalDevice physicalDevice, DeviceCreateInfo info) {
-            if (physicalDevice == null) throw new ArgumentNullException(string.Format("Argument '{0}' can not be null", nameof(physicalDevice)));
-            if (info == null) throw new ArgumentNullException(string.Format("Argument '{0}' can not be null", nameof(info)));
+            if (physicalDevice == null) throw new ArgumentNullException(nameof(physicalDevice));
+            if (info == null) throw new ArgumentNullException(nameof(info));
 
             this.physicalDevice = physicalDevice;
             Instance = physicalDevice.Instance;
