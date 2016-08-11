@@ -21,6 +21,9 @@ namespace CSGL.Vulkan.Managed {
             public vkCreateImageDelegate createImage = null;
             public vkDestroyImageDelegate destroyImage = null;
 
+            public vkCreateShaderModuleDelegate createShaderModule = null;
+            public vkDestroyShaderModuleDelegate destroyShaderModule = null;
+
             public DeviceCommands(Device device) {
                 Type t = typeof(DeviceCommands);
                 FieldInfo[] fields = t.GetFields();
