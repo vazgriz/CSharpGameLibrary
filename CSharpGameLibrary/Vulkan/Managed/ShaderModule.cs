@@ -21,6 +21,12 @@ namespace CSGL.Vulkan.Managed {
         vkCreateShaderModuleDelegate createShaderModule;
         vkDestroyShaderModuleDelegate destroyShaderModule;
 
+        public VkShaderModule Native {
+            get {
+                return shaderModule;
+            }
+        }
+
         public ShaderModule(Device device, ShaderModuleCreateInfo info) {
             if (device == null) throw new ArgumentNullException(nameof(device));
             if (info == null) throw new ArgumentNullException(nameof(info));
