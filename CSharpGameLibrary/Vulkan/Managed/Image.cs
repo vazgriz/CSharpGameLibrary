@@ -6,7 +6,7 @@ namespace CSGL.Vulkan.Managed {
 
     }
 
-    public class Image : IDisposable{
+    public class Image : IDisposable {
         VkImage image;
         bool disposed = false;
 
@@ -28,22 +28,9 @@ namespace CSGL.Vulkan.Managed {
         //}
 
         public void Dispose() {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        void Dispose(bool disposing) {
             if (disposed) return;
 
-            if (disposing) {
-
-            }
-
             disposed = true;
-        }
-
-        ~Image() {
-            Dispose(false);
         }
     }
 }

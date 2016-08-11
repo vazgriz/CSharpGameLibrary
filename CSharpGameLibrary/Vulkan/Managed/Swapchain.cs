@@ -115,29 +115,13 @@ namespace CSGL.Vulkan.Managed {
         }
 
         public void Dispose() {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        void Dispose(bool disposing) {
             if (disposed) return;
 
             unsafe {
                 Device.Commands.destroySwapchain(Device.Native, swapchain, Instance.AllocationCallbacks);
             }
 
-            if (disposing) {
-                Surface = null;
-                Device = null;
-                Instance = null;
-                Images = null;  //do not Dispose() the images, they are implicitly destroyed by vkDestroySwapchainKHR
-            }
-
             disposed = true;
-        }
-
-        ~Swapchain() {
-            Dispose(false);
         }
     }
 

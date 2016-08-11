@@ -222,11 +222,6 @@ namespace CSGL.Vulkan.Managed {
         }
 
         public void Dispose() {
-            GC.SuppressFinalize(this);
-            Dispose(true);
-        }
-
-        void Dispose(bool disposing) {
             if (disposed) return;
             unsafe
             {
@@ -236,20 +231,7 @@ namespace CSGL.Vulkan.Managed {
                 }
             }
 
-            if (disposing) {
-                Extensions = null;
-                Layers = null;
-                PhysicalDevices = null;
-
-                getProcAddrDel = null;
-                Commands = null;
-            }
-
             disposed = true;
-        }
-
-        ~Instance() {
-            Dispose(false);
         }
     }
 

@@ -7,6 +7,8 @@ using CSGL.Vulkan.Unmanaged;
 namespace CSGL.Vulkan.Managed {
     public partial class Device {
         public class DeviceCommands {
+            public vkDeviceWaitIdleDelegate waitDeviceIdle = null;
+
             public vkGetDeviceQueueDelegate getDeviceQueue = null;
 
             public vkCreateSwapchainKHRDelegate createSwapchain = null;

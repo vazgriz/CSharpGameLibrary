@@ -88,30 +88,14 @@ namespace CSGL.Vulkan.Managed {
         }
 
         public void Dispose() {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        void Dispose(bool disposing) {
             if (disposed) return;
+
             unsafe
             {
                 Instance.Commands.destroySurface(Instance.Native, surface, Instance.AllocationCallbacks);
             }
 
-            if (disposing) {
-                Instance = null;
-                
-                getCapabilities = null;
-                getFormats = null;
-                getModes = null;
-            }
-
             disposed = true;
-        }
-
-        ~Surface() {
-            Dispose(false);
         }
     }
 

@@ -139,12 +139,11 @@ namespace CSGL.Vulkan.Managed {
             }
         }
 
-        public void Dispose() {
-            Dispose(true);
-            GC.SuppressFinalize(this);
+        public void WaitIdle() {
+            Commands.waitDeviceIdle(device);
         }
 
-        void Dispose(bool disposing) {
+        public void Dispose() {
             if (disposed) return;
 
             unsafe
@@ -152,20 +151,7 @@ namespace CSGL.Vulkan.Managed {
                 Instance.DestroyDevice(device);
             }
 
-            if (disposing) {
-                Instance = null;
-                physicalDevice = null;
-                Extensions = null;
-
-                getDeviceProcAddr = null;
-                Commands = null;
-            }
-
             disposed = true;
-        }
-
-        ~Device() {
-            Dispose(false);
         }
     }
 
