@@ -10,6 +10,10 @@ using CSGL.Vulkan.Managed;
 namespace VK_Test {
     class Program : IDisposable {
         static void Main(string[] args) {
+            Console.WriteLine("VkPhysicalDeviceProperties size: {0}", Marshal.SizeOf<VkPhysicalDeviceProperties>());
+            foreach (var f in typeof(VkPhysicalDeviceProperties).GetFields()) {
+                Console.WriteLine("  {0}: {1}", f.Name, Marshal.OffsetOf<VkPhysicalDeviceProperties>(f.Name));
+            }
             using (var p = new Program()) {
                 p.Run();
             }
@@ -100,7 +104,7 @@ namespace VK_Test {
 
                 swapchainImageViews.Add(new ImageView(device, imageViewInfo));
             }
-
+            
             while (!GLFW.WindowShouldClose(window)) {
                 GLFW.PollEvents();
             }
@@ -138,7 +142,7 @@ namespace VK_Test {
             }
 
             info.PreTransform = cap.currentTransform;
-            info.CompositeAlpha = VkCompositeAlphaFlags.CompositeAlphaOpaqueBitKhr;
+            info.CompositeAlpha = VkCompositeAlphaFlagsKHR.CompositeAlphaOpaqueBitKhr;
             info.PresentMode = presentMode;
             info.Clipped = true;
             info.OldSwapchain = swapchain;

@@ -79,7 +79,7 @@ namespace CSGL.Vulkan.Managed {
             Vulkan.Load(ref getProcAddrDel);
 
             Commands = new InstanceCommands(this);
-
+            
             GetPhysicalDevices();
         }
 
@@ -88,10 +88,9 @@ namespace CSGL.Vulkan.Managed {
             unsafe
             {
                 uint count = 0;
-                VkPhysicalDevice* temp = null;
-                Commands.enumeratePhysicalDevices(instance, ref count, ref *temp);
+                Commands.enumeratePhysicalDevices(instance, &count, null);
                 var devices = stackalloc VkPhysicalDevice[(int)count];
-                Commands.enumeratePhysicalDevices(instance, ref count, ref devices[0]);
+                Commands.enumeratePhysicalDevices(instance, &count, devices);
 
                 for (int i = 0; i < count; i++) {
                     PhysicalDevices.Add(new PhysicalDevice(this, devices[i]));
@@ -150,21 +149,25 @@ namespace CSGL.Vulkan.Managed {
                 info.enabledLayerCount = (uint)Layers.Count;
                 if (Layers.Count > 0) info.ppEnabledLayerNames = ppLayerNames;
 
-                var result = CreateInstance(ref info, alloc, ref instance);
-
-                for (int i = 0; i < Extensions.Count; i++) {
-                    exHandles[i].Free();
+                try {
+                    fixed (VkInstance* temp = &instance) {
+                        var result = CreateInstance(&info, alloc, temp);
+                        if (result != VkResult.Success) throw new InstanceException(string.Format("Error creating instance: {0}", result));
+                    }
                 }
-                for (int i = 0; i < Layers.Count; i++) {
-                    lHandles[i].Free();
-                }
+                finally {
+                    for (int i = 0; i < Extensions.Count; i++) {
+                        exHandles[i].Free();
+                    }
+                    for (int i = 0; i < Layers.Count; i++) {
+                        lHandles[i].Free();
+                    }
 
-                if (mInfo.ApplicationInfo != null) {
-                    appNameHandle.Free();
-                    engNameHandle.Free();
+                    if (mInfo.ApplicationInfo != null) {
+                        appNameHandle.Free();
+                        engNameHandle.Free();
+                    }
                 }
-
-                if (result != VkResult.Success) throw new InstanceException(string.Format("Error creating instance: {0}", result));
             }
         }
 
@@ -195,20 +198,6 @@ namespace CSGL.Vulkan.Managed {
                 }
 
                 if (!found) throw new InstanceException(string.Format("Requested exception '{0}' is not available", s));
-            }
-        }
-
-        public VkResult CreateDevice(VkPhysicalDevice physicalDevice, ref VkDeviceCreateInfo info, ref VkDevice device) {
-            unsafe
-            {
-                return Commands.createDevice(physicalDevice, ref info, alloc, ref device);
-            }
-        }
-
-        public void DestroyDevice(VkDevice device) {
-            unsafe
-            {
-                Commands.destroyDevice(device, alloc);
             }
         }
 

@@ -96,17 +96,21 @@ namespace CSGL.Vulkan.Managed {
                 info.enabledExtensionCount = (uint)Extensions.Count;
                 if (Extensions.Count > 0) info.ppEnabledExtensionNames = ppExtensionNames;
 
-                var result = Instance.CreateDevice(physicalDevice.Native, ref info, ref device);
-
-                for (int i = 0; i < Extensions.Count; i++) {
-                    exHandles[i].Free();
+                try {
+                    fixed (VkDevice* temp = &device) {
+                        var result = Instance.Commands.createDevice(physicalDevice.Native, &info, Instance.AllocationCallbacks, temp);
+                        if (result != VkResult.Success) throw new DeviceException(string.Format("Error creating device: {0}", result));
+                    }
                 }
+                finally {
+                    for (int i = 0; i < Extensions.Count; i++) {
+                        exHandles[i].Free();
+                    }
 
-                for (int i = 0; i < queueInfoCount; i++) {
-                    qpHandles[i].Free();
+                    for (int i = 0; i < queueInfoCount; i++) {
+                        qpHandles[i].Free();
+                    }
                 }
-
-                if (result != VkResult.Success) throw new DeviceException(string.Format("Error creating device: {0}", result));
             }
         }
 
@@ -127,7 +131,10 @@ namespace CSGL.Vulkan.Managed {
 
         public Queue GetQueue(uint familyIndex, uint index) {
             var result = new VkQueue();
-            Commands.getDeviceQueue(device, familyIndex, index, ref result);
+            unsafe
+            {
+                Commands.getDeviceQueue(device, familyIndex, index, &result);
+            }
             return new Queue(this, result);
         }
 
@@ -148,7 +155,7 @@ namespace CSGL.Vulkan.Managed {
 
             unsafe
             {
-                Instance.DestroyDevice(device);
+                Instance.Commands.destroyDevice(device, Instance.AllocationCallbacks);
             }
 
             disposed = true;

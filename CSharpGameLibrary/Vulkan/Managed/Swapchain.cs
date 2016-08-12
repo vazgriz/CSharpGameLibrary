@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 
 using CSGL;
+using CSGL.Vulkan;
 using CSGL.Vulkan.Unmanaged;
 
 namespace CSGL.Vulkan.Managed {
@@ -15,8 +16,8 @@ namespace CSGL.Vulkan.Managed {
         public VkImageUsageFlags ImageUsageFlags;
         public VkSharingMode ImageSharingMode;
         public List<uint> QueueFamilyIndices;
-        public VkSurfaceTransformFlags PreTransform;
-        public VkCompositeAlphaFlags CompositeAlpha;
+        public VkSurfaceTransformFlagsKHR PreTransform;
+        public VkCompositeAlphaFlagsKHR CompositeAlpha;
         public VkPresentModeKHR PresentMode;
         public bool Clipped;
         public Swapchain OldSwapchain;
@@ -63,10 +64,9 @@ namespace CSGL.Vulkan.Managed {
             Images = new List<Image>();
             unsafe {
                 uint count = 0;
-                VkImage* temp = null;
-                getImages(Device.Native, swapchain, ref count, ref *temp);
+                getImages(Device.Native, swapchain, &count, null);
                 VkImage* images = stackalloc VkImage[(int)count];
-                getImages(Device.Native, swapchain, ref count, ref images[0]);
+                getImages(Device.Native, swapchain, &count, images);
 
                 for (int i = 0; i < count; i++) {
                     Images.Add(new Image(Device, images[i]));
@@ -106,9 +106,8 @@ namespace CSGL.Vulkan.Managed {
                     info.oldSwapchain = mInfo.OldSwapchain.Native;
                 }
 
-                unsafe
-                {
-                    var result = Device.Commands.createSwapchain(Device.Native, ref info, Instance.AllocationCallbacks, ref swapchain);
+                fixed (VkSwapchainKHR* temp = &swapchain) {
+                    var result = Device.Commands.createSwapchain(Device.Native, ref info, Instance.AllocationCallbacks, temp);
                     if (result != VkResult.Success) throw new SwapchainException(string.Format("Error creating swapchain: {0}", result));
                 }
             }

@@ -41,8 +41,10 @@ namespace CSGL.Vulkan.Managed {
                 info.components = mInfo.Components;
                 info.subresourceRange = mInfo.SubresourceRange;
 
-                var result = Device.Commands.createImageView(Device.Native, ref info, Device.Instance.AllocationCallbacks, ref imageView);
-                if (result != VkResult.Success) throw new ImageViewException(string.Format("Error creating image view: {0}", result));
+                fixed (VkImageView* temp = &imageView) {
+                    var result = Device.Commands.createImageView(Device.Native, &info, Device.Instance.AllocationCallbacks, temp);
+                    if (result != VkResult.Success) throw new ImageViewException(string.Format("Error creating image view: {0}", result));
+                }
             }
         }
 

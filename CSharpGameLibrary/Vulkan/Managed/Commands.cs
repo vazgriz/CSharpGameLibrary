@@ -28,8 +28,7 @@ namespace CSGL.Vulkan.Managed {
                 Type t = typeof(DeviceCommands);
                 FieldInfo[] fields = t.GetFields();
                 for (int i = 0; i < fields.Length; i++) {
-                    string name = fields[i].FieldType.Name;
-                    string command = name.Substring(0, name.Length - 8); //"Delegate".Length == 8
+                    string command = Vulkan.GetCommand(fields[i].FieldType);
                     IntPtr ptr = device.GetProcAdddress(command);
                     fields[i].SetValue(this, Marshal.GetDelegateForFunctionPointer(ptr, fields[i].FieldType));
                 }
@@ -43,6 +42,12 @@ namespace CSGL.Vulkan.Managed {
             public vkDestroyDeviceDelegate destroyDevice = null;
             public vkGetDeviceProcAddrDelegate getDeviceProcAddr = null;
 
+            public vkGetPhysicalDevicePropertiesDelegate getProperties = null;
+            public vkGetPhysicalDeviceQueueFamilyPropertiesDelegate getQueueFamilyProperties = null;
+            public vkGetPhysicalDeviceFeaturesDelegate getFeatures = null;
+            public vkEnumerateDeviceExtensionPropertiesDelegate getExtensions = null;
+            public vkGetPhysicalDeviceSurfaceSupportKHRDelegate getPresentationSupport = null;
+
             public vkEnumeratePhysicalDevicesDelegate enumeratePhysicalDevices = null;
             public vkGetPhysicalDevicePropertiesDelegate getPhysicalDeviceProperties = null;
 
@@ -55,8 +60,7 @@ namespace CSGL.Vulkan.Managed {
                 Type t = typeof(InstanceCommands);
                 FieldInfo[] fields = t.GetFields();
                 for (int i = 0; i < fields.Length; i++) {
-                    string name = fields[i].FieldType.Name;
-                    string command = name.Substring(0, name.Length - 8); //"Delegate".Length == 8
+                    string command = Vulkan.GetCommand(fields[i].FieldType);
                     IntPtr ptr = instance.GetProcAddress(command);
                     fields[i].SetValue(this, Marshal.GetDelegateForFunctionPointer(ptr, fields[i].FieldType));
                 }

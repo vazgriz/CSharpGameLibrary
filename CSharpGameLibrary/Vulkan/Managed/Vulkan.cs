@@ -10,8 +10,12 @@ namespace CSGL.Vulkan.Managed {
             Instance.Init();
         }
 
-        static string GetCommand<T>() {
+        public static string GetCommand<T>() {
             Type t = typeof(T);
+            return GetCommand(t);
+        }
+
+        public static string GetCommand(Type t) {
             string name = t.Name;
             return name.Substring(0, name.Length - 8);  //"Delegate".Length == 8
         }
@@ -60,10 +64,9 @@ namespace CSGL.Vulkan.Managed {
             unsafe
             {
                 uint exCount = 0;
-                VkExtensionProperties* exTemp = null;
-                EnumerateExtensionProperties(null, ref exCount, ref *exTemp);
+                EnumerateExtensionProperties(null, &exCount, null);
                 var ex = stackalloc VkExtensionProperties[(int)exCount];
-                EnumerateExtensionProperties(null, ref exCount, ref ex[0]);
+                EnumerateExtensionProperties(null, &exCount, ex);
 
                 for (int i = 0; i < exCount; i++) {
                     var p = ex[i];
@@ -71,10 +74,9 @@ namespace CSGL.Vulkan.Managed {
                 }
 
                 uint lCount = 0;
-                VkLayerProperties* lTemp = null;
-                EnumerateLayerProperties(ref lCount, ref *lTemp);
+                EnumerateLayerProperties(&lCount, null);
                 var l = stackalloc VkLayerProperties[(int)lCount];
-                EnumerateLayerProperties(ref lCount, ref l[0]);
+                EnumerateLayerProperties(&lCount, l);
 
                 for (int i = 0; i < lCount; i++) {
                     var p = l[i];

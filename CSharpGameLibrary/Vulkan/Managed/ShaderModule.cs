@@ -47,9 +47,10 @@ namespace CSGL.Vulkan.Managed {
                 info.sType = VkStructureType.StructureTypeShaderModuleCreateInfo;
                 info.codeSize = (ulong)mInfo.Data.LongLength;
                 
+                fixed (VkShaderModule* temp = &shaderModule)
                 fixed (byte* ptr = mInfo.Data) {
                     info.pCode = (uint*)ptr;
-                    var result = createShaderModule(device.Native, ref info, device.Instance.AllocationCallbacks, ref shaderModule);
+                    var result = createShaderModule(device.Native, &info, device.Instance.AllocationCallbacks, temp);
 
                     if (result != VkResult.Success) throw new ShaderModuleException(string.Format("Error creating shader module: {0}"));
                 }

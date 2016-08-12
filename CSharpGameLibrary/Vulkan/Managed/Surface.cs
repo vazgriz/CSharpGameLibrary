@@ -41,7 +41,10 @@ namespace CSGL.Vulkan.Managed {
             CreateSurface(window);
 
             VkSurfaceCapabilitiesKHR temp = new VkSurfaceCapabilitiesKHR();
-            getCapabilities(physicalDevice.Native, surface, ref temp);
+            unsafe
+            {
+                getCapabilities(physicalDevice.Native, surface, &temp);
+            }
             Capabilities = temp;
 
             GetFormats();
@@ -60,10 +63,9 @@ namespace CSGL.Vulkan.Managed {
             Formats = new List<VkSurfaceFormatKHR>();
             unsafe {
                 uint count = 0;
-                VkSurfaceFormatKHR* temp = null;
-                getFormats(physicalDevice.Native, surface, ref count, ref *temp);
+                getFormats(physicalDevice.Native, surface, &count, null);
                 var formats = stackalloc VkSurfaceFormatKHR[(int)count];
-                getFormats(physicalDevice.Native, surface, ref count, ref formats[0]);
+                getFormats(physicalDevice.Native, surface, &count, formats);
 
                 for (int i = 0; i <count; i++) {
                     Formats.Add(formats[i]);
@@ -76,10 +78,9 @@ namespace CSGL.Vulkan.Managed {
             unsafe
             {
                 uint count = 0;
-                VkPresentModeKHR* temp = null;
-                getModes(physicalDevice.Native, surface, ref count, ref *temp);
+                getModes(physicalDevice.Native, surface, &count, null);
                 var modes = stackalloc VkPresentModeKHR[(int)count];
-                getModes(physicalDevice.Native, surface, ref count, ref modes[0]);
+                getModes(physicalDevice.Native, surface, &count, modes);
 
                 for (int i = 0; i < count; i++) {
                     Modes.Add(modes[i]);
