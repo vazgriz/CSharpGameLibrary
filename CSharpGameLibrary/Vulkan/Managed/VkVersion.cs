@@ -26,7 +26,7 @@ namespace CSGL.Vulkan.Managed {
 
         public uint Major {
             get {
-                return (version >> 22) & 0x3ff;
+                return (version >> 22);
             }
             set {
                 version &= ~0xffc00000;
@@ -55,13 +55,7 @@ namespace CSGL.Vulkan.Managed {
         }
 
         public override string ToString() {
-            StringBuilder builder = new StringBuilder();
-            builder.Append(Major);
-            builder.Append('.');
-            builder.Append(Minor);
-            builder.Append('.');
-            builder.Append(Revision);
-            return builder.ToString();
+            return string.Format("{0}.{1}.{2}", Major, Minor, Revision);
         }
     }
 }

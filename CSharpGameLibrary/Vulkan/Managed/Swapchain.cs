@@ -7,20 +7,20 @@ using CSGL.Vulkan.Unmanaged;
 
 namespace CSGL.Vulkan.Managed {
     public class SwapchainCreateInfo {
-        public Surface Surface;
-        public uint MinImageCount;
-        public VkFormat ImageFormat;
-        public VkColorSpaceKHR ColorSpace;
-        public VkExtent2D ImageExtent;
-        public uint ImageArrayLayers;
-        public VkImageUsageFlags ImageUsageFlags;
-        public VkSharingMode ImageSharingMode;
-        public List<uint> QueueFamilyIndices;
-        public VkSurfaceTransformFlagsKHR PreTransform;
-        public VkCompositeAlphaFlagsKHR CompositeAlpha;
-        public VkPresentModeKHR PresentMode;
-        public bool Clipped;
-        public Swapchain OldSwapchain;
+        public Surface Surface { get; set; }
+        public uint MinImageCount { get; set; }
+        public VkFormat ImageFormat { get; set; }
+        public VkColorSpaceKHR ColorSpace { get; set; }
+        public VkExtent2D ImageExtent { get; set; }
+        public uint ImageArrayLayers { get; set; }
+        public VkImageUsageFlags ImageUsageFlags { get; set; }
+        public VkSharingMode ImageSharingMode { get; set; }
+        public List<uint> QueueFamilyIndices { get; set; }
+        public VkSurfaceTransformFlagsKHR PreTransform { get; set; }
+        public VkCompositeAlphaFlagsKHR CompositeAlpha { get; set; }
+        public VkPresentModeKHR PresentMode { get; set; }
+        public bool Clipped { get; set; }
+        public Swapchain OldSwapchain { get; set; }
 
         public SwapchainCreateInfo(Surface surface, Swapchain old) {
             Surface = surface;

@@ -3,11 +3,11 @@ using System.Collections.Generic;
 
 namespace CSGL.Vulkan.Managed {
     public class ImageViewCreateInfo {
-        public Image Image;
-        public VkImageViewType ViewType;
-        public VkFormat Format;
-        public VkComponentMapping Components;
-        public VkImageSubresourceRange SubresourceRange;
+        public Image Image { get; set; }
+        public VkImageViewType ViewType { get; set; }
+        public VkFormat Format { get; set; }
+        public VkComponentMapping Components { get; set; }
+        public VkImageSubresourceRange SubresourceRange { get; set; }
 
         public ImageViewCreateInfo(Image image) {
             Image = image;

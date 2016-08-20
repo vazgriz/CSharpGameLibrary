@@ -7,9 +7,9 @@ using CSGL.Vulkan.Unmanaged;
 
 namespace CSGL.Vulkan.Managed {
     public class InstanceCreateInfo {
-        public ApplicationInfo ApplicationInfo;
-        public List<string> Extensions;
-        public List<string> Layers;
+        public ApplicationInfo ApplicationInfo { get; set; }
+        public List<string> Extensions { get; set; }
+        public List<string> Layers { get; set; }
 
         public InstanceCreateInfo(ApplicationInfo appInfo, List<string> extensions, List<string> layers) {
             ApplicationInfo = appInfo;
@@ -60,6 +60,8 @@ namespace CSGL.Vulkan.Managed {
         }
 
         void CreateInstanceInternal(InstanceCreateInfo mInfo) {
+            if (!GLFW.GLFW.VulkanSupported()) throw new InstanceException("Vulkan is not supported on this computer");
+
             if (mInfo.Extensions == null) {
                 Extensions = new List<string>();
             } else {
@@ -108,6 +110,7 @@ namespace CSGL.Vulkan.Managed {
             {
                 VkApplicationInfo appInfo = new VkApplicationInfo();
                 VkInstanceCreateInfo info = new VkInstanceCreateInfo();
+                void* marshalled = stackalloc byte[Marshal.SizeOf<VkInstanceCreateInfo>()];
 
                 info.sType = VkStructureType.StructureTypeInstanceCreateInfo;
 
@@ -148,6 +151,8 @@ namespace CSGL.Vulkan.Managed {
                 }
                 info.enabledLayerCount = (uint)Layers.Count;
                 if (Layers.Count > 0) info.ppEnabledLayerNames = ppLayerNames;
+
+                Marshal.StructureToPtr(info, (IntPtr)marshalled, false);
 
                 try {
                     fixed (VkInstance* temp = &instance) {

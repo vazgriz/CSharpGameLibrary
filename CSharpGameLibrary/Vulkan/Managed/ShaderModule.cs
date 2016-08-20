@@ -5,7 +5,7 @@ using CSGL.Vulkan.Unmanaged;
 
 namespace CSGL.Vulkan.Managed {
     public class ShaderModuleCreateInfo {
-        public byte[] Data;
+        public byte[] Data { get; set; }
 
         public ShaderModuleCreateInfo(byte[] data) {
             Data = data;

@@ -10,10 +10,6 @@ using CSGL.Vulkan.Managed;
 namespace VK_Test {
     class Program : IDisposable {
         static void Main(string[] args) {
-            Console.WriteLine("VkPhysicalDeviceProperties size: {0}", Marshal.SizeOf<VkPhysicalDeviceProperties>());
-            foreach (var f in typeof(VkPhysicalDeviceProperties).GetFields()) {
-                Console.WriteLine("  {0}: {1}", f.Name, Marshal.OffsetOf<VkPhysicalDeviceProperties>(f.Name));
-            }
             using (var p = new Program()) {
                 p.Run();
             }
@@ -51,8 +47,17 @@ namespace VK_Test {
             extensions.Add("VK_EXT_debug_report");
 
             List<string> layers = new List<string> {
-                "VK_LAYER_LUNARG_standard_validation"
+                //"VK_LAYER_LUNARG_standard_validation"
             };
+
+            foreach (var s in Instance.AvailableExtensions) {
+                Console.WriteLine(s.Name);
+            }
+
+            foreach (var s in Instance.AvailableLayers) {
+                Console.WriteLine(s.Name);
+            }
+
             var app = new ApplicationInfo(new VkVersion(), "Test", "None", new VkVersion(), new VkVersion());
             var info = new InstanceCreateInfo(app, extensions, layers);
 
@@ -92,15 +97,19 @@ namespace VK_Test {
             for (int i = 0; i < swapchain.Images.Count; i++) {
                 ImageViewCreateInfo imageViewInfo = new ImageViewCreateInfo(swapchain.Images[i]);
                 imageViewInfo.Format = swapchainFormat;
-                imageViewInfo.Components.r = VkComponentSwizzle.ComponentSwizzleIdentity;
-                imageViewInfo.Components.g = VkComponentSwizzle.ComponentSwizzleIdentity;
-                imageViewInfo.Components.b = VkComponentSwizzle.ComponentSwizzleIdentity;
-                imageViewInfo.Components.a = VkComponentSwizzle.ComponentSwizzleIdentity;
-                imageViewInfo.SubresourceRange.aspectMask = VkImageAspectFlags.ImageAspectColorBit;
-                imageViewInfo.SubresourceRange.baseMipLevel = 0;
-                imageViewInfo.SubresourceRange.levelCount = 1;
-                imageViewInfo.SubresourceRange.baseArrayLayer = 0;
-                imageViewInfo.SubresourceRange.layerCount = 1;
+                var comp = imageViewInfo.Components;
+                comp.r = VkComponentSwizzle.ComponentSwizzleIdentity;
+                comp.g = VkComponentSwizzle.ComponentSwizzleIdentity;
+                comp.b = VkComponentSwizzle.ComponentSwizzleIdentity;
+                comp.a = VkComponentSwizzle.ComponentSwizzleIdentity;
+                imageViewInfo.Components = comp;
+                var sub = imageViewInfo.SubresourceRange;
+                sub.aspectMask = VkImageAspectFlags.ImageAspectColorBit;
+                sub.baseMipLevel = 0;
+                sub.levelCount = 1;
+                sub.baseArrayLayer = 0;
+                sub.layerCount = 1;
+                imageViewInfo.SubresourceRange = sub;
 
                 swapchainImageViews.Add(new ImageView(device, imageViewInfo));
             }
