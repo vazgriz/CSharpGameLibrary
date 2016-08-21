@@ -677,7 +677,7 @@ namespace CSGL.GLFW {
             return result;
         }
 
-        public static unsafe VkResult CreateWindowSurface(VkInstance instance, WindowPtr ptr, VkAllocationCallbacks* alloc, ref VkSurfaceKHR surface) {
+        public static VkResult CreateWindowSurface(VkInstance instance, WindowPtr ptr, IntPtr alloc, ref VkSurfaceKHR surface) {
             var result = glfwCreateWindowSurface(instance, ptr, alloc, ref surface);
             CheckError();
             return result;

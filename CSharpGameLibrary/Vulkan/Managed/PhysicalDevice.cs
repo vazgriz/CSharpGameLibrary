@@ -52,36 +52,36 @@ namespace CSGL.Vulkan.Managed {
         }
 
         void GetDeviceProperties() {
-            unsafe
-            {
-                VkPhysicalDeviceProperties prop = new VkPhysicalDeviceProperties();
-                getProperties(device, ref prop);
-                Properties = new PhysicalDeviceProperties(prop);
-            }
+            IntPtr propPtr = Marshal.AllocHGlobal(Marshal.SizeOf<VkPhysicalDeviceProperties>());
+            getProperties(device, propPtr);
+            VkPhysicalDeviceProperties prop = Marshal.PtrToStructure<VkPhysicalDeviceProperties>(propPtr);
+
+            Properties = new PhysicalDeviceProperties(prop);
+
+            Marshal.FreeHGlobal(propPtr);
         }
 
         void GetQueueProperties() {
             QueueFamilies = new List<QueueFamily>();
             unsafe {
                 uint count = 0;
-                getQueueFamilyProperties(device, &count, null);
-                VkQueueFamilyProperties* props = stackalloc VkQueueFamilyProperties[(int)count];
-                getQueueFamilyProperties(device, &count, props);
+                getQueueFamilyProperties(device, ref count, IntPtr.Zero);
+                var props = stackalloc byte[Marshal.SizeOf<VkQueueFamilyProperties>() * (int)count];
+                getQueueFamilyProperties(device, ref count, (IntPtr)props);
 
-                for (uint i = 0; i < count; i++) {
-                    var fam = new QueueFamily(props[i], this, i);
+                for (int i = 0; i < count; i++) {
+                    var queueFamily = Marshal.PtrToStructure<VkQueueFamilyProperties>((IntPtr)props + Marshal.SizeOf<VkQueueFamilyProperties>() * i);
+                    var fam = new QueueFamily(queueFamily, this, (uint)i);
                     QueueFamilies.Add(fam);
                 }
             }
         }
 
         void GetDeviceFeatures() {
-            unsafe
-            {
-                fixed (VkPhysicalDeviceFeatures* temp = &features) {
-                    getFeatures(device, ref features);
-                }
-            }
+            IntPtr ptr = Marshal.AllocHGlobal(Marshal.SizeOf<VkPhysicalDeviceFeatures>());
+            getFeatures(device, ptr);
+            features = Marshal.PtrToStructure<VkPhysicalDeviceFeatures>(ptr);
+            Marshal.FreeHGlobal(ptr);
         }
 
         void GetDeviceExtensions() {
@@ -89,14 +89,12 @@ namespace CSGL.Vulkan.Managed {
             unsafe
             {
                 uint count = 0;
-                getExtensions(device, null, &count, null);
-                var props = stackalloc VkExtensionProperties[(int)count];
-                getExtensions(device, null, &count, props);
+                getExtensions(device, null, ref count, IntPtr.Zero);
+                var props = stackalloc byte[Marshal.SizeOf<VkExtensionProperties>() * (int)count];
+                getExtensions(device, null, ref count, (IntPtr)props);
 
                 for (int i = 0; i < count; i++) {
-                    string name = Interop.GetString(props[i].extensionName);
-                    uint version = props[i].specVersion;
-                    var ex = new Extension(name, version);
+                    var ex = new Extension(Marshal.PtrToStructure<VkExtensionProperties>((IntPtr)props + Marshal.SizeOf<VkExtensionProperties>() * i));
                     AvailableExtensions.Add(ex);
                 }
             }
@@ -122,12 +120,9 @@ namespace CSGL.Vulkan.Managed {
             }
 
             public bool SurfaceSupported(Surface surface) {
-                uint support = 0;
-                unsafe
-                {
-                    pDevice.getPresentationSupport(pDevice.Native, index, surface.Native, &support);
-                }
-                return support != 0;
+                uint supported = 0;
+                pDevice.getPresentationSupport(pDevice.Native, index, surface.Native, ref supported);
+                return supported != 0;
             }
         }
     }

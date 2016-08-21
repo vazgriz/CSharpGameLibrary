@@ -64,29 +64,29 @@ namespace CSGL.Vulkan.Managed {
             unsafe
             {
                 uint exCount = 0;
-                EnumerateExtensionProperties(null, &exCount, null);
-                var ex = stackalloc VkExtensionProperties[(int)exCount];
-                EnumerateExtensionProperties(null, &exCount, ex);
+                EnumerateExtensionProperties(null, ref exCount, IntPtr.Zero);
+
+                byte* ex = stackalloc byte[Marshal.SizeOf<VkExtensionProperties>() * (int)exCount];
+                EnumerateExtensionProperties(null, ref exCount, (IntPtr)ex);
 
                 for (int i = 0; i < exCount; i++) {
-                    var p = ex[i];
-                    AvailableExtensions.Add(new Extension(Interop.GetString(p.extensionName), p.specVersion));
+                    var extension = Marshal.PtrToStructure<VkExtensionProperties>((IntPtr)ex + Marshal.SizeOf<VkExtensionProperties>() * i);
+                    AvailableExtensions.Add(new Extension(extension));
                 }
 
                 uint lCount = 0;
-                EnumerateLayerProperties(&lCount, null);
-                var l = stackalloc VkLayerProperties[(int)lCount];
-                EnumerateLayerProperties(&lCount, l);
+                EnumerateLayerProperties(ref lCount, IntPtr.Zero);
+
+                byte* l = stackalloc byte[Marshal.SizeOf<VkLayerProperties>() * (int)lCount];
+                EnumerateLayerProperties(ref lCount, (IntPtr)l);
 
                 for (int i = 0; i < lCount; i++) {
-                    var p = l[i];
-                    var name = Interop.GetString(p.layerName);
-                    var desc = Interop.GetString(p.description);
-                    var spec = p.specVersion;
-                    var impl = p.implementationVersion;
-                    var layer = new Layer(name, desc, spec, impl);
-                    AvailableLayers.Add(layer);
+                    var layer = Marshal.PtrToStructure<VkLayerProperties>((IntPtr)l + Marshal.SizeOf<VkLayerProperties>() * i);
+                    AvailableLayers.Add(new Layer(layer));
                 }
+
+                Marshal.DestroyStructure<VkExtensionProperties>((IntPtr)ex);
+                Marshal.DestroyStructure<VkLayerProperties>((IntPtr)l);
             }
         }
     }

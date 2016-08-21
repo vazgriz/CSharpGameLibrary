@@ -20,8 +20,7 @@ namespace CSGL.Vulkan.Managed {
 
     public partial class Instance : IDisposable {
         VkInstance instance;
-        unsafe VkAllocationCallbacks* alloc = null;
-        bool callbacksSet = false;
+        IntPtr alloc = IntPtr.Zero;
         bool disposed = false;
 
         vkGetInstanceProcAddrDelegate getProcAddrDel;
@@ -37,7 +36,7 @@ namespace CSGL.Vulkan.Managed {
         }
 
 
-        public unsafe VkAllocationCallbacks* AllocationCallbacks {
+        public IntPtr AllocationCallbacks {
             get {
                 return alloc;
             }
@@ -50,17 +49,15 @@ namespace CSGL.Vulkan.Managed {
 
         public Instance(InstanceCreateInfo info, VkAllocationCallbacks callbacks) {
             if (info == null) throw new ArgumentNullException(nameof(info));
-            unsafe
-            {
-                alloc = (VkAllocationCallbacks*)Marshal.AllocHGlobal(Marshal.SizeOf<VkAllocationCallbacks>());
-                *alloc = callbacks;
-            }
-            callbacksSet = true;
+
+            alloc = Marshal.AllocHGlobal(Marshal.SizeOf<VkAllocationCallbacks>());
+            Marshal.StructureToPtr(callbacks, alloc, false);
+            
             CreateInstanceInternal(info);
         }
 
         void CreateInstanceInternal(InstanceCreateInfo mInfo) {
-            if (!GLFW.GLFW.VulkanSupported()) throw new InstanceException("Vulkan is not supported on this computer");
+            if (!GLFW.GLFW.VulkanSupported()) throw new InstanceException("Vulkan not supported");
 
             if (mInfo.Extensions == null) {
                 Extensions = new List<string>();
@@ -90,12 +87,13 @@ namespace CSGL.Vulkan.Managed {
             unsafe
             {
                 uint count = 0;
-                Commands.enumeratePhysicalDevices(instance, &count, null);
-                var devices = stackalloc VkPhysicalDevice[(int)count];
-                Commands.enumeratePhysicalDevices(instance, &count, devices);
+                Commands.enumeratePhysicalDevices(instance, ref count, IntPtr.Zero);
+                var devices = stackalloc byte[Marshal.SizeOf<VkPhysicalDevice>() * (int)count];
+                Commands.enumeratePhysicalDevices(instance, ref count, (IntPtr)devices);
 
                 for (int i = 0; i < count; i++) {
-                    PhysicalDevices.Add(new PhysicalDevice(this, devices[i]));
+                    PhysicalDevices.Add(new PhysicalDevice(this,
+                    Marshal.PtrToStructure<VkPhysicalDevice>((IntPtr)devices + Marshal.SizeOf<VkPhysicalDevice>() * i)));
                 }
             }
         }
@@ -110,25 +108,22 @@ namespace CSGL.Vulkan.Managed {
             {
                 VkApplicationInfo appInfo = new VkApplicationInfo();
                 VkInstanceCreateInfo info = new VkInstanceCreateInfo();
-                void* marshalled = stackalloc byte[Marshal.SizeOf<VkInstanceCreateInfo>()];
+
+                var appInfoMarshalled = stackalloc byte[Marshal.SizeOf<VkApplicationInfo>()];
 
                 info.sType = VkStructureType.StructureTypeInstanceCreateInfo;
-
-                GCHandle appNameHandle = new GCHandle();
-                GCHandle engNameHandle = new GCHandle();
+                
                 if (mInfo.ApplicationInfo != null) {
                     appInfo.sType = VkStructureType.StructureTypeApplicationInfo;
                     appInfo.apiVersion = mInfo.ApplicationInfo.APIVersion;
                     appInfo.engineVersion = mInfo.ApplicationInfo.EngineVersion;
                     appInfo.applicationVersion = mInfo.ApplicationInfo.ApplicationVersion;
-                    info.pApplicationInfo = &appInfo;
+                    appInfo.pApplicationName = mInfo.ApplicationInfo.ApplicationName;
+                    appInfo.pEngineName = mInfo.ApplicationInfo.EngineName;
 
-                    var appName = Interop.GetUTF8(mInfo.ApplicationInfo.ApplicationName);
-                    var engName = Interop.GetUTF8(mInfo.ApplicationInfo.EngineName);
-                    appNameHandle = GCHandle.Alloc(appName, GCHandleType.Pinned);
-                    engNameHandle = GCHandle.Alloc(engName, GCHandleType.Pinned);
-                    appInfo.pApplicationName = (byte*)appNameHandle.AddrOfPinnedObject();
-                    appInfo.pEngineName = (byte*)engNameHandle.AddrOfPinnedObject();
+                    Marshal.StructureToPtr(appInfo, (IntPtr)appInfoMarshalled, false);
+
+                    info.pApplicationInfo = (IntPtr)appInfoMarshalled;
                 }
 
                 byte** ppExtensionNames = stackalloc byte*[Extensions.Count];
@@ -142,7 +137,7 @@ namespace CSGL.Vulkan.Managed {
                     ppExtensionNames[i] = (byte*)exHandles[i].AddrOfPinnedObject();
                 }
                 info.enabledExtensionCount = (uint)Extensions.Count;
-                if (Extensions.Count > 0) info.ppEnabledExtensionNames = ppExtensionNames;
+                if (Extensions.Count > 0) info.ppEnabledExtensionNames = (IntPtr)ppExtensionNames;
                 
                 for (int i = 0; i < Layers.Count; i++) {
                     var s = Interop.GetUTF8(Layers[i]);
@@ -150,17 +145,26 @@ namespace CSGL.Vulkan.Managed {
                     ppLayerNames[i] = (byte*)lHandles[i].AddrOfPinnedObject();
                 }
                 info.enabledLayerCount = (uint)Layers.Count;
-                if (Layers.Count > 0) info.ppEnabledLayerNames = ppLayerNames;
+                if (Layers.Count > 0) info.ppEnabledLayerNames = (IntPtr)ppLayerNames;
 
-                Marshal.StructureToPtr(info, (IntPtr)marshalled, false);
+                IntPtr infoPtr = Marshal.AllocHGlobal(Marshal.SizeOf<VkInstanceCreateInfo>());
+                Marshal.StructureToPtr(info, infoPtr, false);
+
+                IntPtr instancePtr = Marshal.AllocHGlobal(Marshal.SizeOf<VkInstance>());
 
                 try {
-                    fixed (VkInstance* temp = &instance) {
-                        var result = CreateInstance(&info, alloc, temp);
-                        if (result != VkResult.Success) throw new InstanceException(string.Format("Error creating instance: {0}", result));
-                    }
+                    var result = CreateInstance(infoPtr, alloc, instancePtr);
+                    if (result != VkResult.Success) throw new InstanceException(string.Format("Error creating instance: {0}", result));
+
+                    instance = Marshal.PtrToStructure<VkInstance>(instancePtr);
                 }
                 finally {
+                    Marshal.DestroyStructure<VkInstanceCreateInfo>(infoPtr);
+                    Marshal.DestroyStructure<VkInstance>(instancePtr);
+
+                    Marshal.FreeHGlobal(infoPtr);
+                    Marshal.FreeHGlobal(instancePtr);
+
                     for (int i = 0; i < Extensions.Count; i++) {
                         exHandles[i].Free();
                     }
@@ -169,8 +173,7 @@ namespace CSGL.Vulkan.Managed {
                     }
 
                     if (mInfo.ApplicationInfo != null) {
-                        appNameHandle.Free();
-                        engNameHandle.Free();
+                        Marshal.DestroyStructure<VkApplicationInfo>((IntPtr)appInfoMarshalled);
                     }
                 }
             }
@@ -202,27 +205,21 @@ namespace CSGL.Vulkan.Managed {
                     }
                 }
 
-                if (!found) throw new InstanceException(string.Format("Requested exception '{0}' is not available", s));
+                if (!found) throw new InstanceException(string.Format("Requested extension '{0}' is not available", s));
             }
         }
 
         public IntPtr GetProcAddress(string command) {
-            unsafe
-            {
-                fixed (byte* ptr = Interop.GetUTF8(command)) {
-                    return getProcAddrDel(instance, ptr);
-                }
-            }
+            return getProcAddrDel(instance, Interop.GetUTF8(command));
         }
 
         public void Dispose() {
             if (disposed) return;
-            unsafe
-            {
-                DestroyInstance(instance, alloc);
-                if (callbacksSet) {
-                    Marshal.FreeHGlobal((IntPtr)alloc);
-                }
+
+            DestroyInstance(instance, alloc);
+
+            if (alloc != IntPtr.Zero) {
+                Marshal.FreeHGlobal(alloc);
             }
 
             disposed = true;

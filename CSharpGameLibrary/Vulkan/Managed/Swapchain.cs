@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 
 using CSGL;
 using CSGL.Vulkan;
@@ -64,52 +65,56 @@ namespace CSGL.Vulkan.Managed {
             Images = new List<Image>();
             unsafe {
                 uint count = 0;
-                getImages(Device.Native, swapchain, &count, null);
-                VkImage* images = stackalloc VkImage[(int)count];
-                getImages(Device.Native, swapchain, &count, images);
+                getImages(Device.Native, swapchain, ref count, IntPtr.Zero);
+                var images = stackalloc byte[Marshal.SizeOf<VkImage>() * (int)count];
+                getImages(Device.Native, swapchain, ref count, (IntPtr)images);
 
                 for (int i = 0; i < count; i++) {
-                    Images.Add(new Image(Device, images[i]));
+                    VkImage image = Marshal.PtrToStructure<VkImage>((IntPtr)images + Marshal.SizeOf<VkImage>() * i);
+                    Images.Add(new Image(Device, image));
                 }
             }
         }
 
         void CreateSwapchain(SwapchainCreateInfo mInfo) {
-            unsafe
-            {
-                VkSwapchainCreateInfoKHR info = new VkSwapchainCreateInfoKHR();
-                info.sType = VkStructureType.StructureTypeSwapchainCreateInfoKhr;
-                info.surface = mInfo.Surface.Native;
-                info.minImageCount = mInfo.MinImageCount;
-                info.imageFormat = mInfo.ImageFormat;
-                info.imageColorSpace = mInfo.ColorSpace;
-                info.imageExtent = mInfo.ImageExtent;
-                info.imageArrayLayers = mInfo.ImageArrayLayers;
-                info.imageUsage = mInfo.ImageUsageFlags;
-                info.imageSharingMode = mInfo.ImageSharingMode;
-                info.preTransform = mInfo.PreTransform;
-                info.compositeAlpha = mInfo.CompositeAlpha;
-                info.clipped = mInfo.Clipped;
+            VkSwapchainCreateInfoKHR info = new VkSwapchainCreateInfoKHR();
+            info.sType = VkStructureType.StructureTypeSwapchainCreateInfoKhr;
+            info.surface = mInfo.Surface.Native;
+            info.minImageCount = mInfo.MinImageCount;
+            info.imageFormat = mInfo.ImageFormat;
+            info.imageColorSpace = mInfo.ColorSpace;
+            info.imageExtent = mInfo.ImageExtent;
+            info.imageArrayLayers = mInfo.ImageArrayLayers;
+            info.imageUsage = mInfo.ImageUsageFlags;
+            info.imageSharingMode = mInfo.ImageSharingMode;
+            info.preTransform = mInfo.PreTransform;
+            info.compositeAlpha = mInfo.CompositeAlpha;
+            info.clipped = mInfo.Clipped;
+            if (mInfo.QueueFamilyIndices != null) {
+                info.pQueueFamilyIndices = mInfo.QueueFamilyIndices.ToArray();
+                info.queueFamilyIndexCount = (uint)mInfo.QueueFamilyIndices.Count;
+            }
 
-                uint indCount = 0;
-                if (mInfo.QueueFamilyIndices != null) {
-                    indCount = (uint)mInfo.QueueFamilyIndices.Count;
-                }
-                var indices = stackalloc uint[(int)indCount];
-                for (int i = 0; i < indCount; i++) {
-                    indices[i] = mInfo.QueueFamilyIndices[i];
-                }
-                info.pQueueFamilyIndices = indices;
-                info.queueFamilyIndexCount = indCount;
+            if (mInfo.OldSwapchain != null) {
+                info.oldSwapchain = mInfo.OldSwapchain.Native;
+            }
 
-                if (mInfo.OldSwapchain != null) {
-                    info.oldSwapchain = mInfo.OldSwapchain.Native;
-                }
+            IntPtr infoPtr = Marshal.AllocHGlobal(Marshal.SizeOf<VkSwapchainCreateInfoKHR>());
+            Marshal.StructureToPtr(info, infoPtr, false);
 
-                fixed (VkSwapchainKHR* temp = &swapchain) {
-                    var result = Device.Commands.createSwapchain(Device.Native, ref info, Instance.AllocationCallbacks, temp);
-                    if (result != VkResult.Success) throw new SwapchainException(string.Format("Error creating swapchain: {0}", result));
-                }
+            IntPtr swapchainPtr = Marshal.AllocHGlobal(Marshal.SizeOf<VkSwapchainKHR>());
+
+            try {
+                var result = Device.Commands.createSwapchain(Device.Native, infoPtr, Instance.AllocationCallbacks, swapchainPtr);
+                if (result != VkResult.Success) throw new SwapchainException(string.Format("Error creating swapchain: {0}", result));
+
+                swapchain = Marshal.PtrToStructure<VkSwapchainKHR>(swapchainPtr);
+            }
+            finally {
+                Marshal.DestroyStructure<VkSwapchainCreateInfoKHR>(infoPtr);
+
+                Marshal.FreeHGlobal(infoPtr);
+                Marshal.FreeHGlobal(swapchainPtr);
             }
         }
 

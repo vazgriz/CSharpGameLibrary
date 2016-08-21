@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 
 using CSGL.GLFW;
 using CSGL.Vulkan.Unmanaged;
@@ -40,12 +41,10 @@ namespace CSGL.Vulkan.Managed {
 
             CreateSurface(window);
 
-            VkSurfaceCapabilitiesKHR temp = new VkSurfaceCapabilitiesKHR();
-            unsafe
-            {
-                getCapabilities(physicalDevice.Native, surface, &temp);
-            }
-            Capabilities = temp;
+            IntPtr ptr = Marshal.AllocHGlobal(Marshal.SizeOf<VkSurfaceCapabilitiesKHR>());
+            getCapabilities(physicalDevice.Native, surface, ptr);
+            Capabilities = Marshal.PtrToStructure<VkSurfaceCapabilitiesKHR>(ptr);
+            Marshal.FreeHGlobal(ptr);
 
             GetFormats();
             GetModes();
@@ -63,12 +62,13 @@ namespace CSGL.Vulkan.Managed {
             Formats = new List<VkSurfaceFormatKHR>();
             unsafe {
                 uint count = 0;
-                getFormats(physicalDevice.Native, surface, &count, null);
-                var formats = stackalloc VkSurfaceFormatKHR[(int)count];
-                getFormats(physicalDevice.Native, surface, &count, formats);
+                getFormats(physicalDevice.Native, surface, ref count, IntPtr.Zero);
+                var formats = stackalloc byte[Marshal.SizeOf<VkSurfaceFormatKHR>() * (int)count];
+                getFormats(physicalDevice.Native, surface, ref count, (IntPtr)formats);
 
                 for (int i = 0; i <count; i++) {
-                    Formats.Add(formats[i]);
+                    var format = Marshal.PtrToStructure<VkSurfaceFormatKHR>((IntPtr)formats + Marshal.SizeOf<VkSurfaceFormatKHR>() * i);
+                    Formats.Add(format);
                 }
             }
         }
@@ -78,12 +78,13 @@ namespace CSGL.Vulkan.Managed {
             unsafe
             {
                 uint count = 0;
-                getModes(physicalDevice.Native, surface, &count, null);
-                var modes = stackalloc VkPresentModeKHR[(int)count];
-                getModes(physicalDevice.Native, surface, &count, modes);
+                getModes(physicalDevice.Native, surface, ref count, IntPtr.Zero);
+                var modes = stackalloc byte[sizeof(int) * (int)count];  //VkPresentModeKHR is an enum and can't be marshalled directly
+                getModes(physicalDevice.Native, surface, ref count, (IntPtr)modes);
 
                 for (int i = 0; i < count; i++) {
-                    Modes.Add(modes[i]);
+                    var mode = (VkPresentModeKHR)Marshal.PtrToStructure<int>((IntPtr)modes + sizeof(int) * i);
+                    Modes.Add(mode);
                 }
             }
         }

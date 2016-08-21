@@ -80,7 +80,7 @@
     <Compile Include="Vulkan\Managed\Queue.cs" />
     <Compile Include="Vulkan\Managed\Surface.cs" />
     <Compile Include="Vulkan\Managed\Swapchain.cs" />
-    <Compile Include="Vulkan\Managed\VkVersion.cs" />
+    <Compile Include="Vulkan\VkVersion.cs" />
     <Compile Include="Vulkan\Managed\Vulkan.cs" />
     <Compile Include="Vulkan\Managed\ShaderModule.cs" />
     <Compile Include="Vulkan\structs.cs" />

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 
 namespace CSGL.Vulkan.Managed {
     public class ImageViewCreateInfo {
@@ -41,9 +42,23 @@ namespace CSGL.Vulkan.Managed {
                 info.components = mInfo.Components;
                 info.subresourceRange = mInfo.SubresourceRange;
 
-                fixed (VkImageView* temp = &imageView) {
-                    var result = Device.Commands.createImageView(Device.Native, &info, Device.Instance.AllocationCallbacks, temp);
+                IntPtr infoPtr = Marshal.AllocHGlobal(Marshal.SizeOf<VkImageViewCreateInfo>());
+                Marshal.StructureToPtr(info, infoPtr, false);
+
+                IntPtr imageViewPtr = Marshal.AllocHGlobal(Marshal.SizeOf<VkImageView>());
+
+                try {
+                    var result = Device.Commands.createImageView(Device.Native, infoPtr, Device.Instance.AllocationCallbacks, imageViewPtr);
                     if (result != VkResult.Success) throw new ImageViewException(string.Format("Error creating image view: {0}", result));
+
+                    imageView = Marshal.PtrToStructure<VkImageView>(imageViewPtr);
+                }
+                finally {
+                    Marshal.DestroyStructure<VkImageViewCreateInfo>(infoPtr);
+                    Marshal.DestroyStructure<VkImageView>(imageViewPtr);
+
+                    Marshal.FreeHGlobal(infoPtr);
+                    Marshal.FreeHGlobal(imageViewPtr);
                 }
             }
         }

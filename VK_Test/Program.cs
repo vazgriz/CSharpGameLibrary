@@ -47,7 +47,7 @@ namespace VK_Test {
             extensions.Add("VK_EXT_debug_report");
 
             List<string> layers = new List<string> {
-                //"VK_LAYER_LUNARG_standard_validation"
+                "VK_LAYER_LUNARG_standard_validation"
             };
 
             foreach (var s in Instance.AvailableExtensions) {
@@ -117,6 +117,7 @@ namespace VK_Test {
             while (!GLFW.WindowShouldClose(window)) {
                 GLFW.PollEvents();
             }
+
             GLFW.DestroyWindow(window);
             GLFW.Terminate();
         }

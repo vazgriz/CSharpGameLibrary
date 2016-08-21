@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 
 using CSGL.Vulkan.Unmanaged;
 
@@ -46,13 +47,29 @@ namespace CSGL.Vulkan.Managed {
                 VkShaderModuleCreateInfo info = new VkShaderModuleCreateInfo();
                 info.sType = VkStructureType.StructureTypeShaderModuleCreateInfo;
                 info.codeSize = (ulong)mInfo.Data.LongLength;
-                
-                fixed (VkShaderModule* temp = &shaderModule)
-                fixed (byte* ptr = mInfo.Data) {
-                    info.pCode = (uint*)ptr;
-                    var result = createShaderModule(device.Native, &info, device.Instance.AllocationCallbacks, temp);
 
+                GCHandle handle = GCHandle.Alloc(mInfo.Data, GCHandleType.Pinned);
+                
+                info.pCode = handle.AddrOfPinnedObject();
+
+                IntPtr infoPtr = Marshal.AllocHGlobal(Marshal.SizeOf<VkShaderModuleCreateInfo>());
+                Marshal.StructureToPtr(info, infoPtr, false);
+
+                IntPtr shaderModulePtr = Marshal.AllocHGlobal(Marshal.SizeOf<VkShaderModule>());
+
+                try {
+                    var result = createShaderModule(device.Native, infoPtr, device.Instance.AllocationCallbacks, shaderModulePtr);
                     if (result != VkResult.Success) throw new ShaderModuleException(string.Format("Error creating shader module: {0}"));
+
+                    shaderModule = Marshal.PtrToStructure<VkShaderModule>(shaderModulePtr);
+                }
+                finally {
+                    Marshal.DestroyStructure<VkShaderModuleCreateInfo>(infoPtr);
+
+                    Marshal.FreeHGlobal(infoPtr);
+                    Marshal.FreeHGlobal(shaderModulePtr);
+
+                    handle.Free();
                 }
             }
         }
@@ -60,10 +77,7 @@ namespace CSGL.Vulkan.Managed {
         public void Dispose() {
             if (disposed) return;
 
-            unsafe
-            {
-                destroyShaderModule(device.Native, shaderModule, device.Instance.AllocationCallbacks);
-            }
+            destroyShaderModule(device.Native, shaderModule, device.Instance.AllocationCallbacks);
 
             disposed = true;
         }
