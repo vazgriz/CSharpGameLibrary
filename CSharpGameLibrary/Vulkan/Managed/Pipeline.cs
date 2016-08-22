@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.InteropServices;
+using System.Collections.Generic;
 
 using CSGL.Vulkan.Unmanaged;
 
@@ -72,6 +73,7 @@ namespace CSGL.Vulkan.Managed {
             int count = mInfos.Length;
             var infos = new VkGraphicsPipelineCreateInfo[count];
             var pipelineResults = new Pipeline[count];
+            var marshalledArrays = new List<IDisposable>(mInfos.Length);
 
             for (int i = 0; i < mInfos.Length; i++) {
                 VkGraphicsPipelineCreateInfo info = new VkGraphicsPipelineCreateInfo();
@@ -80,12 +82,15 @@ namespace CSGL.Vulkan.Managed {
                 info.sType = VkStructureType.StructureTypeGraphicsPipelineCreateInfo;
                 info.flags = mInfo.Flags;
 
-                info.stageCount = (uint)mInfo.Stages.Length;
-                info.pStages = new VkPipelineShaderStageCreateInfo[mInfo.Stages.Length];
-
+                var stages = new VkPipelineShaderStageCreateInfo[mInfo.Stages.Length];
                 for (int j = 0; j < info.stageCount; j++) {
-                    info.pStages[i] = mInfo.Stages[i].GetNative();
+                    stages[i] = mInfo.Stages[i].GetNative();
                 }
+                var stagesMarshalled = new MarshalledArray<VkPipelineShaderStageCreateInfo>(stages);
+                info.stageCount = (uint)stagesMarshalled.Count;
+                info.pStages = stagesMarshalled.Address;
+
+                marshalledArrays.Add(stagesMarshalled);
 
                 IntPtr vertexInputPtr = Marshal.AllocHGlobal(Marshal.SizeOf<VkPipelineVertexInputStateCreateInfo>());
                 IntPtr inputAssemblyPtr = Marshal.AllocHGlobal(Marshal.SizeOf<VkPipelineInputAssemblyStateCreateInfo>());
@@ -97,7 +102,7 @@ namespace CSGL.Vulkan.Managed {
                 IntPtr colorPtr = Marshal.AllocHGlobal(Marshal.SizeOf<VkPipelineColorBlendStateCreateInfo>());
                 IntPtr dynamicPtr = Marshal.AllocHGlobal(Marshal.SizeOf<VkPipelineDynamicStateCreateInfo>());
 
-                Marshal.StructureToPtr(mInfo.VertexInputState.GetNative(), vertexInputPtr, false);
+                Marshal.StructureToPtr(mInfo.VertexInputState.GetNative(marshalledArrays), vertexInputPtr, false);
                 info.pVertexInputState = vertexInputPtr;
 
                 Marshal.StructureToPtr(mInfo.InputAssemblyState.GetNative(), inputAssemblyPtr, false);
@@ -106,7 +111,7 @@ namespace CSGL.Vulkan.Managed {
                 Marshal.StructureToPtr(mInfo.TessellationState.GetNative(), tesselationPtr, false);
                 info.pTessellationState = tesselationPtr;
 
-                Marshal.StructureToPtr(mInfo.ViewportState.GetNative(), viewportPtr, false);
+                Marshal.StructureToPtr(mInfo.ViewportState.GetNative(marshalledArrays), viewportPtr, false);
                 info.pViewportState = viewportPtr;
 
                 Marshal.StructureToPtr(mInfo.RasterizationState.GetNative(), rasterizationPtr, false);
@@ -118,10 +123,10 @@ namespace CSGL.Vulkan.Managed {
                 Marshal.StructureToPtr(mInfo.DepthStencilState.GetNative(), depthPtr, false);
                 info.pDepthStencilState = depthPtr;
 
-                Marshal.StructureToPtr(mInfo.ColorBlendState.GetNative(), colorPtr, false);
+                Marshal.StructureToPtr(mInfo.ColorBlendState.GetNative(marshalledArrays), colorPtr, false);
                 info.pColorBlendState = colorPtr;
 
-                Marshal.StructureToPtr(mInfo.DynamicState.GetNative(), dynamicPtr, false);
+                Marshal.StructureToPtr(mInfo.DynamicState.GetNative(marshalledArrays), dynamicPtr, false);
                 info.pDynamicState = dynamicPtr;
 
                 info.layout = mInfo.Layout.Native;
@@ -158,6 +163,10 @@ namespace CSGL.Vulkan.Managed {
             finally {
                 pipelinesMarshalled.Dispose();
                 infosMarshalled.Dispose();
+
+                foreach (var m in marshalledArrays) {
+                    m.Dispose();
+                }
 
                 for (int i = 0; i < count; i++) {
                     var info = infos[i];

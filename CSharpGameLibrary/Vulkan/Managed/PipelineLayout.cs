@@ -3,12 +3,13 @@ using System.Runtime.InteropServices;
 
 namespace CSGL.Vulkan.Managed {
     public class PipelineLayoutCreateInfo {
-        public VkDescriptorSetLayout[] pSetLayouts { get; set; }
-        public VkPushConstantRange[] pPushConstantRanges { get; set; }
+        public VkDescriptorSetLayout[] SetLayouts { get; set; }
+        public VkPushConstantRange[] PushConstantRanges { get; set; }
     }
 
     public class PipelineLayout : IDisposable {
         VkPipelineLayout pipelineLayout;
+        bool disposed = false;
 
         public Device Device { get; private set; }
 
@@ -30,10 +31,13 @@ namespace CSGL.Vulkan.Managed {
             VkPipelineLayoutCreateInfo info = new VkPipelineLayoutCreateInfo();
             info.sType = VkStructureType.StructureTypePipelineLayoutCreateInfo;
 
-            info.setLayoutCount = (uint)mInfo.pSetLayouts.Length;
-            info.pSetLayouts = mInfo.pSetLayouts;
-            info.pushConstantRangeCount = (uint)mInfo.pPushConstantRanges.Length;
-            info.pPushConstantRanges = mInfo.pPushConstantRanges;
+            var layoutsMarshalled = new MarshalledArray<VkDescriptorSetLayout>(mInfo.SetLayouts);
+            info.setLayoutCount = (uint)layoutsMarshalled.Count;
+            info.pSetLayouts = layoutsMarshalled.Address;
+
+            var pushConstantsMarshalled = new MarshalledArray<VkPushConstantRange>(mInfo.PushConstantRanges);
+            info.pushConstantRangeCount = (uint)pushConstantsMarshalled.Count;
+            info.pPushConstantRanges = pushConstantsMarshalled.Address;
 
             IntPtr infoPtr = Marshal.AllocHGlobal(Marshal.SizeOf<VkPipelineLayoutCreateInfo>());
             Marshal.StructureToPtr(info, infoPtr, false);
@@ -51,11 +55,16 @@ namespace CSGL.Vulkan.Managed {
 
                 Marshal.FreeHGlobal(infoPtr);
                 Marshal.FreeHGlobal(pipelineLayoutPtr);
+
+                layoutsMarshalled.Dispose();
+                pushConstantsMarshalled.Dispose();
             }
         }
 
         public void Dispose() {
+            if (disposed) return;
             Device.Commands.destroyPipelineLayout(Device.Native, pipelineLayout, Device.Instance.AllocationCallbacks);
+            disposed = true;
         }
     }
 

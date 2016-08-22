@@ -17,6 +17,7 @@ namespace CSGL.Vulkan.Managed {
             int length = (int)(stream.Length - stream.Position);
             byte[] data = new byte[length];
             stream.Read(data, 0, length);
+            Data = data;
         }
     }
 

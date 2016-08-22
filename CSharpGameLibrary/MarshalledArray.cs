@@ -4,27 +4,29 @@ using System.Runtime.InteropServices;
 namespace CSGL.Vulkan {
     public class MarshalledArray<T> : IDisposable where T : struct {
         int count;
-        int elementSize;
+        static int elementSize;
         IntPtr ptr;
         bool disposed = false;
+
+        static MarshalledArray() {
+            elementSize = Marshal.SizeOf<T>();
+        }
 
         public MarshalledArray(int count) {
             Init(count);
         }
 
         public MarshalledArray(T[] array) {
-            if (array == null) throw new ArgumentNullException(nameof(array));
-
-            Init(array.Length);
-
-            for (int i = 0; i < array.Length; i++) {
-                Marshal.StructureToPtr(array[i], GetAddress(i), false);
+            if (array != null) {
+                Init(array.Length);
+                for (int i = 0; i < array.Length; i++) {
+                    Marshal.StructureToPtr(array[i], GetAddress(i), false);
+                }
             }
         }
 
         void Init(int count) {
             this.count = count;
-            elementSize = Marshal.SizeOf<T>();
             ptr = Marshal.AllocHGlobal(count * elementSize);
         }
 
@@ -47,6 +49,12 @@ namespace CSGL.Vulkan {
 
         public IntPtr GetAddress(int i) {
             return ptr + (i * elementSize);
+        }
+
+        public int Count {
+            get {
+                return count;
+            }
         }
 
         public void Dispose() {

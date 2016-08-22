@@ -71,8 +71,8 @@ namespace CSGL.Vulkan.Managed {
                 if (mInfo.QueuesCreateInfos != null) {
                     queueInfoCount = mInfo.QueuesCreateInfos.Count;
                 }
+
                 var qInfos = new VkDeviceQueueCreateInfo[queueInfoCount];
-                var qInfosMarshalled = new MarshalledArray<VkDeviceQueueCreateInfo>(qInfos);
                 var priorityHandles = new GCHandle[queueInfoCount];
 
                 for (int i = 0; i < queueInfoCount; i++) {
@@ -83,8 +83,10 @@ namespace CSGL.Vulkan.Managed {
                     priorityHandles[i] = GCHandle.Alloc(mInfo.QueuesCreateInfos[i].Priorities, GCHandleType.Pinned);
                     qInfos[i].pQueuePriorities = priorityHandles[i].AddrOfPinnedObject();
                 }
+
+                var qInfosMarshalled = new MarshalledArray<VkDeviceQueueCreateInfo>(qInfos);
                 info.queueCreateInfoCount = (uint)queueInfoCount;
-                if (queueInfoCount > 0) info.pQueueCreateInfos = qInfosMarshalled.Address;
+                info.pQueueCreateInfos = qInfosMarshalled.Address;
 
                 byte** ppExtensionNames = stackalloc byte*[Extensions.Count];
                 GCHandle* exHandles = stackalloc GCHandle[Extensions.Count];
@@ -97,8 +99,9 @@ namespace CSGL.Vulkan.Managed {
                 info.enabledExtensionCount = (uint)Extensions.Count;
                 if (Extensions.Count > 0) info.ppEnabledExtensionNames = (IntPtr)ppExtensionNames;
 
+
                 IntPtr infoPtr = Marshal.AllocHGlobal(Marshal.SizeOf<VkDeviceCreateInfo>());
-                Marshal.StructureToPtr<VkDeviceCreateInfo>(info, infoPtr, false);
+                Marshal.StructureToPtr(info, infoPtr, false);
 
                 IntPtr devicePtr = Marshal.AllocHGlobal(Marshal.SizeOf<VkDevice>());
 
