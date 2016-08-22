@@ -71,7 +71,6 @@ namespace CSGL.Vulkan.Managed {
         static Pipeline[] CreatePipelinesInternal(Device device, GraphicsPipelineCreateInfo[] mInfos, VkPipelineCache cache) {
             int count = mInfos.Length;
             var infos = new VkGraphicsPipelineCreateInfo[count];
-            var pipelines = new VkPipeline[count];
             var pipelineResults = new Pipeline[count];
 
             for (int i = 0; i < mInfos.Length; i++) {
@@ -141,22 +140,25 @@ namespace CSGL.Vulkan.Managed {
                 Marshal.StructureToPtr(info, infoPtr, false);
             }
 
-            GCHandle infosHandle = GCHandle.Alloc(infos, GCHandleType.Pinned);
-            GCHandle pipelinesHandle = GCHandle.Alloc(pipelines, GCHandleType.Pinned);
+            var infosMarshalled = new MarshalledArray<VkGraphicsPipelineCreateInfo>(infos);
+            var pipelinesMarshalled = new MarshalledArray<VkPipeline>(count);
 
             try {
                 var result = device.Commands.createGraphicsPiplines(
                     device.Native, cache, 
-                    (uint)mInfos.Length, infosHandle.AddrOfPinnedObject(),
-                    device.Instance.AllocationCallbacks, pipelinesHandle.AddrOfPinnedObject());
+                    (uint)mInfos.Length, infosMarshalled.Address,
+                    device.Instance.AllocationCallbacks, pipelinesMarshalled.Address);
 
                 if (result != VkResult.Success) throw new PipelineException(string.Format("Error creating pipeline: {0}", result));
 
                 for (int i = 0; i < count; i++) {
-                    pipelineResults[i] = new Pipeline(device, pipelines[i]);
+                    pipelineResults[i] = new Pipeline(device, pipelinesMarshalled[i]);
                 }
             }
             finally {
+                pipelinesMarshalled.Dispose();
+                infosMarshalled.Dispose();
+
                 for (int i = 0; i < count; i++) {
                     var info = infos[i];
                     Marshal.DestroyStructure<VkPipelineVertexInputStateCreateInfo>(info.pVertexInputState);
@@ -179,9 +181,6 @@ namespace CSGL.Vulkan.Managed {
                     Marshal.FreeHGlobal(info.pColorBlendState);
                     Marshal.FreeHGlobal(info.pDynamicState);
                 }
-
-                infosHandle.Free();
-                pipelinesHandle.Free();
             }
 
             return pipelineResults;
