@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
-using System.Reflection;
+using System.IO;
 
 using CSGL.GLFW;
 using CSGL.Vulkan;
@@ -29,8 +28,15 @@ namespace VK_Test {
         Queue presentQueue;
         Swapchain swapchain;
         List<ImageView> swapchainImageViews;
+        Pipeline pipeline;
+        VkExtent2D swapchainExtent;
+        VkFormat swapchainImageFormat;
+        PipelineLayout pipelineLayout;
+        RenderPass renderPass;
 
         public void Dispose() {
+            renderPass.Dispose();
+            pipelineLayout.Dispose();
             foreach (var iv in swapchainImageViews) iv.Dispose();
             swapchain.Dispose();
             surface.Dispose();
@@ -113,6 +119,8 @@ namespace VK_Test {
 
                 swapchainImageViews.Add(new ImageView(device, imageViewInfo));
             }
+
+            CreatePipeline();
             
             while (!GLFW.WindowShouldClose(window)) {
                 GLFW.PollEvents();
@@ -157,6 +165,9 @@ namespace VK_Test {
             info.Clipped = true;
             info.OldSwapchain = swapchain;
 
+            swapchainExtent = extent;
+            swapchainFormat = surfaceFormat.format;
+
             return info;
         }
 
@@ -200,6 +211,104 @@ namespace VK_Test {
                 }
             }
             return list[0];
+        }
+
+        Pipeline CreatePipeline() {
+            ShaderModule vert;
+            ShaderModuleCreateInfo vertCreate;
+
+            ShaderModule frag;
+            ShaderModuleCreateInfo fragCreate;
+
+            using (var reader = File.OpenRead("vert.spv")) {
+                vertCreate = new ShaderModuleCreateInfo(reader);
+            }
+            vert = new ShaderModule(device, vertCreate);
+
+            using (var reader = File.OpenRead("frag.spv")) {
+                fragCreate = new ShaderModuleCreateInfo(reader);
+            }
+            frag = new ShaderModule(device, fragCreate);
+
+            var vertexInput = new PipelineVertexInputStateCreateInfo();
+            var inputAssembly = new PipelineInputAssemblyStateCreateInfo();
+            inputAssembly.Topology = VkPrimitiveTopology.PrimitiveTopologyTriangleList;
+
+            var viewport = new VkViewport();
+            viewport.x = 0;
+            viewport.y = 0;
+            viewport.width = swapchainExtent.width;
+            viewport.height = swapchainExtent.height;
+            viewport.minDepth = 0;
+            viewport.maxDepth = 1f;
+
+            var scissor = new VkRect2D();
+            scissor.offset = new VkOffset2D();
+            scissor.extent = swapchainExtent;
+
+            var viewportState = new PipelineViewportStateCreateInfo();
+            viewportState.Viewports = new VkViewport[] { viewport };
+            viewportState.Scissors = new VkRect2D[] { scissor };
+
+            var rasterizer = new PipelineRasterizationStateCreateInfo();
+            rasterizer.PolygonMode = VkPolygonMode.PolygonModeFill;
+            rasterizer.LineWidth = 0;
+            rasterizer.CullMode = VkCullModeFlags.CullModeBackBit;
+            rasterizer.FrontFace = VkFrontFace.FrontFaceClockwise;
+
+            var multisample = new PipelineMultisampleStateCreateInfo();
+            multisample.RasterizationSamples = VkSampleCountFlags.SampleCount1Bit;
+            multisample.MinSampleShading = 1;
+
+            var colorAttach = new PipelineColorBlendAttachmentState();
+            colorAttach.ColorWriteMask = VkColorComponentFlags.ColorComponentRBit | VkColorComponentFlags.ColorComponentGBit
+                | VkColorComponentFlags.ColorComponentBBit | VkColorComponentFlags.ColorComponentABit;
+            colorAttach.SrcColorBlendFactor = VkBlendFactor.BlendFactorOne;
+            colorAttach.DstColorBlendFactor = VkBlendFactor.BlendFactorOne;
+            colorAttach.ColorBlendOp = VkBlendOp.BlendOpAdd;
+            colorAttach.SrcAlphaBlendFactor = VkBlendFactor.BlendFactorOne;
+            colorAttach.DstColorBlendFactor = VkBlendFactor.BlendFactorZero;
+            colorAttach.AlphaBlendOp = VkBlendOp.BlendOpAdd;
+
+            var color = new PipelineColorBlendStateCreateInfo();
+            color.Attachments = new PipelineColorBlendAttachmentState[] { colorAttach };
+            color.BlendConstants = new float[4];    //the unmanaged version is a fixed size array
+
+            var dynamic = new PipelineDynamicStateCreateInfo();
+            dynamic.DynamicStates = new VkDynamicState[] { VkDynamicState.DynamicStateViewport };
+
+            var pipelineLayoutCreate = new PipelineLayoutCreateInfo();
+            pipelineLayout = new PipelineLayout(device, pipelineLayoutCreate);
+
+            var colorAttachment = new VkAttachmentDescription();
+            colorAttachment.format = swapchainImageFormat;
+            colorAttachment.samples = VkSampleCountFlags.SampleCount1Bit;
+            colorAttachment.loadOp = VkAttachmentLoadOp.AttachmentLoadOpClear;
+            colorAttachment.storeOp = VkAttachmentStoreOp.AttachmentStoreOpStore;
+            colorAttachment.stencilLoadOp = VkAttachmentLoadOp.AttachmentLoadOpDontCare;
+            colorAttachment.stencilStoreOp = VkAttachmentStoreOp.AttachmentStoreOpDontCare;
+            colorAttachment.initialLayout = VkImageLayout.ImageLayoutUndefined;
+            colorAttachment.finalLayout = VkImageLayout.ImageLayoutPresentSrcKhr;
+
+            var colorAttachmentRef = new VkAttachmentReference();
+            colorAttachmentRef.attachment = 0;
+            colorAttachmentRef.layout = VkImageLayout.ImageLayoutColorAttachmentOptimal;
+
+            var subpass = new SubpassDescription();
+            subpass.PipelineBindPoint = VkPipelineBindPoint.PipelineBindPointGraphics;
+            
+            subpass.ColorAttachments = new VkAttachmentReference[] { colorAttachmentRef };
+
+            var renderpassCreate = new RenderPassCreateInfo();
+            renderpassCreate.Attachments = new VkAttachmentDescription[] { colorAttachment };
+            renderpassCreate.Subpasses = new SubpassDescription[] { subpass };
+
+            renderPass = new RenderPass(device, renderpassCreate);
+            
+            vert.Dispose();
+            frag.Dispose();
+
+            return null;
         }
     }
 }
