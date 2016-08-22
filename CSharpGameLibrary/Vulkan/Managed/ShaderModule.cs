@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using System.IO;
 
 using CSGL.Vulkan.Unmanaged;
 
@@ -10,6 +11,12 @@ namespace CSGL.Vulkan.Managed {
 
         public ShaderModuleCreateInfo(byte[] data) {
             Data = data;
+        }
+
+        public ShaderModuleCreateInfo(Stream stream) {
+            int length = (int)(stream.Length - stream.Position);
+            byte[] data = new byte[length];
+            stream.Read(data, 0, length);
         }
     }
 
@@ -42,35 +49,32 @@ namespace CSGL.Vulkan.Managed {
         }
 
         void CreateShader(ShaderModuleCreateInfo mInfo) {
-            unsafe
-            {
-                VkShaderModuleCreateInfo info = new VkShaderModuleCreateInfo();
-                info.sType = VkStructureType.StructureTypeShaderModuleCreateInfo;
-                info.codeSize = (ulong)mInfo.Data.LongLength;
+            VkShaderModuleCreateInfo info = new VkShaderModuleCreateInfo();
+            info.sType = VkStructureType.StructureTypeShaderModuleCreateInfo;
+            info.codeSize = (ulong)mInfo.Data.LongLength;
 
-                GCHandle handle = GCHandle.Alloc(mInfo.Data, GCHandleType.Pinned);
+            GCHandle handle = GCHandle.Alloc(mInfo.Data, GCHandleType.Pinned);
                 
-                info.pCode = handle.AddrOfPinnedObject();
+            info.pCode = handle.AddrOfPinnedObject();
 
-                IntPtr infoPtr = Marshal.AllocHGlobal(Marshal.SizeOf<VkShaderModuleCreateInfo>());
-                Marshal.StructureToPtr(info, infoPtr, false);
+            IntPtr infoPtr = Marshal.AllocHGlobal(Marshal.SizeOf<VkShaderModuleCreateInfo>());
+            Marshal.StructureToPtr(info, infoPtr, false);
 
-                IntPtr shaderModulePtr = Marshal.AllocHGlobal(Marshal.SizeOf<VkShaderModule>());
+            IntPtr shaderModulePtr = Marshal.AllocHGlobal(Marshal.SizeOf<VkShaderModule>());
 
-                try {
-                    var result = createShaderModule(device.Native, infoPtr, device.Instance.AllocationCallbacks, shaderModulePtr);
-                    if (result != VkResult.Success) throw new ShaderModuleException(string.Format("Error creating shader module: {0}"));
+            try {
+                var result = createShaderModule(device.Native, infoPtr, device.Instance.AllocationCallbacks, shaderModulePtr);
+                if (result != VkResult.Success) throw new ShaderModuleException(string.Format("Error creating shader module: {0}"));
 
-                    shaderModule = Marshal.PtrToStructure<VkShaderModule>(shaderModulePtr);
-                }
-                finally {
-                    Marshal.DestroyStructure<VkShaderModuleCreateInfo>(infoPtr);
+                shaderModule = Marshal.PtrToStructure<VkShaderModule>(shaderModulePtr);
+            }
+            finally {
+                Marshal.DestroyStructure<VkShaderModuleCreateInfo>(infoPtr);
 
-                    Marshal.FreeHGlobal(infoPtr);
-                    Marshal.FreeHGlobal(shaderModulePtr);
+                Marshal.FreeHGlobal(infoPtr);
+                Marshal.FreeHGlobal(shaderModulePtr);
 
-                    handle.Free();
-                }
+                handle.Free();
             }
         }
 

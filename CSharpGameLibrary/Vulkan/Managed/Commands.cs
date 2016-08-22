@@ -24,6 +24,19 @@ namespace CSGL.Vulkan.Managed {
             public vkCreateShaderModuleDelegate createShaderModule = null;
             public vkDestroyShaderModuleDelegate destroyShaderModule = null;
 
+            public vkCreateGraphicsPipelinesDelegate createGraphicsPiplines = null;
+            public vkCreateComputePipelinesDelegate createComputePipelines = null;
+            public vkDestroyPipelineDelegate destroyPipeline = null;
+
+            public vkCreatePipelineLayoutDelegate createPipelineLayout = null;
+            public vkDestroyPipelineLayoutDelegate destroyPipelineLayout = null;
+
+            public vkCreatePipelineCacheDelegate createPipelineCache = null;
+            public vkDestroyPipelineCacheDelegate destroyPipelineDestroy = null;
+
+            public vkCreateRenderPassDelegate createRenderPass = null;
+            public vkDestroyRenderPassDelegate destroyRenderPass = null;
+
             public DeviceCommands(Device device) {
                 Type t = typeof(DeviceCommands);
                 FieldInfo[] fields = t.GetFields();
