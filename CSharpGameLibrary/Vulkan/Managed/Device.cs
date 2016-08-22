@@ -72,7 +72,7 @@ namespace CSGL.Vulkan.Managed {
                     queueInfoCount = mInfo.QueuesCreateInfos.Count;
                 }
                 var qInfos = new VkDeviceQueueCreateInfo[queueInfoCount];
-                GCHandle handle = GCHandle.Alloc(qInfos, GCHandleType.Pinned);
+                var qInfosMarshalled = new MarshalledArray<VkDeviceQueueCreateInfo>(qInfos);
                 var priorityHandles = new GCHandle[queueInfoCount];
 
                 for (int i = 0; i < queueInfoCount; i++) {
@@ -84,7 +84,7 @@ namespace CSGL.Vulkan.Managed {
                     qInfos[i].pQueuePriorities = priorityHandles[i].AddrOfPinnedObject();
                 }
                 info.queueCreateInfoCount = (uint)queueInfoCount;
-                if (queueInfoCount > 0) info.pQueueCreateInfos = handle.AddrOfPinnedObject();
+                if (queueInfoCount > 0) info.pQueueCreateInfos = qInfosMarshalled.Address;
 
                 byte** ppExtensionNames = stackalloc byte*[Extensions.Count];
                 GCHandle* exHandles = stackalloc GCHandle[Extensions.Count];
@@ -122,7 +122,7 @@ namespace CSGL.Vulkan.Managed {
                         priorityHandles[i].Free();
                     }
 
-                    handle.Free();
+                    qInfosMarshalled.Dispose();
                 }
             }
         }

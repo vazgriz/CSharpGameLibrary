@@ -57,6 +57,11 @@ namespace CSGL.Vulkan {
             }
 
             Marshal.FreeHGlobal(ptr);
+            GC.SuppressFinalize(this);
+        }
+
+        ~MarshalledArray() {
+            Dispose();
         }
     }
 }
