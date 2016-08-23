@@ -58,6 +58,11 @@ namespace CSGL.Vulkan {
         }
 
         public void Dispose() {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        public void Dispose(bool disposing) {
             if (disposed) return;
 
             for (int i = 0; i < count; i++) {
@@ -65,7 +70,6 @@ namespace CSGL.Vulkan {
             }
 
             Marshal.FreeHGlobal(ptr);
-            GC.SuppressFinalize(this);
         }
 
         ~MarshalledArray() {

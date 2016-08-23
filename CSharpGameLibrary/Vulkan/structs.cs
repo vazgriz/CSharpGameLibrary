@@ -1384,7 +1384,7 @@ namespace CSGL.Vulkan {
         public VkPipelineShaderStageCreateFlags flags;
         public VkShaderStageFlags stage;
         public VkShaderModule module;
-        public byte[] pName;
+        public IntPtr pName;
         public IntPtr pSpecializationInfo;
     }
 

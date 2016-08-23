@@ -8,13 +8,17 @@ namespace CSGL.Vulkan.Managed {
         public string Name { get; set; }
         public IntPtr SpecializationInfo { get; set; }
 
-        internal VkPipelineShaderStageCreateInfo GetNative() {
+        internal VkPipelineShaderStageCreateInfo GetNative(List<IDisposable> marshalled) {
             var result = new VkPipelineShaderStageCreateInfo();
             result.sType = VkStructureType.StructureTypePipelineShaderStageCreateInfo;
             result.stage = Stage;
             result.module = Module.Native;
-            result.pName = Interop.GetUTF8(Name);
+            var nativeStr = Interop.GetUTF8(Name);
+            var strMarshalled = new MarshalledArray<byte>(nativeStr);
+            result.pName = strMarshalled.Address;
             result.pSpecializationInfo = SpecializationInfo;
+
+            marshalled.Add(strMarshalled);
 
             return result;
         }

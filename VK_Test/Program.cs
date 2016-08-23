@@ -35,6 +35,7 @@ namespace VK_Test {
         RenderPass renderPass;
 
         public void Dispose() {
+            pipeline.Dispose();
             renderPass.Dispose();
             pipelineLayout.Dispose();
             foreach (var iv in swapchainImageViews) iv.Dispose();
@@ -166,7 +167,7 @@ namespace VK_Test {
             info.OldSwapchain = swapchain;
 
             swapchainExtent = extent;
-            swapchainFormat = surfaceFormat.format;
+            swapchainImageFormat = surfaceFormat.format;
 
             return info;
         }
@@ -230,6 +231,16 @@ namespace VK_Test {
             }
             frag = new ShaderModule(device, fragCreate);
 
+            var vertInfo = new PipelineShaderStageCreateInfo();
+            vertInfo.Module = vert;
+            vertInfo.Name = "main";
+            vertInfo.Stage = VkShaderStageFlags.ShaderStageVertexBit;
+
+            var fragInfo = new PipelineShaderStageCreateInfo();
+            fragInfo.Module = frag;
+            fragInfo.Name = "main";
+            fragInfo.Stage = VkShaderStageFlags.ShaderStageFragmentBit;
+
             var vertexInput = new PipelineVertexInputStateCreateInfo();
             var inputAssembly = new PipelineInputAssemblyStateCreateInfo();
             inputAssembly.Topology = VkPrimitiveTopology.PrimitiveTopologyTriangleList;
@@ -252,7 +263,7 @@ namespace VK_Test {
 
             var rasterizer = new PipelineRasterizationStateCreateInfo();
             rasterizer.PolygonMode = VkPolygonMode.PolygonModeFill;
-            rasterizer.LineWidth = 0;
+            rasterizer.LineWidth = 1f;
             rasterizer.CullMode = VkCullModeFlags.CullModeBackBit;
             rasterizer.FrontFace = VkFrontFace.FrontFaceClockwise;
 
@@ -304,6 +315,22 @@ namespace VK_Test {
             renderpassCreate.Subpasses = new SubpassDescription[] { subpass };
 
             renderPass = new RenderPass(device, renderpassCreate);
+
+            var pipelineInfo = new GraphicsPipelineCreateInfo();
+            pipelineInfo.Stages = new PipelineShaderStageCreateInfo[] { vertInfo, fragInfo };
+            pipelineInfo.VertexInputState = vertexInput;
+            pipelineInfo.InputAssemblyState = inputAssembly;
+            pipelineInfo.ViewportState = viewportState;
+            pipelineInfo.RasterizationState = rasterizer;
+            pipelineInfo.MultisampleState = multisample;
+            pipelineInfo.ColorBlendState = color;
+            pipelineInfo.Layout = pipelineLayout;
+            pipelineInfo.RenderPass = renderPass;
+            pipelineInfo.Subpass = 0;
+            pipelineInfo.BasePipeline = null;
+            pipelineInfo.BasePipelineIndex = -1;
+
+            pipeline = new Pipeline(device, pipelineInfo, null);
             
             vert.Dispose();
             frag.Dispose();
