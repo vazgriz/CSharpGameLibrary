@@ -42,52 +42,50 @@ namespace CSGL.Vulkan.Managed {
     }
 
     public partial class Instance { //static members
-        static vkCreateInstanceDelegate CreateInstance;
-        static vkDestroyInstanceDelegate DestroyInstance;
-        static vkEnumerateInstanceExtensionPropertiesDelegate EnumerateExtensionProperties;
-        static vkEnumerateInstanceLayerPropertiesDelegate EnumerateLayerProperties;
+        static vkCreateInstanceDelegate createInstance;
+        static vkDestroyInstanceDelegate destroyInstance;
+        static vkEnumerateInstanceExtensionPropertiesDelegate enumerateExtensionProperties;
+        static vkEnumerateInstanceLayerPropertiesDelegate enumerateLayerProperties;
 
         public static List<Extension> AvailableExtensions { get; private set; }
         public static List<Layer> AvailableLayers { get; private set; }
 
         internal static void Init() {
-            Vulkan.Load(ref CreateInstance);
-            Vulkan.Load(ref DestroyInstance);
-            Vulkan.Load(ref EnumerateExtensionProperties);
-            Vulkan.Load(ref EnumerateLayerProperties);
+            Vulkan.Load(ref createInstance);
+            Vulkan.Load(ref destroyInstance);
+            Vulkan.Load(ref enumerateExtensionProperties);
+            Vulkan.Load(ref enumerateLayerProperties);
             GetLayersAndExtensions();
         }
 
         static void GetLayersAndExtensions() {
             AvailableExtensions = new List<Extension>();
             AvailableLayers = new List<Layer>();
-            unsafe
-            {
-                uint exCount = 0;
-                EnumerateExtensionProperties(null, ref exCount, IntPtr.Zero);
 
-                byte* ex = stackalloc byte[Marshal.SizeOf<VkExtensionProperties>() * (int)exCount];
-                EnumerateExtensionProperties(null, ref exCount, (IntPtr)ex);
+            uint exCount = 0;
+            enumerateExtensionProperties(null, ref exCount, IntPtr.Zero);
 
-                for (int i = 0; i < exCount; i++) {
-                    var extension = Marshal.PtrToStructure<VkExtensionProperties>((IntPtr)ex + Marshal.SizeOf<VkExtensionProperties>() * i);
-                    AvailableExtensions.Add(new Extension(extension));
-                }
+            var ex = new MarshalledArray<VkExtensionProperties>((int)exCount);
+            enumerateExtensionProperties(null, ref exCount, ex.Address);
 
-                uint lCount = 0;
-                EnumerateLayerProperties(ref lCount, IntPtr.Zero);
-
-                byte* l = stackalloc byte[Marshal.SizeOf<VkLayerProperties>() * (int)lCount];
-                EnumerateLayerProperties(ref lCount, (IntPtr)l);
-
-                for (int i = 0; i < lCount; i++) {
-                    var layer = Marshal.PtrToStructure<VkLayerProperties>((IntPtr)l + Marshal.SizeOf<VkLayerProperties>() * i);
-                    AvailableLayers.Add(new Layer(layer));
-                }
-
-                Marshal.DestroyStructure<VkExtensionProperties>((IntPtr)ex);
-                Marshal.DestroyStructure<VkLayerProperties>((IntPtr)l);
+            for (int i = 0; i < exCount; i++) {
+                var extension = ex[i];
+                AvailableExtensions.Add(new Extension(extension));
             }
+
+            uint lCount = 0;
+            enumerateLayerProperties(ref lCount, IntPtr.Zero);
+
+            var l = new MarshalledArray<VkLayerProperties>((int)lCount);
+            enumerateLayerProperties(ref lCount, l.Address);
+
+            for (int i = 0; i < lCount; i++) {
+                var layer = l[i];
+                AvailableLayers.Add(new Layer(layer));
+            }
+
+            ex.Dispose();
+            l.Dispose();
         }
     }
 }

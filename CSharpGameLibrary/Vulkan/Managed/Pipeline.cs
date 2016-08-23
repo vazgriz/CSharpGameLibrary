@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Runtime.InteropServices;
 using System.Collections.Generic;
 
 using CSGL.Vulkan.Unmanaged;
@@ -98,59 +97,57 @@ namespace CSGL.Vulkan.Managed {
 
                 marshalledArrays.Add(stagesMarshalled);
 
-                IntPtr vertexInputPtr = Marshal.AllocHGlobal(Marshal.SizeOf<VkPipelineVertexInputStateCreateInfo>());
-                IntPtr inputAssemblyPtr = Marshal.AllocHGlobal(Marshal.SizeOf<VkPipelineInputAssemblyStateCreateInfo>());
-                IntPtr tesselationPtr = Marshal.AllocHGlobal(Marshal.SizeOf<VkPipelineTessellationStateCreateInfo>());
-                IntPtr viewportPtr = Marshal.AllocHGlobal(Marshal.SizeOf<VkPipelineViewportStateCreateInfo>());
-                IntPtr rasterizationPtr = Marshal.AllocHGlobal(Marshal.SizeOf<VkPipelineRasterizationStateCreateInfo>());
-                IntPtr multisamplePtr = Marshal.AllocHGlobal(Marshal.SizeOf<VkPipelineMultisampleStateCreateInfo>());
-                IntPtr depthPtr = Marshal.AllocHGlobal(Marshal.SizeOf<VkPipelineDepthStencilStateCreateInfo>());
-                IntPtr colorPtr = Marshal.AllocHGlobal(Marshal.SizeOf<VkPipelineColorBlendStateCreateInfo>());
-                IntPtr dynamicPtr = Marshal.AllocHGlobal(Marshal.SizeOf<VkPipelineDynamicStateCreateInfo>());
-
                 if (mInfo.VertexInputState != null) {
-                    Marshal.StructureToPtr(mInfo.VertexInputState.GetNative(marshalledArrays), vertexInputPtr, false);
-                    info.pVertexInputState = vertexInputPtr;
+                    var m = new Marshalled<VkPipelineVertexInputStateCreateInfo>(mInfo.VertexInputState.GetNative(marshalledArrays));
+                    info.pVertexInputState = m.Address;
+                    marshalledArrays.Add(m);
                 }
 
                 if (mInfo.InputAssemblyState != null) {
-                    Marshal.StructureToPtr(mInfo.InputAssemblyState.GetNative(), inputAssemblyPtr, false);
-                    info.pInputAssemblyState = inputAssemblyPtr;
+                    var m = new Marshalled<VkPipelineInputAssemblyStateCreateInfo>(mInfo.InputAssemblyState.GetNative());
+                    info.pInputAssemblyState = m.Address;
+                    marshalledArrays.Add(m);
                 }
 
                 if (mInfo.TessellationState != null) {
-                    Marshal.StructureToPtr(mInfo.TessellationState.GetNative(), tesselationPtr, false);
-                    info.pTessellationState = tesselationPtr;
+                    var m = new Marshalled<VkPipelineTessellationStateCreateInfo>(mInfo.TessellationState.GetNative());
+                    info.pTessellationState = m.Address;
+                    marshalledArrays.Add(m);
                 }
 
                 if (mInfo.ViewportState != null) {
-                    Marshal.StructureToPtr(mInfo.ViewportState.GetNative(marshalledArrays), viewportPtr, false);
-                    info.pViewportState = viewportPtr;
+                    var m = new Marshalled<VkPipelineViewportStateCreateInfo>(mInfo.ViewportState.GetNative(marshalledArrays));
+                    info.pViewportState = m.Address;
                 }
 
                 if (mInfo.RasterizationState != null) {
-                    Marshal.StructureToPtr(mInfo.RasterizationState.GetNative(), rasterizationPtr, false);
-                    info.pRasterizationState = rasterizationPtr;
+                    var m = new Marshalled<VkPipelineRasterizationStateCreateInfo>(mInfo.RasterizationState.GetNative());
+                    info.pRasterizationState = m.Address;
+                    marshalledArrays.Add(m);
                 }
 
                 if (mInfo.MultisampleState != null) {
-                    Marshal.StructureToPtr(mInfo.MultisampleState.GetNative(), multisamplePtr, false);
-                    info.pMultisampleState = multisamplePtr;
+                    var m = new Marshalled<VkPipelineMultisampleStateCreateInfo>(mInfo.MultisampleState.GetNative());
+                    info.pMultisampleState = m.Address;
+                    marshalledArrays.Add(m);
                 }
 
                 if (mInfo.DepthStencilState != null) {
-                    Marshal.StructureToPtr(mInfo.DepthStencilState.GetNative(), depthPtr, false);
-                    info.pDepthStencilState = depthPtr;
+                    var m = new Marshalled<VkPipelineDepthStencilStateCreateInfo>(mInfo.DepthStencilState.GetNative());
+                    info.pDepthStencilState = m.Address;
+                    marshalledArrays.Add(m);
                 }
 
                 if (mInfo.ColorBlendState != null) {
-                    Marshal.StructureToPtr(mInfo.ColorBlendState.GetNative(marshalledArrays), colorPtr, false);
-                    info.pColorBlendState = colorPtr;
+                    var m = new Marshalled<VkPipelineColorBlendStateCreateInfo>(mInfo.ColorBlendState.GetNative(marshalledArrays));
+                    info.pColorBlendState = m.Address;
+                    marshalledArrays.Add(m);
                 }
 
                 if (mInfo.DynamicState != null) {
-                    Marshal.StructureToPtr(mInfo.DynamicState.GetNative(marshalledArrays), dynamicPtr, false);
-                    info.pDynamicState = dynamicPtr;
+                    var m = new Marshalled<VkPipelineDynamicStateCreateInfo>(mInfo.DynamicState.GetNative(marshalledArrays));
+                    info.pDynamicState = m.Address;
+                    marshalledArrays.Add(m);
                 }
 
                 info.layout = mInfo.Layout.Native;
@@ -180,40 +177,14 @@ namespace CSGL.Vulkan.Managed {
                 if (result != VkResult.Success) throw new PipelineException(string.Format("Error creating pipeline: {0}", result));
 
                 for (int i = 0; i < count; i++) {
-                    var pipeline = pipelinesMarshalled[i];
-                    pipelineResults[i] = pipeline;
+                    pipelineResults[i] = pipelinesMarshalled[i];
                 }
             }
             finally {
                 pipelinesMarshalled.Dispose();
                 infosMarshalled.Dispose();
 
-                foreach (var m in marshalledArrays) {
-                    m.Dispose();
-                }
-
-                for (int i = 0; i < count; i++) {
-                    var info = infos[i];
-                    if (info.pVertexInputState != IntPtr.Zero) Marshal.DestroyStructure<VkPipelineVertexInputStateCreateInfo>(info.pVertexInputState);
-                    if (info.pInputAssemblyState != IntPtr.Zero) Marshal.DestroyStructure<VkPipelineInputAssemblyStateCreateInfo>(info.pInputAssemblyState);
-                    if (info.pTessellationState != IntPtr.Zero) Marshal.DestroyStructure<VkPipelineTessellationStateCreateInfo>(info.pTessellationState);
-                    if (info.pViewportState != IntPtr.Zero) Marshal.DestroyStructure<VkPipelineViewportStateCreateInfo>(info.pViewportState);
-                    if (info.pRasterizationState != IntPtr.Zero) Marshal.DestroyStructure<VkPipelineRasterizationStateCreateInfo>(info.pRasterizationState);
-                    if (info.pMultisampleState != IntPtr.Zero) Marshal.DestroyStructure<VkPipelineMultisampleStateCreateInfo>(info.pMultisampleState);
-                    if (info.pDepthStencilState != IntPtr.Zero) Marshal.DestroyStructure<VkPipelineDepthStencilStateCreateInfo>(info.pDepthStencilState);
-                    if (info.pColorBlendState != IntPtr.Zero) Marshal.DestroyStructure<VkPipelineColorBlendStateCreateInfo>(info.pColorBlendState);
-                    if (info.pDynamicState != IntPtr.Zero) Marshal.DestroyStructure<VkPipelineDynamicStateCreateInfo>(info.pDynamicState);
-                    
-                    Marshal.FreeHGlobal(info.pVertexInputState);
-                    Marshal.FreeHGlobal(info.pInputAssemblyState);
-                    Marshal.FreeHGlobal(info.pTessellationState);
-                    Marshal.FreeHGlobal(info.pViewportState);
-                    Marshal.FreeHGlobal(info.pRasterizationState);
-                    Marshal.FreeHGlobal(info.pMultisampleState);
-                    Marshal.FreeHGlobal(info.pDepthStencilState);
-                    Marshal.FreeHGlobal(info.pColorBlendState);
-                    Marshal.FreeHGlobal(info.pDynamicState);
-                }
+                foreach (var m in marshalledArrays) m.Dispose();
             }
 
             return pipelineResults;

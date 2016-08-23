@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
 
 using CSGL;
 using CSGL.Vulkan;
@@ -63,16 +62,15 @@ namespace CSGL.Vulkan.Managed {
 
         void GetImages() {
             Images = new List<Image>();
-            unsafe {
-                uint count = 0;
-                getImages(Device.Native, swapchain, ref count, IntPtr.Zero);
-                var images = stackalloc byte[Marshal.SizeOf<VkImage>() * (int)count];
-                getImages(Device.Native, swapchain, ref count, (IntPtr)images);
 
-                for (int i = 0; i < count; i++) {
-                    VkImage image = Marshal.PtrToStructure<VkImage>((IntPtr)images + Marshal.SizeOf<VkImage>() * i);
-                    Images.Add(new Image(Device, image));
-                }
+            uint count = 0;
+            getImages(Device.Native, swapchain, ref count, IntPtr.Zero);
+            var images = new MarshalledArray<VkImage>((int)count);
+            getImages(Device.Native, swapchain, ref count, images.Address);
+
+            for (int i = 0; i < count; i++) {
+                var image = images[i];
+                Images.Add(new Image(Device, image));
             }
         }
 
@@ -98,23 +96,19 @@ namespace CSGL.Vulkan.Managed {
             if (mInfo.OldSwapchain != null) {
                 info.oldSwapchain = mInfo.OldSwapchain.Native;
             }
-
-            IntPtr infoPtr = Marshal.AllocHGlobal(Marshal.SizeOf<VkSwapchainCreateInfoKHR>());
-            Marshal.StructureToPtr(info, infoPtr, false);
-
-            IntPtr swapchainPtr = Marshal.AllocHGlobal(Marshal.SizeOf<VkSwapchainKHR>());
+            
+            var infoMarshalled = new Marshalled<VkSwapchainCreateInfoKHR>(info);
+            var swapchainMarshalled = new Marshalled<VkSwapchainKHR>();
 
             try {
-                var result = Device.Commands.createSwapchain(Device.Native, infoPtr, Instance.AllocationCallbacks, swapchainPtr);
+                var result = Device.Commands.createSwapchain(Device.Native, infoMarshalled.Address, Instance.AllocationCallbacks, swapchainMarshalled.Address);
                 if (result != VkResult.Success) throw new SwapchainException(string.Format("Error creating swapchain: {0}", result));
 
-                swapchain = Marshal.PtrToStructure<VkSwapchainKHR>(swapchainPtr);
+                swapchain = swapchainMarshalled.Value;
             }
             finally {
-                Marshal.DestroyStructure<VkSwapchainCreateInfoKHR>(infoPtr);
-
-                Marshal.FreeHGlobal(infoPtr);
-                Marshal.FreeHGlobal(swapchainPtr);
+                infoMarshalled.Dispose();
+                swapchainMarshalled.Dispose();
             }
         }
 

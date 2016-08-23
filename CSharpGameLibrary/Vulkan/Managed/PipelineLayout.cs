@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Runtime.InteropServices;
 
 namespace CSGL.Vulkan.Managed {
     public class PipelineLayoutCreateInfo {
@@ -38,24 +37,19 @@ namespace CSGL.Vulkan.Managed {
             var pushConstantsMarshalled = new MarshalledArray<VkPushConstantRange>(mInfo.PushConstantRanges);
             info.pushConstantRangeCount = (uint)pushConstantsMarshalled.Count;
             info.pPushConstantRanges = pushConstantsMarshalled.Address;
-
-            IntPtr infoPtr = Marshal.AllocHGlobal(Marshal.SizeOf<VkPipelineLayoutCreateInfo>());
-            Marshal.StructureToPtr(info, infoPtr, false);
-
-            IntPtr pipelineLayoutPtr = Marshal.AllocHGlobal(Marshal.SizeOf<VkPipelineLayout>());
+            
+            var infoMarshalled = new Marshalled<VkPipelineLayoutCreateInfo>(info);
+            var pipelineLayoutMarshalled = new Marshalled<VkPipelineLayout>();
 
             try {
-                var result = Device.Commands.createPipelineLayout(Device.Native, infoPtr, Device.Instance.AllocationCallbacks, pipelineLayoutPtr);
+                var result = Device.Commands.createPipelineLayout(Device.Native, infoMarshalled.Address, Device.Instance.AllocationCallbacks, pipelineLayoutMarshalled.Address);
                 if (result != VkResult.Success) throw new PipelineLayoutException(string.Format("Error creating pipeline layout: {0}", result));
 
-                pipelineLayout = Marshal.PtrToStructure<VkPipelineLayout>(pipelineLayoutPtr);
+                pipelineLayout = pipelineLayoutMarshalled.Value;
             }
             finally {
-                Marshal.DestroyStructure<VkPipelineLayoutCreateInfo>(infoPtr);
-
-                Marshal.FreeHGlobal(infoPtr);
-                Marshal.FreeHGlobal(pipelineLayoutPtr);
-
+                infoMarshalled.Dispose();
+                pipelineLayoutMarshalled.Dispose();
                 layoutsMarshalled.Dispose();
                 pushConstantsMarshalled.Dispose();
             }

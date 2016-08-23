@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
 using System.IO;
 
 using CSGL.Vulkan.Unmanaged;
@@ -54,28 +53,23 @@ namespace CSGL.Vulkan.Managed {
             info.sType = VkStructureType.StructureTypeShaderModuleCreateInfo;
             info.codeSize = (ulong)mInfo.Data.LongLength;
 
-            GCHandle handle = GCHandle.Alloc(mInfo.Data, GCHandleType.Pinned);
-                
-            info.pCode = handle.AddrOfPinnedObject();
+            var dataPinned = new PinnedArray<byte>(mInfo.Data);
 
-            IntPtr infoPtr = Marshal.AllocHGlobal(Marshal.SizeOf<VkShaderModuleCreateInfo>());
-            Marshal.StructureToPtr(info, infoPtr, false);
-
-            IntPtr shaderModulePtr = Marshal.AllocHGlobal(Marshal.SizeOf<VkShaderModule>());
+            info.pCode = dataPinned.Address;
+            
+            var infoMarshalled = new Marshalled<VkShaderModuleCreateInfo>(info);
+            var shaderModuleMarshalled = new Marshalled<VkShaderModule>();
 
             try {
-                var result = createShaderModule(device.Native, infoPtr, device.Instance.AllocationCallbacks, shaderModulePtr);
+                var result = createShaderModule(device.Native, infoMarshalled.Address, device.Instance.AllocationCallbacks, shaderModuleMarshalled.Address);
                 if (result != VkResult.Success) throw new ShaderModuleException(string.Format("Error creating shader module: {0}"));
 
-                shaderModule = Marshal.PtrToStructure<VkShaderModule>(shaderModulePtr);
+                shaderModule = shaderModuleMarshalled.Value;
             }
             finally {
-                Marshal.DestroyStructure<VkShaderModuleCreateInfo>(infoPtr);
-
-                Marshal.FreeHGlobal(infoPtr);
-                Marshal.FreeHGlobal(shaderModulePtr);
-
-                handle.Free();
+                infoMarshalled.Dispose();
+                shaderModuleMarshalled.Dispose();
+                dataPinned.Dispose();
             }
         }
 

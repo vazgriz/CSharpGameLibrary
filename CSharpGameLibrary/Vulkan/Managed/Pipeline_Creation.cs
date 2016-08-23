@@ -13,12 +13,11 @@ namespace CSGL.Vulkan.Managed {
             result.sType = VkStructureType.StructureTypePipelineShaderStageCreateInfo;
             result.stage = Stage;
             result.module = Module.Native;
-            var nativeStr = Interop.GetUTF8(Name);
-            var strMarshalled = new MarshalledArray<byte>(nativeStr);
-            result.pName = strMarshalled.Address;
+            var strInterop = new InteropString(Name);
+            result.pName = strInterop.Address;
             result.pSpecializationInfo = SpecializationInfo;
 
-            marshalled.Add(strMarshalled);
+            marshalled.Add(strInterop);
 
             return result;
         }

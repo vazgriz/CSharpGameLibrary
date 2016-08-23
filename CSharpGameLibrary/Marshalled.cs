@@ -47,7 +47,7 @@ namespace CSGL {
         void Dispose(bool disposing) {
             if (disposed) return;
 
-            Marshal.DestroyStructure<T>(ptr);
+            if (ptr != IntPtr.Zero) Marshal.DestroyStructure<T>(ptr);
             Marshal.FreeHGlobal(ptr);
 
             disposed = true;

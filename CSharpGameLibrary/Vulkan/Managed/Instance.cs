@@ -84,17 +84,13 @@ namespace CSGL.Vulkan.Managed {
 
         void GetPhysicalDevices() {
             PhysicalDevices = new List<PhysicalDevice>();
-            unsafe
-            {
-                uint count = 0;
-                Commands.enumeratePhysicalDevices(instance, ref count, IntPtr.Zero);
-                var devices = stackalloc byte[Marshal.SizeOf<VkPhysicalDevice>() * (int)count];
-                Commands.enumeratePhysicalDevices(instance, ref count, (IntPtr)devices);
+            uint count = 0;
+            Commands.enumeratePhysicalDevices(instance, ref count, IntPtr.Zero);
+            var devices = new MarshalledArray<VkPhysicalDevice>((int)count);
+            Commands.enumeratePhysicalDevices(instance, ref count, devices.Address);
 
-                for (int i = 0; i < count; i++) {
-                    PhysicalDevices.Add(new PhysicalDevice(this,
-                    Marshal.PtrToStructure<VkPhysicalDevice>((IntPtr)devices + Marshal.SizeOf<VkPhysicalDevice>() * i)));
-                }
+            for (int i = 0; i < count; i++) {
+                PhysicalDevices.Add(new PhysicalDevice(this, devices[i]));
             }
         }
 
@@ -103,79 +99,65 @@ namespace CSGL.Vulkan.Managed {
             //they can't be members of the class without pinning or fixing them
             //allocating the callback on the unmanaged heap feels messy enough, I didn't want to do that with every struct
             //nor did I want to make InstanceCreateInfo and ApplicationInfo disposable
+            
+            VkApplicationInfo appInfo = new VkApplicationInfo();
+            VkInstanceCreateInfo info = new VkInstanceCreateInfo();
+            var marshalled = new List<IDisposable>();
 
-            unsafe
-            {
-                VkApplicationInfo appInfo = new VkApplicationInfo();
-                VkInstanceCreateInfo info = new VkInstanceCreateInfo();
+            Marshalled<VkApplicationInfo> appInfoMarshalled;
 
-                var appInfoMarshalled = stackalloc byte[Marshal.SizeOf<VkApplicationInfo>()];
-
-                info.sType = VkStructureType.StructureTypeInstanceCreateInfo;
+            info.sType = VkStructureType.StructureTypeInstanceCreateInfo;
                 
-                if (mInfo.ApplicationInfo != null) {
-                    appInfo.sType = VkStructureType.StructureTypeApplicationInfo;
-                    appInfo.apiVersion = mInfo.ApplicationInfo.APIVersion;
-                    appInfo.engineVersion = mInfo.ApplicationInfo.EngineVersion;
-                    appInfo.applicationVersion = mInfo.ApplicationInfo.ApplicationVersion;
-                    appInfo.pApplicationName = mInfo.ApplicationInfo.ApplicationName;
-                    appInfo.pEngineName = mInfo.ApplicationInfo.EngineName;
+            if (mInfo.ApplicationInfo != null) {
+                appInfo.sType = VkStructureType.StructureTypeApplicationInfo;
+                appInfo.apiVersion = mInfo.ApplicationInfo.APIVersion;
+                appInfo.engineVersion = mInfo.ApplicationInfo.EngineVersion;
+                appInfo.applicationVersion = mInfo.ApplicationInfo.ApplicationVersion;
+                appInfo.pApplicationName = mInfo.ApplicationInfo.ApplicationName;
+                appInfo.pEngineName = mInfo.ApplicationInfo.EngineName;
 
-                    Marshal.StructureToPtr(appInfo, (IntPtr)appInfoMarshalled, false);
+                appInfoMarshalled = new Marshalled<VkApplicationInfo>(appInfo);
+                marshalled.Add(appInfoMarshalled);
 
-                    info.pApplicationInfo = (IntPtr)appInfoMarshalled;
-                }
+                info.pApplicationInfo = appInfoMarshalled.Address;
+            }
 
-                byte** ppExtensionNames = stackalloc byte*[Extensions.Count];
-                byte** ppLayerNames = stackalloc byte*[Layers.Count];
-                GCHandle* exHandles = stackalloc GCHandle[Extensions.Count];
-                GCHandle* lHandles = stackalloc GCHandle[Layers.Count];
+            IntPtr[] extensionNames = new IntPtr[Extensions.Count];
+            IntPtr[] layerNames = new IntPtr[Layers.Count];
+
+            var exMarshalled = new PinnedArray<IntPtr>(extensionNames);
+            var lMarshalled = new PinnedArray<IntPtr>(layerNames);
                 
-                for (int i = 0; i < Extensions.Count; i++) {
-                    var s = Interop.GetUTF8(Extensions[i]);
-                    exHandles[i] = GCHandle.Alloc(s, GCHandleType.Pinned);
-                    ppExtensionNames[i] = (byte*)exHandles[i].AddrOfPinnedObject();
-                }
-                info.enabledExtensionCount = (uint)Extensions.Count;
-                if (Extensions.Count > 0) info.ppEnabledExtensionNames = (IntPtr)ppExtensionNames;
+            for (int i = 0; i < Extensions.Count; i++) {
+                var s = new InteropString(Extensions[i]);
+                extensionNames[i] = s.Address;
+                marshalled.Add(s);
+            }
+            info.enabledExtensionCount = (uint)Extensions.Count;
+            if (Extensions.Count > 0) info.ppEnabledExtensionNames = exMarshalled.Address;
                 
-                for (int i = 0; i < Layers.Count; i++) {
-                    var s = Interop.GetUTF8(Layers[i]);
-                    lHandles[i] = GCHandle.Alloc(s, GCHandleType.Pinned);
-                    ppLayerNames[i] = (byte*)lHandles[i].AddrOfPinnedObject();
-                }
-                info.enabledLayerCount = (uint)Layers.Count;
-                if (Layers.Count > 0) info.ppEnabledLayerNames = (IntPtr)ppLayerNames;
+            for (int i = 0; i < Layers.Count; i++) {
+                var s = new InteropString(Layers[i]);
+                layerNames[i] = s.Address;
+                marshalled.Add(s);
+            }
+            info.enabledLayerCount = (uint)Layers.Count;
+            if (Layers.Count > 0) info.ppEnabledLayerNames = lMarshalled.Address;
 
-                IntPtr infoPtr = Marshal.AllocHGlobal(Marshal.SizeOf<VkInstanceCreateInfo>());
-                Marshal.StructureToPtr(info, infoPtr, false);
+            var infoMarshalled = new Marshalled<VkInstanceCreateInfo>(info);
+            var instanceMarshalled = new Marshalled<VkInstance>();
 
-                IntPtr instancePtr = Marshal.AllocHGlobal(Marshal.SizeOf<VkInstance>());
+            try {
+                var result = createInstance(infoMarshalled.Address, alloc, instanceMarshalled.Address);
+                if (result != VkResult.Success) throw new InstanceException(string.Format("Error creating instance: {0}", result));
 
-                try {
-                    var result = CreateInstance(infoPtr, alloc, instancePtr);
-                    if (result != VkResult.Success) throw new InstanceException(string.Format("Error creating instance: {0}", result));
+                instance = instanceMarshalled.Value;
+            }
+            finally {
+                infoMarshalled.Dispose();
+                instanceMarshalled.Dispose();
 
-                    instance = Marshal.PtrToStructure<VkInstance>(instancePtr);
-                }
-                finally {
-                    Marshal.DestroyStructure<VkInstanceCreateInfo>(infoPtr);
-                    Marshal.DestroyStructure<VkInstance>(instancePtr);
-
-                    Marshal.FreeHGlobal(infoPtr);
-                    Marshal.FreeHGlobal(instancePtr);
-
-                    for (int i = 0; i < Extensions.Count; i++) {
-                        exHandles[i].Free();
-                    }
-                    for (int i = 0; i < Layers.Count; i++) {
-                        lHandles[i].Free();
-                    }
-
-                    if (mInfo.ApplicationInfo != null) {
-                        Marshal.DestroyStructure<VkApplicationInfo>((IntPtr)appInfoMarshalled);
-                    }
-                }
+                foreach (var m in marshalled) m.Dispose();
             }
         }
 
@@ -216,9 +198,10 @@ namespace CSGL.Vulkan.Managed {
         public void Dispose() {
             if (disposed) return;
 
-            DestroyInstance(instance, alloc);
+            destroyInstance(instance, alloc);
 
             if (alloc != IntPtr.Zero) {
+                Marshal.DestroyStructure<VkAllocationCallbacks>(alloc);
                 Marshal.FreeHGlobal(alloc);
             }
 

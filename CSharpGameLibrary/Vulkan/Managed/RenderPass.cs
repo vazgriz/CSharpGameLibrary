@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
 
 namespace CSGL.Vulkan.Managed {
     public class RenderPassCreateInfo {
@@ -92,23 +91,19 @@ namespace CSGL.Vulkan.Managed {
             var dependMarshalled = new MarshalledArray<VkSubpassDependency>(mInfo.Dependencies);
             info.dependencyCount = (uint)dependMarshalled.Count;
             info.pDependencies = dependMarshalled.Address;
-
-            IntPtr infoPtr = Marshal.AllocHGlobal(Marshal.SizeOf<VkRenderPassCreateInfo>());
-            Marshal.StructureToPtr(info, infoPtr,false);
-
-            IntPtr renderPassPtr = Marshal.AllocHGlobal(Marshal.SizeOf<VkRenderPass>());
+            
+            var infoMarshalled = new Marshalled<VkRenderPassCreateInfo>(info);
+            var renderPassMarshalled = new Marshalled<VkRenderPass>();
 
             try {
-                var result = Device.Commands.createRenderPass(Device.Native, infoPtr, Device.Instance.AllocationCallbacks, renderPassPtr);
+                var result = Device.Commands.createRenderPass(Device.Native, infoMarshalled.Address, Device.Instance.AllocationCallbacks, renderPassMarshalled.Address);
                 if (result != VkResult.Success) throw new RenderPassException(string.Format("Error creating render pass: {0}"));
 
-                renderPass = Marshal.PtrToStructure<VkRenderPass>(renderPassPtr);
+                renderPass = renderPassMarshalled.Value;
             }
             finally {
-                Marshal.DestroyStructure<VkRenderPassCreateInfo>(infoPtr);
-
-                Marshal.FreeHGlobal(infoPtr);
-                Marshal.FreeHGlobal(renderPassPtr);
+                infoMarshalled.Dispose();
+                renderPassMarshalled.Dispose();
 
                 foreach (var m in marshalledArrays) {
                     m.Dispose();

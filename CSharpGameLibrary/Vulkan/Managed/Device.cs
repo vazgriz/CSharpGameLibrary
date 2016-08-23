@@ -62,71 +62,60 @@ namespace CSGL.Vulkan.Managed {
         }
 
         void CreateDevice(DeviceCreateInfo mInfo) {
-            unsafe
-            {
-                VkDeviceCreateInfo info = new VkDeviceCreateInfo();
-                info.sType = VkStructureType.StructureTypeDeviceCreateInfo;
+            VkDeviceCreateInfo info = new VkDeviceCreateInfo();
+            info.sType = VkStructureType.StructureTypeDeviceCreateInfo;
+            var marshalled = new List<IDisposable>();
 
-                int queueInfoCount = 0;
-                if (mInfo.QueuesCreateInfos != null) {
-                    queueInfoCount = mInfo.QueuesCreateInfos.Count;
-                }
+            int queueInfoCount = 0;
+            if (mInfo.QueuesCreateInfos != null) {
+                queueInfoCount = mInfo.QueuesCreateInfos.Count;
+            }
 
-                var qInfos = new VkDeviceQueueCreateInfo[queueInfoCount];
-                var priorityHandles = new GCHandle[queueInfoCount];
+            var qInfos = new VkDeviceQueueCreateInfo[queueInfoCount];
+            var prioritieAddrs = new IntPtr[queueInfoCount];
 
-                for (int i = 0; i < queueInfoCount; i++) {
-                    qInfos[i].sType = VkStructureType.StructureTypeDeviceQueueCreateInfo;
-                    qInfos[i].queueFamilyIndex = mInfo.QueuesCreateInfos[i].QueueFamilyIndex;
-                    qInfos[i].queueCount = mInfo.QueuesCreateInfos[i].QueueCount;
+            for (int i = 0; i < queueInfoCount; i++) {
+                qInfos[i].sType = VkStructureType.StructureTypeDeviceQueueCreateInfo;
+                qInfos[i].queueFamilyIndex = mInfo.QueuesCreateInfos[i].QueueFamilyIndex;
+                qInfos[i].queueCount = mInfo.QueuesCreateInfos[i].QueueCount;
 
-                    priorityHandles[i] = GCHandle.Alloc(mInfo.QueuesCreateInfos[i].Priorities, GCHandleType.Pinned);
-                    qInfos[i].pQueuePriorities = priorityHandles[i].AddrOfPinnedObject();
-                }
+                var prioritiesMarshalled = new PinnedArray<float>(mInfo.QueuesCreateInfos[i].Priorities);
+                qInfos[i].pQueuePriorities = prioritiesMarshalled.Address;
+                marshalled.Add(prioritiesMarshalled);
+            }
 
-                var qInfosMarshalled = new MarshalledArray<VkDeviceQueueCreateInfo>(qInfos);
-                info.queueCreateInfoCount = (uint)queueInfoCount;
-                info.pQueueCreateInfos = qInfosMarshalled.Address;
+            var qInfosMarshalled = new MarshalledArray<VkDeviceQueueCreateInfo>(qInfos);
+            info.queueCreateInfoCount = (uint)queueInfoCount;
+            info.pQueueCreateInfos = qInfosMarshalled.Address;
 
-                byte** ppExtensionNames = stackalloc byte*[Extensions.Count];
-                GCHandle* exHandles = stackalloc GCHandle[Extensions.Count];
+            IntPtr[] extensionsNames = new IntPtr[Extensions.Count];
+            var exMarshalled = new PinnedArray<IntPtr>(extensionsNames);
 
-                for (int i = 0; i < Extensions.Count; i++) {
-                    var s = Interop.GetUTF8(Extensions[i]);
-                    exHandles[i] = GCHandle.Alloc(s, GCHandleType.Pinned);
-                    ppExtensionNames[i] = (byte*)exHandles[i].AddrOfPinnedObject();
-                }
-                info.enabledExtensionCount = (uint)Extensions.Count;
-                if (Extensions.Count > 0) info.ppEnabledExtensionNames = (IntPtr)ppExtensionNames;
+            for (int i = 0; i < Extensions.Count; i++) {
+                var s = new InteropString(Extensions[i]);
+                extensionsNames[i] = s.Address;
+                marshalled.Add(s);
+            }
+            info.enabledExtensionCount = (uint)Extensions.Count;
+            if (Extensions.Count > 0) info.ppEnabledExtensionNames = exMarshalled.Address;
 
+            var infoMarshalled = new Marshalled<VkDeviceCreateInfo>(info);
 
-                IntPtr infoPtr = Marshal.AllocHGlobal(Marshal.SizeOf<VkDeviceCreateInfo>());
-                Marshal.StructureToPtr(info, infoPtr, false);
+            var deviceMarshalled = new Marshalled<VkDevice>();
 
-                IntPtr devicePtr = Marshal.AllocHGlobal(Marshal.SizeOf<VkDevice>());
+            try {
+                var result = Instance.Commands.createDevice(physicalDevice.Native, infoMarshalled.Address, Instance.AllocationCallbacks, deviceMarshalled.Address);
+                if (result != VkResult.Success) throw new DeviceException(string.Format("Error creating device: {0}", result));
 
-                try {
-                    var result = Instance.Commands.createDevice(physicalDevice.Native, infoPtr, Instance.AllocationCallbacks, devicePtr);
-                    if (result != VkResult.Success) throw new DeviceException(string.Format("Error creating device: {0}", result));
+                device = deviceMarshalled.Value;
+            }
+            finally {
+                infoMarshalled.Dispose();
+                deviceMarshalled.Dispose();
 
-                    device = Marshal.PtrToStructure<VkDevice>(devicePtr);
-                }
-                finally {
-                    Marshal.DestroyStructure<VkDeviceCreateInfo>(infoPtr);
+                qInfosMarshalled.Dispose();
 
-                    Marshal.FreeHGlobal(infoPtr);
-                    Marshal.FreeHGlobal(devicePtr);
-
-                    for (int i = 0; i < Extensions.Count; i++) {
-                        exHandles[i].Free();
-                    }
-
-                    for (int i = 0; i < queueInfoCount; i++) {
-                        priorityHandles[i].Free();
-                    }
-
-                    qInfosMarshalled.Dispose();
-                }
+                foreach (var m in marshalled) m.Dispose();
             }
         }
 

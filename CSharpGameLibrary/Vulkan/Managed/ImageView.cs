@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Runtime.InteropServices;
 
 namespace CSGL.Vulkan.Managed {
     public class ImageViewCreateInfo {
@@ -32,34 +30,26 @@ namespace CSGL.Vulkan.Managed {
         }
 
         void CreateImageView(ImageViewCreateInfo mInfo) {
-            unsafe
-            {
-                VkImageViewCreateInfo info = new VkImageViewCreateInfo();
-                info.sType = VkStructureType.StructureTypeImageViewCreateInfo;
-                info.image = mInfo.Image.Native;
-                info.viewType = mInfo.ViewType;
-                info.format = mInfo.Format;
-                info.components = mInfo.Components;
-                info.subresourceRange = mInfo.SubresourceRange;
+            VkImageViewCreateInfo info = new VkImageViewCreateInfo();
+            info.sType = VkStructureType.StructureTypeImageViewCreateInfo;
+            info.image = mInfo.Image.Native;
+            info.viewType = mInfo.ViewType;
+            info.format = mInfo.Format;
+            info.components = mInfo.Components;
+            info.subresourceRange = mInfo.SubresourceRange;
+            
+            var infoMarshalled = new Marshalled<VkImageViewCreateInfo>(info);
+            var imageViewMarshalled = new Marshalled<VkImageView>();
 
-                IntPtr infoPtr = Marshal.AllocHGlobal(Marshal.SizeOf<VkImageViewCreateInfo>());
-                Marshal.StructureToPtr(info, infoPtr, false);
+            try {
+                var result = Device.Commands.createImageView(Device.Native, infoMarshalled.Address, Device.Instance.AllocationCallbacks, imageViewMarshalled.Address);
+                if (result != VkResult.Success) throw new ImageViewException(string.Format("Error creating image view: {0}", result));
 
-                IntPtr imageViewPtr = Marshal.AllocHGlobal(Marshal.SizeOf<VkImageView>());
-
-                try {
-                    var result = Device.Commands.createImageView(Device.Native, infoPtr, Device.Instance.AllocationCallbacks, imageViewPtr);
-                    if (result != VkResult.Success) throw new ImageViewException(string.Format("Error creating image view: {0}", result));
-
-                    imageView = Marshal.PtrToStructure<VkImageView>(imageViewPtr);
-                }
-                finally {
-                    Marshal.DestroyStructure<VkImageViewCreateInfo>(infoPtr);
-                    Marshal.DestroyStructure<VkImageView>(imageViewPtr);
-
-                    Marshal.FreeHGlobal(infoPtr);
-                    Marshal.FreeHGlobal(imageViewPtr);
-                }
+                imageView = imageViewMarshalled.Value;
+            }
+            finally {
+                infoMarshalled.Dispose();
+                imageViewMarshalled.Dispose();
             }
         }
 
