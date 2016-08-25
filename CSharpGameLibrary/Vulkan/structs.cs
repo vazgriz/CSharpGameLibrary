@@ -2083,7 +2083,7 @@ namespace CSGL.Vulkan {
         public IntPtr pWaitSemaphores;
         public uint swapchainCount;
         public IntPtr pSwapchains;
-        public uint[] pImageIndices;
+        public IntPtr pImageIndices;
         public IntPtr pResults;
     }
 

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
 
 using CSGL.Vulkan.Unmanaged;
 
@@ -135,10 +134,11 @@ namespace CSGL.Vulkan.Managed {
         }
 
         public Queue GetQueue(uint familyIndex, uint index) {
-            IntPtr queuePtr = Marshal.AllocHGlobal(Marshal.SizeOf<VkQueue>());
-            Commands.getDeviceQueue(device, familyIndex, index, queuePtr);
-            var result = new Queue(this, Marshal.PtrToStructure<VkQueue>(queuePtr));
-            Marshal.FreeHGlobal(queuePtr);
+            var queueMarshalled = new Marshalled<VkQueue>();
+            Commands.getDeviceQueue(device, familyIndex, index, queueMarshalled.Address);
+            var result = new Queue(this, queueMarshalled.Value);
+
+            queueMarshalled.Dispose();
 
             return result;
         }

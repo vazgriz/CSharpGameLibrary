@@ -118,6 +118,25 @@ namespace VK_Test {
             CreateCommandBuffers();
             CreateSemaphores();
 
+            var waitSemaphores = new Semaphore[] { imageAvailable };
+            var waitStages = new VkPipelineStageFlags[] { VkPipelineStageFlags.PipelineStageColorAttachmentOutputBit };
+            var submitCommandBuffers = new CommandBuffer[1];
+            var signalSemaphores = new Semaphore[] { renderFinished };
+
+            var submitInfo = new SubmitInfo();
+            submitInfo.WaitSemaphores = waitSemaphores;
+            submitInfo.WaitDstStageMask = waitStages;
+            submitInfo.CommandBuffers = submitCommandBuffers;
+            submitInfo.SignalSemaphores = signalSemaphores;
+
+            var submitInfoArray = new SubmitInfo[] { submitInfo };
+            uint[] imageIndices = new uint[1];
+
+            var presentInfo = new PresentInfo();
+            presentInfo.WaitSemaphores = signalSemaphores;
+            presentInfo.Swapchains = new Swapchain[] { swapchain };
+            presentInfo.ImageIndices = imageIndices;
+
             GLFW.ShowWindow(window);
 
             while (!GLFW.WindowShouldClose(window)) {
@@ -125,17 +144,21 @@ namespace VK_Test {
                 if (GLFW.GetKey(window, CSGL.Input.KeyCode.Enter) == CSGL.Input.KeyAction.Press) {
                     GLFW.SetWindowShouldClose(window, true);
                 }
+                
+                uint index;
+                var result = swapchain.AcquireNextImage(imageAvailable, out index);
 
-                Draw();
+                submitCommandBuffers[0] = commandBuffers[(int)index];
+                graphicsQueue.Submit(submitInfoArray, null);
+
+                imageIndices[0] = index;
+                presentQueue.Present(presentInfo);
             }
+
+            device.WaitIdle();
 
             GLFW.DestroyWindow(window);
             GLFW.Terminate();
-        }
-
-        void Draw() {
-            uint index;
-            var result = swapchain.AcquireNextImage(imageAvailable, out index);
         }
 
         void CreateSemaphores() {
@@ -409,9 +432,17 @@ namespace VK_Test {
             
             subpass.ColorAttachments = new VkAttachmentReference[] { colorAttachmentRef };
 
+            var dependency = new VkSubpassDependency();
+            dependency.srcSubpass = ~(uint)0;   //VK_SUBPASS_EXTERNAL == ~0U
+            dependency.srcStageMask = VkPipelineStageFlags.PipelineStageBottomOfPipeBit;
+            dependency.srcAccessMask = VkAccessFlags.AccessMemoryReadBit;
+            dependency.dstStageMask = VkPipelineStageFlags.PipelineStageColorAttachmentOutputBit;
+            dependency.dstAccessMask = VkAccessFlags.AccessColorAttachmentReadBit | VkAccessFlags.AccessColorAttachmentWriteBit;
+
             var renderpassCreate = new RenderPassCreateInfo();
             renderpassCreate.Attachments = new VkAttachmentDescription[] { colorAttachment };
             renderpassCreate.Subpasses = new SubpassDescription[] { subpass };
+            renderpassCreate.Dependencies = new VkSubpassDependency[] { dependency };
 
             renderPass = new RenderPass(device, renderpassCreate);
 

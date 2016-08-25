@@ -10,6 +10,8 @@ namespace CSGL.Vulkan.Managed {
             public vkDeviceWaitIdleDelegate waitDeviceIdle;
 
             public vkGetDeviceQueueDelegate getDeviceQueue;
+            public vkQueueSubmitDelegate queueSubmit;
+            public vkQueuePresentKHRDelegate queuePresent;
 
             public vkCreateSwapchainKHRDelegate createSwapchain;
             public vkDestroySwapchainKHRDelegate destroySwapchain;
