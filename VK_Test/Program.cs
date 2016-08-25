@@ -48,13 +48,15 @@ namespace VK_Test {
         void Run() {
             GLFW.Init();
             Vulkan.Init();
+            GLFW.WindowHint(WindowHint.Visible, 0);
             window = GLFW.CreateWindow(width, height, "Test", MonitorPtr.Null, WindowPtr.Null);
 
             List<string> extensions = new List<string>(GLFW.GetRequiredInstanceExceptions());
             extensions.Add("VK_EXT_debug_report");
 
             List<string> layers = new List<string> {
-                "VK_LAYER_LUNARG_standard_validation"
+                "VK_LAYER_LUNARG_standard_validation",
+                //"VK_LAYER_LUNARG_api_dump"
             };
 
             foreach (var s in Instance.AvailableExtensions) {
@@ -65,7 +67,7 @@ namespace VK_Test {
                 Console.WriteLine(s.Name);
             }
 
-            var app = new ApplicationInfo(new VkVersion(), "Test", "None", new VkVersion(), new VkVersion());
+            var app = new ApplicationInfo(new VkVersion(1, 0, 17), "Test", "None", new VkVersion(0, 0, 1), new VkVersion());
             var info = new InstanceCreateInfo(app, extensions, layers);
 
             instance = new Instance(info);
@@ -99,7 +101,7 @@ namespace VK_Test {
             var swapchainInfo = GetCreateInfo((uint)graphicsIndex, (uint)presentIndex);
 
             swapchain = new Swapchain(device, swapchainInfo);
-            
+
             swapchainImageViews = new List<ImageView>(swapchain.Images.Count);
             for (int i = 0; i < swapchain.Images.Count; i++) {
                 ImageViewCreateInfo imageViewInfo = new ImageViewCreateInfo(swapchain.Images[i]);
@@ -122,9 +124,14 @@ namespace VK_Test {
             }
 
             CreatePipeline();
-            
+
+            GLFW.ShowWindow(window);
+
             while (!GLFW.WindowShouldClose(window)) {
                 GLFW.PollEvents();
+                if (GLFW.GetKey(window, CSGL.Input.KeyCode.Enter) == CSGL.Input.KeyAction.Press) {
+                    GLFW.SetWindowShouldClose(window, true);
+                }
             }
 
             GLFW.DestroyWindow(window);

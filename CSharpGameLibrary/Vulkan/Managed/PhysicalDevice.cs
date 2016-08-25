@@ -42,7 +42,7 @@ namespace CSGL.Vulkan.Managed {
             getExtensions = instance.Commands.getExtensions;
             getPresentationSupport = instance.Commands.getPresentationSupport;
 
-            GetDeviceProperties();
+            //GetDeviceProperties();    //this causes occasional crashing when the instance is disposed
             GetQueueProperties();
             GetDeviceFeatures();
             GetDeviceExtensions();
