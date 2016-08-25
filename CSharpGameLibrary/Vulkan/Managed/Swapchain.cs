@@ -113,8 +113,13 @@ namespace CSGL.Vulkan.Managed {
         }
 
         public VkResult AcquireNextImage(ulong timeout, Semaphore semaphore, Fence fence, out uint index) {
+            VkSemaphore sTemp = VkSemaphore.Null;
+            VkFence fTemp = VkFence.Null;
+            if (semaphore != null) sTemp = semaphore.Native; ;
+            if (fence != null) fTemp = fence.Native;
+
             uint temp = 0;
-            var result = Device.Commands.acquireNextImage(Device.Native, swapchain, timeout, semaphore.Native, fence.Native, ref temp);
+            var result = Device.Commands.acquireNextImage(Device.Native, swapchain, timeout, sTemp, fTemp, ref temp);
             index = temp;
             return result;
         }
