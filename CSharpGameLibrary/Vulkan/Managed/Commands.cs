@@ -42,6 +42,10 @@ namespace CSGL.Vulkan.Managed {
 
             public vkCreateSemaphoreDelegate createSemaphore;
             public vkDestroySemaphoreDelegate destroySemaphore;
+            public vkAcquireNextImageKHRDelegate acquireNextImage;
+
+            public vkCreateFenceDelegate createFence;
+            public vkDestroyFenceDelegate destroyFence;
 
             internal DeviceCommands(Device device) {
                 Type t = typeof(DeviceCommands);
