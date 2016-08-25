@@ -112,6 +112,33 @@ namespace CSGL.Vulkan.Managed {
             }
         }
 
+        public VkResult AcquireNextImage(ulong timeout, Semaphore semaphore, Fence fence, out uint index) {
+            uint temp = 0;
+            var result = Device.Commands.acquireNextImage(Device.Native, swapchain, timeout, semaphore.Native, fence.Native, ref temp);
+            index = temp;
+            return result;
+        }
+
+        public VkResult AcquireNextImage(Semaphore semaphore, out uint index) {
+            return AcquireNextImage(ulong.MaxValue, semaphore, null, out index);
+        }
+
+        public VkResult AcquireNextImage(ulong timeout, Semaphore semaphore, out uint index) {
+            return AcquireNextImage(timeout, semaphore, null, out index);
+        }
+
+        public VkResult AcquireNextImage(Fence fence, out uint index) {
+            return AcquireNextImage(ulong.MaxValue, null, fence, out index);
+        }
+
+        public VkResult AcquireNextImage(ulong timeout, Fence fence, out uint index) {
+            return AcquireNextImage(timeout, null, fence, out index);
+        }
+
+        public VkResult AcquireNextImage(Semaphore semaphore, Fence fence, out uint index) {
+            return AcquireNextImage(ulong.MaxValue, semaphore, fence, out index);
+        }
+
         public void Dispose() {
             if (disposed) return;
 
