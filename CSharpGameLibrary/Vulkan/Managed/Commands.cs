@@ -49,6 +49,11 @@ namespace CSGL.Vulkan.Managed {
             public vkResetFencesDelegate resetFences;
             public vkWaitForFencesDelegate waitFences;
 
+            public vkCreateCommandPoolDelegate createCommandPool;
+            public vkDestroyCommandPoolDelegate destroyCommandPool;
+            public vkAllocateCommandBuffersDelegate allocateCommandBuffers;
+            public vkFreeCommandBuffersDelegate freeCommandBuffers;
+
             internal DeviceCommands(Device device) {
                 Type t = typeof(DeviceCommands);
                 FieldInfo[] fields = t.GetFields();

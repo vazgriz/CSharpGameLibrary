@@ -34,8 +34,11 @@ namespace VK_Test {
         PipelineLayout pipelineLayout;
         RenderPass renderPass;
         List<Framebuffer> framebuffers;
+        CommandPool pool;
+        List<CommandBuffer> commandBuffers;
 
         public void Dispose() {
+            pool.Dispose();
             foreach (var fb in framebuffers) fb.Dispose();
             pipeline.Dispose();
             renderPass.Dispose();
@@ -107,6 +110,8 @@ namespace VK_Test {
             CreateImageViews();
             CreatePipeline();
             CreateFramebuffers();
+            CreateCommandPool((uint)graphicsIndex);
+            CreateCommandBuffers();
 
             GLFW.ShowWindow(window);
 
@@ -121,10 +126,26 @@ namespace VK_Test {
             GLFW.Terminate();
         }
 
-        void CreateFramebuffers() {
-            framebuffers = new List<Framebuffer>(swapchainImageViews.Count);
+        void CreateCommandPool(uint index) {
+            CommandPoolCreateInfo info = new CommandPoolCreateInfo();
+            info.QueueFamilyIndex = index;
 
-            for (int i = 0; i < framebuffers.Count; i++) {
+            pool = new CommandPool(device, info);
+        }
+
+        void CreateCommandBuffers() {
+            CommandBufferAllocateInfo info = new CommandBufferAllocateInfo();
+            info.CommandPool = pool;
+            info.Level = VkCommandBufferLevel.CommandBufferLevelPrimary;
+            info.Count = (uint)framebuffers.Count;
+
+            commandBuffers = new List<CommandBuffer>(pool.Allocate(info));
+        }
+
+        void CreateFramebuffers() {
+            framebuffers = new List<Framebuffer>(swapchain.Images.Count);
+
+            for (int i = 0; i < swapchain.Images.Count; i++) {
                 ImageView imageView = swapchainImageViews[i];
 
                 FramebufferCreateInfo info = new FramebufferCreateInfo();
@@ -134,7 +155,7 @@ namespace VK_Test {
                 info.Height = swapchainExtent.height;
                 info.Layers = 1;
 
-                framebuffers[i] = new Framebuffer(device, info);
+                framebuffers.Add(new Framebuffer(device, info));
             }
         }
 
