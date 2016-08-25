@@ -17,6 +17,12 @@ namespace CSGL.Vulkan.Managed {
         VkImageView imageView;
         bool disposed = false;
 
+        public VkImageView Native {
+            get {
+                return imageView;
+            }
+        }
+
         public Device Device { get; private set; }
 
         public ImageView(Device device, ImageViewCreateInfo info) {

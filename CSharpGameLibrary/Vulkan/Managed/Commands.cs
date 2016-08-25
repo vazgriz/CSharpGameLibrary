@@ -37,6 +37,9 @@ namespace CSGL.Vulkan.Managed {
             public vkCreateRenderPassDelegate createRenderPass;
             public vkDestroyRenderPassDelegate destroyRenderPass;
 
+            public vkCreateFramebufferDelegate createFramebuffer;
+            public vkDestroyFramebufferDelegate destroyFramebuffer;
+
             internal DeviceCommands(Device device) {
                 Type t = typeof(DeviceCommands);
                 FieldInfo[] fields = t.GetFields();

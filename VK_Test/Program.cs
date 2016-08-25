@@ -33,8 +33,10 @@ namespace VK_Test {
         VkFormat swapchainImageFormat;
         PipelineLayout pipelineLayout;
         RenderPass renderPass;
+        List<Framebuffer> framebuffers;
 
         public void Dispose() {
+            foreach (var fb in framebuffers) fb.Dispose();
             pipeline.Dispose();
             renderPass.Dispose();
             pipelineLayout.Dispose();
@@ -119,7 +121,7 @@ namespace VK_Test {
                 sub.baseArrayLayer = 0;
                 sub.layerCount = 1;
                 imageViewInfo.SubresourceRange = sub;
-
+            CreateFramebuffers();
                 swapchainImageViews.Add(new ImageView(device, imageViewInfo));
             }
 
@@ -136,6 +138,23 @@ namespace VK_Test {
 
             GLFW.DestroyWindow(window);
             GLFW.Terminate();
+        }
+
+        void CreateFramebuffers() {
+            framebuffers = new List<Framebuffer>(swapchainImageViews.Count);
+
+            for (int i = 0; i < framebuffers.Count; i++) {
+                ImageView imageView = swapchainImageViews[i];
+
+                FramebufferCreateInfo info = new FramebufferCreateInfo();
+                info.RenderPass = renderPass;
+                info.Attachments = new ImageView[] { imageView };
+                info.Width = swapchainExtent.width;
+                info.Height = swapchainExtent.height;
+                info.Layers = 1;
+
+                framebuffers[i] = new Framebuffer(device, info);
+            }
         }
 
         SwapchainCreateInfo GetCreateInfo(uint graphicsIndex, uint presentIndex) {

@@ -153,11 +153,8 @@ namespace CSGL.Vulkan.Managed {
 
         public void Dispose() {
             if (disposed) return;
-
-            unsafe
-            {
-                Instance.Commands.destroyDevice(device, Instance.AllocationCallbacks);
-            }
+            
+            Instance.Commands.destroyDevice(device, Instance.AllocationCallbacks);
 
             disposed = true;
         }
