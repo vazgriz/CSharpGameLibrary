@@ -2,6 +2,8 @@
 using System;
 using System.Runtime.InteropServices;
 
+using CSGL.Graphics;
+
 namespace CSGL.Vulkan {
     public struct VkInstance : IEquatable<VkInstance> {
         public IntPtr native;
@@ -1648,6 +1650,8 @@ namespace CSGL.Vulkan {
         public int int32;
         [FieldOffset(0)]
         public uint uint32;
+        [FieldOffset(0)]
+        public Color32 color;
     }
 
     public struct VkClearDepthStencilValue {

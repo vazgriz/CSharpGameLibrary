@@ -75,6 +75,7 @@
     <Compile Include="Vulkan\Managed\CommandBuffer.cs" />
     <Compile Include="Vulkan\Managed\CommandPool.cs" />
     <Compile Include="Vulkan\Managed\Commands.cs" />
+    <Compile Include="Vulkan\Managed\Command_Recording.cs" />
     <Compile Include="Vulkan\Managed\Device.cs" />
     <Compile Include="Vulkan\Managed\Extension.cs" />
     <Compile Include="Vulkan\Managed\Framebuffer.cs" />

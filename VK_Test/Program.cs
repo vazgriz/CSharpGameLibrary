@@ -36,8 +36,12 @@ namespace VK_Test {
         List<Framebuffer> framebuffers;
         CommandPool pool;
         List<CommandBuffer> commandBuffers;
+        Semaphore imageAvailable;
+        Semaphore renderFinished;
 
         public void Dispose() {
+            imageAvailable.Dispose();
+            renderFinished.Dispose();
             pool.Dispose();
             foreach (var fb in framebuffers) fb.Dispose();
             pipeline.Dispose();
@@ -112,6 +116,7 @@ namespace VK_Test {
             CreateFramebuffers();
             CreateCommandPool((uint)graphicsIndex);
             CreateCommandBuffers();
+            CreateSemaphores();
 
             GLFW.ShowWindow(window);
 
@@ -120,10 +125,22 @@ namespace VK_Test {
                 if (GLFW.GetKey(window, CSGL.Input.KeyCode.Enter) == CSGL.Input.KeyAction.Press) {
                     GLFW.SetWindowShouldClose(window, true);
                 }
+
+                Draw();
             }
 
             GLFW.DestroyWindow(window);
             GLFW.Terminate();
+        }
+
+        void Draw() {
+            uint index;
+            var result = swapchain.AcquireNextImage(imageAvailable, out index);
+        }
+
+        void CreateSemaphores() {
+            imageAvailable = new Semaphore(device);
+            renderFinished = new Semaphore(device);
         }
 
         void CreateCommandPool(uint index) {
@@ -140,6 +157,38 @@ namespace VK_Test {
             info.Count = (uint)framebuffers.Count;
 
             commandBuffers = new List<CommandBuffer>(pool.Allocate(info));
+
+            for (int i = 0; i < commandBuffers.Count; i++) {
+                var buffer = commandBuffers[i];
+
+                var beginInfo = new CommandBeginInfo();
+                beginInfo.Flags = VkCommandBufferUsageFlags.CommandBufferUsageSimultaneousUseBit;
+
+                buffer.Begin(beginInfo);
+
+                var renderPassInfo = new RenderPassBeginInfo();
+                renderPassInfo.RenderPass = renderPass;
+                renderPassInfo.Framebuffer = framebuffers[i];
+                var renderArea = new VkRect2D();
+                renderArea.extent = swapchainExtent;
+                renderPassInfo.RenderArea = renderArea;
+                var clearColor = new VkClearValue();
+                var clearColorValue = new VkClearColorValue();
+                clearColorValue.color = new CSGL.Graphics.Color32(0, 0, 0, 1);
+                clearColor.color = clearColorValue;
+                renderPassInfo.ClearValues = new VkClearValue[] { clearColor };
+
+                buffer.BeginRenderPass(renderPassInfo, VkSubpassContents.SubpassContentsInline);
+
+                buffer.BindPipeline(VkPipelineBindPoint.PipelineBindPointGraphics, pipeline);
+
+                buffer.Draw(3, 1, 0, 0);
+
+                buffer.EndRenderPass();
+
+                var result = buffer.End();
+                if (result != VkResult.Success) throw new Exception(string.Format("Error recording framebuffer: {0}", result));
+            }
         }
 
         void CreateFramebuffers() {

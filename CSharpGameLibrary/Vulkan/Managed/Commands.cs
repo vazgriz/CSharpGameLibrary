@@ -54,6 +54,13 @@ namespace CSGL.Vulkan.Managed {
             public vkAllocateCommandBuffersDelegate allocateCommandBuffers;
             public vkFreeCommandBuffersDelegate freeCommandBuffers;
 
+            public vkBeginCommandBufferDelegate beginCommandBuffer;
+            public vkEndCommandBufferDelegate endCommandBuffer;
+            public vkCmdBeginRenderPassDelegate cmdBeginRenderPass;
+            public vkCmdEndRenderPassDelegate cmdEndRenderPass;
+            public vkCmdBindPipelineDelegate cmdBindPipeline;
+            public vkCmdDrawDelegate cmdDraw;
+
             internal DeviceCommands(Device device) {
                 Type t = typeof(DeviceCommands);
                 FieldInfo[] fields = t.GetFields();

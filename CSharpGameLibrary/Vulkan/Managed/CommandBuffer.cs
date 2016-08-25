@@ -28,5 +28,40 @@ namespace CSGL.Vulkan.Managed {
             Pool = pool;
             this.commandBuffer = commandBuffer;
         }
+
+        public void Begin(CommandBeginInfo info) {
+            List<IDisposable> marshalled = new List<IDisposable>();
+            var infoMarshalled = new Marshalled<VkCommandBufferBeginInfo>(info.GetNative(marshalled));
+
+            Device.Commands.beginCommandBuffer(commandBuffer, infoMarshalled.Address);
+
+            infoMarshalled.Dispose();
+            foreach (var m in marshalled) m.Dispose();
+        }
+
+        public void BeginRenderPass(RenderPassBeginInfo info, VkSubpassContents contents) {
+            List<IDisposable> marshalled = new List<IDisposable>();
+            var infoMarshalled = new Marshalled<VkRenderPassBeginInfo>(info.GetNative(marshalled));
+
+            Device.Commands.cmdBeginRenderPass(commandBuffer, infoMarshalled.Address, contents);
+
+            foreach (var m in marshalled) m.Dispose();
+        }
+
+        public void BindPipeline(VkPipelineBindPoint bindPoint, Pipeline pipeline) {
+            Device.Commands.cmdBindPipeline(commandBuffer, bindPoint, pipeline.Native);
+        }
+
+        public void Draw(int vertexCount, int instanceCount, int firstVertex, int firstInstance) {
+            Device.Commands.cmdDraw(commandBuffer, (uint)vertexCount, (uint)instanceCount, (uint)firstVertex, (uint)firstInstance);
+        }
+
+        public void EndRenderPass() {
+            Device.Commands.cmdEndRenderPass(commandBuffer);
+        }
+
+        public VkResult End() {
+            return Device.Commands.endCommandBuffer(commandBuffer);
+        }
     }
 }
