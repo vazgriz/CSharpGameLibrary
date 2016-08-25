@@ -7,35 +7,35 @@ using CSGL.Vulkan.Unmanaged;
 namespace CSGL.Vulkan.Managed {
     public partial class Device {
         public class DeviceCommands {
-            public vkDeviceWaitIdleDelegate waitDeviceIdle = null;
+            public vkDeviceWaitIdleDelegate waitDeviceIdle;
 
-            public vkGetDeviceQueueDelegate getDeviceQueue = null;
+            public vkGetDeviceQueueDelegate getDeviceQueue;
 
-            public vkCreateSwapchainKHRDelegate createSwapchain = null;
-            public vkDestroySwapchainKHRDelegate destroySwapchain = null;
-            public vkGetSwapchainImagesKHRDelegate getSwapchainImages = null;
+            public vkCreateSwapchainKHRDelegate createSwapchain;
+            public vkDestroySwapchainKHRDelegate destroySwapchain;
+            public vkGetSwapchainImagesKHRDelegate getSwapchainImages;
 
-            public vkCreateImageViewDelegate createImageView = null;
-            public vkDestroyImageViewDelegate destroyImageView = null;
+            public vkCreateImageViewDelegate createImageView;
+            public vkDestroyImageViewDelegate destroyImageView;
 
-            public vkCreateImageDelegate createImage = null;
-            public vkDestroyImageDelegate destroyImage = null;
+            public vkCreateImageDelegate createImage;
+            public vkDestroyImageDelegate destroyImage;
 
-            public vkCreateShaderModuleDelegate createShaderModule = null;
-            public vkDestroyShaderModuleDelegate destroyShaderModule = null;
+            public vkCreateShaderModuleDelegate createShaderModule;
+            public vkDestroyShaderModuleDelegate destroyShaderModule;
 
-            public vkCreateGraphicsPipelinesDelegate createGraphicsPiplines = null;
-            public vkCreateComputePipelinesDelegate createComputePipelines = null;
-            public vkDestroyPipelineDelegate destroyPipeline = null;
+            public vkCreateGraphicsPipelinesDelegate createGraphicsPiplines;
+            public vkCreateComputePipelinesDelegate createComputePipelines;
+            public vkDestroyPipelineDelegate destroyPipeline;
 
-            public vkCreatePipelineLayoutDelegate createPipelineLayout = null;
-            public vkDestroyPipelineLayoutDelegate destroyPipelineLayout = null;
+            public vkCreatePipelineLayoutDelegate createPipelineLayout;
+            public vkDestroyPipelineLayoutDelegate destroyPipelineLayout;
 
-            public vkCreatePipelineCacheDelegate createPipelineCache = null;
-            public vkDestroyPipelineCacheDelegate destroyPipelineDestroy = null;
+            public vkCreatePipelineCacheDelegate createPipelineCache;
+            public vkDestroyPipelineCacheDelegate destroyPipelineDestroy;
 
-            public vkCreateRenderPassDelegate createRenderPass = null;
-            public vkDestroyRenderPassDelegate destroyRenderPass = null;
+            public vkCreateRenderPassDelegate createRenderPass;
+            public vkDestroyRenderPassDelegate destroyRenderPass;
 
             internal DeviceCommands(Device device) {
                 Type t = typeof(DeviceCommands);
@@ -51,23 +51,23 @@ namespace CSGL.Vulkan.Managed {
 
     public partial class Instance {
         public class InstanceCommands {
-            public vkCreateDeviceDelegate createDevice = null;
-            public vkDestroyDeviceDelegate destroyDevice = null;
-            public vkGetDeviceProcAddrDelegate getDeviceProcAddr = null;
+            public vkCreateDeviceDelegate createDevice;
+            public vkDestroyDeviceDelegate destroyDevice;
+            public vkGetDeviceProcAddrDelegate getDeviceProcAddr;
 
-            public vkGetPhysicalDevicePropertiesDelegate getProperties = null;
-            public vkGetPhysicalDeviceQueueFamilyPropertiesDelegate getQueueFamilyProperties = null;
-            public vkGetPhysicalDeviceFeaturesDelegate getFeatures = null;
-            public vkEnumerateDeviceExtensionPropertiesDelegate getExtensions = null;
-            public vkGetPhysicalDeviceSurfaceSupportKHRDelegate getPresentationSupport = null;
+            public vkGetPhysicalDevicePropertiesDelegate getProperties;
+            public vkGetPhysicalDeviceQueueFamilyPropertiesDelegate getQueueFamilyProperties;
+            public vkGetPhysicalDeviceFeaturesDelegate getFeatures;
+            public vkEnumerateDeviceExtensionPropertiesDelegate getExtensions;
+            public vkGetPhysicalDeviceSurfaceSupportKHRDelegate getPresentationSupport;
 
-            public vkEnumeratePhysicalDevicesDelegate enumeratePhysicalDevices = null;
-            public vkGetPhysicalDevicePropertiesDelegate getPhysicalDeviceProperties = null;
+            public vkEnumeratePhysicalDevicesDelegate enumeratePhysicalDevices;
+            public vkGetPhysicalDevicePropertiesDelegate getPhysicalDeviceProperties;
 
-            public vkDestroySurfaceKHRDelegate destroySurface = null;
-            public vkGetPhysicalDeviceSurfaceCapabilitiesKHRDelegate getCapabilities = null;
-            public vkGetPhysicalDeviceSurfaceFormatsKHRDelegate getFormats = null;
-            public vkGetPhysicalDeviceSurfacePresentModesKHRDelegate getModes = null;
+            public vkDestroySurfaceKHRDelegate destroySurface;
+            public vkGetPhysicalDeviceSurfaceCapabilitiesKHRDelegate getCapabilities;
+            public vkGetPhysicalDeviceSurfaceFormatsKHRDelegate getFormats;
+            public vkGetPhysicalDeviceSurfacePresentModesKHRDelegate getModes;
 
             internal InstanceCommands(Instance instance) {
                 Type t = typeof(InstanceCommands);
