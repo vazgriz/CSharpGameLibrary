@@ -7,10 +7,13 @@ namespace CSGL.Vulkan {
         static int elementSize;
         IntPtr ptr;
         bool disposed = false;
+        bool _unsafe = false;
 
         static MarshalledArray() {
             elementSize = Marshal.SizeOf<T>();
         }
+
+        public static int ElementSize { get { return elementSize; } }
 
         public MarshalledArray(int count) {
             Init(count);
@@ -23,6 +26,19 @@ namespace CSGL.Vulkan {
                     Marshal.StructureToPtr(array[i], GetAddress(i), false);
                 }
             }
+        }
+
+        public unsafe MarshalledArray(void* ptr, T[] array) {   //meant to be used for stackalloc'ed memory
+            if (ptr == null) throw new ArgumentNullException(nameof(ptr));
+
+            if (array != null) {
+                count = array.Length;
+                this.ptr = (IntPtr)ptr;
+                for (int i = 0; i < count; i++) {
+                    Marshal.StructureToPtr(array[i], GetAddress(i), false);
+                }
+            }
+            _unsafe = true;
         }
 
         void Init(int count) {
@@ -65,11 +81,16 @@ namespace CSGL.Vulkan {
         public void Dispose(bool disposing) {
             if (disposed) return;
 
-            for (int i = 0; i < count; i++) {
-                Marshal.DestroyStructure<T>(GetAddress(i));
+            if (ptr != IntPtr.Zero) {
+                for (int i = 0; i < count; i++) {
+                    Marshal.DestroyStructure<T>(GetAddress(i));
+                }
             }
 
-            Marshal.FreeHGlobal(ptr);
+
+            if (!_unsafe) {
+                Marshal.FreeHGlobal(ptr);
+            }
         }
 
         ~MarshalledArray() {

@@ -6,10 +6,13 @@ namespace CSGL {
         IntPtr ptr;
         bool disposed = false;
         static int elementSize;
+        bool _unsafe = false;
 
         static Marshalled() {
             elementSize = Marshal.SizeOf<T>();
         }
+
+        public static int ElementSize { get { return elementSize; } }
 
         public Marshalled() {
             Init();
@@ -17,7 +20,22 @@ namespace CSGL {
 
         public Marshalled(T init) {
             Init();
-            Marshal.StructureToPtr<T>(init, ptr, false);
+            Marshal.StructureToPtr(init, ptr, false);
+        }
+
+        public unsafe Marshalled(void* ptr) {   //meant to be used for stackalloc'ed memory
+            if (ptr == null) throw new ArgumentNullException(nameof(ptr));
+
+            this.ptr = (IntPtr)ptr;
+            _unsafe = true;
+        }
+
+        public unsafe Marshalled(void* ptr, T init) {
+            if (ptr == null) throw new ArgumentNullException(nameof(ptr));
+
+            this.ptr = (IntPtr)ptr;
+            Marshal.StructureToPtr(init, this.ptr, false);
+            _unsafe = true;
         }
 
         void Init() {
@@ -47,8 +65,11 @@ namespace CSGL {
         void Dispose(bool disposing) {
             if (disposed) return;
 
-            if (ptr != IntPtr.Zero) Marshal.DestroyStructure<T>(ptr);
-            Marshal.FreeHGlobal(ptr);
+            Marshal.DestroyStructure<T>(ptr);
+
+            if (!_unsafe) {
+                Marshal.FreeHGlobal(ptr);
+            }
 
             disposed = true;
         }
