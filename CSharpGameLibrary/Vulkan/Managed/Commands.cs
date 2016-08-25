@@ -40,6 +40,9 @@ namespace CSGL.Vulkan.Managed {
             public vkCreateFramebufferDelegate createFramebuffer;
             public vkDestroyFramebufferDelegate destroyFramebuffer;
 
+            public vkCreateSemaphoreDelegate createSemaphore;
+            public vkDestroySemaphoreDelegate destroySemaphore;
+
             internal DeviceCommands(Device device) {
                 Type t = typeof(DeviceCommands);
                 FieldInfo[] fields = t.GetFields();
