@@ -243,7 +243,7 @@ namespace VK_Test {
             return list[0];
         }
 
-        Pipeline CreatePipeline() {
+        void CreatePipeline() {
             ShaderModule vert;
             ShaderModuleCreateInfo vertCreate;
 
@@ -363,8 +363,6 @@ namespace VK_Test {
             
             vert.Dispose();
             frag.Dispose();
-
-            return null;
         }
     }
 }
