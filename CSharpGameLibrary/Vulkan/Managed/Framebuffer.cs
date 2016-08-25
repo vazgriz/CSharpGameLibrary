@@ -24,6 +24,8 @@ namespace CSGL.Vulkan.Managed {
         public Framebuffer(Device device, FramebufferCreateInfo info) {
             if (device == null) throw new ArgumentNullException(nameof(device));
             if (info == null) throw new ArgumentNullException(nameof(info));
+
+            CreateFramebuffer(info);
         }
 
         void CreateFramebuffer(FramebufferCreateInfo mInfo) {
