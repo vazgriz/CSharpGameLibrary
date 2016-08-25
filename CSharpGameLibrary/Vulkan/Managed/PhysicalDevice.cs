@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
 
 using CSGL.Vulkan.Unmanaged;
 
@@ -45,58 +44,50 @@ namespace CSGL.Vulkan.Managed {
 
             GetDeviceProperties();
             GetQueueProperties();
-            //GetDeviceFeatures();
+            GetDeviceFeatures();
             GetDeviceExtensions();
 
             //Name = Properties.Name;
         }
 
         void GetDeviceProperties() {
-            IntPtr propPtr = Marshal.AllocHGlobal(Marshal.SizeOf<VkPhysicalDeviceProperties>());
-            getProperties(device, propPtr);
-            VkPhysicalDeviceProperties prop = Marshal.PtrToStructure<VkPhysicalDeviceProperties>(propPtr);
-
-            Properties = new PhysicalDeviceProperties(prop);
-
-            Marshal.FreeHGlobal(propPtr);
+            var prop = new Marshalled<VkPhysicalDeviceProperties>();
+            getProperties(device, prop.Address);
+            Properties = new PhysicalDeviceProperties(prop.Value);
+            prop.Dispose();
         }
 
         void GetQueueProperties() {
             QueueFamilies = new List<QueueFamily>();
-            unsafe {
-                uint count = 0;
-                getQueueFamilyProperties(device, ref count, IntPtr.Zero);
-                var props = stackalloc byte[Marshal.SizeOf<VkQueueFamilyProperties>() * (int)count];
-                getQueueFamilyProperties(device, ref count, (IntPtr)props);
+            uint count = 0;
+            getQueueFamilyProperties(device, ref count, IntPtr.Zero);
+            var props = new MarshalledArray<VkQueueFamilyProperties>((int)count);
+            getQueueFamilyProperties(device, ref count, props.Address);
 
-                for (int i = 0; i < count; i++) {
-                    var queueFamily = Marshal.PtrToStructure<VkQueueFamilyProperties>((IntPtr)props + Marshal.SizeOf<VkQueueFamilyProperties>() * i);
-                    var fam = new QueueFamily(queueFamily, this, (uint)i);
-                    QueueFamilies.Add(fam);
-                }
+            for (int i = 0; i < count; i++) {
+                var queueFamily = props[i];
+                var fam = new QueueFamily(queueFamily, this, (uint)i);
+                QueueFamilies.Add(fam);
             }
         }
 
         void GetDeviceFeatures() {
-            IntPtr ptr = Marshal.AllocHGlobal(Marshal.SizeOf<VkPhysicalDeviceFeatures>());
-            getFeatures(device, ptr);
-            features = Marshal.PtrToStructure<VkPhysicalDeviceFeatures>(ptr);
-            Marshal.FreeHGlobal(ptr);
+            var feat = new Marshalled<VkPhysicalDeviceFeatures>();
+            getFeatures(device, feat.Address);
+            features = feat.Value;
+            feat.Dispose();
         }
 
         void GetDeviceExtensions() {
             AvailableExtensions = new List<Extension>();
-            unsafe
-            {
-                uint count = 0;
-                getExtensions(device, null, ref count, IntPtr.Zero);
-                var props = stackalloc byte[Marshal.SizeOf<VkExtensionProperties>() * (int)count];
-                getExtensions(device, null, ref count, (IntPtr)props);
+            uint count = 0;
+            getExtensions(device, null, ref count, IntPtr.Zero);
+            var props = new MarshalledArray<VkExtensionProperties>((int)count);
+            getExtensions(device, null, ref count, props.Address);
 
-                for (int i = 0; i < count; i++) {
-                    var ex = new Extension(Marshal.PtrToStructure<VkExtensionProperties>((IntPtr)props + Marshal.SizeOf<VkExtensionProperties>() * i));
-                    AvailableExtensions.Add(ex);
-                }
+            for (int i = 0; i < count; i++) {
+                var ex = props[i];
+                AvailableExtensions.Add(new Extension(ex));
             }
         }
 
