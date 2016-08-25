@@ -46,6 +46,8 @@ namespace CSGL.Vulkan.Managed {
 
             public vkCreateFenceDelegate createFence;
             public vkDestroyFenceDelegate destroyFence;
+            public vkResetFencesDelegate resetFences;
+            public vkWaitForFencesDelegate waitFences;
 
             internal DeviceCommands(Device device) {
                 Type t = typeof(DeviceCommands);
