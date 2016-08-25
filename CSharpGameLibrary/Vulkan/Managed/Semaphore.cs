@@ -42,6 +42,8 @@ namespace CSGL.Vulkan.Managed {
         public void Dispose() {
             if (disposed) return;
 
+            Device.Commands.destroySemaphore(Device.Native, semaphore, Device.Instance.AllocationCallbacks);
+
             disposed = true;
         }
     }
