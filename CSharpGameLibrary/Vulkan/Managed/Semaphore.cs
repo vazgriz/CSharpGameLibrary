@@ -16,6 +16,8 @@ namespace CSGL.Vulkan.Managed {
         public Semaphore(Device device) {
             if (device == null) throw new ArgumentNullException(nameof(device));
 
+            Device = device;
+
             CreateSemaphore();
         }
 
