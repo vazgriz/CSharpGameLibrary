@@ -959,9 +959,9 @@ namespace CSGL.Vulkan {
     public struct VkApplicationInfo {
         public VkStructureType sType;
         public IntPtr pNext;
-        public string pApplicationName;
+        public IntPtr pApplicationName;
         public VkVersion applicationVersion;
-        public string pEngineName;
+        public IntPtr pEngineName;
         public VkVersion engineVersion;
         public VkVersion apiVersion;
     }

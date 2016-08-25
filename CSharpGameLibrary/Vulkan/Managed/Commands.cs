@@ -37,7 +37,7 @@ namespace CSGL.Vulkan.Managed {
             public vkCreateRenderPassDelegate createRenderPass = null;
             public vkDestroyRenderPassDelegate destroyRenderPass = null;
 
-            public DeviceCommands(Device device) {
+            internal DeviceCommands(Device device) {
                 Type t = typeof(DeviceCommands);
                 FieldInfo[] fields = t.GetFields();
                 for (int i = 0; i < fields.Length; i++) {
@@ -69,7 +69,7 @@ namespace CSGL.Vulkan.Managed {
             public vkGetPhysicalDeviceSurfaceFormatsKHRDelegate getFormats = null;
             public vkGetPhysicalDeviceSurfacePresentModesKHRDelegate getModes = null;
 
-            public InstanceCommands(Instance instance) {
+            internal InstanceCommands(Instance instance) {
                 Type t = typeof(InstanceCommands);
                 FieldInfo[] fields = t.GetFields();
                 for (int i = 0; i < fields.Length; i++) {

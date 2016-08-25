@@ -44,7 +44,7 @@ namespace CSGL.Vulkan.Managed {
 
         public Instance(InstanceCreateInfo info) {
             if (info == null) throw new ArgumentNullException(nameof(info));
-            CreateInstanceInternal(info);
+            Init(info);
         }
 
         public Instance(InstanceCreateInfo info, VkAllocationCallbacks callbacks) {
@@ -53,10 +53,10 @@ namespace CSGL.Vulkan.Managed {
             alloc = Marshal.AllocHGlobal(Marshal.SizeOf<VkAllocationCallbacks>());
             Marshal.StructureToPtr(callbacks, alloc, false);
             
-            CreateInstanceInternal(info);
+            Init(info);
         }
 
-        void CreateInstanceInternal(InstanceCreateInfo mInfo) {
+        void Init(InstanceCreateInfo mInfo) {
             if (!GLFW.GLFW.VulkanSupported()) throw new InstanceException("Vulkan not supported");
 
             if (mInfo.Extensions == null) {
@@ -73,7 +73,7 @@ namespace CSGL.Vulkan.Managed {
             ValidateExtensions();
             ValidateLayers();
 
-            MakeVulkanInstance(mInfo);
+            CreateInstanceInternal(mInfo);
 
             Vulkan.Load(ref getProcAddrDel);
 
@@ -94,12 +94,7 @@ namespace CSGL.Vulkan.Managed {
             }
         }
 
-        void MakeVulkanInstance(InstanceCreateInfo mInfo) {
-            //the managed classes are assembled into Vulkan structs on the stack
-            //they can't be members of the class without pinning or fixing them
-            //allocating the callback on the unmanaged heap feels messy enough, I didn't want to do that with every struct
-            //nor did I want to make InstanceCreateInfo and ApplicationInfo disposable
-            
+        void CreateInstanceInternal(InstanceCreateInfo mInfo) {            
             VkApplicationInfo appInfo = new VkApplicationInfo();
             VkInstanceCreateInfo info = new VkInstanceCreateInfo();
             var marshalled = new List<IDisposable>();
@@ -107,14 +102,22 @@ namespace CSGL.Vulkan.Managed {
             Marshalled<VkApplicationInfo> appInfoMarshalled;
 
             info.sType = VkStructureType.StructureTypeInstanceCreateInfo;
+            info.pNext = IntPtr.Zero;
                 
             if (mInfo.ApplicationInfo != null) {
                 appInfo.sType = VkStructureType.StructureTypeApplicationInfo;
                 appInfo.apiVersion = mInfo.ApplicationInfo.APIVersion;
                 appInfo.engineVersion = mInfo.ApplicationInfo.EngineVersion;
                 appInfo.applicationVersion = mInfo.ApplicationInfo.ApplicationVersion;
-                appInfo.pApplicationName = mInfo.ApplicationInfo.ApplicationName;
-                appInfo.pEngineName = mInfo.ApplicationInfo.EngineName;
+
+                var appName = new InteropString(mInfo.ApplicationInfo.ApplicationName);
+                var engName = new InteropString(mInfo.ApplicationInfo.EngineName);
+
+                marshalled.Add(appName);
+                marshalled.Add(engName);
+
+                appInfo.pApplicationName = appName.Address;
+                appInfo.pEngineName = engName.Address;
 
                 appInfoMarshalled = new Marshalled<VkApplicationInfo>(appInfo);
                 marshalled.Add(appInfoMarshalled);
@@ -166,6 +169,7 @@ namespace CSGL.Vulkan.Managed {
                 bool found = false;
 
                 for (int i = 0; i < AvailableLayers.Count; i++) {
+                    if (s == null) throw new ArgumentNullException(string.Format("Requested layer {0} is null", i));
                     if (AvailableLayers[i].Name == s) {
                         found = true;
                         break;
@@ -181,6 +185,7 @@ namespace CSGL.Vulkan.Managed {
                 bool found = false;
 
                 for (int i = 0; i < AvailableExtensions.Count; i++) {
+                    if (s == null) throw new ArgumentNullException(string.Format("Requested extension {0} is null", i));
                     if (AvailableExtensions[i].Name == s) {
                         found = true;
                         break;
