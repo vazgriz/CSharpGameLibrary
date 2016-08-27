@@ -12,6 +12,7 @@ namespace VK_Test {
             using (var p = new Program()) {
                 p.Run();
             }
+            Console.ReadKey();
         }
 
         int width = 800;
@@ -197,7 +198,7 @@ namespace VK_Test {
                 renderPassInfo.RenderArea = renderArea;
                 var clearColor = new VkClearValue();
                 var clearColorValue = new VkClearColorValue();
-                clearColorValue.color = new CSGL.Graphics.Color32(0, 0, 0, 1);
+                clearColorValue.color = new CSGL.Graphics.Color32(1, 0, 1, 1);
                 clearColor.color = clearColorValue;
                 renderPassInfo.ClearValues = new VkClearValue[] { clearColor };
 
@@ -277,7 +278,7 @@ namespace VK_Test {
 
             if (graphicsIndex != presentIndex) {
                 info.ImageSharingMode = VkSharingMode.SharingModeConcurrent;
-                info.QueueFamilyIndices = new List<uint> { graphicsIndex, presentIndex };
+                info.QueueFamilyIndices = new uint[] { graphicsIndex, presentIndex };
             } else {
                 info.ImageSharingMode = VkSharingMode.SharingModeExclusive;
             }

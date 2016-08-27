@@ -898,7 +898,7 @@ namespace CSGL.Vulkan.Unmanaged {
         ulong timeout,
         VkSemaphore semaphore,
         VkFence fence,
-        ref uint pImageIndex
+        out uint pImageIndex
     );
     public delegate VkResult vkQueuePresentKHRDelegate(
         VkQueue queue,

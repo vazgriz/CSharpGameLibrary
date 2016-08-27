@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
 namespace CSGL.Vulkan {
@@ -28,6 +29,15 @@ namespace CSGL.Vulkan {
             }
         }
 
+        public MarshalledArray(List<T> list) {
+            if (list != null) {
+                Init(list.Count);
+                for (int i = 0; i < list.Count; i++) {
+                    Marshal.StructureToPtr(list[i], GetAddress(i), false);
+                }
+            }
+        }
+
         public unsafe MarshalledArray(void* ptr, T[] array) {   //meant to be used for stackalloc'ed memory
             if (ptr == null) throw new ArgumentNullException(nameof(ptr));
 
@@ -43,7 +53,7 @@ namespace CSGL.Vulkan {
 
         void Init(int count) {
             this.count = count;
-            ptr = Marshal.AllocHGlobal(count * elementSize);
+            if (count > 0) ptr = Marshal.AllocHGlobal(count * elementSize);
         }
 
         public T this[int i] {

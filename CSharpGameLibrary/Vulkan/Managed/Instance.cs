@@ -6,18 +6,6 @@ using CSGL;
 using CSGL.Vulkan.Unmanaged;
 
 namespace CSGL.Vulkan.Managed {
-    public class InstanceCreateInfo {
-        public ApplicationInfo ApplicationInfo { get; set; }
-        public List<string> Extensions { get; set; }
-        public List<string> Layers { get; set; }
-
-        public InstanceCreateInfo(ApplicationInfo appInfo, List<string> extensions, List<string> layers) {
-            ApplicationInfo = appInfo;
-            Extensions = extensions;
-            Layers = layers;
-        }
-    }
-
     public partial class Instance : IDisposable {
         VkInstance instance;
         IntPtr alloc = IntPtr.Zero;
@@ -59,16 +47,8 @@ namespace CSGL.Vulkan.Managed {
         void Init(InstanceCreateInfo mInfo) {
             if (!GLFW.GLFW.VulkanSupported()) throw new InstanceException("Vulkan not supported");
 
-            if (mInfo.Extensions == null) {
-                Extensions = new List<string>();
-            } else {
-                Extensions = mInfo.Extensions;
-            }
-            if (mInfo.Layers == null) {
-                Layers = new List<string>();
-            } else {
-                Layers = mInfo.Layers;
-            }
+            Extensions = mInfo.Extensions;
+            Layers = mInfo.Layers;
 
             ValidateExtensions();
             ValidateLayers();
@@ -94,73 +74,17 @@ namespace CSGL.Vulkan.Managed {
             }
         }
 
-        void CreateInstanceInternal(InstanceCreateInfo mInfo) {            
-            VkApplicationInfo appInfo = new VkApplicationInfo();
-            VkInstanceCreateInfo info = new VkInstanceCreateInfo();
-            var marshalled = new List<IDisposable>();
-
-            Marshalled<VkApplicationInfo> appInfoMarshalled;
-
-            info.sType = VkStructureType.StructureTypeInstanceCreateInfo;
-            info.pNext = IntPtr.Zero;
-                
-            if (mInfo.ApplicationInfo != null) {
-                appInfo.sType = VkStructureType.StructureTypeApplicationInfo;
-                appInfo.apiVersion = mInfo.ApplicationInfo.APIVersion;
-                appInfo.engineVersion = mInfo.ApplicationInfo.EngineVersion;
-                appInfo.applicationVersion = mInfo.ApplicationInfo.ApplicationVersion;
-
-                var appName = new InteropString(mInfo.ApplicationInfo.ApplicationName);
-                var engName = new InteropString(mInfo.ApplicationInfo.EngineName);
-
-                marshalled.Add(appName);
-                marshalled.Add(engName);
-
-                appInfo.pApplicationName = appName.Address;
-                appInfo.pEngineName = engName.Address;
-
-                appInfoMarshalled = new Marshalled<VkApplicationInfo>(appInfo);
-                marshalled.Add(appInfoMarshalled);
-
-                info.pApplicationInfo = appInfoMarshalled.Address;
-            }
-
-            IntPtr[] extensionNames = new IntPtr[Extensions.Count];
-            IntPtr[] layerNames = new IntPtr[Layers.Count];
-
-            var exMarshalled = new PinnedArray<IntPtr>(extensionNames);
-            var lMarshalled = new PinnedArray<IntPtr>(layerNames);
-                
-            for (int i = 0; i < Extensions.Count; i++) {
-                var s = new InteropString(Extensions[i]);
-                extensionNames[i] = s.Address;
-                marshalled.Add(s);
-            }
-            info.enabledExtensionCount = (uint)Extensions.Count;
-            if (Extensions.Count > 0) info.ppEnabledExtensionNames = exMarshalled.Address;
-                
-            for (int i = 0; i < Layers.Count; i++) {
-                var s = new InteropString(Layers[i]);
-                layerNames[i] = s.Address;
-                marshalled.Add(s);
-            }
-            info.enabledLayerCount = (uint)Layers.Count;
-            if (Layers.Count > 0) info.ppEnabledLayerNames = lMarshalled.Address;
-
-            var infoMarshalled = new Marshalled<VkInstanceCreateInfo>(info);
+        void CreateInstanceInternal(InstanceCreateInfo mInfo) {
             var instanceMarshalled = new Marshalled<VkInstance>();
 
             try {
-                var result = createInstance(infoMarshalled.Address, alloc, instanceMarshalled.Address);
+                var result = createInstance(mInfo.Marshalled.Address, alloc, instanceMarshalled.Address);
                 if (result != VkResult.Success) throw new InstanceException(string.Format("Error creating instance: {0}", result));
 
                 instance = instanceMarshalled.Value;
             }
             finally {
-                infoMarshalled.Dispose();
                 instanceMarshalled.Dispose();
-
-                foreach (var m in marshalled) m.Dispose();
             }
         }
 

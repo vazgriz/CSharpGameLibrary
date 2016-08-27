@@ -6,28 +6,6 @@ using CSGL.Vulkan;
 using CSGL.Vulkan.Unmanaged;
 
 namespace CSGL.Vulkan.Managed {
-    public class SwapchainCreateInfo {
-        public Surface Surface { get; set; }
-        public uint MinImageCount { get; set; }
-        public VkFormat ImageFormat { get; set; }
-        public VkColorSpaceKHR ColorSpace { get; set; }
-        public VkExtent2D ImageExtent { get; set; }
-        public uint ImageArrayLayers { get; set; }
-        public VkImageUsageFlags ImageUsageFlags { get; set; }
-        public VkSharingMode ImageSharingMode { get; set; }
-        public List<uint> QueueFamilyIndices { get; set; }
-        public VkSurfaceTransformFlagsKHR PreTransform { get; set; }
-        public VkCompositeAlphaFlagsKHR CompositeAlpha { get; set; }
-        public VkPresentModeKHR PresentMode { get; set; }
-        public bool Clipped { get; set; }
-        public Swapchain OldSwapchain { get; set; }
-
-        public SwapchainCreateInfo(Surface surface, Swapchain old) {
-            Surface = surface;
-            OldSwapchain = old;
-        }
-    }
-
     public class Swapchain : IDisposable {
         VkSwapchainKHR swapchain;
         bool disposed;
@@ -49,6 +27,7 @@ namespace CSGL.Vulkan.Managed {
             if (device == null) throw new ArgumentNullException(nameof(device));
             if (info == null) throw new ArgumentNullException(nameof(info));
             if (info.Surface == null) throw new ArgumentNullException(nameof(info.Surface));
+
             Surface = info.Surface;
             Instance = Surface.Instance;
             Device = device;
@@ -75,39 +54,15 @@ namespace CSGL.Vulkan.Managed {
         }
 
         void CreateSwapchain(SwapchainCreateInfo mInfo) {
-            VkSwapchainCreateInfoKHR info = new VkSwapchainCreateInfoKHR();
-            info.sType = VkStructureType.StructureTypeSwapchainCreateInfoKhr;
-            info.surface = mInfo.Surface.Native;
-            info.minImageCount = mInfo.MinImageCount;
-            info.imageFormat = mInfo.ImageFormat;
-            info.imageColorSpace = mInfo.ColorSpace;
-            info.imageExtent = mInfo.ImageExtent;
-            info.imageArrayLayers = mInfo.ImageArrayLayers;
-            info.imageUsage = mInfo.ImageUsageFlags;
-            info.imageSharingMode = mInfo.ImageSharingMode;
-            info.preTransform = mInfo.PreTransform;
-            info.compositeAlpha = mInfo.CompositeAlpha;
-            info.clipped = mInfo.Clipped;
-            if (mInfo.QueueFamilyIndices != null) {
-                info.pQueueFamilyIndices = mInfo.QueueFamilyIndices.ToArray();
-                info.queueFamilyIndexCount = (uint)mInfo.QueueFamilyIndices.Count;
-            }
-
-            if (mInfo.OldSwapchain != null) {
-                info.oldSwapchain = mInfo.OldSwapchain.Native;
-            }
-            
-            var infoMarshalled = new Marshalled<VkSwapchainCreateInfoKHR>(info);
             var swapchainMarshalled = new Marshalled<VkSwapchainKHR>();
 
             try {
-                var result = Device.Commands.createSwapchain(Device.Native, infoMarshalled.Address, Instance.AllocationCallbacks, swapchainMarshalled.Address);
+                var result = Device.Commands.createSwapchain(Device.Native, mInfo.Marshalled.Address, Instance.AllocationCallbacks, swapchainMarshalled.Address);
                 if (result != VkResult.Success) throw new SwapchainException(string.Format("Error creating swapchain: {0}", result));
 
                 swapchain = swapchainMarshalled.Value;
             }
             finally {
-                infoMarshalled.Dispose();
                 swapchainMarshalled.Dispose();
             }
         }
@@ -115,12 +70,10 @@ namespace CSGL.Vulkan.Managed {
         public VkResult AcquireNextImage(ulong timeout, Semaphore semaphore, Fence fence, out uint index) {
             VkSemaphore sTemp = VkSemaphore.Null;
             VkFence fTemp = VkFence.Null;
-            if (semaphore != null) sTemp = semaphore.Native; ;
+            if (semaphore != null) sTemp = semaphore.Native;
             if (fence != null) fTemp = fence.Native;
 
-            uint temp = 0;
-            var result = Device.Commands.acquireNextImage(Device.Native, swapchain, timeout, sTemp, fTemp, ref temp);
-            index = temp;
+            var result = Device.Commands.acquireNextImage(Device.Native, swapchain, timeout, sTemp, fTemp, out index);
             return result;
         }
 

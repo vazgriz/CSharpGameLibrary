@@ -49,8 +49,16 @@ namespace CSGL.Vulkan.Managed {
         }
 
         void CreateSurface(WindowPtr window) {
-            var result = GLFW.GLFW.CreateWindowSurface(Instance.Native, window, Instance.AllocationCallbacks, ref surface);
-            if (result != VkResult.Success) throw new SurfaceException(string.Format("Error creating surface: {0}", result));
+            var surfaceMarshalled = new Marshalled<VkSurfaceKHR>();
+
+            try {
+                var result = GLFW.GLFW.CreateWindowSurface(Instance.Native, window, Instance.AllocationCallbacks, surfaceMarshalled.Address);
+                if (result != VkResult.Success) throw new SurfaceException(string.Format("Error creating surface: {0}", result));
+                surface = surfaceMarshalled.Value;
+            }
+            finally {
+                surfaceMarshalled.Dispose();
+            }
         }
 
         void GetFormats() {

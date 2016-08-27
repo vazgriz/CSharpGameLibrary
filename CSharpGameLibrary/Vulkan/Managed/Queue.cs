@@ -4,15 +4,103 @@ using System.Collections.Generic;
 using CSGL.Vulkan.Unmanaged;
 
 namespace CSGL.Vulkan.Managed {
-    public class QueueCreateInfo {
-        public uint QueueFamilyIndex { get; set; }
-        public uint QueueCount { get; set; }
-        public float[] Priorities { get; set; }
+    public class QueueCreateInfo : IDisposable {
+        uint queueFamilyIndex;
+        uint queueCount;
+        float[] priorities;
+
+        bool disposed = false;
+        bool dirty = false;
+
+        Marshalled<VkDeviceQueueCreateInfo> marshalled;
+        MarshalledArray<float> prioritiesMarshalled;
+
+        public uint QueueFamilyIndex {
+            get {
+                return queueFamilyIndex;
+            }
+            set {
+                queueFamilyIndex = value;
+                dirty = true;
+            }
+        }
+
+        public uint QueueCount {
+            get {
+                return queueCount;
+            }
+            set {
+                queueCount = value;
+                dirty = true;
+            }
+        }
+
+        public float[] Priorities {
+            get {
+                return priorities;
+            }
+            set {
+                priorities = value;
+                dirty = true;
+            }
+        }
+
+        public Marshalled<VkDeviceQueueCreateInfo> Marshalled {
+            get {
+                if (dirty) {
+                    Apply();
+                }
+                return marshalled;
+            }
+        }
 
         public QueueCreateInfo(uint queueFamilyIndex, uint queueCount, float[] priorities) {
             QueueFamilyIndex = queueFamilyIndex;
             QueueCount = queueCount;
             Priorities = priorities;
+
+            marshalled = new Marshalled<VkDeviceQueueCreateInfo>();
+
+            Apply();
+        }
+
+        public void Apply() {
+            prioritiesMarshalled?.Dispose();
+            prioritiesMarshalled = new MarshalledArray<float>(priorities);
+
+            marshalled.Value = GetNative();
+        }
+
+        VkDeviceQueueCreateInfo GetNative() {
+            VkDeviceQueueCreateInfo info = new VkDeviceQueueCreateInfo();
+            info.sType = VkStructureType.StructureTypeDeviceQueueCreateInfo;
+            info.queueCount = queueCount;
+            info.queueFamilyIndex = queueFamilyIndex;
+            info.pQueuePriorities = prioritiesMarshalled.Address;
+
+            return info;
+        }
+
+        public void Dispose() {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        void Dispose(bool disposing) {
+            if (disposed) return;
+
+            marshalled.Dispose();
+            prioritiesMarshalled.Dispose();
+
+            if (disposing) {
+                marshalled = null;
+                prioritiesMarshalled = null;
+                priorities = null;
+            }
+        }
+
+        ~QueueCreateInfo() {
+            Dispose(false);
         }
     }
 
