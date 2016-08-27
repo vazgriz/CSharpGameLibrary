@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
-namespace CSGL.Vulkan {
+namespace CSGL {
     public class MarshalledArray<T> : IDisposable where T : struct {
         int count;
         static int elementSize;
