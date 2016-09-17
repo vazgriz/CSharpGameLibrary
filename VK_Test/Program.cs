@@ -41,15 +41,15 @@ namespace VK_Test {
         Semaphore renderFinished;
 
         public void Dispose() {
-            imageAvailable.Dispose();
-            renderFinished.Dispose();
-            pool.Dispose();
+            imageAvailable?.Dispose();
+            renderFinished?.Dispose();
+            pool?.Dispose();
             foreach (var fb in framebuffers) fb.Dispose();
-            pipeline.Dispose();
-            renderPass.Dispose();
-            pipelineLayout.Dispose();
+            pipeline?.Dispose();
+            renderPass?.Dispose();
+            pipelineLayout?.Dispose();
             foreach (var iv in swapchainImageViews) iv.Dispose();
-            swapchain.Dispose();
+            swapchain?.Dispose();
             surface.Dispose();
             device.Dispose();
             instance.Dispose();
@@ -145,7 +145,7 @@ namespace VK_Test {
                 if (GLFW.GetKey(window, CSGL.Input.KeyCode.Enter) == CSGL.Input.KeyAction.Press) {
                     GLFW.SetWindowShouldClose(window, true);
                 }
-                
+
                 uint index;
                 var result = swapchain.AcquireNextImage(imageAvailable, out index);
 

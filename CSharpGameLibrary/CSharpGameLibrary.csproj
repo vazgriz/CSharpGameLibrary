@@ -58,6 +58,7 @@
     <Compile Include="Interop.cs" />
     <Compile Include="InteropString.cs" />
     <Compile Include="Marshalled.cs" />
+    <Compile Include="MarshalledStringArray.cs" />
     <Compile Include="Math\Rectangle.cs" />
     <Compile Include="Math\Rectanglei.cs" />
     <Compile Include="NanoVG\Context.cs" />
