@@ -8,8 +8,11 @@ namespace CSGL.Vulkan.Managed {
         public uint ImplementationVersion { get; private set; }
 
         internal Layer(VkLayerProperties prop) {
-            Name = Interop.GetString(prop.layerName);
-            Description = Interop.GetString(prop.description);
+            unsafe
+            {
+                Name = Interop.GetString(&prop.layerName);
+                Description = Interop.GetString(&prop.description);
+            }
             SpecVersion = prop.specVersion;
             ImplementationVersion = prop.implementationVersion;
         }

@@ -13,8 +13,7 @@ namespace CSGL.Vulkan.Managed {
 
         Marshalled<VkDeviceCreateInfo> marshalled;
         MarshalledArray<VkDeviceQueueCreateInfo> queuesMarshalled;
-        List<MarshalledArray<byte>> extensionsMarshalled;
-        MarshalledArray<IntPtr> extensionsStringsMarshalled;
+        MarshalledStringArray extensionsMarshalled;
         Marshalled<VkPhysicalDeviceFeatures> featuresMarshalled;
 
         public List<string> Extensions {
@@ -86,15 +85,7 @@ namespace CSGL.Vulkan.Managed {
             }
 
             if (extensions == null) extensions = new List<string>();
-            extensionsMarshalled = new List<MarshalledArray<byte>>(extensions.Count);
-            extensionsStringsMarshalled = new MarshalledArray<IntPtr>(extensions.Count);
-
-            for (int i = 0; i < extensions.Count; i++) {
-                var s = Interop.GetUTF8(extensions[i]);
-                var ms = new MarshalledArray<byte>(s);
-                extensionsMarshalled.Add(ms);
-                extensionsStringsMarshalled[i] = ms.Address;
-            }
+            extensionsMarshalled = new MarshalledStringArray(extensions);
 
             if (featuresSet) {
                 featuresMarshalled = new Marshalled<VkPhysicalDeviceFeatures>(features);
@@ -107,7 +98,7 @@ namespace CSGL.Vulkan.Managed {
             VkDeviceCreateInfo info = new VkDeviceCreateInfo();
             info.sType = VkStructureType.StructureTypeDeviceCreateInfo;
             info.enabledExtensionCount = (uint)extensions.Count;
-            info.ppEnabledExtensionNames = extensionsStringsMarshalled.Address;
+            info.ppEnabledExtensionNames = extensionsMarshalled.Address;
             info.queueCreateInfoCount = (uint)QueuesCreateInfos.Count;
             info.pQueueCreateInfos = queuesMarshalled.Address;
             if (featuresSet) info.pEnabledFeatures = featuresMarshalled.Address;
@@ -125,8 +116,7 @@ namespace CSGL.Vulkan.Managed {
 
             marshalled.Dispose();
             queuesMarshalled.Dispose();
-            foreach (var m in extensionsMarshalled) m.Dispose();
-            extensionsStringsMarshalled.Dispose();
+            extensionsMarshalled.Dispose();
             if (featuresSet) featuresMarshalled.Dispose();
 
             if (disposing) {
@@ -136,7 +126,6 @@ namespace CSGL.Vulkan.Managed {
                 marshalled = null;
                 queuesMarshalled = null;
                 extensionsMarshalled = null;
-                extensionsStringsMarshalled = null;
                 featuresMarshalled = null;
             }
         }

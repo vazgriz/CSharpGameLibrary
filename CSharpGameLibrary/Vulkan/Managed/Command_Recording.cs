@@ -16,7 +16,7 @@ namespace CSGL.Vulkan.Managed {
             info.renderPass = RenderPass.Native;
             info.subpass = Subpass;
             info.framebuffer = Framebuffer.Native;
-            info.occlusionQueryEnable = OcclusionQueryEnable;
+            info.occlusionQueryEnable = OcclusionQueryEnable ? (uint)1 : (uint)0;
             info.queryFlags = QueryFlags;
             info.pipelineStatistics = PipelineStatistics;
 

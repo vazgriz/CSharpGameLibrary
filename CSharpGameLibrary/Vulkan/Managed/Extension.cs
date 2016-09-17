@@ -8,7 +8,10 @@ namespace CSGL.Vulkan.Managed {
         public VkVersion Version { get; private set; }
 
         internal Extension(VkExtensionProperties prop) {
-            Name = Interop.GetString(prop.extensionName);
+            unsafe
+            {
+                Name = Interop.GetString(&prop.extensionName);
+            }
             Version = prop.specVersion;
         }
     }

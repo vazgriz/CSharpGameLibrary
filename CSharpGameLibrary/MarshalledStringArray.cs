@@ -42,6 +42,12 @@ namespace CSGL {
             }
         }
 
+        public IntPtr Address {
+            get {
+                return marshalled.Address;
+            }
+        }
+
         public void Dispose() {
             Dispose(true);
             GC.SuppressFinalize(this);

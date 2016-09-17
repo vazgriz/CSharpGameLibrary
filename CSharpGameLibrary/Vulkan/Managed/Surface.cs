@@ -39,10 +39,11 @@ namespace CSGL.Vulkan.Managed {
             getModes = Instance.Commands.getModes;
 
             CreateSurface(window);
-            
-            var capMarshalled = new Marshalled<VkSurfaceCapabilitiesKHR>();
-            getCapabilities(physicalDevice.Native, surface, capMarshalled.Address);
-            Capabilities = capMarshalled.Value;
+
+            using (var capMarshalled = new Marshalled<VkSurfaceCapabilitiesKHR>()) {
+                getCapabilities(physicalDevice.Native, surface, capMarshalled.Address);
+                Capabilities = capMarshalled.Value;
+            }
 
             GetFormats();
             GetModes();

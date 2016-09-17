@@ -11,11 +11,9 @@ namespace CSGL.Vulkan.Managed {
         bool disposed = false;
 
         Marshalled<VkInstanceCreateInfo> marshalled;
-        MarshalledArray<IntPtr> extensionsMarshalled;
-        MarshalledArray<IntPtr> layersMarshalled;
 
-        List<MarshalledArray<byte>> extensionStringsMarshalled;
-        List<MarshalledArray<byte>> layerStringsMarshalled;
+        MarshalledStringArray extensionsMarshalled;
+        MarshalledStringArray layersMarshalled;
 
         public ApplicationInfo ApplicationInfo {
             get {
@@ -62,8 +60,6 @@ namespace CSGL.Vulkan.Managed {
             Layers = layers;
 
             marshalled = new Marshalled<VkInstanceCreateInfo>();
-            extensionStringsMarshalled = new List<MarshalledArray<byte>>();
-            layerStringsMarshalled = new List<MarshalledArray<byte>>();
 
             Apply();
         }
@@ -71,31 +67,13 @@ namespace CSGL.Vulkan.Managed {
         public void Apply() {
             extensionsMarshalled?.Dispose();
             layersMarshalled?.Dispose();
-            foreach (var s in extensionStringsMarshalled) s.Dispose();
-            foreach (var s in layerStringsMarshalled) s.Dispose();
-            extensionStringsMarshalled.Clear();
-            layerStringsMarshalled.Clear();
 
             if (extensions == null) extensions = new List<string>();
             if (layers == null) layers = new List<string>();
 
-            extensionsMarshalled = new MarshalledArray<IntPtr>(Extensions.Count);
+            extensionsMarshalled = new MarshalledStringArray(Extensions);
 
-            for (int i = 0; i < Extensions.Count; i++) {
-                var s = Interop.GetUTF8(Extensions[i]);
-                var ms = new MarshalledArray<byte>(s);
-                extensionStringsMarshalled.Add(ms);
-                extensionsMarshalled[i] = ms.Address;
-            }
-
-            layersMarshalled = new MarshalledArray<IntPtr>(Layers.Count);
-
-            for (int i = 0; i < Layers.Count; i++) {
-                var s = Interop.GetUTF8(Layers[i]);
-                var ms = new MarshalledArray<byte>(s);
-                layerStringsMarshalled.Add(ms);
-                layersMarshalled[i] = ms.Address;
-            }
+            layersMarshalled = new MarshalledStringArray(Layers);
 
             marshalled.Value = GetNative();
         }
@@ -123,8 +101,6 @@ namespace CSGL.Vulkan.Managed {
             marshalled.Dispose();
             extensionsMarshalled.Dispose();
             layersMarshalled.Dispose();
-            foreach (var s in extensionStringsMarshalled) s.Dispose();
-            foreach (var s in layerStringsMarshalled) s.Dispose();
 
             if (disposing) {
                 applicationInfo = null;
@@ -134,9 +110,6 @@ namespace CSGL.Vulkan.Managed {
                 marshalled = null;
                 extensionsMarshalled = null;
                 layersMarshalled = null;
-
-                extensionStringsMarshalled = null;
-                layerStringsMarshalled = null;
             }
         }
 

@@ -130,8 +130,15 @@ namespace CSGL.Vulkan.Managed {
         public Guid PipelineCache { get; private set; }
 
         internal PhysicalDeviceProperties(VkPhysicalDeviceProperties prop) {
-            Name = Interop.GetString(prop.deviceName);
-            PipelineCache = new Guid(prop.pipelineCacheUUID);
+            unsafe
+            {
+                Name = Interop.GetString(&prop.deviceName);
+                byte[] uuid = new byte[16];
+                for (int i = 0; i < 16; i++) {
+                    uuid[i] = (&prop.pipelineCacheUUID)[i];
+                }
+                PipelineCache = new Guid(uuid);
+            }
             APIVersion = prop.apiVersion;
             Type = prop.deviceType;
             DriverVersion = prop.driverVersion;

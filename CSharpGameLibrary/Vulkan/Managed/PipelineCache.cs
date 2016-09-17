@@ -23,7 +23,8 @@ namespace CSGL.Vulkan.Managed {
         void CreateCache(PipelineCacheCreateInfo mInfo) {
             var info = new VkPipelineCacheCreateInfo();
             info.initialDataSize = (ulong)mInfo.InitialData.LongLength;
-            info.pInitialData = mInfo.InitialData;
+            var initialDataMarshalled = new PinnedArray<byte>(mInfo.InitialData);
+            info.pInitialData = initialDataMarshalled.Address;
             
             var infoMarshalled = new Marshalled<VkPipelineCacheCreateInfo>(info);
             var pipelineCacheMarshalled = new Marshalled<VkPipelineCache>();
@@ -37,6 +38,7 @@ namespace CSGL.Vulkan.Managed {
             finally {
                 infoMarshalled.Dispose();
                 pipelineCacheMarshalled.Dispose();
+                initialDataMarshalled.Dispose();
             }
         }
     }

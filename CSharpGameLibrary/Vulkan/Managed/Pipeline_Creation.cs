@@ -54,7 +54,7 @@ namespace CSGL.Vulkan.Managed {
             var result = new VkPipelineInputAssemblyStateCreateInfo();
             result.sType = VkStructureType.StructureTypePipelineInputAssemblyStateCreateInfo;
             result.topology = Topology;
-            result.primitiveRestartEnable = PrimitiveRestartEnable;
+            result.primitiveRestartEnable = PrimitiveRestartEnable ? (uint)1 : (uint)0;
 
             return result;
         }
@@ -110,12 +110,12 @@ namespace CSGL.Vulkan.Managed {
         internal VkPipelineRasterizationStateCreateInfo GetNative() {
             var result = new VkPipelineRasterizationStateCreateInfo();
             result.sType = VkStructureType.StructureTypePipelineRasterizationStateCreateInfo;
-            result.depthClampEnable = DepthClampEnable;
-            result.rasterizerDiscardEnable = RasterizerDiscardEnable;
+            result.depthClampEnable = DepthClampEnable ? (uint)1 : (uint)0;
+            result.rasterizerDiscardEnable = RasterizerDiscardEnable ? (uint)1 : (uint)0;
             result.polygonMode = PolygonMode;
             result.cullMode = CullMode;
             result.frontFace = FrontFace;
-            result.depthBiasEnable = DepthBiasEnable;
+            result.depthBiasEnable = DepthBiasEnable ? (uint)1 : (uint)0;
             result.depthBiasConstantFactor = DepthBiasConstantFactor;
             result.depthBiasClamp = DepthBiasClamp;
             result.depthBiasSlopeFactor = DepthBiasSlopeFactor;
@@ -137,11 +137,11 @@ namespace CSGL.Vulkan.Managed {
             var result = new VkPipelineMultisampleStateCreateInfo();
             result.sType = VkStructureType.StructureTypePipelineMultisampleStateCreateInfo;
             result.rasterizationSamples = RasterizationSamples;
-            result.sampleShadingEnable = SampleShadingEnable;
+            result.sampleShadingEnable = SampleShadingEnable ? (uint)1 : (uint)0;
             result.minSampleShading = MinSampleShading;
-            result.pSampleMask = SampleMask;
-            result.alphaToCoverageEnable = AlphaToCoverageEnable;
-            result.alphaToOneEnable = AlphaToOneEnable;
+            //result.pSampleMask = SampleMask;
+            result.alphaToCoverageEnable = AlphaToCoverageEnable ? (uint)1 : (uint)0;
+            result.alphaToOneEnable = AlphaToOneEnable ? (uint)1 : (uint)0;
 
             return result;
         }
@@ -161,11 +161,11 @@ namespace CSGL.Vulkan.Managed {
         internal VkPipelineDepthStencilStateCreateInfo GetNative() {
             var result = new VkPipelineDepthStencilStateCreateInfo();
             result.sType = VkStructureType.StructureTypePipelineDepthStencilStateCreateInfo;
-            result.depthTestEnable = DepthTestEnable;
-            result.depthWriteEnable = DepthWriteEnable;
+            result.depthTestEnable = DepthTestEnable ? (uint)1 : (uint)0;
+            result.depthWriteEnable = DepthWriteEnable ? (uint)1 : (uint)0;
             result.depthCompareOp = DepthCompareOp;
-            result.depthBoundsTestEnable = DepthBoundsTestEnable;
-            result.stencilTestEnable = StencilTestEnable;
+            result.depthBoundsTestEnable = DepthBoundsTestEnable ? (uint)1 : (uint)0;
+            result.stencilTestEnable = StencilTestEnable ? (uint)1 : (uint)0;
             result.front = Front;
             result.back = Back;
             result.minDepthBounds = MinDepthBounds;
@@ -187,7 +187,7 @@ namespace CSGL.Vulkan.Managed {
 
         internal VkPipelineColorBlendAttachmentState GetNative() {
             var result = new VkPipelineColorBlendAttachmentState();
-            result.blendEnable = BlendEnable;
+            result.blendEnable = BlendEnable ? (uint)1 : (uint)0;
             result.srcColorBlendFactor = SrcColorBlendFactor;
             result.dstColorBlendFactor = DstColorBlendFactor;
             result.colorBlendOp = ColorBlendOp;
@@ -209,7 +209,7 @@ namespace CSGL.Vulkan.Managed {
         internal VkPipelineColorBlendStateCreateInfo GetNative(List<IDisposable> marshalled) {
             var result = new VkPipelineColorBlendStateCreateInfo();
             result.sType = VkStructureType.StructureTypePipelineColorBlendStateCreateInfo;
-            result.logicOpEnable = LogicOpEnable;
+            result.logicOpEnable = LogicOpEnable ? (uint)1 : (uint)0;
             result.logicOp = LogicOp;
             result.attachmentCount = (uint)Attachments.Length;
 
@@ -222,7 +222,13 @@ namespace CSGL.Vulkan.Managed {
             result.attachmentCount = (uint)attachMarshalled.Count;
             result.pAttachments = attachMarshalled.Address;
 
-            result.blendConstants = BlendConstants;
+            unsafe
+            {
+                (&result.blendConstants)[0] = BlendConstants[0];
+                (&result.blendConstants)[1] = BlendConstants[1];
+                (&result.blendConstants)[2] = BlendConstants[2];
+                (&result.blendConstants)[3] = BlendConstants[3];
+            }
 
             marshalled.Add(attachMarshalled);
 

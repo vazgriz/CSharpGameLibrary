@@ -204,7 +204,7 @@ namespace CSGL.Vulkan.Managed {
             info.preTransform = preTransform;
             info.compositeAlpha = compositeAlpha;
             info.presentMode= presentMode;
-            info.clipped = clipped;
+            info.clipped = clipped ? (uint)1 : (uint)0;
             if (oldSwapchain != null) {
                 info.oldSwapchain = oldSwapchain.Native;
             }

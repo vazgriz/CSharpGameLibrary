@@ -37,7 +37,9 @@ namespace CSGL.Vulkan.Managed {
 
             if (PreserveAttachments != null) {
                 result.preserveAttachmentCount = (uint)PreserveAttachments.Length;
-                result.pPreserveAttachments = PreserveAttachments;
+                var preserveAttachmentsMarshalled = new PinnedArray<uint>(PreserveAttachments);
+                result.pPreserveAttachments = preserveAttachmentsMarshalled.Address;
+                marshalled.Add(preserveAttachmentsMarshalled);
             }
 
             marshalled.Add(inputMarshalled);
