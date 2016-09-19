@@ -62,18 +62,6 @@ namespace CSGL.Vulkan.Managed {
             GetPhysicalDevices();
         }
 
-        void GetPhysicalDevices() {
-            PhysicalDevices = new List<PhysicalDevice>();
-            uint count = 0;
-            Commands.enumeratePhysicalDevices(instance, ref count, IntPtr.Zero);
-            var devices = new MarshalledArray<VkPhysicalDevice>((int)count);
-            Commands.enumeratePhysicalDevices(instance, ref count, devices.Address);
-
-            for (int i = 0; i < count; i++) {
-                PhysicalDevices.Add(new PhysicalDevice(this, devices[i]));
-            }
-        }
-
         void CreateInstanceInternal(InstanceCreateInfo mInfo) {
             var instanceMarshalled = new Marshalled<VkInstance>();
 
@@ -85,6 +73,18 @@ namespace CSGL.Vulkan.Managed {
             }
             finally {
                 instanceMarshalled.Dispose();
+            }
+        }
+
+        void GetPhysicalDevices() {
+            PhysicalDevices = new List<PhysicalDevice>();
+            uint count = 0;
+            Commands.enumeratePhysicalDevices(instance, ref count, IntPtr.Zero);
+            var devices = new MarshalledArray<VkPhysicalDevice>((int)count);
+            Commands.enumeratePhysicalDevices(instance, ref count, devices.Address);
+
+            for (int i = 0; i < count; i++) {
+                PhysicalDevices.Add(new PhysicalDevice(this, devices[i]));
             }
         }
 

@@ -22,6 +22,15 @@ namespace CSGL.Graphics {
             a = (byte)(color.a * 255);
         }
 
+        public uint AsUint() {
+            uint result = 0;
+            result &= r;
+            result &= (uint)g << 8;
+            result &= (uint)b << 16;
+            result &= (uint)a << 24;
+            return result;
+        }
+
         public bool Equals(Color32 other) {
             return r == other.r &&
                 g == other.g &&

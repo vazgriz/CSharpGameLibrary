@@ -12,7 +12,6 @@ namespace VK_Test {
             using (var p = new Program()) {
                 p.Run();
             }
-            Console.ReadKey();
         }
 
         int width = 800;
@@ -154,6 +153,7 @@ namespace VK_Test {
 
                 imageIndices[0] = index;
                 presentQueue.Present(presentInfo);
+                break;
             }
 
             device.WaitIdle();
@@ -198,7 +198,7 @@ namespace VK_Test {
                 renderPassInfo.RenderArea = renderArea;
                 var clearColor = new VkClearValue();
                 var clearColorValue = new VkClearColorValue();
-                clearColorValue.color = new CSGL.Graphics.Color32(1, 0, 1, 1);
+                clearColorValue.uint32 = new CSGL.Graphics.Color32(1, 0, 1, 1).AsUint();
                 clearColor.color = clearColorValue;
                 renderPassInfo.ClearValues = new VkClearValue[] { clearColor };
 
