@@ -2,6 +2,8 @@
 using System.Text;
 using System.Runtime.InteropServices;
 
+using SMarshal = System.Runtime.InteropServices.Marshal;
+
 namespace CSGL {
     public static class Interop {
         static UTF8Encoding utf8;
@@ -46,12 +48,41 @@ namespace CSGL {
 
         public static unsafe void Copy<T>(T[] source, void* dest, int count) where T : struct {
             GCHandle handle = GCHandle.Alloc(source, GCHandleType.Pinned);
-            Copy((void*)handle.AddrOfPinnedObject(), dest, count * Marshal.SizeOf<T>());
+            Copy((void*)handle.AddrOfPinnedObject(), dest, count * SMarshal.SizeOf<T>());
             handle.Free();
         }
 
         public static unsafe void Copy<T>(T[] source, void* dest) where T : struct {
             Copy(source, dest, source.Length);
+        }
+
+        public static unsafe void Marshal<T>(void* dest, T[] array) where T : struct {
+            byte* ptr = (byte*)dest;
+            int size = SMarshal.SizeOf<T>();
+            for (int i = 0; i < array.Length; i++) {
+                SMarshal.StructureToPtr(array[i], (IntPtr)ptr, false);
+                ptr += size;
+            }
+        }
+
+        public static unsafe void Marshal<T>(void* dest, T value) where T : struct {
+            SMarshal.StructureToPtr(value, (IntPtr)dest, false);
+        }
+
+        public static unsafe T Unmarshal<T>(void* source) where T : struct {
+            return SMarshal.PtrToStructure<T>((IntPtr)source);
+        }
+
+        public static unsafe T Unmarshal<T>(void* source, int index) where T : struct {
+            return Unmarshal<T>((byte*)source + (index * SizeOf<T>()));
+        }
+
+        public static int SizeOf<T>() {
+            return SMarshal.SizeOf<T>();
+        }
+
+        public static int SizeOf<T>(T[] array) {
+            return SMarshal.SizeOf<T>() * array.Length;
         }
     }
 }
