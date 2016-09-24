@@ -1,3 +1,0 @@
-﻿lunarg_api_dump.debug_action = VK_DBG_LAYER_ACTION_LOG_MSG
-lunarg_api_dump.report_flags = error,warn,perf
-lunarg_api_dump.log_filename = stdout
