@@ -24,7 +24,7 @@ namespace VK_Test2 {
         string[] extensions = { };
         string[] layers = {
             "VK_LAYER_LUNARG_standard_validation",
-            "VK_LAYER_LUNARG_api_dump"
+            //"VK_LAYER_LUNARG_api_dump"
         };
         string[] deviceExtensions = {
             "VK_KHR_swapchain"
@@ -52,6 +52,9 @@ namespace VK_Test2 {
         VkSwapchainKHR swapchain;
         List<VkImage> swapchainImages;
         List<VkImageView> swapchainImageViews;
+        VkRenderPass renderPass;
+        VkPipelineLayout pipelineLayout;
+        VkPipeline pipeline;
 
         vkCreateInstanceDelegate createInstance;
         vkDestroyInstanceDelegate destroyInstance;
@@ -76,14 +79,25 @@ namespace VK_Test2 {
         vkCreateImageViewDelegate createImageView;
         vkDestroyImageViewDelegate destroyImageView;
 
+        vkCreateRenderPassDelegate createRenderPass;
+        vkDestroyRenderPassDelegate destroyRenderPass;
+
         vkCreateShaderModuleDelegate createShaderModule;
         vkDestroyShaderModuleDelegate destroyShaderModule;
+
+        vkCreatePipelineLayoutDelegate createPipelineLayout;
+        vkDestroyPipelineLayoutDelegate destroyPipelineLayout;
+        vkCreateGraphicsPipelinesDelegate createPipelines;
+        vkDestroyPipelineDelegate destroyPipeline;
 
         public Program() {
             GLFW.Init();
         }
 
         public void Dispose() {
+            destroyPipeline(device, pipeline, alloc);
+            destroyPipelineLayout(device, pipelineLayout, alloc);
+            destroyRenderPass(device, renderPass, alloc);
             foreach (var iv in swapchainImageViews) destroyImageView(device, iv, alloc);
             destroySwapchain(device, swapchain, alloc);
             destroyDevice(device, alloc);
@@ -104,7 +118,10 @@ namespace VK_Test2 {
             CreateDevice();
             CreateSwapchain();
             CreateImageViews();
+            CreateRenderPass();
             CreatePipeline();
+
+            GLFW.DestroyWindow(window);
         }
 
         void CreateInstance() {
@@ -311,6 +328,47 @@ namespace VK_Test2 {
             }
         }
 
+        void CreateRenderPass() {
+            var colorAttachment = new VkAttachmentDescription();
+            colorAttachment.format = swapchainFormat;
+            colorAttachment.samples = VkSampleCountFlags.SampleCount1Bit;
+            colorAttachment.loadOp = VkAttachmentLoadOp.AttachmentLoadOpClear;
+            colorAttachment.storeOp = VkAttachmentStoreOp.AttachmentStoreOpStore;
+            colorAttachment.stencilLoadOp = VkAttachmentLoadOp.AttachmentLoadOpClear;
+            colorAttachment.stencilStoreOp = VkAttachmentStoreOp.AttachmentStoreOpDontCare;
+            colorAttachment.initialLayout = VkImageLayout.ImageLayoutUndefined;
+            colorAttachment.finalLayout = VkImageLayout.ImageLayoutPresentSrcKhr;
+            byte* caMarshalled = stackalloc byte[Interop.SizeOf<VkAttachmentDescription>()];
+            Interop.Marshal(caMarshalled, colorAttachment);
+
+            var colorAttachmentRef = new VkAttachmentReference();
+            colorAttachmentRef.attachment = 0;
+            colorAttachmentRef.layout = VkImageLayout.ImageLayoutColorAttachmentOptimal;
+            byte* carMarshalled = stackalloc byte[Interop.SizeOf<VkAttachmentReference>()];
+            Interop.Marshal(carMarshalled, colorAttachmentRef);
+
+            var subpass = new VkSubpassDescription();
+            subpass.pipelineBindPoint = VkPipelineBindPoint.PipelineBindPointGraphics;
+            subpass.colorAttachmentCount = 1;
+            subpass.pColorAttachments = (IntPtr)carMarshalled;
+            byte* sMarshalled = stackalloc byte[Interop.SizeOf<VkSubpassDescription>()];
+            Interop.Marshal(sMarshalled, subpass);
+
+            var info = new VkRenderPassCreateInfo();
+            info.sType = VkStructureType.StructureTypeRenderPassCreateInfo;
+            info.attachmentCount = 1;
+            info.pAttachments = (IntPtr)caMarshalled;
+            info.subpassCount = 1;
+            info.pSubpasses = (IntPtr)sMarshalled;
+            byte* infoMarshalled = stackalloc byte[Interop.SizeOf<VkRenderPassCreateInfo>()];
+            Interop.Marshal(infoMarshalled, info);
+
+            VkRenderPass temp;
+
+            createRenderPass(device, (IntPtr)infoMarshalled, alloc, (IntPtr)(&temp));
+            renderPass = temp;
+        }
+
         void CreatePipeline() {
             var vertCode = File.ReadAllBytes("vert.spv");
             var fragCode = File.ReadAllBytes("frag.spv");
@@ -336,10 +394,112 @@ namespace VK_Test2 {
             shaderStages[0] = vertInfo;
             shaderStages[1] = fragInfo;
 
+            var vertexInputInfo = new VkPipelineVertexInputStateCreateInfo();
+            vertexInputInfo.sType = VkStructureType.StructureTypePipelineVertexInputStateCreateInfo;
+            byte* viiMarshalled = stackalloc byte[Interop.SizeOf<VkPipelineVertexInputStateCreateInfo>()];
+            Interop.Marshal(viiMarshalled, vertexInputInfo);
 
+            var inputAssembly = new VkPipelineInputAssemblyStateCreateInfo();
+            inputAssembly.sType = VkStructureType.StructureTypePipelineInputAssemblyStateCreateInfo;
+            inputAssembly.topology = VkPrimitiveTopology.PrimitiveTopologyTriangleList;
+            byte* iaMarshalled = stackalloc byte[Interop.SizeOf<VkPipelineInputAssemblyStateCreateInfo>()];
+            Interop.Marshal(iaMarshalled, inputAssembly);
+
+            var viewport = new VkViewport();
+            viewport.width = swapchainExtent.width;
+            viewport.height = swapchainExtent.height;
+            viewport.minDepth = 0;
+            viewport.maxDepth = 1;
+            byte* vMarshalled = stackalloc byte[Interop.SizeOf<VkViewport>()];
+            Interop.Marshal(vMarshalled, viewport);
+
+            var scissor = new VkRect2D();
+            scissor.extent = swapchainExtent;
+            byte* sMarshalled = stackalloc byte[Interop.SizeOf<VkRect2D>()];
+            Interop.Marshal(sMarshalled, scissor);
+
+            var viewportState = new VkPipelineViewportStateCreateInfo();
+            viewportState.sType = VkStructureType.StructureTypePipelineViewportStateCreateInfo;
+            viewportState.viewportCount = 1;
+            viewportState.pViewports = (IntPtr)vMarshalled;
+            viewportState.scissorCount = 1;
+            viewportState.pScissors = (IntPtr)sMarshalled;
+            byte* vsMarshalled = stackalloc byte[Interop.SizeOf<VkPipelineViewportStateCreateInfo>()];
+            Interop.Marshal(vsMarshalled, viewportState);
+
+            var rasterizer = new VkPipelineRasterizationStateCreateInfo();
+            rasterizer.sType = VkStructureType.StructureTypePipelineRasterizationStateCreateInfo;
+            rasterizer.polygonMode = VkPolygonMode.PolygonModeFill;
+            rasterizer.lineWidth = 1;
+            rasterizer.cullMode = VkCullModeFlags.CullModeBackBit;
+            rasterizer.frontFace = VkFrontFace.FrontFaceClockwise;
+            byte* rMarshalled = stackalloc byte[Interop.SizeOf<VkPipelineRasterizationStateCreateInfo>()];
+            Interop.Marshal(rMarshalled, rasterizer);
+
+            var multisampling = new VkPipelineMultisampleStateCreateInfo();
+            multisampling.sType = VkStructureType.StructureTypePipelineMultisampleStateCreateInfo;
+            multisampling.rasterizationSamples = VkSampleCountFlags.SampleCount1Bit;
+            byte* mMarshalled = stackalloc byte[Interop.SizeOf<VkPipelineMultisampleStateCreateInfo>()];
+            Interop.Marshal(mMarshalled, multisampling);
+
+            var colorBlendAttachment = new VkPipelineColorBlendAttachmentState();
+            colorBlendAttachment.colorWriteMask = VkColorComponentFlags.ColorComponentRBit
+                                                | VkColorComponentFlags.ColorComponentGBit
+                                                | VkColorComponentFlags.ColorComponentGBit
+                                                | VkColorComponentFlags.ColorComponentABit;
+            colorBlendAttachment.srcColorBlendFactor = VkBlendFactor.BlendFactorOne;
+            colorBlendAttachment.dstColorBlendFactor = VkBlendFactor.BlendFactorZero;
+            colorBlendAttachment.colorBlendOp = VkBlendOp.BlendOpAdd;
+            colorBlendAttachment.srcAlphaBlendFactor = VkBlendFactor.BlendFactorOne;
+            colorBlendAttachment.dstColorBlendFactor = VkBlendFactor.BlendFactorZero;
+            colorBlendAttachment.alphaBlendOp = VkBlendOp.BlendOpAdd;
+            byte* cbaMarshalled = stackalloc byte[Interop.SizeOf<VkPipelineColorBlendAttachmentState>()];
+            Interop.Marshal(cbaMarshalled, colorBlendAttachment);
+
+            var colorBlending = new VkPipelineColorBlendStateCreateInfo();
+            colorBlending.sType = VkStructureType.StructureTypePipelineColorBlendStateCreateInfo;
+            colorBlending.attachmentCount = 1;
+            colorBlending.pAttachments = (IntPtr)cbaMarshalled;
+            var cbMarshalled = new Marshalled<VkPipelineColorBlendStateCreateInfo>(colorBlending);  //for some reason, doesn't marshal using stackalloc'd memory
+
+            var pipelineLayoutInfo = new VkPipelineLayoutCreateInfo();
+            pipelineLayoutInfo.sType = VkStructureType.StructureTypePipelineLayoutCreateInfo;
+            byte* pliMarshalled = stackalloc byte[Interop.SizeOf<VkPipelineLayout>()];
+            Interop.Marshal(pliMarshalled, pipelineLayoutInfo);
+
+            {
+                VkPipelineLayout temp;
+
+                createPipelineLayout(device, (IntPtr)pliMarshalled, alloc, (IntPtr)(&temp));
+                pipelineLayout = temp;
+            }
+
+            {
+                var info = new VkGraphicsPipelineCreateInfo();
+                info.sType = VkStructureType.StructureTypeGraphicsPipelineCreateInfo;
+                info.stageCount = 2;
+                info.pStages = shaderStages.Address;
+                info.pVertexInputState = (IntPtr)viiMarshalled;
+                info.pInputAssemblyState = (IntPtr)iaMarshalled;
+                info.pViewportState = (IntPtr)vsMarshalled;
+                info.pRasterizationState = (IntPtr)rMarshalled;
+                info.pMultisampleState = (IntPtr)mMarshalled;
+                info.pColorBlendState = (IntPtr)cbMarshalled.Address;
+                info.layout = pipelineLayout;
+                info.renderPass = renderPass;
+                byte* infoMarshalled = stackalloc byte[Interop.SizeOf<VkGraphicsPipelineCreateInfo>()];
+                Interop.Marshal(infoMarshalled, info);
+
+                VkPipeline temp;
+
+                createPipelines(device, VkPipelineCache.Null, 1, (IntPtr)infoMarshalled, alloc, (IntPtr)(&temp));
+                pipeline = temp;
+            }
 
             destroyShaderModule(device, vertModule, alloc);
             destroyShaderModule(device, fragModule, alloc);
+            shaderStages.Dispose();
+            cbMarshalled.Dispose();
         }
 
         VkShaderModule CreateShaderModule(byte[] code) {
@@ -446,8 +606,14 @@ namespace VK_Test2 {
             Vulkan.Load(ref getSwapchainImages);
             Vulkan.Load(ref createImageView);
             Vulkan.Load(ref destroyImageView);
+            Vulkan.Load(ref createRenderPass);
+            Vulkan.Load(ref destroyRenderPass);
             Vulkan.Load(ref createShaderModule);
             Vulkan.Load(ref destroyShaderModule);
+            Vulkan.Load(ref createPipelineLayout);
+            Vulkan.Load(ref destroyPipelineLayout);
+            Vulkan.Load(ref createPipelines);
+            Vulkan.Load(ref destroyPipeline);
         }
     }
 }
