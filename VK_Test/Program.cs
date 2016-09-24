@@ -94,12 +94,17 @@ namespace VK_Test {
                     presentIndex = i;
                 }
             }
-            var queueInfo = new QueueCreateInfo((uint)graphicsIndex, 1, new float[] { 1f });
+
+            float[] priorities = new float[] { 1f };
+            List<QueueCreateInfo> queueInfos = new List<QueueCreateInfo>();
+            HashSet<uint> uniqueQueues = new HashSet<uint> { (uint)graphicsIndex, (uint)presentIndex };
+
+            foreach (var index in uniqueQueues) {
+                queueInfos.Add(new QueueCreateInfo(index, 1, priorities));
+            }
+
             List<string> deviceExtensions = new List<string> {
                 "VK_KHR_swapchain"
-            };
-            List<QueueCreateInfo> queueInfos = new List<QueueCreateInfo>{
-                queueInfo
             };
             var deviceInfo = new DeviceCreateInfo(deviceExtensions, queueInfos);
 
