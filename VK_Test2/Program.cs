@@ -54,7 +54,12 @@ namespace VK_Test2 {
         List<VkImageView> swapchainImageViews;
         VkRenderPass renderPass;
         VkPipelineLayout pipelineLayout;
-        VkPipeline pipeline;
+        VkPipeline graphicsPipeline;
+        List<VkFramebuffer> swapchainFramebuffers;
+        VkCommandPool commandPool;
+        List<VkCommandBuffer> commandBuffers;
+        VkSemaphore imageAvailableSemaphore;
+        VkSemaphore renderFinishedSemaphore;
 
         vkCreateInstanceDelegate createInstance;
         vkDestroyInstanceDelegate destroyInstance;
@@ -90,12 +95,39 @@ namespace VK_Test2 {
         vkCreateGraphicsPipelinesDelegate createPipelines;
         vkDestroyPipelineDelegate destroyPipeline;
 
+        vkCreateFramebufferDelegate createFramebuffer;
+        vkDestroyFramebufferDelegate destroyFramebuffer;
+
+        vkCreateCommandPoolDelegate createCommandPool;
+        vkDestroyCommandPoolDelegate destroyCommandPool;
+        vkAllocateCommandBuffersDelegate allocateCommandBuffers;
+
+        vkBeginCommandBufferDelegate beginCommandBuffer;
+        vkCmdBeginRenderPassDelegate cmdBeginRenderPass;
+        vkCmdBindPipelineDelegate cmdBindPipeline;
+        vkCmdDrawDelegate cmdDraw;
+        vkCmdEndRenderPassDelegate cmdEndRenderPass;
+        vkEndCommandBufferDelegate endCommandBuffer;
+
+        vkCreateSemaphoreDelegate createSemaphore;
+        vkDestroySemaphoreDelegate destroySemaphore;
+
+        vkAcquireNextImageKHRDelegate acquireNextImage;
+        vkQueueSubmitDelegate queueSubmit;
+        vkQueuePresentKHRDelegate queuePresent;
+
+        vkDeviceWaitIdleDelegate deviceWaitIdle;
+
         public Program() {
             GLFW.Init();
         }
 
         public void Dispose() {
-            destroyPipeline(device, pipeline, alloc);
+            destroySemaphore(device, imageAvailableSemaphore, alloc);
+            destroySemaphore(device, renderFinishedSemaphore, alloc);
+            destroyCommandPool(device, commandPool, alloc);
+            foreach (var fb in swapchainFramebuffers) destroyFramebuffer(device, fb, alloc);
+            destroyPipeline(device, graphicsPipeline, alloc);
             destroyPipelineLayout(device, pipelineLayout, alloc);
             destroyRenderPass(device, renderPass, alloc);
             foreach (var iv in swapchainImageViews) destroyImageView(device, iv, alloc);
@@ -120,8 +152,62 @@ namespace VK_Test2 {
             CreateImageViews();
             CreateRenderPass();
             CreatePipeline();
+            CreateFramebuffers();
+            CreateCommandPool();
+            CreateCommandBuffers();
+            CreateSemaphores();
+
+            MainLoop();
 
             GLFW.DestroyWindow(window);
+        }
+
+        void MainLoop() {
+            var submitInfo = new VkSubmitInfo();
+            submitInfo.sType = VkStructureType.StructureTypeSubmitInfo;
+            VkSemaphore waitSemaphore = imageAvailableSemaphore;
+            VkSemaphore signalSemaphore = renderFinishedSemaphore;
+            VkPipelineStageFlags waitStage = VkPipelineStageFlags.PipelineStageColorAttachmentOutputBit;
+            submitInfo.waitSemaphoreCount = 1;
+            submitInfo.pWaitSemaphores = (IntPtr)(&waitSemaphore);
+            submitInfo.pWaitDstStageMask = (IntPtr)(&waitStage);
+            submitInfo.signalSemaphoreCount = 1;
+            submitInfo.pSignalSemaphores = (IntPtr)(&signalSemaphore);
+            submitInfo.commandBufferCount = 1;
+            //submitInfo.pCommandBuffers changed every frame, see below
+
+            var presentInfo = new VkPresentInfoKHR();
+            presentInfo.sType = VkStructureType.StructureTypePresentInfoKhr;
+            presentInfo.waitSemaphoreCount = 1;
+            presentInfo.pWaitSemaphores = (IntPtr)(&signalSemaphore);
+            VkSwapchainKHR swapchains = swapchain;
+            presentInfo.swapchainCount = 1;
+            presentInfo.pSwapchains = (IntPtr)(&swapchains);
+            //presentInfo.pImageIndices changed every frame, see below
+
+            var sMarshalled = new Marshalled<VkSubmitInfo>(submitInfo);
+            var pMarshalled = new Marshalled<VkPresentInfoKHR>(presentInfo);
+
+            while (!GLFW.WindowShouldClose(window)) {
+                GLFW.PollEvents();
+
+                uint index;
+                acquireNextImage(device, swapchain, ulong.MaxValue, imageAvailableSemaphore, VkFence.Null, out index);
+
+                VkCommandBuffer buffer = commandBuffers[(int)index];
+                submitInfo.pCommandBuffers = (IntPtr)(&buffer);
+                sMarshalled.Value = submitInfo;
+
+                presentInfo.pImageIndices = (IntPtr)(&index);
+                pMarshalled.Value = presentInfo;
+
+                queueSubmit(graphicsQueue, 1, sMarshalled.Address, VkFence.Null);
+                queuePresent(presentQueue, pMarshalled.Address);
+            }
+
+            sMarshalled.Dispose();
+            pMarshalled.Dispose();
+            deviceWaitIdle(device);
         }
 
         void CreateInstance() {
@@ -354,12 +440,23 @@ namespace VK_Test2 {
             byte* sMarshalled = stackalloc byte[Interop.SizeOf<VkSubpassDescription>()];
             Interop.Marshal(sMarshalled, subpass);
 
+            var dependency = new VkSubpassDependency();
+            dependency.srcSubpass = ~(uint)0;
+            dependency.dstSubpass = 0;
+            dependency.srcStageMask = VkPipelineStageFlags.PipelineStageBottomOfPipeBit;
+            dependency.srcAccessMask = VkAccessFlags.AccessMemoryReadBit;
+            dependency.dstStageMask = VkPipelineStageFlags.PipelineStageColorAttachmentOutputBit;
+            dependency.dstAccessMask = VkAccessFlags.AccessColorAttachmentReadBit |
+                                        VkAccessFlags.AccessColorAttachmentWriteBit;
+
             var info = new VkRenderPassCreateInfo();
             info.sType = VkStructureType.StructureTypeRenderPassCreateInfo;
             info.attachmentCount = 1;
             info.pAttachments = (IntPtr)caMarshalled;
             info.subpassCount = 1;
             info.pSubpasses = (IntPtr)sMarshalled;
+            info.dependencyCount = 1;
+            info.pDependencies = (IntPtr)(&dependency);
             byte* infoMarshalled = stackalloc byte[Interop.SizeOf<VkRenderPassCreateInfo>()];
             Interop.Marshal(infoMarshalled, info);
 
@@ -493,13 +590,123 @@ namespace VK_Test2 {
                 VkPipeline temp;
 
                 createPipelines(device, VkPipelineCache.Null, 1, (IntPtr)infoMarshalled, alloc, (IntPtr)(&temp));
-                pipeline = temp;
+                graphicsPipeline = temp;
             }
 
             destroyShaderModule(device, vertModule, alloc);
             destroyShaderModule(device, fragModule, alloc);
             shaderStages.Dispose();
             cbMarshalled.Dispose();
+        }
+
+        void CreateFramebuffers() {
+            swapchainFramebuffers = new List<VkFramebuffer>();
+
+            for (int i = 0; i < swapchainImageViews.Count; i++) {
+                VkImageView* attachments = stackalloc VkImageView[1];
+                attachments[0] = swapchainImageViews[i];
+
+                var info = new VkFramebufferCreateInfo();
+                info.sType = VkStructureType.StructureTypeFramebufferCreateInfo;
+                info.renderPass = renderPass;
+                info.attachmentCount = 1;
+                info.pAttachments = (IntPtr)attachments;
+                info.width = swapchainExtent.width;
+                info.height = swapchainExtent.height;
+                info.layers = 1;
+
+                byte* marshalled = stackalloc byte[Interop.SizeOf<VkFramebufferCreateInfo>()];
+                Interop.Marshal(marshalled, info);
+
+                VkFramebuffer temp;
+
+                createFramebuffer(device, (IntPtr)marshalled, alloc, (IntPtr)(&temp));
+
+                swapchainFramebuffers.Add(temp);
+            }
+        }
+
+        void CreateCommandPool() {
+            var info = new VkCommandPoolCreateInfo();
+            info.sType = VkStructureType.StructureTypeCommandPoolCreateInfo;
+            info.queueFamilyIndex = graphicsIndex;
+
+            byte* marshalled = stackalloc byte[Interop.SizeOf<VkCommandPoolCreateInfo>()];
+            Interop.Marshal(marshalled, info);
+
+            VkCommandPool temp;
+
+            createCommandPool(device, (IntPtr)marshalled, alloc, (IntPtr)(&temp));
+
+            commandPool = temp;
+        }
+
+        void CreateCommandBuffers() {
+            commandBuffers = new List<VkCommandBuffer>(swapchainFramebuffers.Count);
+
+            var info = new VkCommandBufferAllocateInfo();
+            info.sType = VkStructureType.StructureTypeCommandBufferAllocateInfo;
+            info.commandPool = commandPool;
+            info.level = VkCommandBufferLevel.CommandBufferLevelPrimary;
+            info.commandBufferCount = (uint)commandBuffers.Capacity;
+
+            byte* marshalled = stackalloc byte[Interop.SizeOf<VkCommandBufferAllocateInfo>()];
+            Interop.Marshal(marshalled, info);
+
+            VkCommandBuffer* temp = stackalloc VkCommandBuffer[commandBuffers.Capacity];
+
+            allocateCommandBuffers(device, (IntPtr)marshalled, (IntPtr)temp);
+
+            for (int i = 0; i < commandBuffers.Capacity; i++) {
+                commandBuffers.Add(temp[i]);
+
+                var beginInfo = new VkCommandBufferBeginInfo();
+                beginInfo.sType = VkStructureType.StructureTypeCommandBufferBeginInfo;
+                beginInfo.flags = VkCommandBufferUsageFlags.CommandBufferUsageSimultaneousUseBit;
+
+                byte* beginMarshalled = stackalloc byte[Interop.SizeOf<VkCommandBufferBeginInfo>()];
+                Interop.Marshal(beginMarshalled, beginInfo);
+
+                beginCommandBuffer(commandBuffers[i], (IntPtr)beginMarshalled);
+
+                var renderPassInfo = new VkRenderPassBeginInfo();
+                renderPassInfo.sType = VkStructureType.StructureTypeRenderPassBeginInfo;
+                renderPassInfo.renderPass = renderPass;
+                renderPassInfo.framebuffer = swapchainFramebuffers[i];
+                renderPassInfo.renderArea.extent = swapchainExtent;
+
+                VkClearValue clearColor = new VkClearValue();
+                clearColor.color.uint32 = new CSGL.Graphics.Color32(0, 0, 0, 1).ToUint();
+                renderPassInfo.clearValueCount = 1;
+                renderPassInfo.pClearValues = (IntPtr)(&clearColor);
+
+                var rpMarshalled = new Marshalled<VkRenderPassBeginInfo>(renderPassInfo);   //for some reason doesn't work with stackalloc
+
+                cmdBeginRenderPass(commandBuffers[i], rpMarshalled.Address, VkSubpassContents.SubpassContentsInline);
+
+                cmdBindPipeline(commandBuffers[i], VkPipelineBindPoint.PipelineBindPointGraphics, graphicsPipeline);
+                cmdDraw(commandBuffers[i], 3, 1, 0, 0);
+                cmdEndRenderPass(commandBuffers[i]);
+
+                endCommandBuffer(commandBuffers[i]);
+
+                rpMarshalled.Dispose();
+            }
+        }
+
+        void CreateSemaphores() {
+            var info = new VkSemaphoreCreateInfo();
+            info.sType = VkStructureType.StructureTypeSemaphoreCreateInfo;
+
+            byte* marshalled = stackalloc byte[Interop.SizeOf<VkSemaphoreCreateInfo>()];
+            Interop.Marshal(marshalled, info);
+
+            VkSemaphore temp;
+
+            createSemaphore(device, (IntPtr)marshalled, alloc, (IntPtr)(&temp));
+            imageAvailableSemaphore = temp;
+            createSemaphore(device, (IntPtr)marshalled, alloc, (IntPtr)(&temp));
+            renderFinishedSemaphore = temp;
         }
 
         VkShaderModule CreateShaderModule(byte[] code) {
@@ -528,12 +735,12 @@ namespace VK_Test2 {
 
             uint count = 0;
             getSurfaceFormats(physicalDevice, surface, ref count, IntPtr.Zero);
-            byte* formatsMarshalled = stackalloc byte[Interop.SizeOf<VkSurfaceFormatKHR>() * (int)count];
+            VkSurfaceFormatKHR* formatsMarshalled = stackalloc VkSurfaceFormatKHR[(int)count];
             getSurfaceFormats(physicalDevice, surface, ref count, (IntPtr)formatsMarshalled);
 
             formats = new List<VkSurfaceFormatKHR>();
             for (int i = 0; i < count; i++) {
-                formats.Add(Interop.Unmarshal<VkSurfaceFormatKHR>(formatsMarshalled, i));
+                formats.Add(formatsMarshalled[i]);
             }
 
             getPresentModes(physicalDevice, surface, ref count, IntPtr.Zero);
@@ -614,6 +821,23 @@ namespace VK_Test2 {
             Vulkan.Load(ref destroyPipelineLayout);
             Vulkan.Load(ref createPipelines);
             Vulkan.Load(ref destroyPipeline);
+            Vulkan.Load(ref createFramebuffer);
+            Vulkan.Load(ref destroyFramebuffer);
+            Vulkan.Load(ref createCommandPool);
+            Vulkan.Load(ref destroyCommandPool);
+            Vulkan.Load(ref allocateCommandBuffers);
+            Vulkan.Load(ref beginCommandBuffer);
+            Vulkan.Load(ref cmdBeginRenderPass);
+            Vulkan.Load(ref cmdBindPipeline);
+            Vulkan.Load(ref cmdDraw);
+            Vulkan.Load(ref cmdEndRenderPass);
+            Vulkan.Load(ref endCommandBuffer);
+            Vulkan.Load(ref createSemaphore);
+            Vulkan.Load(ref destroySemaphore);
+            Vulkan.Load(ref acquireNextImage);
+            Vulkan.Load(ref queueSubmit);
+            Vulkan.Load(ref queuePresent);
+            Vulkan.Load(ref deviceWaitIdle);
         }
     }
 }
