@@ -22,7 +22,7 @@ namespace CSGL.Graphics {
             a = (byte)(color.a * 255);
         }
 
-        public uint AsUint() {
+        public uint ToUint() {
             uint result = 0;
             result &= r;
             result &= (uint)g << 8;
