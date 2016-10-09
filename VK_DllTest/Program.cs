@@ -22,7 +22,7 @@ namespace VK_DllTest {
 
         string[] layers = {
             "VK_LAYER_LUNARG_standard_validation",
-            "VK_LAYER_LUNARG_api_dump"
+            //"VK_LAYER_LUNARG_api_dump"
         };
 
         string[] deviceExtensions = {
@@ -58,7 +58,10 @@ namespace VK_DllTest {
         VkSemaphore imageAvailableSemaphore;
         VkSemaphore renderFinishedSemaphore;
 
+        bool reCreateSwapchainFlag = false;
+
         void Run() {
+            swapchain = VkSwapchainKHR.Null;
             CreateWindow();
             CreateInstance();
             CreateSurface();
@@ -124,19 +127,33 @@ namespace VK_DllTest {
             presentInfo.pImageIndices = indexMarshalled.Address;
 
 
-            //while (!GLFW.WindowShouldClose(window)) {
+            while (!GLFW.WindowShouldClose(window)) {
                 GLFW.PollEvents();
 
+                if (reCreateSwapchainFlag) {
+                    reCreateSwapchainFlag = false;
+                    RecreateSwapchain();
+                }
+
                 uint imageIndex;
-                VK.AcquireNextImageKHR(device, swapchain, ulong.MaxValue, imageAvailableSemaphore, VkFence.Null, out imageIndex);
+                var result = VK.AcquireNextImageKHR(device, swapchain, ulong.MaxValue, imageAvailableSemaphore, VkFence.Null, out imageIndex);
+
+                if (result == VkResult.ErrorOutOfDateKhr || result == VkResult.SuboptimalKhr) {
+                    RecreateSwapchain();
+                    continue;
+                }
 
                 commandBuffer.Value = commandBuffers[(int)imageIndex];
-
+                swapchains.Value = swapchain;
                 indexMarshalled.Value = imageIndex;
 
                 VK.QueueSubmit(graphicsQueue, 1, submitInfoMarshalled.Address, VkFence.Null);
-                VK.QueuePresentKHR(presentQueue, ref presentInfo);
-            //}
+                result = VK.QueuePresentKHR(presentQueue, ref presentInfo);
+
+                if (result == VkResult.ErrorOutOfDateKhr || result == VkResult.SuboptimalKhr) {
+                    RecreateSwapchain();
+                }
+            }
 
             VK.DeviceWaitIdle(device);
             waitSemaphores.Dispose();
@@ -147,8 +164,26 @@ namespace VK_DllTest {
             submitInfoMarshalled.Dispose();
         }
 
+        void RecreateSwapchain() {
+            VK.DeviceWaitIdle(device);
+            CreateSwapchain();
+            CreateImageViews();
+            CreateRenderPass();
+            CreateGraphicsPipeline();
+            CreateFramebuffers();
+            CreateCommandBuffers();
+        }
+
         void CreateWindow() {
+            GLFW.WindowHint(WindowHint.ClientAPI, (int)ContextAPI.NoAPI);
             window = GLFW.CreateWindow(height, width, "Vulkan Test", MonitorPtr.Null, WindowPtr.Null);
+
+            GLFW.SetWindowSizeCallback(window, OnWindowResized);
+        }
+
+        void OnWindowResized(WindowPtr window, int width, int height) {
+            if (width == 0 || height == 0) return;
+            reCreateSwapchainFlag = true;
         }
 
         void CreateInstance() {
@@ -381,7 +416,16 @@ namespace VK_DllTest {
             info.presentMode = mode;
             info.clipped = 1;
 
-            var result = VK.CreateSwapchainKHR(device, ref info, alloc, out swapchain);
+            var oldSwapchain = swapchain;
+            info.oldSwapchain = oldSwapchain;
+
+            VkSwapchainKHR newSwapchain;
+            var result = VK.CreateSwapchainKHR(device, ref info, alloc, out newSwapchain);
+
+            if (swapchain != VkSwapchainKHR.Null) {
+                VK.DestroySwapchainKHR(device, swapchain, alloc);
+            }
+            swapchain = newSwapchain;
 
             VK.GetSwapchainImagesKHR(device, swapchain, ref imageCount, IntPtr.Zero);
             var swapchainImagesMarshalled = new MarshalledArray<VkImage>(imageCount);
@@ -470,6 +514,10 @@ namespace VK_DllTest {
             info.pSubpasses = subpassMarshalled.Address;
             info.dependencyCount = 1;
             info.pDependencies = dependencyMarshalled.Address;
+
+            if (renderPass != VkRenderPass.Null) {
+                VK.DestroyRenderPass(device, renderPass, alloc);
+            }
 
             var result = VK.CreateRenderPass(device, ref info, alloc, out renderPass);
 
@@ -612,6 +660,10 @@ namespace VK_DllTest {
             var infoMarshalled = new Marshalled<VkGraphicsPipelineCreateInfo>(info);
             var temp = new Marshalled<VkPipeline>();
 
+            if (pipeline != VkPipeline.Null) {
+                VK.DestroyPipeline(device, pipeline, alloc);
+            }
+
             result = VK.CreateGraphicsPipelines(device, VkPipelineCache.Null, 1, infoMarshalled.Address, alloc, temp.Address);
             pipeline = temp.Value;
 
@@ -634,6 +686,9 @@ namespace VK_DllTest {
         }
 
         void CreateFramebuffers() {
+            foreach (var fb in swapchainFramebuffers) {
+                VK.DestroyFramebuffer(device, fb, alloc);
+            }
             swapchainFramebuffers = new List<VkFramebuffer>(swapchainImageViews.Count);
 
             for (int i = 0; i < swapchainImageViews.Count; i++) {
@@ -666,6 +721,11 @@ namespace VK_DllTest {
         }
 
         void CreateCommandBuffers() {
+            if (commandBuffers != null) {
+                var marshalled = new MarshalledArray<VkCommandBuffer>(commandBuffers);
+                VK.FreeCommandBuffers(device, commandPool, (uint)commandBuffers.Count, marshalled.Address);
+                marshalled.Dispose();
+            }
             commandBuffers = new List<VkCommandBuffer>(swapchainFramebuffers.Count);
 
             var info = new VkCommandBufferAllocateInfo();
