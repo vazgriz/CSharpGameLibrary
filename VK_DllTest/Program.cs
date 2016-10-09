@@ -50,7 +50,7 @@ namespace VK_DllTest {
         List<VkImage> swapchainImages;
         List<VkImageView> swapchainImageViews;
         VkRenderPass renderPass;
-        VkPipelineLayout pipelinelayout;
+        VkPipelineLayout pipelineLayout;
         VkPipeline pipeline;
         List<VkFramebuffer> swapchainFramebuffers;
         VkCommandPool commandPool;
@@ -61,7 +61,6 @@ namespace VK_DllTest {
         bool reCreateSwapchainFlag = false;
 
         void Run() {
-            swapchain = VkSwapchainKHR.Null;
             CreateWindow();
             CreateInstance();
             CreateSurface();
@@ -86,7 +85,7 @@ namespace VK_DllTest {
             VK.DestroyCommandPool(device, commandPool, alloc);
             foreach (var fb in swapchainFramebuffers) VK.DestroyFramebuffer(device, fb, alloc);
             VK.DestroyPipeline(device, pipeline, alloc);
-            VK.DestroyPipelineLayout(device, pipelinelayout, alloc);
+            VK.DestroyPipelineLayout(device, pipelineLayout, alloc);
             VK.DestroyRenderPass(device, renderPass, alloc);
             foreach (var iv in swapchainImageViews) VK.DestroyImageView(device, iv, alloc);
             VK.DestroySwapchainKHR(device, swapchain, alloc);
@@ -445,6 +444,9 @@ namespace VK_DllTest {
         }
 
         void CreateImageViews() {
+            if (swapchainImageViews != null) {
+                foreach (var iv in swapchainImageViews) VK.DestroyImageView(device, iv, alloc);
+            }
             swapchainImageViews = new List<VkImageView>(swapchainImages.Count);
 
             foreach (var image in swapchainImages) {
@@ -639,7 +641,10 @@ namespace VK_DllTest {
             var pipelineLayoutInfo = new VkPipelineLayoutCreateInfo();
             pipelineLayoutInfo.sType = VkStructureType.StructureTypePipelineLayoutCreateInfo;
 
-            var result = VK.CreatePipelineLayout(device, ref pipelineLayoutInfo, alloc, out pipelinelayout);
+            if (pipelineLayout != VkPipelineLayout.Null) {
+                VK.DestroyPipelineLayout(device, pipelineLayout, alloc);
+            }
+            var result = VK.CreatePipelineLayout(device, ref pipelineLayoutInfo, alloc, out pipelineLayout);
 
             var info = new VkGraphicsPipelineCreateInfo();
             info.sType = VkStructureType.StructureTypeGraphicsPipelineCreateInfo;
@@ -651,7 +656,7 @@ namespace VK_DllTest {
             info.pRasterizationState = rasterizerMarshalled.Address;
             info.pMultisampleState = multisamplingMarshalled.Address;
             info.pColorBlendState = colorBlendingMarshalled.Address;
-            info.layout = pipelinelayout;
+            info.layout = pipelineLayout;
             info.renderPass = renderPass;
             info.subpass = 0;
             info.basePipelineHandle = VkPipeline.Null;
@@ -687,9 +692,7 @@ namespace VK_DllTest {
 
         void CreateFramebuffers() {
             if (swapchainFramebuffers != null) {
-                foreach (var fb in swapchainFramebuffers) {
-                    VK.DestroyFramebuffer(device, fb, alloc);
-                }
+                foreach (var fb in swapchainFramebuffers) VK.DestroyFramebuffer(device, fb, alloc);
             }
 
             swapchainFramebuffers = new List<VkFramebuffer>(swapchainImageViews.Count);
