@@ -20,6 +20,8 @@ namespace CSGL {
             Init(count);
         }
 
+        public MarshalledArray(uint count) : this((int)count) { }
+
         public MarshalledArray(T[] array) {
             if (array != null) {
                 Init(array.Length);

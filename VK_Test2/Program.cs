@@ -224,12 +224,7 @@ namespace VK_Test2 {
             createInfo.enabledLayerCount = (uint)layers.Length;
             createInfo.ppEnabledLayerNames = layersMarshalled.Address;
 
-            byte* info = stackalloc byte[Interop.SizeOf<VkInstanceCreateInfo>()];
-            Interop.Marshal(info, createInfo);
-            VkInstance temp;
-
-            var result = createInstance((IntPtr)info, alloc, (IntPtr)(&temp));
-            instance = temp;
+            var result = VK.CreateInstance(ref createInfo, alloc, out instance);
 
             extensionsMarshalled.Dispose();
             layersMarshalled.Dispose();
