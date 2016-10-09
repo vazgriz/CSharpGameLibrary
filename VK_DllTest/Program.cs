@@ -686,9 +686,12 @@ namespace VK_DllTest {
         }
 
         void CreateFramebuffers() {
-            foreach (var fb in swapchainFramebuffers) {
-                VK.DestroyFramebuffer(device, fb, alloc);
+            if (swapchainFramebuffers != null) {
+                foreach (var fb in swapchainFramebuffers) {
+                    VK.DestroyFramebuffer(device, fb, alloc);
+                }
             }
+
             swapchainFramebuffers = new List<VkFramebuffer>(swapchainImageViews.Count);
 
             for (int i = 0; i < swapchainImageViews.Count; i++) {
