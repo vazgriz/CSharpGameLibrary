@@ -32,19 +32,9 @@ namespace CSGL.Vulkan.Managed {
             info.sType = VkStructureType.StructureTypeCommandPoolCreateInfo;
             info.flags = mInfo.Flags;
             info.queueFamilyIndex = mInfo.QueueFamilyIndex;
-
-            var infoMarshalled = new Marshalled<VkCommandPoolCreateInfo>(info);
-            var commandPoolMarshalled = new Marshalled<VkCommandPool>();
-
-            try {
-                var result = Device.Commands.createCommandPool(Device.Native, infoMarshalled.Address, Device.Instance.AllocationCallbacks, commandPoolMarshalled.Address);
-                if (result != VkResult.Success) throw new CommandPoolException(string.Format("Error creating command pool: {0}", result));
-                commandPool = commandPoolMarshalled.Value;
-            }
-            finally {
-                infoMarshalled.Dispose();
-                commandPoolMarshalled.Dispose();
-            }
+            
+            var result = Device.Commands.createCommandPool(Device.Native, ref info, Device.Instance.AllocationCallbacks, out commandPool);
+            if (result != VkResult.Success) throw new CommandPoolException(string.Format("Error creating command pool: {0}", result));
         }
 
         public CommandBuffer[] Allocate(CommandBufferAllocateInfo mInfo) {
@@ -60,7 +50,7 @@ namespace CSGL.Vulkan.Managed {
             CommandBuffer[] commandBuffers = new CommandBuffer[(int)mInfo.Count];
 
             try {
-                var result = Device.Commands.allocateCommandBuffers(Device.Native, infoMarshalled.Address, commandBuffersMarshalled.Address);
+                var result = Device.Commands.allocateCommandBuffers(Device.Native, ref info, commandBuffersMarshalled.Address);
                 if (result != VkResult.Success) throw new CommandPoolException(string.Format("Error allocating command buffers: {0}", result));
 
                 for (int i = 0; i < mInfo.Count; i++) {

@@ -4,209 +4,30 @@ using System.Collections.Generic;
 using CSGL.Vulkan.Unmanaged;
 
 namespace CSGL.Vulkan.Managed {
-    public class QueueCreateInfo : IDisposable {
-        uint queueFamilyIndex;
-        uint queueCount;
-        float[] priorities;
+    public class DeviceQueueCreateInfo {
+        public uint queueFamilyIndex;
+        public uint queueCount;
+        public float[] priorities;
 
-        bool disposed = false;
-        bool dirty = false;
-
-        Marshalled<VkDeviceQueueCreateInfo> marshalled;
-        MarshalledArray<float> prioritiesMarshalled;
-
-        public uint QueueFamilyIndex {
-            get {
-                return queueFamilyIndex;
-            }
-            set {
-                queueFamilyIndex = value;
-                dirty = true;
-            }
-        }
-
-        public uint QueueCount {
-            get {
-                return queueCount;
-            }
-            set {
-                queueCount = value;
-                dirty = true;
-            }
-        }
-
-        public float[] Priorities {
-            get {
-                return priorities;
-            }
-            set {
-                priorities = value;
-                dirty = true;
-            }
-        }
-
-        public Marshalled<VkDeviceQueueCreateInfo> Marshalled {
-            get {
-                if (dirty) {
-                    Apply();
-                }
-                return marshalled;
-            }
-        }
-
-        public QueueCreateInfo(uint queueFamilyIndex, uint queueCount, float[] priorities) {
-            QueueFamilyIndex = queueFamilyIndex;
-            QueueCount = queueCount;
-            Priorities = priorities;
-
-            marshalled = new Marshalled<VkDeviceQueueCreateInfo>();
-
-            Apply();
-        }
-
-        public void Apply() {
-            prioritiesMarshalled?.Dispose();
-            prioritiesMarshalled = new MarshalledArray<float>(priorities);
-
-            marshalled.Value = GetNative();
-        }
-
-        VkDeviceQueueCreateInfo GetNative() {
-            VkDeviceQueueCreateInfo info = new VkDeviceQueueCreateInfo();
-            info.sType = VkStructureType.StructureTypeDeviceQueueCreateInfo;
-            info.queueCount = queueCount;
-            info.queueFamilyIndex = queueFamilyIndex;
-            info.pQueuePriorities = prioritiesMarshalled.Address;
-
-            return info;
-        }
-
-        public void Dispose() {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        void Dispose(bool disposing) {
-            if (disposed) return;
-
-            marshalled.Dispose();
-            prioritiesMarshalled.Dispose();
-
-            if (disposing) {
-                marshalled = null;
-                prioritiesMarshalled = null;
-                priorities = null;
-            }
-        }
-
-        ~QueueCreateInfo() {
-            Dispose(false);
+        public DeviceQueueCreateInfo(uint queueFamilyIndex, uint queueCount, float[] priorities) {
+            this.queueFamilyIndex = queueFamilyIndex;
+            this.queueCount = queueCount;
+            this.priorities = priorities;
         }
     }
 
     public class SubmitInfo {
-        public Semaphore[] WaitSemaphores { get; set; }
-        public VkPipelineStageFlags[] WaitDstStageMask { get; set; }
-        public CommandBuffer[] CommandBuffers { get; set; }
-        public Semaphore[] SignalSemaphores { get; set; }
-
-        internal VkSubmitInfo GetNative(List<IDisposable> marshalled) {
-            VkSubmitInfo info = new VkSubmitInfo();
-            info.sType = VkStructureType.StructureTypeSubmitInfo;
-            
-            if (WaitSemaphores != null) {
-                info.waitSemaphoreCount = (uint)WaitSemaphores.Length;
-                var waitMarshalled = new PinnedArray<VkSemaphore>(WaitSemaphores.Length);
-
-                for (int i = 0; i < WaitSemaphores.Length; i++) {
-                    waitMarshalled[i] = WaitSemaphores[i].Native;
-                }
-                
-                info.pWaitSemaphores = waitMarshalled.Address;
-
-                marshalled.Add(waitMarshalled);
-            }
-
-            if (WaitDstStageMask != null) {
-                var waitDstMarshalled = new PinnedArray<int>(WaitDstStageMask.Length);
-
-                for (int i = 0; i < WaitDstStageMask.Length; i++) {
-                    waitDstMarshalled[i] = (int)WaitDstStageMask[i];
-                }
-
-                info.pWaitDstStageMask = waitDstMarshalled.Address;
-
-                marshalled.Add(waitDstMarshalled);
-            }
-
-            if (CommandBuffers != null) {
-                info.commandBufferCount = (uint)CommandBuffers.Length;
-                var commandBuffersMarshalled = new PinnedArray<VkCommandBuffer>(CommandBuffers.Length);
-
-                for (int i = 0; i < CommandBuffers.Length; i++) {
-                    commandBuffersMarshalled[i] = CommandBuffers[i].Native;
-                }
-
-                info.pCommandBuffers = commandBuffersMarshalled.Address;
-
-                marshalled.Add(commandBuffersMarshalled);
-            }
-
-            if (SignalSemaphores != null) {
-                info.signalSemaphoreCount = (uint)SignalSemaphores.Length;
-                var signalMarshalled = new PinnedArray<VkSemaphore>(SignalSemaphores.Length);
-
-                for (int i = 0; i < SignalSemaphores.Length; i++) {
-                    signalMarshalled[i] = SignalSemaphores[i].Native;
-                }
-
-                info.pSignalSemaphores = signalMarshalled.Address;
-
-                marshalled.Add(signalMarshalled);
-            }
-
-            return info;
-        }
+        public Semaphore[] waitSemaphores;
+        public VkPipelineStageFlags[] waitDstStageMask;
+        public CommandBuffer[] commandBuffers;
+        public Semaphore[] signalSemaphores;
     }
 
     public class PresentInfo {
-        public Semaphore[] WaitSemaphores { get; set; }
-        public Swapchain[] Swapchains { get; set; }
-        public uint[] ImageIndices { get; set; }
-        public IntPtr Results { get; set; }
-
-        internal VkPresentInfoKHR GetNative(List<IDisposable> marshalled) {
-            VkPresentInfoKHR info = new VkPresentInfoKHR();
-            info.sType = VkStructureType.StructureTypePresentInfoKhr;
-            
-            info.waitSemaphoreCount = (uint)WaitSemaphores.Length;
-            var waitMarshalled = new PinnedArray<VkSemaphore>(WaitSemaphores.Length);
-
-            for (int i = 0; i < WaitSemaphores.Length; i++) {
-                waitMarshalled[i] = WaitSemaphores[i].Native;
-            }
-
-            info.pWaitSemaphores = waitMarshalled.Address;
-            marshalled.Add(waitMarshalled);
-            
-            info.swapchainCount = (uint)Swapchains.Length;
-            var swapchainsMarshalled = new PinnedArray<VkSwapchainKHR>(Swapchains.Length);
-
-            for (int i = 0; i < swapchainsMarshalled.Length; i++) {
-                swapchainsMarshalled[i] = Swapchains[i].Native;
-            }
-
-            info.pSwapchains = swapchainsMarshalled.Address;
-            marshalled.Add(swapchainsMarshalled);
-            
-            var indicesMarshalled = new PinnedArray<uint>(ImageIndices);
-            info.pImageIndices = indicesMarshalled.Address;
-            marshalled.Add(indicesMarshalled);
-
-            info.pResults = Results;
-
-            return info;
-        }
+        public Semaphore[] waitSemaphores;
+        public Swapchain[] swapchains;
+        public uint[] imageIndices;
+        public VkResult[] results;
     }
 
     public class Queue {
@@ -230,28 +51,96 @@ namespace CSGL.Vulkan.Managed {
             if (fence != null) {
                 temp = fence.Native;
             }
-            List<IDisposable> marshalled = new List<IDisposable>();
 
-            var infosMarshalled = new PinnedArray<VkSubmitInfo>(infos.Length);
+            var infosMarshalled = new MarshalledArray<VkSubmitInfo>(infos.Length);
+            IDisposable[] disposables = new IDisposable[infos.Length * 4];
 
             for (int i = 0; i < infos.Length; i++) {
-                infosMarshalled[i] = infos[i].GetNative(marshalled);
+                var info = new VkSubmitInfo();
+                info.sType = VkStructureType.StructureTypeSubmitInfo;
+
+                var waitMarshalled = new PinnedArray<VkSemaphore>(infos[i].waitSemaphores.Length);
+                info.waitSemaphoreCount = (uint)waitMarshalled.Length;
+                for (int j = 0; j < waitMarshalled.Length; j++) {
+                    waitMarshalled[j] = infos[i].waitSemaphores[j].Native;
+                }
+                info.pWaitSemaphores = waitMarshalled.Address;
+
+                var waitDstMarshalled = new PinnedArray<int>(infos[i].waitDstStageMask.Length);
+                for (int j = 0; j < waitDstMarshalled.Length; j++) {
+                    waitDstMarshalled[j] = (int)infos[i].waitDstStageMask[j];
+                }
+                info.pWaitDstStageMask = waitDstMarshalled.Address;
+
+                var commandBuffersMarshalled = new PinnedArray<VkCommandBuffer>(infos[i].commandBuffers.Length);
+                info.commandBufferCount = (uint)commandBuffersMarshalled.Length;
+                for (int j = 0; j < commandBuffersMarshalled.Length; j++) {
+                    commandBuffersMarshalled[j] = infos[i].commandBuffers[j].Native;
+                }
+                info.pCommandBuffers = commandBuffersMarshalled.Address;
+
+                var signalMarshalled = new PinnedArray<VkSemaphore>(infos[i].signalSemaphores.Length);
+                info.signalSemaphoreCount = (uint)signalMarshalled.Length;
+                for (int j = 0; j < signalMarshalled.Length; j++) {
+                    signalMarshalled[j] = infos[i].signalSemaphores[j].Native;
+                }
+                info.pSignalSemaphores = signalMarshalled.Address;
+
+                disposables[(i * 4) + 0] = waitMarshalled;
+                disposables[(i * 4) + 1] = waitDstMarshalled;
+                disposables[(i * 4) + 2] = commandBuffersMarshalled;
+                disposables[(i * 4) + 3] = signalMarshalled;
+
+                infosMarshalled[i] = info;
             }
 
             var result = Device.Commands.queueSubmit(queue, (uint)infos.Length, infosMarshalled.Address, temp);
 
-            foreach (var m in marshalled) m.Dispose();
+            for (int i = 0; i < disposables.Length; i++) {
+                disposables[i].Dispose();
+            }
 
             return result;
         }
 
         public VkResult Present(PresentInfo info) {
-            List<IDisposable> marshalled = new List<IDisposable>();
-            var infoMarshalled = new Marshalled<VkPresentInfoKHR>(info.GetNative(marshalled));
+            var waitSemaphoresMarshalled = new MarshalledArray<VkSemaphore>(info.waitSemaphores.Length);
+            var swapchainsMarshalled = new MarshalledArray<VkSwapchainKHR>(info.swapchains.Length);
+            var indicesMarshalled = new PinnedArray<uint>(info.imageIndices);
+            MarshalledArray<int> resultsMarshalled = null;
 
-            var result = Device.Commands.queuePresent(queue, infoMarshalled.Address);
+            for (int i = 0; i < waitSemaphoresMarshalled.Count; i++) {
+                waitSemaphoresMarshalled[i] = info.waitSemaphores[i].Native;
+            }
 
-            foreach (var m in marshalled) m.Dispose();
+            for (int i = 0; i < swapchainsMarshalled.Count; i++) {
+                swapchainsMarshalled[i] = info.swapchains[i].Native;
+            }
+
+            if (info.results != null) {
+                resultsMarshalled = new MarshalledArray<int>(info.results.Length);
+            }
+
+            var infoNative = new VkPresentInfoKHR();
+            infoNative.sType = VkStructureType.StructureTypePresentInfoKhr;
+            infoNative.waitSemaphoreCount = (uint)waitSemaphoresMarshalled.Count;
+            infoNative.pWaitSemaphores = waitSemaphoresMarshalled.Address;
+            infoNative.swapchainCount = (uint)swapchainsMarshalled.Count;
+            infoNative.pSwapchains = swapchainsMarshalled.Address;
+            infoNative.pImageIndices = indicesMarshalled.Address;
+
+            var result = Device.Commands.queuePresent(queue, ref infoNative);
+
+            if (info.results != null) {
+                for (int i = 0; i < info.results.Length; i++) {
+                    info.results[i] = (VkResult)resultsMarshalled[i];
+                }
+                resultsMarshalled.Dispose();
+            }
+
+            waitSemaphoresMarshalled.Dispose();
+            swapchainsMarshalled.Dispose();
+            indicesMarshalled.Dispose();
 
             return result;
         }

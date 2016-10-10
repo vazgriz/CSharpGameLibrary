@@ -93,20 +93,12 @@ namespace CSGL.Vulkan.Managed {
             var dependMarshalled = new MarshalledArray<VkSubpassDependency>(mInfo.Dependencies);
             info.dependencyCount = (uint)dependMarshalled.Count;
             info.pDependencies = dependMarshalled.Address;
-            
-            var infoMarshalled = new Marshalled<VkRenderPassCreateInfo>(info);
-            var renderPassMarshalled = new Marshalled<VkRenderPass>();
 
             try {
-                var result = Device.Commands.createRenderPass(Device.Native, infoMarshalled.Address, Device.Instance.AllocationCallbacks, renderPassMarshalled.Address);
+                var result = Device.Commands.createRenderPass(Device.Native, ref info, Device.Instance.AllocationCallbacks, out renderPass);
                 if (result != VkResult.Success) throw new RenderPassException(string.Format("Error creating render pass: {0}"));
-
-                renderPass = renderPassMarshalled.Value;
             }
             finally {
-                infoMarshalled.Dispose();
-                renderPassMarshalled.Dispose();
-
                 foreach (var m in marshalledArrays) {
                     m.Dispose();
                 }

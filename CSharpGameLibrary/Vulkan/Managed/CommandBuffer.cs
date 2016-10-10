@@ -31,19 +31,18 @@ namespace CSGL.Vulkan.Managed {
 
         public void Begin(CommandBeginInfo info) {
             List<IDisposable> marshalled = new List<IDisposable>();
-            var infoMarshalled = new Marshalled<VkCommandBufferBeginInfo>(info.GetNative(marshalled));
+            var infoNative = info.GetNative(marshalled);
 
-            Device.Commands.beginCommandBuffer(commandBuffer, infoMarshalled.Address);
+            Device.Commands.beginCommandBuffer(commandBuffer, ref infoNative);
 
-            infoMarshalled.Dispose();
             foreach (var m in marshalled) m.Dispose();
         }
 
         public void BeginRenderPass(RenderPassBeginInfo info, VkSubpassContents contents) {
             List<IDisposable> marshalled = new List<IDisposable>();
-            var infoMarshalled = new Marshalled<VkRenderPassBeginInfo>(info.GetNative(marshalled));
+            var infoNative = info.GetNative(marshalled);
 
-            Device.Commands.cmdBeginRenderPass(commandBuffer, infoMarshalled.Address, contents);
+            Device.Commands.cmdBeginRenderPass(commandBuffer, ref infoNative, contents);
 
             foreach (var m in marshalled) m.Dispose();
         }

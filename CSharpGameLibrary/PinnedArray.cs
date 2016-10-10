@@ -6,20 +6,20 @@ namespace CSGL {
         T[] array;
         GCHandle handle;
         bool disposed = false;
-        static int elementSize;
-
-        static PinnedArray() {
-            elementSize = Marshal.SizeOf<T>();
-        }
+        int length;
 
         public PinnedArray(T[] array) {
             this.array = array;
+            if (array != null) {
+                length = array.Length;
+            }
             Init();
         }
 
         public PinnedArray(int count) {
             if (count < 0) throw new ArgumentOutOfRangeException(nameof(count), "Count must be positive");
             array = new T[count];
+            length = count;
             Init();
         }
 
@@ -35,7 +35,7 @@ namespace CSGL {
 
         public int Length {
             get {
-                return array.Length;
+                return length;
             }
         }
 
@@ -46,10 +46,6 @@ namespace CSGL {
             set {
                 array[i] = value;
             }
-        }
-
-        public IntPtr AddressOf(int i) {
-            return Address + (i * elementSize);
         }
 
         public void Dispose() {

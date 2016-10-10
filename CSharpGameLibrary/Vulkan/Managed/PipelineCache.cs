@@ -25,19 +25,12 @@ namespace CSGL.Vulkan.Managed {
             info.initialDataSize = (ulong)mInfo.InitialData.LongLength;
             var initialDataMarshalled = new PinnedArray<byte>(mInfo.InitialData);
             info.pInitialData = initialDataMarshalled.Address;
-            
-            var infoMarshalled = new Marshalled<VkPipelineCacheCreateInfo>(info);
-            var pipelineCacheMarshalled = new Marshalled<VkPipelineCache>();
 
             try {
-                var result = Device.Commands.createPipelineCache(Device.Native, infoMarshalled.Address, Device.Instance.AllocationCallbacks, pipelineCacheMarshalled.Address);
+                var result = Device.Commands.createPipelineCache(Device.Native, ref info, Device.Instance.AllocationCallbacks, out pipelineCache);
                 if (result != VkResult.Success) throw new PipelineCacheException(string.Format("Error creating pipeline cache: {0}", result));
-
-                pipelineCache = pipelineCacheMarshalled.Value;
             }
             finally {
-                infoMarshalled.Dispose();
-                pipelineCacheMarshalled.Dispose();
                 initialDataMarshalled.Dispose();
             }
         }

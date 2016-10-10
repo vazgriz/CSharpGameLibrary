@@ -3,38 +3,38 @@ using System.Collections.Generic;
 
 namespace CSGL.Vulkan.Managed {
     public class CommandBufferInheritanceInfo {
-        public RenderPass RenderPass { get; set; }
-        public uint Subpass { get; set; }
-        public Framebuffer Framebuffer { get; set; }
-        public bool OcclusionQueryEnable { get; set; }
-        public VkQueryControlFlags QueryFlags { get; set; }
-        public VkQueryPipelineStatisticFlags PipelineStatistics { get; set; }
+        public RenderPass renderPass;
+        public uint subpass;
+        public Framebuffer framebuffer;
+        public bool occlusionQueryEnable;
+        public VkQueryControlFlags queryFlags;
+        public VkQueryPipelineStatisticFlags pipelineStatistics;
 
         internal VkCommandBufferInheritanceInfo GetNative() {
             VkCommandBufferInheritanceInfo info = new VkCommandBufferInheritanceInfo();
             info.sType = VkStructureType.StructureTypeCommandBufferInheritanceInfo;
-            info.renderPass = RenderPass.Native;
-            info.subpass = Subpass;
-            info.framebuffer = Framebuffer.Native;
-            info.occlusionQueryEnable = OcclusionQueryEnable ? (uint)1 : (uint)0;
-            info.queryFlags = QueryFlags;
-            info.pipelineStatistics = PipelineStatistics;
+            info.renderPass = renderPass.Native;
+            info.subpass = subpass;
+            info.framebuffer = framebuffer.Native;
+            info.occlusionQueryEnable = occlusionQueryEnable ? 1u : 0u;
+            info.queryFlags = queryFlags;
+            info.pipelineStatistics = pipelineStatistics;
 
             return info;
         }
     }
 
     public class CommandBeginInfo {
-        public VkCommandBufferUsageFlags Flags { get; set; }
-        public CommandBufferInheritanceInfo InheritanceInfo { get; set; }
+        public VkCommandBufferUsageFlags flags;
+        public CommandBufferInheritanceInfo inheritanceInfo;
 
         internal VkCommandBufferBeginInfo GetNative(List<IDisposable> marshalled) {
             VkCommandBufferBeginInfo info = new VkCommandBufferBeginInfo();
             info.sType = VkStructureType.StructureTypeCommandBufferBeginInfo;
-            info.flags = Flags;
+            info.flags = flags;
 
-            if (InheritanceInfo != null) {
-                var inheritanceInfoMarshalled = new Marshalled<VkCommandBufferInheritanceInfo>(InheritanceInfo.GetNative());
+            if (inheritanceInfo != null) {
+                var inheritanceInfoMarshalled = new Marshalled<VkCommandBufferInheritanceInfo>(inheritanceInfo.GetNative());
                 info.pInheritanceInfo = inheritanceInfoMarshalled.Address;
                 marshalled.Add(inheritanceInfoMarshalled);
             }
@@ -44,20 +44,20 @@ namespace CSGL.Vulkan.Managed {
     }
 
     public class RenderPassBeginInfo {
-        public RenderPass RenderPass { get; set; }
-        public Framebuffer Framebuffer { get; set; }
-        public VkRect2D RenderArea { get; set; }
-        public VkClearValue[] ClearValues { get; set; }
+        public RenderPass renderPass;
+        public Framebuffer framebuffer;
+        public VkRect2D renderArea;
+        public VkClearValue[] clearValues;
 
         internal VkRenderPassBeginInfo GetNative(List<IDisposable> marshalled) {
             VkRenderPassBeginInfo info = new VkRenderPassBeginInfo();
             info.sType = VkStructureType.StructureTypeRenderPassBeginInfo;
-            info.renderPass = RenderPass.Native;
-            info.framebuffer = Framebuffer.Native;
-            info.renderArea = RenderArea;
+            info.renderPass = renderPass.Native;
+            info.framebuffer = framebuffer.Native;
+            info.renderArea = renderArea;
 
-            var clearValuesMarshalled = new PinnedArray<VkClearValue>(ClearValues);
-            info.clearValueCount = (uint)ClearValues.Length;
+            var clearValuesMarshalled = new PinnedArray<VkClearValue>(clearValues);
+            info.clearValueCount = (uint)clearValues.Length;
             info.pClearValues = clearValuesMarshalled.Address;
 
             marshalled.Add(clearValuesMarshalled);

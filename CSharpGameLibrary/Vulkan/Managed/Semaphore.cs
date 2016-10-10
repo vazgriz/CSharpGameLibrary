@@ -24,19 +24,9 @@ namespace CSGL.Vulkan.Managed {
         void CreateSemaphore() {
             VkSemaphoreCreateInfo info = new VkSemaphoreCreateInfo();
             info.sType = VkStructureType.StructureTypeSemaphoreCreateInfo;
-
-            var infoMarshalled = new Marshalled<VkSemaphoreCreateInfo>(info);
-            var semaphoreMarshalled = new Marshalled<VkSemaphore>();
-
-            try {
-                var result = Device.Commands.createSemaphore(Device.Native, infoMarshalled.Address, Device.Instance.AllocationCallbacks, semaphoreMarshalled.Address);
-                if (result != VkResult.Success) throw new SemaphoreException(string.Format("Error creating semaphore: {0}", result));
-                semaphore = semaphoreMarshalled.Value;
-            }
-            finally {
-                infoMarshalled.Dispose();
-                semaphoreMarshalled.Dispose();
-            }
+            
+            var result = Device.Commands.createSemaphore(Device.Native, ref info, Device.Instance.AllocationCallbacks, out semaphore);
+            if (result != VkResult.Success) throw new SemaphoreException(string.Format("Error creating semaphore: {0}", result));
         }
 
         public void Dispose() {

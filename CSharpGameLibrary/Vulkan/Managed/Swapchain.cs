@@ -6,6 +6,28 @@ using CSGL.Vulkan;
 using CSGL.Vulkan.Unmanaged;
 
 namespace CSGL.Vulkan.Managed {
+    public class SwapchainCreateInfo {
+        public Surface surface;
+        public uint minImageCount;
+        public VkFormat imageFormat;
+        public VkColorSpaceKHR colorSpace;
+        public VkExtent2D imageExtent;
+        public uint imageArrayLayers;
+        public VkImageUsageFlags imageUsageFlags;
+        public VkSharingMode imageSharingMode;
+        public uint[] queueFamilyIndices;
+        public VkSurfaceTransformFlagsKHR preTransform;
+        public VkCompositeAlphaFlagsKHR compositeAlpha;
+        public VkPresentModeKHR presentMode;
+        public bool clipped;
+        public Swapchain oldSwapchain;
+
+        public SwapchainCreateInfo(Surface surface, Swapchain oldSwapchain) {
+            this.surface = surface;
+            this.oldSwapchain = oldSwapchain;
+        }
+    }
+
     public class Swapchain : IDisposable {
         VkSwapchainKHR swapchain;
         bool disposed;
@@ -26,9 +48,9 @@ namespace CSGL.Vulkan.Managed {
         public Swapchain(Device device, SwapchainCreateInfo info) {
             if (device == null) throw new ArgumentNullException(nameof(device));
             if (info == null) throw new ArgumentNullException(nameof(info));
-            if (info.Surface == null) throw new ArgumentNullException(nameof(info.Surface));
+            if (info.surface == null) throw new ArgumentNullException(nameof(info.surface));
 
-            Surface = info.Surface;
+            Surface = info.surface;
             Instance = Surface.Instance;
             Device = device;
             
@@ -54,16 +76,34 @@ namespace CSGL.Vulkan.Managed {
         }
 
         void CreateSwapchain(SwapchainCreateInfo mInfo) {
-            var swapchainMarshalled = new Marshalled<VkSwapchainKHR>();
+            var info = new VkSwapchainCreateInfoKHR();
+            info.sType = VkStructureType.StructureTypeSwapchainCreateInfoKhr;
+            info.surface = mInfo.surface.Native;
+            info.minImageCount = mInfo.minImageCount;
+            info.imageFormat = mInfo.imageFormat;
+            info.imageColorSpace = mInfo.colorSpace;
+            info.imageExtent = mInfo.imageExtent;
+            info.imageArrayLayers = mInfo.imageArrayLayers;
+            info.imageUsage = mInfo.imageUsageFlags;
+            info.imageSharingMode = mInfo.imageSharingMode;
+
+            var indicesMarshalled = new PinnedArray<uint>(mInfo.queueFamilyIndices);
+            info.queueFamilyIndexCount = (uint)indicesMarshalled.Length;
+            info.pQueueFamilyIndices = indicesMarshalled.Address;
+
+            info.preTransform = mInfo.preTransform;
+            info.compositeAlpha = mInfo.compositeAlpha;
+            info.presentMode = mInfo.presentMode;
+            info.clipped = mInfo.clipped ? 1u : 0u;
+            if (mInfo.oldSwapchain != null) {
+                info.oldSwapchain = mInfo.oldSwapchain.Native;
+            }
 
             try {
-                var result = Device.Commands.createSwapchain(Device.Native, mInfo.Marshalled.Address, Instance.AllocationCallbacks, swapchainMarshalled.Address);
+                var result = Device.Commands.createSwapchain(Device.Native, ref info, Instance.AllocationCallbacks, out swapchain);
                 if (result != VkResult.Success) throw new SwapchainException(string.Format("Error creating swapchain: {0}", result));
-
-                swapchain = swapchainMarshalled.Value;
             }
             finally {
-                swapchainMarshalled.Dispose();
             }
         }
 

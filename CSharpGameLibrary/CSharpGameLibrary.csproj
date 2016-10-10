@@ -72,19 +72,16 @@
     <Compile Include="Vulkan\commands.cs" />
     <Compile Include="Vulkan\delegates.cs" />
     <Compile Include="Vulkan\enums.cs" />
-    <Compile Include="Vulkan\Managed\ApplicationInfo.cs" />
     <Compile Include="Vulkan\Managed\CommandBuffer.cs" />
     <Compile Include="Vulkan\Managed\CommandPool.cs" />
     <Compile Include="Vulkan\Managed\Commands.cs" />
     <Compile Include="Vulkan\Managed\Command_Recording.cs" />
     <Compile Include="Vulkan\Managed\Device.cs" />
-    <Compile Include="Vulkan\Managed\DeviceCreateInfo.cs" />
     <Compile Include="Vulkan\Managed\Extension.cs" />
     <Compile Include="Vulkan\Managed\Framebuffer.cs" />
     <Compile Include="Vulkan\Managed\Image.cs" />
     <Compile Include="Vulkan\Managed\ImageView.cs" />
     <Compile Include="Vulkan\Managed\Instance.cs" />
-    <Compile Include="Vulkan\Managed\InstanceCreateInfo.cs" />
     <Compile Include="Vulkan\Managed\Layer.cs" />
     <Compile Include="Vulkan\Managed\PhysicalDevice.cs" />
     <Compile Include="Vulkan\Managed\Pipeline.cs" />
@@ -97,7 +94,6 @@
     <Compile Include="Vulkan\Managed\Surface.cs" />
     <Compile Include="Vulkan\Managed\Swapchain.cs" />
     <Compile Include="MarshalledArray.cs" />
-    <Compile Include="Vulkan\Managed\SwapchainCreateInfo.cs" />
     <Compile Include="Vulkan\VkVersion.cs" />
     <Compile Include="Vulkan\Managed\Vulkan.cs" />
     <Compile Include="Vulkan\Managed\ShaderModule.cs" />

@@ -6,6 +6,9 @@ namespace CSGL {
         MarshalledArray<IntPtr> marshalled;
         MarshalledArray<byte>[] strings;
 
+        int count;
+        IntPtr address;
+
         bool disposed = false;
 
         public MarshalledStringArray(int count) {
@@ -15,22 +18,29 @@ namespace CSGL {
         public MarshalledStringArray(string[] array) {
             Init(array.Length);
 
-            for (int i = 0; i < array.Length; i++) {
-                this[i] = array[i];
+            if (array != null) {
+                for (int i = 0; i < array.Length; i++) {
+                    this[i] = array[i];
+                }
             }
         }
 
         public MarshalledStringArray(List<string> list) {
             Init(list.Count);
 
-            for (int i = 0; i < list.Count; i++) {
-                this[i] = list[i];
+            if (list != null) {
+                for (int i = 0; i < list.Count; i++) {
+                    this[i] = list[i];
+                }
             }
         }
 
         void Init(int count) {
             marshalled = new MarshalledArray<IntPtr>(count);
             strings = new MarshalledArray<byte>[count];
+
+            address = marshalled.Address;
+            this.count = count;
         }
 
         public string this[int i] {
@@ -44,7 +54,13 @@ namespace CSGL {
 
         public IntPtr Address {
             get {
-                return marshalled.Address;
+                return address;
+            }
+        }
+
+        public int Count {
+            get {
+                return count;
             }
         }
 

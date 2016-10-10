@@ -2,11 +2,11 @@
 
 namespace CSGL.Vulkan.Managed {
     public class FramebufferCreateInfo {
-        public RenderPass RenderPass { get; set; }
-        public ImageView[] Attachments { get; set; }
-        public uint Width { get; set; }
-        public uint Height { get; set; }
-        public uint Layers { get; set; }
+        public RenderPass renderPass;
+        public ImageView[] attachments;
+        public uint width;
+        public uint height;
+        public uint layers;
     }
 
     public class Framebuffer : IDisposable {
@@ -33,29 +33,24 @@ namespace CSGL.Vulkan.Managed {
         void CreateFramebuffer(FramebufferCreateInfo mInfo) {
             VkFramebufferCreateInfo info = new VkFramebufferCreateInfo();
             info.sType = VkStructureType.StructureTypeFramebufferCreateInfo;
-            info.renderPass = mInfo.RenderPass.Native;
-            info.attachmentCount = (uint)mInfo.Attachments.Length;
-            
-            var attachmentsMarshalled = new MarshalledArray<VkImageView>(mInfo.Attachments.Length);
+            info.renderPass = mInfo.renderPass.Native;
+           
+            var attachmentsMarshalled = new MarshalledArray<VkImageView>(mInfo.attachments.Length);
             for (int i = 0; i < attachmentsMarshalled.Count; i++) {
-                attachmentsMarshalled[i] = mInfo.Attachments[i].Native;
+                attachmentsMarshalled[i] = mInfo.attachments[i].Native;
             }
+            info.attachmentCount = (uint)mInfo.attachments.Length; 
             info.pAttachments = attachmentsMarshalled.Address;
-            info.width = mInfo.Width;
-            info.height = mInfo.Height;
-            info.layers = mInfo.Layers;
 
-            var infoMarshalled = new Marshalled<VkFramebufferCreateInfo>(info);
-            var framebufferMarshalled = new Marshalled<VkFramebuffer>();
+            info.width = mInfo.width;
+            info.height = mInfo.height;
+            info.layers = mInfo.layers;
 
             try {
-                var result = Device.Commands.createFramebuffer(Device.Native, infoMarshalled.Address, Device.Instance.AllocationCallbacks, framebufferMarshalled.Address);
+                var result = Device.Commands.createFramebuffer(Device.Native, ref info, Device.Instance.AllocationCallbacks, out framebuffer);
                 if (result != VkResult.Success) throw new FramebufferException(string.Format("Error creating framebuffer: {0}", result));
-                framebuffer = framebufferMarshalled.Value;
             }
             finally {
-                infoMarshalled.Dispose();
-                framebufferMarshalled.Dispose();
                 attachmentsMarshalled.Dispose();
             }
         }

@@ -46,7 +46,9 @@ namespace CSGL.Vulkan.Managed {
             }
 
             var fencesMarshalled = new MarshalledArray<VkFence>(fencesNative);
-            var result = device.Commands.waitFences(device.Native, (uint)fences.Length, fencesMarshalled.Address, waitAll, timeout);
+
+            uint waitAllNative = waitAll ? 1u : 0u;
+            var result = device.Commands.waitFences(device.Native, (uint)fences.Length, fencesMarshalled.Address, waitAllNative, timeout);
 
             fencesMarshalled.Dispose();
             if (!(result == VkResult.Success || result == VkResult.Timeout)) throw new FenceException(string.Format("Error waiting on fences: {0}", result));
@@ -64,19 +66,9 @@ namespace CSGL.Vulkan.Managed {
             VkFenceCreateInfo info = new VkFenceCreateInfo();
             info.sType = VkStructureType.StructureTypeFenceCreateInfo;
             info.flags = mInfo.Flags;
-
-            var infoMarshalled = new Marshalled<VkFenceCreateInfo>(info);
-            var fenceMarshalled = new Marshalled<VkFence>();
-
-            try {
-                var result = Device.Commands.createFence(Device.Native, infoMarshalled.Address, Device.Instance.AllocationCallbacks, fenceMarshalled.Address);
-                if (result != VkResult.Success) throw new FenceException(string.Format("Error creating fence: {0}", result));
-                fence = fenceMarshalled.Value;
-            }
-            finally {
-                infoMarshalled.Dispose();
-                fenceMarshalled.Dispose();
-            }
+            
+            var result = Device.Commands.createFence(Device.Native, ref info, Device.Instance.AllocationCallbacks, out fence);
+            if (result != VkResult.Success) throw new FenceException(string.Format("Error creating fence: {0}", result));
         }
 
 		public VkResult Reset() {

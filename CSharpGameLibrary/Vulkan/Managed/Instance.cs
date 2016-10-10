@@ -6,6 +6,34 @@ using CSGL;
 using CSGL.Vulkan.Unmanaged;
 
 namespace CSGL.Vulkan.Managed {
+    public class ApplicationInfo {
+        public VkVersion apiVersion;
+        public VkVersion engineVersion;
+        public VkVersion applicationVersion;
+        public string engineName;
+        public string applicationName;
+
+        public ApplicationInfo(VkVersion apiVersion, string applicationName, string engineName, VkVersion applicationVersion, VkVersion engineVersion) {
+            this.apiVersion = apiVersion;
+            this.applicationName = applicationName;
+            this.engineName = engineName;
+            this.applicationVersion = applicationVersion;
+            this.engineVersion = engineVersion;
+        }
+    }
+
+    public class InstanceCreateInfo {
+        public ApplicationInfo applicationInfo;
+        public List<string> extensions;
+        public List<string> layers;
+
+        public InstanceCreateInfo(ApplicationInfo applicationInfo, List<string> extensions, List<string> layers) {
+            this.applicationInfo = applicationInfo;
+            this.extensions = extensions;
+            this.layers = layers;
+        }
+    }
+
     public partial class Instance : IDisposable {
         VkInstance instance;
         IntPtr alloc = IntPtr.Zero;
@@ -47,15 +75,15 @@ namespace CSGL.Vulkan.Managed {
         void Init(InstanceCreateInfo mInfo) {
             if (!GLFW.GLFW.VulkanSupported()) throw new InstanceException("Vulkan not supported");
 
-            Extensions = mInfo.Extensions;
-            Layers = mInfo.Layers;
+            Extensions = new List<string>(mInfo.extensions);
+            Layers = new List<string>(mInfo.layers);
 
             ValidateExtensions();
             ValidateLayers();
 
             CreateInstanceInternal(mInfo);
 
-            Vulkan.Load(ref getProcAddrDel);
+            Vulkan.Load(ref getProcAddrDel, instance);
 
             Commands = new InstanceCommands(this);
             
@@ -63,16 +91,44 @@ namespace CSGL.Vulkan.Managed {
         }
 
         void CreateInstanceInternal(InstanceCreateInfo mInfo) {
-            var instanceMarshalled = new Marshalled<VkInstance>();
+            InteropString appName = null;
+            InteropString engineName = null;
+            Marshalled<VkApplicationInfo> appInfoMarshalled = null;
+
+            var extensionsMarshalled = new MarshalledStringArray(mInfo.extensions);
+            var layersMarshalled = new MarshalledStringArray(mInfo.layers);
+
+            var info = new VkInstanceCreateInfo();
+            info.sType = VkStructureType.StructureTypeInstanceCreateInfo;
+            info.enabledExtensionCount = (uint)extensionsMarshalled.Count;
+            info.ppEnabledExtensionNames = extensionsMarshalled.Address;
+            info.enabledLayerCount = (uint)layersMarshalled.Count;
+            info.ppEnabledLayerNames = layersMarshalled.Address;
+
+            var appInfo = new VkApplicationInfo();
+            appInfo.sType = VkStructureType.StructureTypeApplicationInfo;
+            if (mInfo.applicationInfo != null) {
+                appInfo.apiVersion = mInfo.applicationInfo.apiVersion;
+                appInfo.engineVersion = mInfo.applicationInfo.engineVersion;
+                appInfo.applicationVersion = mInfo.applicationInfo.applicationVersion;
+                appName = new InteropString(mInfo.applicationInfo.applicationName);
+                engineName = new InteropString(mInfo.applicationInfo.engineName);
+
+                appInfoMarshalled = new Marshalled<VkApplicationInfo>(appInfo);
+                info.pApplicationInfo = appInfoMarshalled.Address;
+            }
 
             try {
-                var result = createInstance(mInfo.Marshalled.Address, alloc, instanceMarshalled.Address);
+                var result = createInstance(ref info, alloc, out instance);
                 if (result != VkResult.Success) throw new InstanceException(string.Format("Error creating instance: {0}", result));
-
-                instance = instanceMarshalled.Value;
             }
             finally {
-                instanceMarshalled.Dispose();
+                appName?.Dispose();
+                engineName?.Dispose();
+                appInfoMarshalled?.Dispose();
+
+                extensionsMarshalled.Dispose();
+                layersMarshalled.Dispose();
             }
         }
 
@@ -93,7 +149,7 @@ namespace CSGL.Vulkan.Managed {
                 bool found = false;
 
                 for (int i = 0; i < AvailableLayers.Count; i++) {
-                    if (s == null) throw new ArgumentNullException(string.Format("Requested layer {0} is null", i));
+                    if (s == null) throw new ArgumentNullException(string.Format("Requested layer {0} is null", s));
                     if (AvailableLayers[i].Name == s) {
                         found = true;
                         break;
@@ -109,7 +165,7 @@ namespace CSGL.Vulkan.Managed {
                 bool found = false;
 
                 for (int i = 0; i < AvailableExtensions.Count; i++) {
-                    if (s == null) throw new ArgumentNullException(string.Format("Requested extension {0} is null", i));
+                    if (s == null) throw new ArgumentNullException(string.Format("Requested extension {0} is null", s));
                     if (AvailableExtensions[i].Name == s) {
                         found = true;
                         break;
@@ -127,7 +183,7 @@ namespace CSGL.Vulkan.Managed {
         public void Dispose() {
             if (disposed) return;
 
-            destroyInstance(instance, alloc);
+            VK.DestroyInstance(instance, alloc);
 
             if (alloc != IntPtr.Zero) {
                 Marshal.DestroyStructure<VkAllocationCallbacks>(alloc);

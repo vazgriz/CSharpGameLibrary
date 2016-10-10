@@ -111,9 +111,9 @@ namespace CSGL.Vulkan.Managed {
             }
 
             public bool SurfaceSupported(Surface surface) {
-                uint supported = 0;
-                pDevice.getPresentationSupport(pDevice.Native, index, surface.Native, ref supported);
-                return supported != 0;
+                bool supported;
+                pDevice.getPresentationSupport(pDevice.Native, index, surface.Native, out supported);
+                return supported;
             }
         }
     }

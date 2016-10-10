@@ -4,6 +4,18 @@ using System.Collections.Generic;
 using CSGL.Vulkan.Unmanaged;
 
 namespace CSGL.Vulkan.Managed {
+    public class DeviceCreateInfo {
+        public List<string> extensions;
+        public List<DeviceQueueCreateInfo> queueCreateInfos;
+        public VkPhysicalDeviceFeatures features;
+
+        public DeviceCreateInfo(List<string> extensions, List<DeviceQueueCreateInfo> queueCreateInfos, ref VkPhysicalDeviceFeatures features) {
+            this.extensions = extensions;
+            this.queueCreateInfos = queueCreateInfos;
+            this.features = features;
+        }
+    }
+
     public partial class Device : IDisposable {
         VkDevice device;
         bool disposed = false;
@@ -30,13 +42,14 @@ namespace CSGL.Vulkan.Managed {
             this.physicalDevice = physicalDevice;
             Instance = physicalDevice.Instance;
 
-            if (info.Extensions == null) {
+            if (info.extensions == null) {
                 Extensions = new List<string>();
             } else {
-                Extensions = info.Extensions;
+                Extensions = new List<string>(info.extensions);
             }
 
             ValidateExtensions();
+
             CreateDevice(info);
 
             Vulkan.Load(ref getDeviceProcAddr, Instance);
@@ -44,16 +57,51 @@ namespace CSGL.Vulkan.Managed {
         }
 
         void CreateDevice(DeviceCreateInfo mInfo) {
-            var deviceMarshalled = new Marshalled<VkDevice>();
+            var extensionsMarshalled = new MarshalledStringArray(mInfo.extensions);
+            MarshalledArray<VkDeviceQueueCreateInfo> queueInfos = null;
+            PinnedArray<float>[] prioritiesMarshalled = null;
+            Marshalled<VkPhysicalDeviceFeatures> features = new Marshalled<VkPhysicalDeviceFeatures>(mInfo.features);
+
+            var info = new VkDeviceCreateInfo();
+            info.sType = VkStructureType.StructureTypeDeviceCreateInfo;
+            info.enabledExtensionCount = (uint)extensionsMarshalled.Count;
+            info.ppEnabledExtensionNames = extensionsMarshalled.Address;
+            info.pEnabledFeatures = features.Address;
+
+            if (mInfo.queueCreateInfos != null) {
+                int length = mInfo.queueCreateInfos.Count;
+                info.queueCreateInfoCount = (uint)length;
+                queueInfos = new MarshalledArray<VkDeviceQueueCreateInfo>(length);
+                prioritiesMarshalled = new PinnedArray<float>[length];
+
+                for (int i = 0; i < length; i++) {
+                    var mi = mInfo.queueCreateInfos[i];
+                    var qInfo = new VkDeviceQueueCreateInfo();
+                    qInfo.sType = VkStructureType.StructureTypeDeviceQueueCreateInfo;
+
+                    prioritiesMarshalled[i] = new PinnedArray<float>(mi.priorities);
+                    qInfo.pQueuePriorities = prioritiesMarshalled[i].Address;
+                    qInfo.queueCount = mi.queueCount;
+                    qInfo.queueFamilyIndex = mi.queueFamilyIndex;
+
+                    queueInfos[i] = qInfo;
+                }
+
+                info.pQueueCreateInfos = queueInfos.Address;
+            }
 
             try {
-                var result = Instance.Commands.createDevice(physicalDevice.Native, mInfo.Marshalled.Address, Instance.AllocationCallbacks, deviceMarshalled.Address);
+                var result = Instance.Commands.createDevice(physicalDevice.Native, ref info, Instance.AllocationCallbacks, out device);
                 if (result != VkResult.Success) throw new DeviceException(string.Format("Error creating device: {0}", result));
-
-                device = deviceMarshalled.Value;
             }
             finally {
-                deviceMarshalled.Dispose();
+                extensionsMarshalled.Dispose();
+                queueInfos?.Dispose();
+                features.Dispose();
+
+                for (int i = 0; i < prioritiesMarshalled.Length; i++) {
+                    prioritiesMarshalled[i].Dispose();
+                }
             }
         }
 
@@ -73,11 +121,9 @@ namespace CSGL.Vulkan.Managed {
         }
 
         public Queue GetQueue(uint familyIndex, uint index) {
-            var queueMarshalled = new Marshalled<VkQueue>();
-            Commands.getDeviceQueue(device, familyIndex, index, queueMarshalled.Address);
-            var result = new Queue(this, queueMarshalled.Value);
-
-            queueMarshalled.Dispose();
+            VkQueue temp;
+            Commands.getDeviceQueue(device, familyIndex, index, out temp);
+            var result = new Queue(this, temp);
 
             return result;
         }

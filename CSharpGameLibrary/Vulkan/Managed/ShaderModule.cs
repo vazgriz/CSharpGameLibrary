@@ -56,19 +56,12 @@ namespace CSGL.Vulkan.Managed {
             var dataPinned = new PinnedArray<byte>(mInfo.Data);
 
             info.pCode = dataPinned.Address;
-            
-            var infoMarshalled = new Marshalled<VkShaderModuleCreateInfo>(info);
-            var shaderModuleMarshalled = new Marshalled<VkShaderModule>();
 
             try {
-                var result = createShaderModule(device.Native, infoMarshalled.Address, device.Instance.AllocationCallbacks, shaderModuleMarshalled.Address);
+                var result = createShaderModule(device.Native, ref info, device.Instance.AllocationCallbacks, out shaderModule);
                 if (result != VkResult.Success) throw new ShaderModuleException(string.Format("Error creating shader module: {0}"));
-
-                shaderModule = shaderModuleMarshalled.Value;
             }
             finally {
-                infoMarshalled.Dispose();
-                shaderModuleMarshalled.Dispose();
                 dataPinned.Dispose();
             }
         }

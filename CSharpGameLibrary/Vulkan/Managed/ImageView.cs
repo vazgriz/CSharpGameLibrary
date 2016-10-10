@@ -44,19 +44,8 @@ namespace CSGL.Vulkan.Managed {
             info.components = mInfo.Components;
             info.subresourceRange = mInfo.SubresourceRange;
             
-            var infoMarshalled = new Marshalled<VkImageViewCreateInfo>(info);
-            var imageViewMarshalled = new Marshalled<VkImageView>();
-
-            try {
-                var result = Device.Commands.createImageView(Device.Native, infoMarshalled.Address, Device.Instance.AllocationCallbacks, imageViewMarshalled.Address);
-                if (result != VkResult.Success) throw new ImageViewException(string.Format("Error creating image view: {0}", result));
-
-                imageView = imageViewMarshalled.Value;
-            }
-            finally {
-                infoMarshalled.Dispose();
-                imageViewMarshalled.Dispose();
-            }
+            var result = Device.Commands.createImageView(Device.Native, ref info, Device.Instance.AllocationCallbacks, out imageView);
+            if (result != VkResult.Success) throw new ImageViewException(string.Format("Error creating image view: {0}", result));
         }
 
         public void Dispose() {
