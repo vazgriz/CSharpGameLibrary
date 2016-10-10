@@ -17,6 +17,9 @@ namespace VK_Test {
         int width = 800;
         int height = 600;
 
+        uint graphicsIndex;
+        uint presentIndex;
+
         VkFormat swapchainFormat;
 
         WindowPtr window;
@@ -58,6 +61,7 @@ namespace VK_Test {
             GLFW.Init();
             Vulkan.Init();
             GLFW.WindowHint(WindowHint.Visible, 0);
+            GLFW.WindowHint(WindowHint.ClientAPI, (int)ContextAPI.NoAPI);
             window = GLFW.CreateWindow(width, height, "Test", MonitorPtr.Null, WindowPtr.Null);
 
             List<string> extensions = new List<string>(GLFW.GetRequiredInstanceExceptions());
@@ -68,14 +72,6 @@ namespace VK_Test {
                 //"VK_LAYER_LUNARG_api_dump"
             };
 
-            foreach (var s in Instance.AvailableExtensions) {
-                Console.WriteLine(s.Name);
-            }
-
-            foreach (var s in Instance.AvailableLayers) {
-                Console.WriteLine(s.Name);
-            }
-
             var app = new ApplicationInfo(new VkVersion(1, 0, 17), "Test", "None", new VkVersion(0, 0, 1), new VkVersion());
             var info = new InstanceCreateInfo(app, extensions, layers);
 
@@ -83,64 +79,75 @@ namespace VK_Test {
             physicalDevice = instance.PhysicalDevices[0];
             surface = new Surface(physicalDevice, window);
 
-            int graphicsIndex = -1;
-            int presentIndex = -1;
+            int g = -1;
+            int p = -1;
             for (int i = 0; i < physicalDevice.QueueFamilies.Count; i++) {
                 var q = physicalDevice.QueueFamilies[i];
-                if (graphicsIndex == -1 && (q.Flags & VkQueueFlags.QueueGraphicsBit) != 0) {
-                    graphicsIndex = i;
+                if (g == -1 && (q.Flags & VkQueueFlags.QueueGraphicsBit) != 0) {
+                    g = i;
                 }
-                if (presentIndex == -1 && (q.SurfaceSupported(surface))) {
-                    presentIndex = i;
+                if (p == -1 && (q.SurfaceSupported(surface))) {
+                    p = i;
                 }
             }
 
-            float[] priorities = new float[] { 1f };
-            List<QueueCreateInfo> queueInfos = new List<QueueCreateInfo>();
-            HashSet<uint> uniqueQueues = new HashSet<uint> { (uint)graphicsIndex, (uint)presentIndex };
+            graphicsIndex = (uint)g;
+            presentIndex = (uint)p;
 
-            foreach (var index in uniqueQueues) {
-                queueInfos.Add(new QueueCreateInfo(index, 1, priorities));
-            }
+            CreateDevice();
 
-            List<string> deviceExtensions = new List<string> {
-                "VK_KHR_swapchain"
-            };
-            var deviceInfo = new DeviceCreateInfo(deviceExtensions, queueInfos);
-
-            device = new Device(physicalDevice, deviceInfo);
-            graphicsQueue = device.GetQueue((uint)graphicsIndex, 0);
-            presentQueue = device.GetQueue((uint)presentIndex, 0);
-
-            var swapchainInfo = GetCreateInfo((uint)graphicsIndex, (uint)presentIndex);
-
+            var swapchainInfo = GetCreateInfo(graphicsIndex, presentIndex);
             swapchain = new Swapchain(device, swapchainInfo);
 
             CreateImageViews();
             CreatePipeline();
             CreateFramebuffers();
-            CreateCommandPool((uint)graphicsIndex);
+            CreateCommandPool(graphicsIndex);
             CreateCommandBuffers();
             CreateSemaphores();
 
+            MainLoop();
+        }
+
+        void CreateDevice() {
+            float[] priorities = new float[] { 1f };
+            List<DeviceQueueCreateInfo> queueInfos = new List<DeviceQueueCreateInfo>();
+            HashSet<uint> uniqueQueues = new HashSet<uint> { graphicsIndex, presentIndex };
+
+            foreach (var index in uniqueQueues) {
+                queueInfos.Add(new DeviceQueueCreateInfo(index, 1, priorities));
+            }
+
+            List<string> deviceExtensions = new List<string> {
+                "VK_KHR_swapchain"
+            };
+            var features = physicalDevice.Features;
+            var deviceInfo = new DeviceCreateInfo(deviceExtensions, queueInfos, ref features);
+
+            device = new Device(physicalDevice, deviceInfo);
+            graphicsQueue = device.GetQueue(graphicsIndex, 0);
+            presentQueue = device.GetQueue(presentIndex, 0);
+        }
+
+        void MainLoop() {
             var waitSemaphores = new Semaphore[] { imageAvailable };
             var waitStages = new VkPipelineStageFlags[] { VkPipelineStageFlags.PipelineStageColorAttachmentOutputBit };
             var submitCommandBuffers = new CommandBuffer[1];
             var signalSemaphores = new Semaphore[] { renderFinished };
 
             var submitInfo = new SubmitInfo();
-            submitInfo.WaitSemaphores = waitSemaphores;
-            submitInfo.WaitDstStageMask = waitStages;
-            submitInfo.CommandBuffers = submitCommandBuffers;
-            submitInfo.SignalSemaphores = signalSemaphores;
+            submitInfo.waitSemaphores = waitSemaphores;
+            submitInfo.waitDstStageMask = waitStages;
+            submitInfo.commandBuffers = submitCommandBuffers;
+            submitInfo.signalSemaphores = signalSemaphores;
 
             var submitInfoArray = new SubmitInfo[] { submitInfo };
             uint[] imageIndices = new uint[1];
 
             var presentInfo = new PresentInfo();
-            presentInfo.WaitSemaphores = signalSemaphores;
-            presentInfo.Swapchains = new Swapchain[] { swapchain };
-            presentInfo.ImageIndices = imageIndices;
+            presentInfo.waitSemaphores = signalSemaphores;
+            presentInfo.swapchains = new Swapchain[] { swapchain };
+            presentInfo.imageIndices = imageIndices;
 
             GLFW.ShowWindow(window);
 
@@ -154,11 +161,10 @@ namespace VK_Test {
                 var result = swapchain.AcquireNextImage(imageAvailable, out index);
 
                 submitCommandBuffers[0] = commandBuffers[(int)index];
-                graphicsQueue.Submit(submitInfoArray, null);
-
                 imageIndices[0] = index;
+
+                graphicsQueue.Submit(submitInfoArray, null);
                 presentQueue.Present(presentInfo);
-                break;
             }
 
             device.WaitIdle();
@@ -191,21 +197,22 @@ namespace VK_Test {
                 var buffer = commandBuffers[i];
 
                 var beginInfo = new CommandBeginInfo();
-                beginInfo.Flags = VkCommandBufferUsageFlags.CommandBufferUsageSimultaneousUseBit;
+                beginInfo.flags = VkCommandBufferUsageFlags.CommandBufferUsageSimultaneousUseBit;
 
                 buffer.Begin(beginInfo);
 
                 var renderPassInfo = new RenderPassBeginInfo();
-                renderPassInfo.RenderPass = renderPass;
-                renderPassInfo.Framebuffer = framebuffers[i];
+                renderPassInfo.renderPass = renderPass;
+                renderPassInfo.framebuffer = framebuffers[i];
                 var renderArea = new VkRect2D();
                 renderArea.extent = swapchainExtent;
-                renderPassInfo.RenderArea = renderArea;
+                renderPassInfo.renderArea = renderArea;
                 var clearColor = new VkClearValue();
-                var clearColorValue = new VkClearColorValue();
-                clearColorValue.uint32 = new CSGL.Graphics.Color32(1, 0, 1, 1).AsUint();
-                clearColor.color = clearColorValue;
-                renderPassInfo.ClearValues = new VkClearValue[] { clearColor };
+                clearColor.color.uint32 = 0;
+                clearColor.color.uint32_1 = 0;
+                clearColor.color.uint32_2 = 0;
+                clearColor.color.uint32_3 = 1;
+                renderPassInfo.clearValues = new VkClearValue[] { clearColor };
 
                 buffer.BeginRenderPass(renderPassInfo, VkSubpassContents.SubpassContentsInline);
 
@@ -227,11 +234,11 @@ namespace VK_Test {
                 ImageView imageView = swapchainImageViews[i];
 
                 FramebufferCreateInfo info = new FramebufferCreateInfo();
-                info.RenderPass = renderPass;
-                info.Attachments = new ImageView[] { imageView };
-                info.Width = swapchainExtent.width;
-                info.Height = swapchainExtent.height;
-                info.Layers = 1;
+                info.renderPass = renderPass;
+                info.attachments = new ImageView[] { imageView };
+                info.width = swapchainExtent.width;
+                info.height = swapchainExtent.height;
+                info.layers = 1;
 
                 framebuffers.Add(new Framebuffer(device, info));
             }
@@ -273,26 +280,26 @@ namespace VK_Test {
                 imageCount = cap.maxImageCount;
             }
 
-            info.MinImageCount = imageCount;
-            info.ImageFormat = surfaceFormat.format;
+            info.minImageCount = imageCount;
+            info.imageFormat = surfaceFormat.format;
             swapchainFormat = surfaceFormat.format;
-            info.ColorSpace = surfaceFormat.colorSpace;
-            info.ImageExtent = extent;
-            info.ImageArrayLayers = 1;
-            info.ImageUsageFlags = VkImageUsageFlags.ImageUsageColorAttachmentBit;
+            info.colorSpace = surfaceFormat.colorSpace;
+            info.imageExtent = extent;
+            info.imageArrayLayers = 1;
+            info.imageUsageFlags = VkImageUsageFlags.ImageUsageColorAttachmentBit;
 
             if (graphicsIndex != presentIndex) {
-                info.ImageSharingMode = VkSharingMode.SharingModeConcurrent;
-                info.QueueFamilyIndices = new uint[] { graphicsIndex, presentIndex };
+                info.imageSharingMode = VkSharingMode.SharingModeConcurrent;
+                info.queueFamilyIndices = new uint[] { graphicsIndex, presentIndex };
             } else {
-                info.ImageSharingMode = VkSharingMode.SharingModeExclusive;
+                info.imageSharingMode = VkSharingMode.SharingModeExclusive;
             }
 
-            info.PreTransform = cap.currentTransform;
-            info.CompositeAlpha = VkCompositeAlphaFlagsKHR.CompositeAlphaOpaqueBitKhr;
-            info.PresentMode = presentMode;
-            info.Clipped = true;
-            info.OldSwapchain = swapchain;
+            info.preTransform = cap.currentTransform;
+            info.compositeAlpha = VkCompositeAlphaFlagsKHR.CompositeAlphaOpaqueBitKhr;
+            info.presentMode = presentMode;
+            info.clipped = true;
+            info.oldSwapchain = swapchain;
 
             swapchainExtent = extent;
             swapchainImageFormat = surfaceFormat.format;
