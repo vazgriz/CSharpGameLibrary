@@ -43,15 +43,15 @@ namespace VK_Test {
         Semaphore renderFinished;
 
         public void Dispose() {
-            imageAvailable?.Dispose();
-            renderFinished?.Dispose();
-            pool?.Dispose();
+            imageAvailable.Dispose();
+            renderFinished.Dispose();
+            pool.Dispose();
             foreach (var fb in framebuffers) fb.Dispose();
-            pipeline?.Dispose();
-            renderPass?.Dispose();
-            pipelineLayout?.Dispose();
+            pipeline.Dispose();
+            renderPass.Dispose();
+            pipelineLayout.Dispose();
             foreach (var iv in swapchainImageViews) iv.Dispose();
-            swapchain?.Dispose();
+            swapchain.Dispose();
             surface.Dispose();
             device.Dispose();
             instance.Dispose();
