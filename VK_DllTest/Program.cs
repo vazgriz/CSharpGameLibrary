@@ -125,9 +125,9 @@ namespace VK_DllTest {
             presentInfo.pSwapchains = swapchains.Address;
             presentInfo.pImageIndices = indexMarshalled.Address;
 
-
-            while (!GLFW.WindowShouldClose(window)) {
+            while (true) {
                 GLFW.PollEvents();
+                if (GLFW.WindowShouldClose(window)) break;
 
                 if (reCreateSwapchainFlag) {
                     reCreateSwapchainFlag = false;
