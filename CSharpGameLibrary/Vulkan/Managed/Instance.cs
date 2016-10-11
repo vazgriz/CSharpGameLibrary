@@ -24,10 +24,10 @@ namespace CSGL.Vulkan.Managed {
 
     public class InstanceCreateInfo {
         public ApplicationInfo applicationInfo;
-        public List<string> extensions;
-        public List<string> layers;
+        public string[] extensions;
+        public string[] layers;
 
-        public InstanceCreateInfo(ApplicationInfo applicationInfo, List<string> extensions, List<string> layers) {
+        public InstanceCreateInfo(ApplicationInfo applicationInfo, string[] extensions, string[] layers) {
             this.applicationInfo = applicationInfo;
             this.extensions = extensions;
             this.layers = layers;
@@ -74,6 +74,7 @@ namespace CSGL.Vulkan.Managed {
 
         void Init(InstanceCreateInfo mInfo) {
             if (!GLFW.GLFW.VulkanSupported()) throw new InstanceException("Vulkan not supported");
+            if (!initialized) throw new InstanceException("Vulkan was not initialized (make sure to call Vulkan.Init())");
 
             Extensions = new List<string>(mInfo.extensions);
             Layers = new List<string>(mInfo.layers);

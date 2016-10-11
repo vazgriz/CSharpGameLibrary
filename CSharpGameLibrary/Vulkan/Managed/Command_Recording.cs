@@ -24,7 +24,7 @@ namespace CSGL.Vulkan.Managed {
         }
     }
 
-    public class CommandBeginInfo {
+    public class CommandBufferBeginInfo {
         public VkCommandBufferUsageFlags flags;
         public CommandBufferInheritanceInfo inheritanceInfo;
 

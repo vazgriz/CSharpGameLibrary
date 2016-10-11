@@ -10,10 +10,10 @@ namespace CSGL.Vulkan.Managed {
         public Surface surface;
         public uint minImageCount;
         public VkFormat imageFormat;
-        public VkColorSpaceKHR colorSpace;
+        public VkColorSpaceKHR imageColorSpace;
         public VkExtent2D imageExtent;
         public uint imageArrayLayers;
-        public VkImageUsageFlags imageUsageFlags;
+        public VkImageUsageFlags imageUsage;
         public VkSharingMode imageSharingMode;
         public uint[] queueFamilyIndices;
         public VkSurfaceTransformFlagsKHR preTransform;
@@ -81,10 +81,10 @@ namespace CSGL.Vulkan.Managed {
             info.surface = mInfo.surface.Native;
             info.minImageCount = mInfo.minImageCount;
             info.imageFormat = mInfo.imageFormat;
-            info.imageColorSpace = mInfo.colorSpace;
+            info.imageColorSpace = mInfo.imageColorSpace;
             info.imageExtent = mInfo.imageExtent;
             info.imageArrayLayers = mInfo.imageArrayLayers;
-            info.imageUsage = mInfo.imageUsageFlags;
+            info.imageUsage = mInfo.imageUsage;
             info.imageSharingMode = mInfo.imageSharingMode;
 
             var indicesMarshalled = new PinnedArray<uint>(mInfo.queueFamilyIndices);

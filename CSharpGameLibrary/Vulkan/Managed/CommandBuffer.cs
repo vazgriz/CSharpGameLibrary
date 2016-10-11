@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace CSGL.Vulkan.Managed {
     public class CommandBufferAllocateInfo {
-        public CommandPool CommandPool { get; set; }
-        public VkCommandBufferLevel Level { get; set; }
-        public uint Count { get; set; }
+        public CommandPool commandPool;
+        public VkCommandBufferLevel level;
+        public uint count;
     }
 
     public class CommandBuffer {
@@ -29,7 +29,7 @@ namespace CSGL.Vulkan.Managed {
             this.commandBuffer = commandBuffer;
         }
 
-        public void Begin(CommandBeginInfo info) {
+        public void Begin(CommandBufferBeginInfo info) {
             List<IDisposable> marshalled = new List<IDisposable>();
             var infoNative = info.GetNative(marshalled);
 

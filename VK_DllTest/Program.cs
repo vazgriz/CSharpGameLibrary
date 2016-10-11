@@ -484,11 +484,11 @@ namespace VK_DllTest {
 
             var colorAttachmentMarshalled = new Marshalled<VkAttachmentDescription>(colorAttachment);
 
-            var colorAttchmentRef = new VkAttachmentReference();
-            colorAttchmentRef.attachment = 0;
-            colorAttchmentRef.layout = VkImageLayout.ImageLayoutColorAttachmentOptimal;
+            var colorAttachmentRef = new VkAttachmentReference();
+            colorAttachmentRef.attachment = 0;
+            colorAttachmentRef.layout = VkImageLayout.ImageLayoutColorAttachmentOptimal;
 
-            var colorAttachmentRefMarshalled = new Marshalled<VkAttachmentReference>(colorAttchmentRef);
+            var colorAttachmentRefMarshalled = new Marshalled<VkAttachmentReference>(colorAttachmentRef);
 
             var subpass = new VkSubpassDescription();
             subpass.pipelineBindPoint = VkPipelineBindPoint.PipelineBindPointGraphics;

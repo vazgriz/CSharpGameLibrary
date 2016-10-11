@@ -57,11 +57,14 @@ namespace CSGL.Vulkan.Managed {
         public static List<Extension> AvailableExtensions { get; private set; }
         public static List<Layer> AvailableLayers { get; private set; }
 
+        static bool initialized = false;
+
         internal static void Init() {
             Vulkan.Load(ref createInstance);
             Vulkan.Load(ref enumerateExtensionProperties);
             Vulkan.Load(ref enumerateLayerProperties);
             GetLayersAndExtensions();
+            initialized = true;
         }
 
         static void GetLayersAndExtensions() {

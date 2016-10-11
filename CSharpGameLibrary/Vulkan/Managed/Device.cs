@@ -5,11 +5,11 @@ using CSGL.Vulkan.Unmanaged;
 
 namespace CSGL.Vulkan.Managed {
     public class DeviceCreateInfo {
-        public List<string> extensions;
-        public List<DeviceQueueCreateInfo> queueCreateInfos;
+        public string[] extensions;
+        public DeviceQueueCreateInfo[] queueCreateInfos;
         public VkPhysicalDeviceFeatures features;
 
-        public DeviceCreateInfo(List<string> extensions, List<DeviceQueueCreateInfo> queueCreateInfos, ref VkPhysicalDeviceFeatures features) {
+        public DeviceCreateInfo(string[] extensions, DeviceQueueCreateInfo[] queueCreateInfos, VkPhysicalDeviceFeatures features) {
             this.extensions = extensions;
             this.queueCreateInfos = queueCreateInfos;
             this.features = features;
@@ -69,7 +69,7 @@ namespace CSGL.Vulkan.Managed {
             info.pEnabledFeatures = features.Address;
 
             if (mInfo.queueCreateInfos != null) {
-                int length = mInfo.queueCreateInfos.Count;
+                int length = mInfo.queueCreateInfos.Length;
                 info.queueCreateInfoCount = (uint)length;
                 queueInfos = new MarshalledArray<VkDeviceQueueCreateInfo>(length);
                 prioritiesMarshalled = new PinnedArray<float>[length];

@@ -18,7 +18,7 @@ namespace CSGL.Vulkan.Managed {
         public Instance Instance { get; private set; }
 
         public List<VkSurfaceFormatKHR> Formats { get; private set; }
-        public List<VkPresentModeKHR> Modes { get; private set; }
+        public List<VkPresentModeKHR> PresentModes { get; private set; }
         public VkSurfaceCapabilitiesKHR Capabilities { get; private set; }
 
         public VkSurfaceKHR Native {
@@ -71,7 +71,7 @@ namespace CSGL.Vulkan.Managed {
         }
 
         void GetModes() {
-            Modes = new List<VkPresentModeKHR>();
+            PresentModes = new List<VkPresentModeKHR>();
 
             uint count = 0;
             getModes(physicalDevice.Native, surface, ref count, IntPtr.Zero);
@@ -81,7 +81,7 @@ namespace CSGL.Vulkan.Managed {
 
             for (int i = 0; i < count; i++) {
                 var mode = (VkPresentModeKHR)modes[i];
-                Modes.Add(mode);
+                PresentModes.Add(mode);
             }
         }
 

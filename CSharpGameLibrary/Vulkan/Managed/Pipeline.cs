@@ -5,22 +5,22 @@ using CSGL.Vulkan.Unmanaged;
 
 namespace CSGL.Vulkan.Managed {
     public class GraphicsPipelineCreateInfo {
-        public VkPipelineCreateFlags Flags { get; set; }
-        public PipelineShaderStageCreateInfo[] Stages { get; set; }
-        public PipelineVertexInputStateCreateInfo VertexInputState { get; set; }
-        public PipelineInputAssemblyStateCreateInfo InputAssemblyState { get; set; }
-        public PipelineTessellationStateCreateInfo TessellationState { get; set; }
-        public PipelineViewportStateCreateInfo ViewportState { get; set; }
-        public PipelineRasterizationStateCreateInfo RasterizationState { get; set; }
-        public PipelineMultisampleStateCreateInfo MultisampleState { get; set; }
-        public PipelineDepthStencilStateCreateInfo DepthStencilState { get; set; }
-        public PipelineColorBlendStateCreateInfo ColorBlendState { get; set; }
-        public PipelineDynamicStateCreateInfo DynamicState { get; set; }
-        public PipelineLayout Layout { get; set; }
-        public RenderPass RenderPass { get; set; }
-        public uint Subpass { get; set; }
-        public Pipeline BasePipeline { get; set; }
-        public int BasePipelineIndex { get; set; }
+        public VkPipelineCreateFlags flags;
+        public PipelineShaderStageCreateInfo[] stages;
+        public PipelineVertexInputStateCreateInfo vertexInputState;
+        public PipelineInputAssemblyStateCreateInfo inputAssemblyState;
+        public PipelineTessellationStateCreateInfo tessellationState;
+        public PipelineViewportStateCreateInfo viewportState;
+        public PipelineRasterizationStateCreateInfo rasterizationState;
+        public PipelineMultisampleStateCreateInfo multisampleState;
+        public PipelineDepthStencilStateCreateInfo depthStencilState;
+        public PipelineColorBlendStateCreateInfo colorBlendState;
+        public PipelineDynamicStateCreateInfo dynamicState;
+        public PipelineLayout layout;
+        public RenderPass renderPass;
+        public uint subpass;
+        public Pipeline basePipeline;
+        public int basePipelineIndex;
     }
 
     public class Pipeline : IDisposable {
@@ -85,11 +85,11 @@ namespace CSGL.Vulkan.Managed {
                 var mInfo = mInfos[i];
 
                 info.sType = VkStructureType.StructureTypeGraphicsPipelineCreateInfo;
-                info.flags = mInfo.Flags;
+                info.flags = mInfo.flags;
                 
                 var stagesMarshalled = new MarshalledArray<VkPipelineShaderStageCreateInfo>(count);
                 for (int j = 0; j < count; j++) {
-                    stagesMarshalled[j] = mInfo.Stages[j].GetNative(marshalledArrays);
+                    stagesMarshalled[j] = mInfo.stages[j].GetNative(marshalledArrays);
                 }
 
                 info.stageCount = (uint)stagesMarshalled.Count;
@@ -97,70 +97,70 @@ namespace CSGL.Vulkan.Managed {
 
                 marshalledArrays.Add(stagesMarshalled);
 
-                if (mInfo.VertexInputState != null) {
-                    var m = new Marshalled<VkPipelineVertexInputStateCreateInfo>(mInfo.VertexInputState.GetNative(marshalledArrays));
+                if (mInfo.vertexInputState != null) {
+                    var m = new Marshalled<VkPipelineVertexInputStateCreateInfo>(mInfo.vertexInputState.GetNative(marshalledArrays));
                     info.pVertexInputState = m.Address;
                     marshalledArrays.Add(m);
                 }
 
-                if (mInfo.InputAssemblyState != null) {
-                    var m = new Marshalled<VkPipelineInputAssemblyStateCreateInfo>(mInfo.InputAssemblyState.GetNative());
+                if (mInfo.inputAssemblyState != null) {
+                    var m = new Marshalled<VkPipelineInputAssemblyStateCreateInfo>(mInfo.inputAssemblyState.GetNative());
                     info.pInputAssemblyState = m.Address;
                     marshalledArrays.Add(m);
                 }
 
-                if (mInfo.TessellationState != null) {
-                    var m = new Marshalled<VkPipelineTessellationStateCreateInfo>(mInfo.TessellationState.GetNative());
+                if (mInfo.tessellationState != null) {
+                    var m = new Marshalled<VkPipelineTessellationStateCreateInfo>(mInfo.tessellationState.GetNative());
                     info.pTessellationState = m.Address;
                     marshalledArrays.Add(m);
                 }
 
-                if (mInfo.ViewportState != null) {
-                    var m = new Marshalled<VkPipelineViewportStateCreateInfo>(mInfo.ViewportState.GetNative(marshalledArrays));
+                if (mInfo.viewportState != null) {
+                    var m = new Marshalled<VkPipelineViewportStateCreateInfo>(mInfo.viewportState.GetNative(marshalledArrays));
                     info.pViewportState = m.Address;
                 }
 
-                if (mInfo.RasterizationState != null) {
-                    var m = new Marshalled<VkPipelineRasterizationStateCreateInfo>(mInfo.RasterizationState.GetNative());
+                if (mInfo.rasterizationState != null) {
+                    var m = new Marshalled<VkPipelineRasterizationStateCreateInfo>(mInfo.rasterizationState.GetNative());
                     info.pRasterizationState = m.Address;
                     marshalledArrays.Add(m);
                 }
 
-                if (mInfo.MultisampleState != null) {
-                    var m = new Marshalled<VkPipelineMultisampleStateCreateInfo>(mInfo.MultisampleState.GetNative());
+                if (mInfo.multisampleState != null) {
+                    var m = new Marshalled<VkPipelineMultisampleStateCreateInfo>(mInfo.multisampleState.GetNative());
                     info.pMultisampleState = m.Address;
                     marshalledArrays.Add(m);
                 }
 
-                if (mInfo.DepthStencilState != null) {
-                    var m = new Marshalled<VkPipelineDepthStencilStateCreateInfo>(mInfo.DepthStencilState.GetNative());
+                if (mInfo.depthStencilState != null) {
+                    var m = new Marshalled<VkPipelineDepthStencilStateCreateInfo>(mInfo.depthStencilState.GetNative());
                     info.pDepthStencilState = m.Address;
                     marshalledArrays.Add(m);
                 }
 
-                if (mInfo.ColorBlendState != null) {
-                    var m = new Marshalled<VkPipelineColorBlendStateCreateInfo>(mInfo.ColorBlendState.GetNative(marshalledArrays));
+                if (mInfo.colorBlendState != null) {
+                    var m = new Marshalled<VkPipelineColorBlendStateCreateInfo>(mInfo.colorBlendState.GetNative(marshalledArrays));
                     info.pColorBlendState = m.Address;
                     marshalledArrays.Add(m);
                 }
 
-                if (mInfo.DynamicState != null) {
-                    var m = new Marshalled<VkPipelineDynamicStateCreateInfo>(mInfo.DynamicState.GetNative(marshalledArrays));
+                if (mInfo.dynamicState != null) {
+                    var m = new Marshalled<VkPipelineDynamicStateCreateInfo>(mInfo.dynamicState.GetNative(marshalledArrays));
                     info.pDynamicState = m.Address;
                     marshalledArrays.Add(m);
                 }
 
-                info.layout = mInfo.Layout.Native;
+                info.layout = mInfo.layout.Native;
 
-                if (mInfo.RenderPass != null) {
-                    info.renderPass = mInfo.RenderPass.Native;
+                if (mInfo.renderPass != null) {
+                    info.renderPass = mInfo.renderPass.Native;
                 }
 
-                info.subpass = mInfo.Subpass;
-                if (mInfo.BasePipeline != null) {
-                    info.basePipelineHandle = mInfo.BasePipeline.Native;
+                info.subpass = mInfo.subpass;
+                if (mInfo.basePipeline != null) {
+                    info.basePipelineHandle = mInfo.basePipeline.Native;
                 }
-                info.basePipelineIndex = mInfo.BasePipelineIndex;
+                info.basePipelineIndex = mInfo.basePipelineIndex;
 
                 infos[i] = info;
             }
