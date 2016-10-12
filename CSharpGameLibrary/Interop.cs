@@ -38,7 +38,7 @@ namespace CSGL {
             return result;
         }
 
-        public static unsafe void Copy(void* source, void* dest, int size) {
+        public static unsafe void Copy(void* source, void* dest, long size) {
             byte* _source = (byte*)source;
             byte* _dest = (byte*)dest;
             for (int i = 0; i < size; i++) {
@@ -53,6 +53,23 @@ namespace CSGL {
         }
 
         public static unsafe void Copy<T>(T[] source, void* dest) where T : struct {
+            Copy(source, dest, source.Length);
+        }
+
+        public static void Copy(IntPtr source, IntPtr dest, long size) {
+            unsafe
+            {
+                Copy((void*)source, (void*)dest, size);
+            }
+        }
+
+        public static unsafe void Copy<T>(T[] source, IntPtr dest, int count) where T : struct {
+            GCHandle handle = GCHandle.Alloc(source, GCHandleType.Pinned);
+            Copy(handle.AddrOfPinnedObject(), dest, count * SMarshal.SizeOf<T>());
+            handle.Free();
+        }
+
+        public static unsafe void Copy<T>(T[] source, IntPtr dest) where T : struct {
             Copy(source, dest, source.Length);
         }
 
