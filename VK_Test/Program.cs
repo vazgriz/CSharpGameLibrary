@@ -16,7 +16,7 @@ namespace VK_Test {
 
         string[] layers = {
             "VK_LAYER_LUNARG_standard_validation",
-            "VK_LAYER_LUNARG_api_dump"
+            //"VK_LAYER_LUNARG_api_dump"
         };
 
         string[] deviceExtensions = {
@@ -143,7 +143,6 @@ namespace VK_Test {
                 if (result == VkResult.ErrorOutOfDateKhr || result == VkResult.SuboptimalKhr) {
                     RecreateSwapchain();
                 }
-                break;
             }
 
             device.WaitIdle();

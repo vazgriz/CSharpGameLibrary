@@ -78,7 +78,7 @@ namespace CSGL.Vulkan.Managed {
             int count = mInfos.Length;
             var infos = new VkGraphicsPipelineCreateInfo[count];
             var pipelineResults = new VkPipeline[count];
-            var marshalledArrays = new List<IDisposable>(mInfos.Length);
+            var marshalledArrays = new List<IDisposable>(count);
 
             for (int i = 0; i < mInfos.Length; i++) {
                 VkGraphicsPipelineCreateInfo info = new VkGraphicsPipelineCreateInfo();
@@ -86,9 +86,10 @@ namespace CSGL.Vulkan.Managed {
 
                 info.sType = VkStructureType.StructureTypeGraphicsPipelineCreateInfo;
                 info.flags = mInfo.flags;
-                
-                var stagesMarshalled = new MarshalledArray<VkPipelineShaderStageCreateInfo>(count);
-                for (int j = 0; j < count; j++) {
+
+                int stagesCount = mInfo.stages.Length;
+                var stagesMarshalled = new MarshalledArray<VkPipelineShaderStageCreateInfo>(stagesCount);
+                for (int j = 0; j < stagesCount; j++) {
                     stagesMarshalled[j] = mInfo.stages[j].GetNative(marshalledArrays);
                 }
 
