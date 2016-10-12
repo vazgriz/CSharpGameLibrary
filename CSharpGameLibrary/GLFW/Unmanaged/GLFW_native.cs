@@ -7,7 +7,7 @@ using CSGL.Vulkan.Unmanaged;
 
 namespace CSGL.GLFW.Unmanaged {
     public static unsafe class GLFW_native {
-        const string lib = "natives";
+        const string lib = "glfw3";
 
         [DllImport(lib)]
         public static extern bool glfwInit();

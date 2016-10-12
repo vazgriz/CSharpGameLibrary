@@ -63,7 +63,7 @@ namespace CSGL.GLFW {
         ContextCreationAPI = 0x0002200B,
     }
 
-    public enum ContextAPI {
+    public enum ClientAPI {
         NoAPI = 0,
         OpenGLAPI = 0x00030001,
         OpenGL_ES_API = 0x00030002,
