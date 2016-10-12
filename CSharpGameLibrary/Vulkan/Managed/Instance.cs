@@ -13,7 +13,7 @@ namespace CSGL.Vulkan.Managed {
         public string engineName;
         public string applicationName;
 
-        public ApplicationInfo(VkVersion apiVersion, string applicationName, string engineName, VkVersion applicationVersion, VkVersion engineVersion) {
+        public ApplicationInfo(VkVersion apiVersion, VkVersion applicationVersion, VkVersion engineVersion, string applicationName, string engineName) {
             this.apiVersion = apiVersion;
             this.applicationName = applicationName;
             this.engineName = engineName;

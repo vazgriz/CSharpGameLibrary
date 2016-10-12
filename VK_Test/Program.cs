@@ -173,10 +173,11 @@ namespace VK_Test {
 
             var appInfo = new ApplicationInfo(
                 new VkVersion(1, 0, 0),
-                "Vulkan Test",
-                null,
                 new VkVersion(1, 0, 0),
-                new VkVersion(1, 0, 0));
+                new VkVersion(1, 0, 0),
+                "Vulkan Test",
+                null
+            );
 
             var info = new InstanceCreateInfo(appInfo, extensions, layers);
             instance = new Instance(info);
