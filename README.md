@@ -1,2 +1,2 @@
 # CSharpGameLibrary
-Bindings for OpenGL, Vulkan, GLFW, and NanoVG
+Bindings for OpenGL, Vulkan, and GLFW
