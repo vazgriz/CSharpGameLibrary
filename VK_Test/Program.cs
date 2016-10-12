@@ -12,6 +12,7 @@ namespace VK_Test {
             using (var p = new Program()) {
                 p.Run();
             }
+            Console.ReadLine();
         }
 
         string[] layers = {

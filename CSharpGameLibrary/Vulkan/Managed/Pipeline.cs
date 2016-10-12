@@ -80,7 +80,7 @@ namespace CSGL.Vulkan.Managed {
             var pipelineResults = new VkPipeline[count];
             var marshalledArrays = new List<IDisposable>(count);
 
-            for (int i = 0; i < mInfos.Length; i++) {
+            for (int i = 0; i < count; i++) {
                 VkGraphicsPipelineCreateInfo info = new VkGraphicsPipelineCreateInfo();
                 var mInfo = mInfos[i];
 
@@ -167,7 +167,7 @@ namespace CSGL.Vulkan.Managed {
             }
 
             var infosMarshalled = new MarshalledArray<VkGraphicsPipelineCreateInfo>(infos);
-            var pipelinesMarshalled = new MarshalledArray<VkPipeline>(count);
+            var pipelinesMarshalled = new PinnedArray<VkPipeline>(pipelineResults);
 
             try {
                 var result = device.Commands.createGraphicsPiplines(
@@ -176,10 +176,6 @@ namespace CSGL.Vulkan.Managed {
                     device.Instance.AllocationCallbacks, pipelinesMarshalled.Address);
 
                 if (result != VkResult.Success) throw new PipelineException(string.Format("Error creating pipeline: {0}", result));
-
-                for (int i = 0; i < count; i++) {
-                    pipelineResults[i] = pipelinesMarshalled[i];
-                }
             }
             finally {
                 pipelinesMarshalled.Dispose();
