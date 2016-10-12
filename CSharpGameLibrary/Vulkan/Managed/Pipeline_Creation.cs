@@ -223,7 +223,7 @@ namespace CSGL.Vulkan.Managed {
             result.pAttachments = attachMarshalled.Address;
 
             if (blendConstants != null) {
-                result.blendConstants = blendConstants[0];
+                result.blendConstants_0 = blendConstants[0];
                 result.blendConstants_1 = blendConstants[1];
                 result.blendConstants_2 = blendConstants[2];
                 result.blendConstants_3 = blendConstants[3];
