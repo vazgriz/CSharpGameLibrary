@@ -33,8 +33,7 @@ namespace CSGL.Vulkan.Managed {
         bool disposed;
         
         vkGetSwapchainImagesKHRDelegate getImages;
-
-        public Instance Instance { get; private set; }
+        
         public Surface Surface { get; private set; }
         public Device Device { get; private set; }
         public List<Image> Images { get; private set; }
@@ -51,7 +50,6 @@ namespace CSGL.Vulkan.Managed {
             if (info.surface == null) throw new ArgumentNullException(nameof(info.surface));
 
             Surface = info.surface;
-            Instance = Surface.Instance;
             Device = device;
             
             getImages = Device.Commands.getSwapchainImages;
@@ -100,7 +98,7 @@ namespace CSGL.Vulkan.Managed {
             }
 
             try {
-                var result = Device.Commands.createSwapchain(Device.Native, ref info, Instance.AllocationCallbacks, out swapchain);
+                var result = Device.Commands.createSwapchain(Device.Native, ref info, Device.Instance.AllocationCallbacks, out swapchain);
                 if (result != VkResult.Success) throw new SwapchainException(string.Format("Error creating swapchain: {0}", result));
             }
             finally {
@@ -141,7 +139,7 @@ namespace CSGL.Vulkan.Managed {
             if (disposed) return;
 
             unsafe {
-                Device.Commands.destroySwapchain(Device.Native, swapchain, Instance.AllocationCallbacks);
+                Device.Commands.destroySwapchain(Device.Native, swapchain, Device.Instance.AllocationCallbacks);
             }
 
             disposed = true;

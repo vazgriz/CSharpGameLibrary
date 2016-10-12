@@ -66,6 +66,7 @@
     <Compile Include="Vulkan\commands.cs" />
     <Compile Include="Vulkan\delegates.cs" />
     <Compile Include="Vulkan\enums.cs" />
+    <Compile Include="Vulkan\Managed\Buffer.cs" />
     <Compile Include="Vulkan\Managed\CommandBuffer.cs" />
     <Compile Include="Vulkan\Managed\CommandPool.cs" />
     <Compile Include="Vulkan\Managed\Commands.cs" />

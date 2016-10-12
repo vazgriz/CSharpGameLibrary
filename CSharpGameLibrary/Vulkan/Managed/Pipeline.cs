@@ -25,6 +25,8 @@ namespace CSGL.Vulkan.Managed {
 
     public class Pipeline : IDisposable {
         VkPipeline pipeline;
+        bool disposed = false;
+
         public Device Device { get; private set; }
 
         public VkPipeline Native {
@@ -188,7 +190,10 @@ namespace CSGL.Vulkan.Managed {
         }
 
         public void Dispose() {
+            if (disposed) return;
+
             Device.Commands.destroyPipeline(Device.Native, pipeline, Device.Instance.AllocationCallbacks);
+            disposed = true;
         }
     }
 

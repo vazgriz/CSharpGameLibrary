@@ -20,13 +20,14 @@ namespace CSGL.Vulkan.Managed {
         VkDevice device;
         bool disposed = false;
 
-        PhysicalDevice physicalDevice;
 
         vkGetDeviceProcAddrDelegate getDeviceProcAddr;
 
         public DeviceCommands Commands { get; private set; }
 
         public Instance Instance { get; private set; }
+        public PhysicalDevice PhysicalDevice { get; set; }
+
         public List<string> Extensions { get; private set; }
 
         public VkDevice Native {
@@ -39,7 +40,7 @@ namespace CSGL.Vulkan.Managed {
             if (physicalDevice == null) throw new ArgumentNullException(nameof(physicalDevice));
             if (info == null) throw new ArgumentNullException(nameof(info));
 
-            this.physicalDevice = physicalDevice;
+            this.PhysicalDevice = physicalDevice;
             Instance = physicalDevice.Instance;
 
             if (info.extensions == null) {
@@ -91,7 +92,7 @@ namespace CSGL.Vulkan.Managed {
             }
 
             try {
-                var result = Instance.Commands.createDevice(physicalDevice.Native, ref info, Instance.AllocationCallbacks, out device);
+                var result = Instance.Commands.createDevice(PhysicalDevice.Native, ref info, Instance.AllocationCallbacks, out device);
                 if (result != VkResult.Success) throw new DeviceException(string.Format("Error creating device: {0}", result));
             }
             finally {
@@ -109,8 +110,8 @@ namespace CSGL.Vulkan.Managed {
             foreach (string ex in Extensions) {
                 bool found = false;
 
-                for (int i = 0; i < physicalDevice.AvailableExtensions.Count; i++) {
-                    if (physicalDevice.AvailableExtensions[i].Name == ex) {
+                for (int i = 0; i < PhysicalDevice.AvailableExtensions.Count; i++) {
+                    if (PhysicalDevice.AvailableExtensions[i].Name == ex) {
                         found = true;
                         break;
                     }

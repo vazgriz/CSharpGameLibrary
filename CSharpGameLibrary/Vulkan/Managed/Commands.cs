@@ -63,6 +63,11 @@ namespace CSGL.Vulkan.Managed {
             public vkCmdBindPipelineDelegate cmdBindPipeline;
             public vkCmdDrawDelegate cmdDraw;
 
+            public vkCreateBufferDelegate createBuffer;
+            public vkDestroyBufferDelegate destroyBuffer;
+            public vkGetBufferMemoryRequirementsDelegate getMemoryRequirements;
+            public vkGetPhysicalDeviceMemoryPropertiesDelegate getMemoryProperties;
+
             internal DeviceCommands(Device device) {
                 Type t = typeof(DeviceCommands);
                 FieldInfo[] fields = t.GetFields();
