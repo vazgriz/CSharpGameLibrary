@@ -93,7 +93,7 @@ namespace CSGL.Vulkan.Managed {
                     stagesMarshalled[j] = mInfo.stages[j].GetNative(marshalledArrays);
                 }
 
-                info.stageCount = (uint)stagesMarshalled.Count;
+                info.stageCount = (uint)stagesCount;
                 info.pStages = stagesMarshalled.Address;
 
                 marshalledArrays.Add(stagesMarshalled);
