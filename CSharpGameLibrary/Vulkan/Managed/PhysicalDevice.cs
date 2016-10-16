@@ -13,6 +13,12 @@ namespace CSGL.Vulkan.Managed {
         public List<QueueFamily> QueueFamilies { get; private set; }
         public List<Extension> AvailableExtensions { get; private set; }
 
+        public VkPhysicalDevice Native {
+            get {
+                return device;
+            }
+        }
+
         VkPhysicalDeviceFeatures features;
         public VkPhysicalDeviceFeatures Features {
             get {
@@ -20,9 +26,10 @@ namespace CSGL.Vulkan.Managed {
             }
         }
 
-        public VkPhysicalDevice Native {
+        VkPhysicalDeviceMemoryProperties memoryProperties;
+        public VkPhysicalDeviceMemoryProperties MemoryProperties {
             get {
-                return device;
+                return memoryProperties;
             }
         }
 
@@ -46,6 +53,7 @@ namespace CSGL.Vulkan.Managed {
             GetQueueProperties();
             GetDeviceFeatures();
             GetDeviceExtensions();
+            GetMemoryProperties();
 
             //Name = Properties.Name;
         }
@@ -89,6 +97,13 @@ namespace CSGL.Vulkan.Managed {
                 var ex = props[i];
                 AvailableExtensions.Add(new Extension(ex));
             }
+        }
+
+        void GetMemoryProperties() {
+            var prop = new Marshalled<VkPhysicalDeviceMemoryProperties>();
+            Instance.Commands.getMemoryProperties(device, prop.Address);
+            memoryProperties = prop.Value;
+            prop.Dispose();
         }
 
         public class QueueFamily {

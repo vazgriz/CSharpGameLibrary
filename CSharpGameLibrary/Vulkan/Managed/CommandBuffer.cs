@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CSGL.Vulkan.Managed {
     public class CommandBufferAllocateInfo {
@@ -49,6 +46,15 @@ namespace CSGL.Vulkan.Managed {
 
         public void BindPipeline(VkPipelineBindPoint bindPoint, Pipeline pipeline) {
             Device.Commands.cmdBindPipeline(commandBuffer, bindPoint, pipeline.Native);
+        }
+
+        public void BindVertexBuffers(uint firstBinding, Buffer[] buffers, ulong[] offsets) {
+            var marshalled = new MarshalledArray<VkBuffer>(buffers.Length);
+            for (int i = 0; i < buffers.Length; i++) {
+                marshalled[i] = buffers[i].Native;
+            }
+            Device.Commands.cmdBindVertexBuffers(commandBuffer, firstBinding, (uint)buffers.Length, marshalled.Address, ref offsets[0]);
+            marshalled.Dispose();
         }
 
         public void Draw(int vertexCount, int instanceCount, int firstVertex, int firstInstance) {

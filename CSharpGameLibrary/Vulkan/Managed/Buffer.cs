@@ -14,12 +14,20 @@ namespace CSGL.Vulkan.Managed {
     public class Buffer : IDisposable {
         VkBuffer buffer;
         bool disposed;
+
+        VkMemoryRequirements requirements;
         
-        public Device Device { get; set; }
+        public Device Device { get; private set; }
 
         public VkBuffer Native {
             get {
                 return buffer;
+            }
+        }
+
+        public VkMemoryRequirements Requirements {
+            get {
+                return requirements;
             }
         }
 
@@ -28,9 +36,13 @@ namespace CSGL.Vulkan.Managed {
             if (info == null) throw new ArgumentNullException(nameof(info));
 
             Device = device;
+
+            CreateBuffer(info);
+            
+            Device.Commands.getMemoryRequirements(Device.Native, buffer, out requirements);
         }
 
-        void CreateBufferInternal(BufferCreateInfo mInfo) {
+        void CreateBuffer(BufferCreateInfo mInfo) {
             var info = new VkBufferCreateInfo();
             info.sType = VkStructureType.StructureTypeBufferCreateInfo;
             info.flags = mInfo.flags;
@@ -51,15 +63,11 @@ namespace CSGL.Vulkan.Managed {
             }
         }
 
-        void GetMemoryRequirements() {
-            VkMemoryRequirements requirements;
-            Device.Commands.getMemoryRequirements(Device.Native, buffer, out requirements);
-        }
+        public void Bind(DeviceMemory deviceMemory, ulong offset) {
+            if (deviceMemory == null) throw new ArgumentNullException(nameof(deviceMemory));
 
-        //uint FindMemoryType(uint filter, VkMemoryPropertyFlags properties) {
-        //    var memPropertiesMarshalled = new Marshalled<VkPhysicalDeviceMemoryProperties>();
-        //    Device.Commands.getMemoryProperties(Device.PhysicalDevice.Native, memPropertiesMarshalled.Address);
-        //}
+            Device.Commands.bindBuffer(Device.Native, buffer, deviceMemory.Native, offset);
+        }
 
         public void Dispose() {
             if (disposed) return;

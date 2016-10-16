@@ -62,11 +62,18 @@ namespace CSGL.Vulkan.Managed {
             public vkCmdEndRenderPassDelegate cmdEndRenderPass;
             public vkCmdBindPipelineDelegate cmdBindPipeline;
             public vkCmdDrawDelegate cmdDraw;
+            public vkCmdBindVertexBuffersDelegate cmdBindVertexBuffers;
 
             public vkCreateBufferDelegate createBuffer;
             public vkDestroyBufferDelegate destroyBuffer;
             public vkGetBufferMemoryRequirementsDelegate getMemoryRequirements;
             public vkGetPhysicalDeviceMemoryPropertiesDelegate getMemoryProperties;
+            public vkBindBufferMemoryDelegate bindBuffer;
+
+            public vkAllocateMemoryDelegate allocateMemory;
+            public vkFreeMemoryDelegate freeMemory;
+            public vkMapMemoryDelegate mapMemory;
+            public vkUnmapMemoryDelegate unmapMemory;
 
             internal DeviceCommands(Device device) {
                 Type t = typeof(DeviceCommands);
@@ -91,6 +98,7 @@ namespace CSGL.Vulkan.Managed {
             public vkGetPhysicalDeviceFeaturesDelegate getFeatures;
             public vkEnumerateDeviceExtensionPropertiesDelegate getExtensions;
             public vkGetPhysicalDeviceSurfaceSupportKHRDelegate getPresentationSupport;
+            public vkGetPhysicalDeviceMemoryPropertiesDelegate getMemoryProperties;
 
             public vkEnumeratePhysicalDevicesDelegate enumeratePhysicalDevices;
             public vkGetPhysicalDevicePropertiesDelegate getPhysicalDeviceProperties;
