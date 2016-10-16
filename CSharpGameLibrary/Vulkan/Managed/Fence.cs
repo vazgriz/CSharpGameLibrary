@@ -27,7 +27,7 @@ namespace CSGL.Vulkan.Managed {
                 fencesNative[i] = fences[i].Native;
             }
 
-            var fencesMarshalled = new MarshalledArray<VkFence>(fencesNative);
+            var fencesMarshalled = new PinnedArray<VkFence>(fencesNative);
             var result = device.Commands.resetFences(device.Native, (uint)fences.Length, fencesMarshalled.Address);
 
             fencesMarshalled.Dispose();
@@ -45,7 +45,7 @@ namespace CSGL.Vulkan.Managed {
                 fencesNative[i] = fences[i].Native;
             }
 
-            var fencesMarshalled = new MarshalledArray<VkFence>(fencesNative);
+            var fencesMarshalled = new PinnedArray<VkFence>(fencesNative);
 
             uint waitAllNative = waitAll ? 1u : 0u;
             var result = device.Commands.waitFences(device.Native, (uint)fences.Length, fencesMarshalled.Address, waitAllNative, timeout);
