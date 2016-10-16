@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Text;
 using System.Runtime.InteropServices;
-
-using SMarshal = System.Runtime.InteropServices.Marshal;
+using System.Runtime.CompilerServices;
 
 namespace CSGL {
     public static class Interop {
@@ -39,16 +38,47 @@ namespace CSGL {
         }
 
         public static unsafe void Copy(void* source, void* dest, long size) {
-            byte* _source = (byte*)source;
-            byte* _dest = (byte*)dest;
-            for (int i = 0; i < size; i++) {
-                _dest[i] = _source[i];
+            //copies start, middle end sections seperately so that the middle section can be copied by boundary aligned double words
+            long s = (long)source;
+
+            long startMod = s % 8;
+            long startOffset = (8 - startMod) % 8;
+
+            long endMod = (s + size) % 8;
+            long endOffset = ((s + size) - endMod) - s;
+
+            long wordCount = (endOffset - startOffset) / 8;
+
+            {
+                byte* _dest = (byte*)dest + endOffset;
+                byte* _source = (byte*)source + endOffset;
+                for (long i = endMod - 1; i >= 0; i--) {
+                    _dest[i] = _source[i];
+                }
+            }
+
+            {
+                long* _dest = (long*)dest + startOffset;
+                long* _source = (long*)source + startOffset;
+
+                for (long i = wordCount - 1; i >= 0; i--) {
+                    _dest[i] = _source[i];
+                }
+            }
+
+            {
+                byte* _dest = (byte*)dest;
+                byte* _source = (byte*)source;
+
+                for (long i = startMod - 1; i >= 0; i--) {
+                    _dest[i] = _source[i];
+                }
             }
         }
 
         public static unsafe void Copy<T>(T[] source, void* dest, int count) where T : struct {
             GCHandle handle = GCHandle.Alloc(source, GCHandleType.Pinned);
-            Copy((void*)handle.AddrOfPinnedObject(), dest, count * SMarshal.SizeOf<T>());
+            Copy((void*)handle.AddrOfPinnedObject(), dest, count * Unsafe.SizeOf<T>());
             handle.Free();
         }
 
@@ -65,7 +95,7 @@ namespace CSGL {
 
         public static unsafe void Copy<T>(T[] source, IntPtr dest, int count) where T : struct {
             GCHandle handle = GCHandle.Alloc(source, GCHandleType.Pinned);
-            Copy(handle.AddrOfPinnedObject(), dest, count * SMarshal.SizeOf<T>());
+            Copy(handle.AddrOfPinnedObject(), dest, count * Unsafe.SizeOf<T>());
             handle.Free();
         }
 
@@ -73,33 +103,21 @@ namespace CSGL {
             Copy(source, dest, source.Length);
         }
 
-        public static unsafe void Marshal<T>(void* dest, T[] array) where T : struct {
-            byte* ptr = (byte*)dest;
-            int size = SMarshal.SizeOf<T>();
-            for (int i = 0; i < array.Length; i++) {
-                SMarshal.StructureToPtr(array[i], (IntPtr)ptr, false);
-                ptr += size;
-            }
-        }
-
-        public static unsafe void Marshal<T>(void* dest, T value) where T : struct {
-            SMarshal.StructureToPtr(value, (IntPtr)dest, false);
-        }
-
-        public static unsafe T Unmarshal<T>(void* source) where T : struct {
-            return SMarshal.PtrToStructure<T>((IntPtr)source);
-        }
-
-        public static unsafe T Unmarshal<T>(void* source, int index) where T : struct {
-            return Unmarshal<T>((byte*)source + (index * SizeOf<T>()));
-        }
-
         public static int SizeOf<T>() {
-            return SMarshal.SizeOf<T>();
+            return Unsafe.SizeOf<T>();
         }
 
         public static int SizeOf<T>(T[] array) {
-            return SMarshal.SizeOf<T>() * array.Length;
+            return Unsafe.SizeOf<T>() * array.Length;
+        }
+
+        public static long Offset<T1, T2>(ref T1 type, ref T2 field)
+            where T1 : struct
+            where T2 : struct {
+            unsafe
+            {
+                return (int)((byte*)Unsafe.AsPointer(ref field) - (byte*)Unsafe.AsPointer(ref type));
+            }
         }
     }
 }
