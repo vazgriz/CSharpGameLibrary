@@ -20,6 +20,7 @@ namespace CSGL.Vulkan.Managed {
         VkDevice device;
         bool disposed = false;
 
+        Dictionary<VkQueue, Queue> queues;
 
         vkGetDeviceProcAddrDelegate getDeviceProcAddr;
 
@@ -40,8 +41,9 @@ namespace CSGL.Vulkan.Managed {
             if (physicalDevice == null) throw new ArgumentNullException(nameof(physicalDevice));
             if (info == null) throw new ArgumentNullException(nameof(info));
 
-            this.PhysicalDevice = physicalDevice;
+            PhysicalDevice = physicalDevice;
             Instance = physicalDevice.Instance;
+            queues = new Dictionary<VkQueue, Queue>();
 
             if (info.extensions == null) {
                 Extensions = new List<string>();
@@ -124,9 +126,14 @@ namespace CSGL.Vulkan.Managed {
         public Queue GetQueue(uint familyIndex, uint index) {
             VkQueue temp;
             Commands.getDeviceQueue(device, familyIndex, index, out temp);
-            var result = new Queue(this, temp);
+            if (queues.ContainsKey(temp)) {
+                return queues[temp];
+            } else {
+                var result = new Queue(this, temp);
+                queues.Add(temp, result);
 
-            return result;
+                return result;
+            }
         }
 
         public IntPtr GetProcAdddress(string command) {
