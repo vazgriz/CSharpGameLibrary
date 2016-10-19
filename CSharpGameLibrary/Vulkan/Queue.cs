@@ -46,6 +46,10 @@ namespace CSGL.Vulkan {
             }
         }
 
+        public void WaitIdle() {
+            Device.Commands.queueWaitIdle(queue);
+        }
+
         public VkResult Submit(SubmitInfo[] infos, Fence fence) {
             VkFence temp = VkFence.Null;
             if (fence != null) {

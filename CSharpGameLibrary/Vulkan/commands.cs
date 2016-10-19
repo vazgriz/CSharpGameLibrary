@@ -12,6 +12,7 @@ namespace CSGL.Vulkan {
             public vkGetDeviceQueueDelegate getDeviceQueue;
             public vkQueueSubmitDelegate queueSubmit;
             public vkQueuePresentKHRDelegate queuePresent;
+            public vkQueueWaitIdleDelegate queueWaitIdle;
 
             public vkCreateSwapchainKHRDelegate createSwapchain;
             public vkDestroySwapchainKHRDelegate destroySwapchain;
@@ -63,6 +64,7 @@ namespace CSGL.Vulkan {
             public vkCmdBindPipelineDelegate cmdBindPipeline;
             public vkCmdDrawDelegate cmdDraw;
             public vkCmdBindVertexBuffersDelegate cmdBindVertexBuffers;
+            public vkCmdCopyBufferDelegate cmdCopyBuffer;
 
             public vkCreateBufferDelegate createBuffer;
             public vkDestroyBufferDelegate destroyBuffer;

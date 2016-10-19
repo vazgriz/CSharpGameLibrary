@@ -61,6 +61,12 @@ namespace CSGL.Vulkan {
             Device.Commands.cmdDraw(commandBuffer, (uint)vertexCount, (uint)instanceCount, (uint)firstVertex, (uint)firstInstance);
         }
 
+        public void Copy(Buffer src, Buffer dst, VkBufferCopy[] region) {
+            using (var pinned = new PinnedArray<VkBufferCopy>(region)) {
+                Device.Commands.cmdCopyBuffer(commandBuffer, src.Native, dst.Native, (uint)pinned.Length, pinned.Address);
+            }
+        }
+
         public void EndRenderPass() {
             Device.Commands.cmdEndRenderPass(commandBuffer);
         }
