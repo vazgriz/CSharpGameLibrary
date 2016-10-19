@@ -2,7 +2,6 @@
 using System.Runtime.InteropServices;
 
 namespace CSGL.Graphics {
-    [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct Color32 : IEquatable<Color32> {
         public byte r, g, b, a;
 
