@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CSGL.Vulkan.Managed {
+namespace CSGL.Vulkan {
     public class PipelineLayoutCreateInfo {
         public VkDescriptorSetLayout[] SetLayouts { get; set; }
         public VkPushConstantRange[] PushConstantRanges { get; set; }

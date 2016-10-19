@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CSGL.Vulkan.Managed {
+namespace CSGL.Vulkan {
     public class Semaphore : IDisposable {
         VkSemaphore semaphore;
         bool disposed = false;

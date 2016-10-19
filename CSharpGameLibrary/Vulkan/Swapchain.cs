@@ -5,7 +5,7 @@ using CSGL;
 using CSGL.Vulkan;
 using CSGL.Vulkan.Unmanaged;
 
-namespace CSGL.Vulkan.Managed {
+namespace CSGL.Vulkan {
     public class SwapchainCreateInfo {
         public Surface surface;
         public uint minImageCount;

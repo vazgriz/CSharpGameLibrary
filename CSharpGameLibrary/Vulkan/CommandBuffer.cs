@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace CSGL.Vulkan.Managed {
+namespace CSGL.Vulkan {
     public class CommandBufferAllocateInfo {
         public CommandPool commandPool;
         public VkCommandBufferLevel level;

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CSGL.Vulkan.Managed {
+namespace CSGL.Vulkan {
     public class FramebufferCreateInfo {
         public RenderPass renderPass;
         public ImageView[] attachments;

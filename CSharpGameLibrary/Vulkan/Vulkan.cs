@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 
 using CSGL.Vulkan.Unmanaged;
 
-namespace CSGL.Vulkan.Managed {
+namespace CSGL.Vulkan {
     public static class Vulkan {
         public static void Init() {
             Instance.Init();

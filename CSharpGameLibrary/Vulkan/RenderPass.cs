@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace CSGL.Vulkan.Managed {
+namespace CSGL.Vulkan {
     public class RenderPassCreateInfo {
         public VkAttachmentDescription[] Attachments { get; set; }
         public SubpassDescription[] Subpasses { get; set; }

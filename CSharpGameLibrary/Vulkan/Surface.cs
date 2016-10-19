@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using CSGL.GLFW;
 using CSGL.Vulkan.Unmanaged;
 
-namespace CSGL.Vulkan.Managed {
+namespace CSGL.Vulkan {
     public class Surface : IDisposable {
         VkSurfaceKHR surface;
         bool disposed = false;

@@ -2,7 +2,7 @@
 
 using CSGL.Vulkan;
 
-namespace CSGL.Vulkan.Managed {
+namespace CSGL.Vulkan {
     public class Extension {
         public string Name { get; private set; }
         public VkVersion Version { get; private set; }

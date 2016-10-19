@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CSGL.Vulkan.Managed {
+namespace CSGL.Vulkan {
 	public class FenceCreateInfo {
         public VkFenceCreateFlags Flags { get; set; }
     }

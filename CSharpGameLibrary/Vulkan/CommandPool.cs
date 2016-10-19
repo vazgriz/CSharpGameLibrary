@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace CSGL.Vulkan.Managed {
+namespace CSGL.Vulkan {
     public class CommandPoolCreateInfo {
         public VkCommandPoolCreateFlags Flags { get; set; }
         public uint QueueFamilyIndex { get; set; }

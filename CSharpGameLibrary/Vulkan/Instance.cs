@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 using CSGL;
 using CSGL.Vulkan.Unmanaged;
 
-namespace CSGL.Vulkan.Managed {
+namespace CSGL.Vulkan {
     public class ApplicationInfo {
         public VkVersion apiVersion;
         public VkVersion engineVersion;

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CSGL.Vulkan.Managed {
+namespace CSGL.Vulkan {
     public class PipelineCacheCreateInfo {
         public byte[] InitialData;
     }

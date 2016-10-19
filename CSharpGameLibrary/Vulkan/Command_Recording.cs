@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace CSGL.Vulkan.Managed {
+namespace CSGL.Vulkan {
     public class CommandBufferInheritanceInfo {
         public RenderPass renderPass;
         public uint subpass;

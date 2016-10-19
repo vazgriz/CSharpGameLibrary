@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 using CSGL.Vulkan.Unmanaged;
 
-namespace CSGL.Vulkan.Managed {
+namespace CSGL.Vulkan {
     public class DeviceQueueCreateInfo {
         public uint queueFamilyIndex;
         public uint queueCount;

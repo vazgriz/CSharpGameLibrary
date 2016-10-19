@@ -4,7 +4,7 @@ using System.IO;
 
 using CSGL.Vulkan.Unmanaged;
 
-namespace CSGL.Vulkan.Managed {
+namespace CSGL.Vulkan {
     public class ShaderModuleCreateInfo {
         public byte[] Data { get; set; }
 

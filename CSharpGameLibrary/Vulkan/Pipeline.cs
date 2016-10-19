@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 using CSGL.Vulkan.Unmanaged;
 
-namespace CSGL.Vulkan.Managed {
+namespace CSGL.Vulkan {
     public class GraphicsPipelineCreateInfo {
         public VkPipelineCreateFlags flags;
         public PipelineShaderStageCreateInfo[] stages;

@@ -2,7 +2,7 @@
 
 using CSGL;
 
-namespace CSGL.Vulkan.Managed {
+namespace CSGL.Vulkan {
     public class BufferCreateInfo {
         public VkBufferCreateFlags flags;
         public ulong size;
