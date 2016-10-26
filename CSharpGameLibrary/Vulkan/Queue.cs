@@ -99,18 +99,10 @@ namespace CSGL.Vulkan {
         }
 
         public VkResult Present(PresentInfo info) {
-            var waitSemaphoresMarshalled = new MarshalledArray<VkSemaphore>(info.waitSemaphores.Length);
-            var swapchainsMarshalled = new MarshalledArray<VkSwapchainKHR>(info.swapchains.Length);
+            var waitSemaphoresMarshalled = new MarshalledArray<VkSemaphore>(info.waitSemaphores);
+            var swapchainsMarshalled = new MarshalledArray<VkSwapchainKHR>(info.swapchains);
             var indicesMarshalled = new PinnedArray<uint>(info.imageIndices);
             MarshalledArray<int> resultsMarshalled = null;
-
-            for (int i = 0; i < waitSemaphoresMarshalled.Count; i++) {
-                waitSemaphoresMarshalled[i] = info.waitSemaphores[i].Native;
-            }
-
-            for (int i = 0; i < swapchainsMarshalled.Count; i++) {
-                swapchainsMarshalled[i] = info.swapchains[i].Native;
-            }
 
             if (info.results != null) {
                 resultsMarshalled = new MarshalledArray<int>(info.results.Length);
