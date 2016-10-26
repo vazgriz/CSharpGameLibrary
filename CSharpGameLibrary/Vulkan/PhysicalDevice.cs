@@ -59,10 +59,10 @@ namespace CSGL.Vulkan {
         }
 
         void GetDeviceProperties() {
-            var prop = new Marshalled<VkPhysicalDeviceProperties>();
-            getProperties(device, prop.Address);
-            Properties = new PhysicalDeviceProperties(prop.Value);
-            prop.Dispose();
+            using (var prop = new Marshalled<VkPhysicalDeviceProperties>()) {
+                getProperties(device, prop.Address);
+                Properties = new PhysicalDeviceProperties(prop.Value);
+            }
         }
 
         void GetQueueProperties() {
@@ -77,13 +77,15 @@ namespace CSGL.Vulkan {
                 var fam = new QueueFamily(queueFamily, this, (uint)i);
                 QueueFamilies.Add(fam);
             }
+
+            props.Dispose();
         }
 
         void GetDeviceFeatures() {
-            var feat = new Marshalled<VkPhysicalDeviceFeatures>();
-            getFeatures(device, feat.Address);
-            features = feat.Value;
-            feat.Dispose();
+            using (var feat = new Marshalled<VkPhysicalDeviceFeatures>()) {
+                getFeatures(device, feat.Address);
+                features = feat.Value;
+            }
         }
 
         void GetDeviceExtensions() {
@@ -97,13 +99,15 @@ namespace CSGL.Vulkan {
                 var ex = props[i];
                 AvailableExtensions.Add(new Extension(ex));
             }
+
+            props.Dispose();
         }
 
         void GetMemoryProperties() {
-            var prop = new Marshalled<VkPhysicalDeviceMemoryProperties>();
-            Instance.Commands.getMemoryProperties(device, prop.Address);
-            memoryProperties = prop.Value;
-            prop.Dispose();
+            using (var prop = new Marshalled<VkPhysicalDeviceMemoryProperties>()) {
+                Instance.Commands.getMemoryProperties(device, prop.Address);
+                memoryProperties = prop.Value;
+            }
         }
 
         public class QueueFamily {

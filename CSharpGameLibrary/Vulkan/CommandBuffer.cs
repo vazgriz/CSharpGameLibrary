@@ -49,12 +49,9 @@ namespace CSGL.Vulkan {
         }
 
         public void BindVertexBuffers(uint firstBinding, Buffer[] buffers, ulong[] offsets) {
-            var marshalled = new MarshalledArray<VkBuffer>(buffers.Length);
-            for (int i = 0; i < buffers.Length; i++) {
-                marshalled[i] = buffers[i].Native;
+            using (var marshalled = new MarshalledArray<VkBuffer>(buffers)) {
+                Device.Commands.cmdBindVertexBuffers(commandBuffer, firstBinding, (uint)buffers.Length, marshalled.Address, ref offsets[0]);
             }
-            Device.Commands.cmdBindVertexBuffers(commandBuffer, firstBinding, (uint)buffers.Length, marshalled.Address, ref offsets[0]);
-            marshalled.Dispose();
         }
 
         public void BindIndexBuffer(Buffer buffer, ulong offset, VkIndexType indexType) {

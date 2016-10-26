@@ -67,25 +67,15 @@ namespace CSGL.Vulkan {
         }
 
         public void Free(CommandBuffer[] commandBuffers) {
-            var commandBuffersMarshalled = new MarshalledArray<VkCommandBuffer>(commandBuffers.Length);
-            
-            for (int i = 0; i < commandBuffers.Length; i++) {
-                commandBuffersMarshalled[i] = commandBuffers[i].Native;
+            using (var commandBuffersMarshalled = new MarshalledArray<VkCommandBuffer>(commandBuffers)) {
+                Device.Commands.freeCommandBuffers(Device.Native, commandPool, (uint)commandBuffers.Length, commandBuffersMarshalled.Address);
             }
-
-            Device.Commands.freeCommandBuffers(Device.Native, commandPool, (uint)commandBuffers.Length, commandBuffersMarshalled.Address);
-            commandBuffersMarshalled.Dispose();
         }
 
         public void Free(List<CommandBuffer> commandBuffers) {
-            var commandBuffersMarshalled = new MarshalledArray<VkCommandBuffer>(commandBuffers.Count);
-
-            for (int i = 0; i < commandBuffers.Count; i++) {
-                commandBuffersMarshalled[i] = commandBuffers[i].Native;
+            using (var commandBuffersMarshalled = new MarshalledArray<VkCommandBuffer>(commandBuffers.Count)) {
+                Device.Commands.freeCommandBuffers(Device.Native, commandPool, (uint)commandBuffers.Count, commandBuffersMarshalled.Address);
             }
-
-            Device.Commands.freeCommandBuffers(Device.Native, commandPool, (uint)commandBuffers.Count, commandBuffersMarshalled.Address);
-            commandBuffersMarshalled.Dispose();
         }
 
         public void Dispose() {
