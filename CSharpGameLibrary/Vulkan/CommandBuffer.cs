@@ -58,6 +58,19 @@ namespace CSGL.Vulkan {
             Device.Commands.cmdBindIndexBuffer(commandBuffer, buffer.Native, offset, indexType);
         }
 
+        public void BindDescriptorSets(VkPipelineBindPoint pipelineBindPoint, PipelineLayout layout, uint firstSet, DescriptorSet[] descriptorSets, uint[] dynamicOffsets) {
+            using (var descriptorSetsMarshalled = new MarshalledArray<VkDescriptorSet>(descriptorSets))
+            using (var offsetsMarshalled = new PinnedArray<uint>(dynamicOffsets)) {
+                Device.Commands.cmdBindDescriptorSets(commandBuffer, pipelineBindPoint, layout.Native,
+                    firstSet, (uint)descriptorSets.Length, descriptorSetsMarshalled.Address,
+                    (uint)offsetsMarshalled.Length, offsetsMarshalled.Address);
+            }
+        }
+
+        public void BindDescriptorSets(VkPipelineBindPoint pipelineBindPoint, PipelineLayout layout, uint firstSet, DescriptorSet[] descriptorSets) {
+            BindDescriptorSets(pipelineBindPoint, layout, firstSet, descriptorSets, null);
+        }
+
         public void Draw(int vertexCount, int instanceCount, int firstVertex, int firstInstance) {
             Device.Commands.cmdDraw(commandBuffer, (uint)vertexCount, (uint)instanceCount, (uint)firstVertex, (uint)firstInstance);
         }
