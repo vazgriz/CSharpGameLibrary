@@ -57,8 +57,16 @@ namespace CSGL.Vulkan {
             marshalled.Dispose();
         }
 
+        public void BindIndexBuffer(Buffer buffer, ulong offset, VkIndexType indexType) {
+            Device.Commands.cmdBindIndexBuffer(commandBuffer, buffer.Native, offset, indexType);
+        }
+
         public void Draw(int vertexCount, int instanceCount, int firstVertex, int firstInstance) {
             Device.Commands.cmdDraw(commandBuffer, (uint)vertexCount, (uint)instanceCount, (uint)firstVertex, (uint)firstInstance);
+        }
+
+        public void DrawIndexed(uint indexCount, uint instanceCount, uint firstIndex, int vertexOffset, uint firstInstance) {
+            Device.Commands.cmdDrawIndexed(commandBuffer, indexCount, instanceCount, firstIndex, vertexOffset, firstInstance);
         }
 
         public void Copy(Buffer src, Buffer dst, VkBufferCopy[] region) {
