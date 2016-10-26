@@ -20,6 +20,7 @@ namespace CSGL.Vulkan {
 
         public DescriptorSetLayout(Device device, DescriptorSetLayoutCreateInfo info) {
             if (device == null) throw new ArgumentNullException(nameof(device));
+            if (info == null) throw new ArgumentNullException(nameof(info));
 
             Device = device;
 
