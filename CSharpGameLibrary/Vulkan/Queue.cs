@@ -63,15 +63,12 @@ namespace CSGL.Vulkan {
                 var info = new VkSubmitInfo();
                 info.sType = VkStructureType.StructureTypeSubmitInfo;
 
-                MarshalledArray<VkSemaphore> waitMarshalled = null;
-                if (infos[i].waitSemaphores != null) {
-                    waitMarshalled = new MarshalledArray<VkSemaphore>(infos[i].waitSemaphores.Length);
-                    info.waitSemaphoreCount = (uint)waitMarshalled.Count;
-                    for (int j = 0; j < waitMarshalled.Count; j++) {
-                        waitMarshalled[j] = infos[i].waitSemaphores[j].Native;
-                    }
-                    info.pWaitSemaphores = waitMarshalled.Address;
+                MarshalledArray<VkSemaphore> waitMarshalled = new MarshalledArray<VkSemaphore>(infos[i].waitSemaphores);
+                info.waitSemaphoreCount = (uint)waitMarshalled.Count;
+                for (int j = 0; j < waitMarshalled.Count; j++) {
+                    waitMarshalled[j] = infos[i].waitSemaphores[j].Native;
                 }
+                info.pWaitSemaphores = waitMarshalled.Address;
 
                 MarshalledArray<int> waitDstMarshalled = null;
                 if (infos[i].waitDstStageMask != null) {
@@ -82,25 +79,19 @@ namespace CSGL.Vulkan {
                     info.pWaitDstStageMask = waitDstMarshalled.Address;
                 }
 
-                MarshalledArray<VkCommandBuffer> commandBuffersMarshalled = null;
-                if (infos[i].commandBuffers != null) {
-                    commandBuffersMarshalled = new MarshalledArray<VkCommandBuffer>(infos[i].commandBuffers.Length);
-                    info.commandBufferCount = (uint)commandBuffersMarshalled.Count;
-                    for (int j = 0; j < commandBuffersMarshalled.Count; j++) {
-                        commandBuffersMarshalled[j] = infos[i].commandBuffers[j].Native;
-                    }
-                    info.pCommandBuffers = commandBuffersMarshalled.Address;
+                MarshalledArray<VkCommandBuffer> commandBuffersMarshalled = new MarshalledArray<VkCommandBuffer>(infos[i].commandBuffers);
+                info.commandBufferCount = (uint)commandBuffersMarshalled.Count;
+                for (int j = 0; j < commandBuffersMarshalled.Count; j++) {
+                    commandBuffersMarshalled[j] = infos[i].commandBuffers[j].Native;
                 }
+                info.pCommandBuffers = commandBuffersMarshalled.Address;
 
-                MarshalledArray<VkSemaphore> signalMarshalled = null;
-                if (infos[i].signalSemaphores != null) {
-                    signalMarshalled = new MarshalledArray<VkSemaphore>(infos[i].signalSemaphores.Length);
-                    info.signalSemaphoreCount = (uint)signalMarshalled.Count;
-                    for (int j = 0; j < signalMarshalled.Count; j++) {
-                        signalMarshalled[j] = infos[i].signalSemaphores[j].Native;
-                    }
-                    info.pSignalSemaphores = signalMarshalled.Address;
+                MarshalledArray<VkSemaphore> signalMarshalled = new MarshalledArray<VkSemaphore>(infos[i].signalSemaphores);
+                info.signalSemaphoreCount = (uint)signalMarshalled.Count;
+                for (int j = 0; j < signalMarshalled.Count; j++) {
+                    signalMarshalled[j] = infos[i].signalSemaphores[j].Native;
                 }
+                info.pSignalSemaphores = signalMarshalled.Address;
 
                 disposables[(i * 4) + 0] = waitMarshalled;
                 disposables[(i * 4) + 1] = waitDstMarshalled;
@@ -113,7 +104,7 @@ namespace CSGL.Vulkan {
             var result = Device.Commands.queueSubmit(queue, (uint)infos.Length, infosMarshalled.Address, temp);
 
             for (int i = 0; i < disposables.Length; i++) {
-                disposables[i]?.Dispose();
+                disposables[i].Dispose();
             }
 
             return result;
