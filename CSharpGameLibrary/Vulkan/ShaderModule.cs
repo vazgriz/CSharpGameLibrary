@@ -20,7 +20,7 @@ namespace CSGL.Vulkan {
         }
     }
 
-    public class ShaderModule : IDisposable {
+    public class ShaderModule : IDisposable, INative<VkShaderModule> {
         VkShaderModule shaderModule;
         bool disposed = false;
 

@@ -23,7 +23,7 @@ namespace CSGL.Vulkan {
         public int basePipelineIndex;
     }
 
-    public class Pipeline : IDisposable {
+    public class Pipeline : IDisposable, INative<VkPipeline> {
         VkPipeline pipeline;
         bool disposed = false;
 

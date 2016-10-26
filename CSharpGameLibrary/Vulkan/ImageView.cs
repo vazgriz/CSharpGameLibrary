@@ -13,7 +13,7 @@ namespace CSGL.Vulkan {
         }
     }
 
-    public class ImageView : IDisposable {
+    public class ImageView : IDisposable, INative<VkImageView> {
         VkImageView imageView;
         bool disposed = false;
 

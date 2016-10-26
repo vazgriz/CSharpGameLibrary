@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using CSGL.Vulkan.Unmanaged;
 
 namespace CSGL.Vulkan {
-    public class PhysicalDevice {
+    public class PhysicalDevice: INative<VkPhysicalDevice> {
         VkPhysicalDevice device;
 
         public string Name { get; private set; }

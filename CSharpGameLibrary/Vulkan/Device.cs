@@ -16,7 +16,7 @@ namespace CSGL.Vulkan {
         }
     }
 
-    public partial class Device : IDisposable {
+    public partial class Device : IDisposable, INative<VkDevice> {
         VkDevice device;
         bool disposed = false;
 

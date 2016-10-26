@@ -7,7 +7,7 @@ namespace CSGL.Vulkan {
         public uint QueueFamilyIndex { get; set; }
     }
 
-    public class CommandPool : IDisposable {
+    public class CommandPool : IDisposable, INative<VkCommandPool> {
         VkCommandPool commandPool;
         bool disposed = false;
 

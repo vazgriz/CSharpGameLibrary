@@ -5,7 +5,7 @@ using CSGL.GLFW;
 using CSGL.Vulkan.Unmanaged;
 
 namespace CSGL.Vulkan {
-    public class Surface : IDisposable {
+    public class Surface : IDisposable, INative<VkSurfaceKHR> {
         VkSurfaceKHR surface;
         bool disposed = false;
 

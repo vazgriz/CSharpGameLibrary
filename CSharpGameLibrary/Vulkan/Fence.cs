@@ -5,7 +5,7 @@ namespace CSGL.Vulkan {
         public VkFenceCreateFlags Flags { get; set; }
     }
 
-    public class Fence : IDisposable {
+    public class Fence : IDisposable, INative<VkFence> {
         VkFence fence;
         bool disposed = false;
 

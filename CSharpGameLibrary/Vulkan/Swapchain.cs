@@ -28,7 +28,7 @@ namespace CSGL.Vulkan {
         }
     }
 
-    public class Swapchain : IDisposable {
+    public class Swapchain : IDisposable, INative<VkSwapchainKHR> {
         VkSwapchainKHR swapchain;
         bool disposed;
         

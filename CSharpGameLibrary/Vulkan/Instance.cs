@@ -34,7 +34,7 @@ namespace CSGL.Vulkan {
         }
     }
 
-    public partial class Instance : IDisposable {
+    public partial class Instance : IDisposable, INative<VkInstance> {
         VkInstance instance;
         IntPtr alloc = IntPtr.Zero;
         bool disposed = false;

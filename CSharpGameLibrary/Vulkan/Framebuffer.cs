@@ -9,7 +9,7 @@ namespace CSGL.Vulkan {
         public uint layers;
     }
 
-    public class Framebuffer : IDisposable {
+    public class Framebuffer : IDisposable, INative<VkFramebuffer> {
         VkFramebuffer framebuffer;
         bool disposed = false;
 

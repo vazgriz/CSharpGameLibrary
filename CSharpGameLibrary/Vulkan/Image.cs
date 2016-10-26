@@ -6,7 +6,7 @@ namespace CSGL.Vulkan {
 
     }
 
-    public class Image : IDisposable {
+    public class Image : IDisposable, INative<VkImage> {
         VkImage image;
         bool disposed = false;
 

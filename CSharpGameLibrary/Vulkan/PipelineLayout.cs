@@ -6,7 +6,7 @@ namespace CSGL.Vulkan {
         public VkPushConstantRange[] pushConstantRanges;
     }
 
-    public class PipelineLayout : IDisposable {
+    public class PipelineLayout : IDisposable, INative<VkPipelineLayout> {
         VkPipelineLayout pipelineLayout;
         bool disposed = false;
 

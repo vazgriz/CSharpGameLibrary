@@ -11,7 +11,7 @@ namespace CSGL.Vulkan {
         public uint[] queueFamilyIndices;
     }
 
-    public class Buffer : IDisposable {
+    public class Buffer : IDisposable, INative<VkBuffer> {
         VkBuffer buffer;
         bool disposed;
 

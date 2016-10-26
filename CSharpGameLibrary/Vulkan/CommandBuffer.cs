@@ -8,7 +8,7 @@ namespace CSGL.Vulkan {
         public uint count;
     }
 
-    public class CommandBuffer {
+    public class CommandBuffer: INative<VkCommandBuffer> {
         VkCommandBuffer commandBuffer;
 
         public VkCommandBuffer Native {

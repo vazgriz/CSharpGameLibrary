@@ -51,7 +51,7 @@ namespace CSGL.Vulkan {
         }
     }
 
-    public class RenderPass : IDisposable {
+    public class RenderPass : IDisposable, INative<VkRenderPass> {
         VkRenderPass renderPass;
         bool disposed = false;
 

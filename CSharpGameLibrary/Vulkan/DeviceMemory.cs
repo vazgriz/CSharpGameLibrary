@@ -6,7 +6,7 @@ namespace CSGL.Vulkan {
         public uint memoryTypeIndex;
     }
 
-    public class DeviceMemory : IDisposable {
+    public class DeviceMemory : IDisposable, INative<VkDeviceMemory> {
         VkDeviceMemory deviceMemory;
         bool disposed = false;
 

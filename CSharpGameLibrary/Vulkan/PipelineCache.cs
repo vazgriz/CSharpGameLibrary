@@ -5,7 +5,7 @@ namespace CSGL.Vulkan {
         public byte[] InitialData;
     }
 
-    public class PipelineCache {
+    public class PipelineCache : INative<VkPipelineCache> {
         VkPipelineCache pipelineCache;
         public Device Device { get; private set; }
 
