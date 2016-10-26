@@ -2,8 +2,8 @@
 
 namespace CSGL.Vulkan {
     public class PipelineLayoutCreateInfo {
-        public VkDescriptorSetLayout[] SetLayouts { get; set; }
-        public VkPushConstantRange[] PushConstantRanges { get; set; }
+        public DescriptorSetLayout[] setLayouts;
+        public VkPushConstantRange[] pushConstantRanges;
     }
 
     public class PipelineLayout : IDisposable {
@@ -30,11 +30,14 @@ namespace CSGL.Vulkan {
             VkPipelineLayoutCreateInfo info = new VkPipelineLayoutCreateInfo();
             info.sType = VkStructureType.StructureTypePipelineLayoutCreateInfo;
 
-            var layoutsMarshalled = new MarshalledArray<VkDescriptorSetLayout>(mInfo.SetLayouts);
-            info.setLayoutCount = (uint)layoutsMarshalled.Count;
-            info.pSetLayouts = layoutsMarshalled.Address;
+            MarshalledArray<VkDescriptorSetLayout> layoutsMarshalled = null;
+            if (mInfo.setLayouts != null) {
+                layoutsMarshalled = new MarshalledArray<VkDescriptorSetLayout>(mInfo.setLayouts.Length);
+                info.setLayoutCount = (uint)layoutsMarshalled.Count;
+                info.pSetLayouts = layoutsMarshalled.Address;
+            }
 
-            var pushConstantsMarshalled = new MarshalledArray<VkPushConstantRange>(mInfo.PushConstantRanges);
+            var pushConstantsMarshalled = new MarshalledArray<VkPushConstantRange>(mInfo.pushConstantRanges);
             info.pushConstantRangeCount = (uint)pushConstantsMarshalled.Count;
             info.pPushConstantRanges = pushConstantsMarshalled.Address;
 
@@ -43,7 +46,7 @@ namespace CSGL.Vulkan {
                 if (result != VkResult.Success) throw new PipelineLayoutException(string.Format("Error creating pipeline layout: {0}", result));
             }
             finally {
-                layoutsMarshalled.Dispose();
+                layoutsMarshalled?.Dispose();
                 pushConstantsMarshalled.Dispose();
             }
         }
