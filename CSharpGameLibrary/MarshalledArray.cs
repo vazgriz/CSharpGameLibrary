@@ -25,7 +25,7 @@ namespace CSGL {
         public MarshalledArray(T[] array) {
             if (array != null) {
                 Init(array.Length);
-                for (int i = 0; i < array.Length; i++) {
+                for (int i = 0; i < count; i++) {
                     Marshal.StructureToPtr(array[i], GetAddress(i), false);
                 }
             }
@@ -34,8 +34,17 @@ namespace CSGL {
         public MarshalledArray(List<T> list) {
             if (list != null) {
                 Init(list.Count);
-                for (int i = 0; i < list.Count; i++) {
+                for (int i = 0; i < count; i++) {
                     Marshal.StructureToPtr(list[i], GetAddress(i), false);
+                }
+            }
+        }
+
+        public MarshalledArray(INative<T>[] array) {
+            if (array != null) {
+                Init(array.Length);
+                for (int i = 0; i < count; i++) {
+                    Marshal.StructureToPtr(array[i].Native, GetAddress(i), false);
                 }
             }
         }
