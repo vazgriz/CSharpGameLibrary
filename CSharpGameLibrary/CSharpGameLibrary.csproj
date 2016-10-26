@@ -68,6 +68,7 @@
     <Compile Include="Math\Rectanglei.cs" />
     <Compile Include="PinnedArray.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Vulkan\DescriptorSetLayout.cs" />
     <Compile Include="Vulkan\Unmanaged\commands.cs" />
     <Compile Include="Vulkan\Unmanaged\delegates.cs" />
     <Compile Include="Vulkan\enums.cs" />

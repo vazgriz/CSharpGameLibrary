@@ -63,7 +63,9 @@ namespace CSGL.Vulkan {
             public vkCmdEndRenderPassDelegate cmdEndRenderPass;
             public vkCmdBindPipelineDelegate cmdBindPipeline;
             public vkCmdDrawDelegate cmdDraw;
+            public vkCmdDrawIndexedDelegate cmdDrawIndexed;
             public vkCmdBindVertexBuffersDelegate cmdBindVertexBuffers;
+            public vkCmdBindIndexBufferDelegate cmdBindIndexBuffer;
             public vkCmdCopyBufferDelegate cmdCopyBuffer;
 
             public vkCreateBufferDelegate createBuffer;
@@ -76,6 +78,9 @@ namespace CSGL.Vulkan {
             public vkFreeMemoryDelegate freeMemory;
             public vkMapMemoryDelegate mapMemory;
             public vkUnmapMemoryDelegate unmapMemory;
+
+            public vkCreateDescriptorSetLayoutDelegate createDescriptorSetLayout;
+            public vkDestroyDescriptorSetLayoutDelegate destroyDescriptorSetLayout;
 
             internal DeviceCommands(Device device) {
                 Type t = typeof(DeviceCommands);
