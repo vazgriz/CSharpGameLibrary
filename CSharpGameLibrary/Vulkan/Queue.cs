@@ -63,34 +63,22 @@ namespace CSGL.Vulkan {
                 var info = new VkSubmitInfo();
                 info.sType = VkStructureType.StructureTypeSubmitInfo;
 
-                MarshalledArray<VkSemaphore> waitMarshalled = new MarshalledArray<VkSemaphore>(infos[i].waitSemaphores);
+                var waitMarshalled = new MarshalledArray<VkSemaphore>(infos[i].waitSemaphores);
                 info.waitSemaphoreCount = (uint)waitMarshalled.Count;
-                for (int j = 0; j < waitMarshalled.Count; j++) {
-                    waitMarshalled[j] = infos[i].waitSemaphores[j].Native;
-                }
                 info.pWaitSemaphores = waitMarshalled.Address;
 
-                MarshalledArray<int> waitDstMarshalled = null;
-                if (infos[i].waitDstStageMask != null) {
-                    waitDstMarshalled = new MarshalledArray<int>(infos[i].waitDstStageMask.Length);
-                    for (int j = 0; j < waitDstMarshalled.Count; j++) {
-                        waitDstMarshalled[j] = (int)infos[i].waitDstStageMask[j];
-                    }
-                    info.pWaitDstStageMask = waitDstMarshalled.Address;
+                MarshalledArray<int> waitDstMarshalled = new MarshalledArray<int>(waitMarshalled.Count);    //waitDstStageMask is an array of enums, so it can't be used as int[]
+                for (int j = 0; j < waitDstMarshalled.Count; j++) {                                         //luckily, this is required to be the same length as waitSemaphores
+                    waitDstMarshalled[j] = (int)infos[i].waitDstStageMask[j];
                 }
+                info.pWaitDstStageMask = waitDstMarshalled.Address;
 
-                MarshalledArray<VkCommandBuffer> commandBuffersMarshalled = new MarshalledArray<VkCommandBuffer>(infos[i].commandBuffers);
+                var commandBuffersMarshalled = new MarshalledArray<VkCommandBuffer>(infos[i].commandBuffers);
                 info.commandBufferCount = (uint)commandBuffersMarshalled.Count;
-                for (int j = 0; j < commandBuffersMarshalled.Count; j++) {
-                    commandBuffersMarshalled[j] = infos[i].commandBuffers[j].Native;
-                }
                 info.pCommandBuffers = commandBuffersMarshalled.Address;
 
-                MarshalledArray<VkSemaphore> signalMarshalled = new MarshalledArray<VkSemaphore>(infos[i].signalSemaphores);
+                var signalMarshalled = new MarshalledArray<VkSemaphore>(infos[i].signalSemaphores);
                 info.signalSemaphoreCount = (uint)signalMarshalled.Count;
-                for (int j = 0; j < signalMarshalled.Count; j++) {
-                    signalMarshalled[j] = infos[i].signalSemaphores[j].Native;
-                }
                 info.pSignalSemaphores = signalMarshalled.Address;
 
                 disposables[(i * 4) + 0] = waitMarshalled;
