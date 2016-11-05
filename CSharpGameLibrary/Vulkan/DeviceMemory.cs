@@ -18,11 +18,14 @@ namespace CSGL.Vulkan {
             }
         }
 
+        public ulong Size { get; private set; }
+
         public DeviceMemory(Device device, MemoryAllocateInfo info) {
             if (device == null) throw new ArgumentNullException(nameof(device));
             if (info == null) throw new ArgumentNullException(nameof(info));
 
             Device = device;
+            Size = info.allocationSize;
 
             CreateDeviceMemory(info);
         }
