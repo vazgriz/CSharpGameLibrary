@@ -13,13 +13,19 @@ namespace CSGL.Vulkan {
         public ulong range;
     }
 
+    public class DescriptorImageInfo {
+        public Sampler sampler;
+        public ImageView imageView;
+        public VkImageLayout imageLayout;
+    }
+
     public class WriteDescriptorSet {
         public DescriptorSet dstSet;
         public uint dstBinding;
         public uint dstArrayElement;
         public uint descriptorCount;
         public VkDescriptorType descriptorType;
-        public IntPtr pImageInfo;
+        public DescriptorImageInfo imageInfo;
         public DescriptorBufferInfo bufferInfo;
         public IntPtr pTexelBufferView;
     }
@@ -93,7 +99,7 @@ namespace CSGL.Vulkan {
 
         public void Update(WriteDescriptorSet[] writes) {
             using (var writesMarshalled = new MarshalledArray<VkWriteDescriptorSet>(writes.Length)) {
-                var disposables = new IDisposable[writes.Length];
+                var disposables = new IDisposable[writes.Length * 2];
                 
                 for (int i = 0; i < writes.Length; i++) {
                     var write = writes[i];
@@ -105,16 +111,28 @@ namespace CSGL.Vulkan {
                     writeNative.dstArrayElement = write.dstArrayElement;
                     writeNative.descriptorCount = write.descriptorCount;
                     writeNative.descriptorType = write.descriptorType;
-                    writeNative.pImageInfo = write.pImageInfo;
 
-                    var bufferInfo = new VkDescriptorBufferInfo();
-                    bufferInfo.buffer = write.bufferInfo.buffer.Native;
-                    bufferInfo.offset = write.bufferInfo.offset;
-                    bufferInfo.range = write.bufferInfo.range;
+                    if (write.imageInfo != null) {
+                        var imageInfo = new VkDescriptorImageInfo();
+                        imageInfo.sampler = write.imageInfo.sampler.Native;
+                        imageInfo.imageView = write.imageInfo.imageView.Native;
+                        imageInfo.imageLayout = write.imageInfo.imageLayout;
 
-                    var bufferInfoMarshalled = new Marshalled<VkDescriptorBufferInfo>(bufferInfo);
-                    disposables[i] = bufferInfoMarshalled;
-                    writeNative.pBufferInfo = bufferInfoMarshalled.Address;
+                        var imageInfoMarshalled = new Marshalled<VkDescriptorImageInfo>(imageInfo);
+                        disposables[i * 2] = imageInfoMarshalled;
+                        writeNative.pImageInfo = imageInfoMarshalled.Address;
+                    }
+
+                    if (write.bufferInfo != null) {
+                        var bufferInfo = new VkDescriptorBufferInfo();
+                        bufferInfo.buffer = write.bufferInfo.buffer.Native;
+                        bufferInfo.offset = write.bufferInfo.offset;
+                        bufferInfo.range = write.bufferInfo.range;
+
+                        var bufferInfoMarshalled = new Marshalled<VkDescriptorBufferInfo>(bufferInfo);
+                        disposables[i * 2 + 1] = bufferInfoMarshalled;
+                        writeNative.pBufferInfo = bufferInfoMarshalled.Address;
+                    }
 
                     writeNative.pTexelBufferView = write.pTexelBufferView;
 
