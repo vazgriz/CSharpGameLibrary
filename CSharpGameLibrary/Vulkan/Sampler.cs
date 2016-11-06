@@ -17,7 +17,7 @@ namespace CSGL.Vulkan {
         public float minLod;
         public float maxLod;
         public VkBorderColor borderColor;
-        public uint unnormalizedCoordinates;
+        public bool unnormalizedCoordinates;
     }
 
     public class Sampler : IDisposable, INative<VkSampler> {
@@ -55,7 +55,7 @@ namespace CSGL.Vulkan {
             info.minLod = mInfo.minLod;
             info.maxLod = mInfo.maxLod;
             info.borderColor = mInfo.borderColor;
-            info.unnormalizedCoordinates = mInfo.unnormalizedCoordinates;
+            info.unnormalizedCoordinates = mInfo.unnormalizedCoordinates ? 1u : 0u;
 
             var result = Device.Commands.createSampler(Device.Native, ref info, Device.Instance.AllocationCallbacks, out sampler);
             if (result != VkResult.Success) throw new SamplerException(string.Format("Error creating sampler: {0}", result));
