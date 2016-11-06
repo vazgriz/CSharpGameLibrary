@@ -3,7 +3,6 @@ using System.Collections.Generic;
 
 namespace CSGL.Vulkan {
     public class CommandBufferAllocateInfo {
-        public CommandPool commandPool;
         public VkCommandBufferLevel level;
         public uint commandBufferCount;
     }

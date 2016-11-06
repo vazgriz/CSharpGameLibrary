@@ -39,29 +39,53 @@ namespace CSGL.Vulkan {
         }
 
         public CommandBuffer[] Allocate(CommandBufferAllocateInfo info) {
-            VkCommandBufferAllocateInfo infoNative = new VkCommandBufferAllocateInfo();
-            infoNative.sType = VkStructureType.StructureTypeCommandBufferAllocateInfo;
-            infoNative.level = info.level;
-            infoNative.commandPool = commandPool;
-            infoNative.commandBufferCount = info.commandBufferCount;
+            return Allocate(info.level, (int)info.commandBufferCount);
+        }
 
-            var infoMarshalled = new Marshalled<VkCommandBufferAllocateInfo>(infoNative);
-            var commandBuffersMarshalled = new NativeArray<VkCommandBuffer>((int)info.commandBufferCount);
-
-            CommandBuffer[] commandBuffers = new CommandBuffer[(int)info.commandBufferCount];
+        public CommandBuffer Allocate(VkCommandBufferLevel level) {
+            var info = new VkCommandBufferAllocateInfo();
+            info.sType = VkStructureType.StructureTypeCommandBufferAllocateInfo;
+            info.level = level;
+            info.commandPool = commandPool;
+            info.commandBufferCount = 1;
+            
+            var commandBufferMarshalled = new Native<VkCommandBuffer>();
 
             try {
-                var result = Device.Commands.allocateCommandBuffers(Device.Native, ref infoNative, commandBuffersMarshalled.Address);
+                var result = Device.Commands.allocateCommandBuffers(Device.Native, ref info, commandBufferMarshalled.Address);
+                if (result != VkResult.Success) throw new CommandPoolException(string.Format("Error allocating command buffer: {0}", result));
+
+                CommandBuffer commandBuffer = new CommandBuffer(Device, this, commandBufferMarshalled.Value);
+
+                return commandBuffer;
+            }
+            finally {
+                commandBufferMarshalled.Dispose();
+            }
+        }
+
+        public CommandBuffer[] Allocate(VkCommandBufferLevel level, int count) {
+            var info = new VkCommandBufferAllocateInfo();
+            info.sType = VkStructureType.StructureTypeCommandBufferAllocateInfo;
+            info.level = level;
+            info.commandPool = commandPool;
+            info.commandBufferCount = (uint)count;
+
+            var commandBuffersMarshalled = new NativeArray<VkCommandBuffer>(count);
+
+            CommandBuffer[] commandBuffers = new CommandBuffer[count];
+
+            try {
+                var result = Device.Commands.allocateCommandBuffers(Device.Native, ref info, commandBuffersMarshalled.Address);
                 if (result != VkResult.Success) throw new CommandPoolException(string.Format("Error allocating command buffers: {0}", result));
 
-                for (int i = 0; i < info.commandBufferCount; i++) {
+                for (int i = 0; i < count; i++) {
                     commandBuffers[i] = new CommandBuffer(Device, this, commandBuffersMarshalled[i]);
                 }
 
                 return commandBuffers;
             }
             finally {
-                infoMarshalled.Dispose();
                 commandBuffersMarshalled.Dispose();
             }
         }
