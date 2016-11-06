@@ -23,6 +23,8 @@ namespace CSGL.Vulkan {
 
             public vkCreateImageDelegate createImage;
             public vkDestroyImageDelegate destroyImage;
+            public vkGetImageMemoryRequirementsDelegate getImageMemoryRequirements;
+            public vkBindImageMemoryDelegate bindImageMemory;
 
             public vkCreateShaderModuleDelegate createShaderModule;
             public vkDestroyShaderModuleDelegate destroyShaderModule;
@@ -68,6 +70,8 @@ namespace CSGL.Vulkan {
             public vkCmdBindIndexBufferDelegate cmdBindIndexBuffer;
             public vkCmdBindDescriptorSetsDelegate cmdBindDescriptorSets;
             public vkCmdCopyBufferDelegate cmdCopyBuffer;
+            public vkCmdPipelineBarrierDelegate cmdPipelineBarrier;
+            public vkCmdCopyImageDelegate cmdCopyImage;
 
             public vkCreateBufferDelegate createBuffer;
             public vkDestroyBufferDelegate destroyBuffer;

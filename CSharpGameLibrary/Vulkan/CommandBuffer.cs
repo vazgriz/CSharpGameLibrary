@@ -78,9 +78,101 @@ namespace CSGL.Vulkan {
             Device.Commands.cmdDrawIndexed(commandBuffer, indexCount, instanceCount, firstIndex, vertexOffset, firstInstance);
         }
 
-        public void Copy(Buffer src, Buffer dst, VkBufferCopy[] region) {
-            using (var pinned = new PinnedArray<VkBufferCopy>(region)) {
-                Device.Commands.cmdCopyBuffer(commandBuffer, src.Native, dst.Native, (uint)pinned.Length, pinned.Address);
+        public void Copy(Buffer srcBuffer, Buffer dstBuffer, VkBufferCopy[] regions) {
+            using (var pinned = new MarshalledArray<VkBufferCopy>(regions)) {
+                Device.Commands.cmdCopyBuffer(commandBuffer, srcBuffer.Native, dstBuffer.Native, (uint)pinned.Count, pinned.Address);
+            }
+        }
+
+        public void Copy(Image srcImage, VkImageLayout srcImageLayout, Image dstImage, VkImageLayout dstImageLayout, VkImageCopy[] regions) {
+            using (var marshalled = new MarshalledArray<VkImageCopy>(regions)) {
+                Device.Commands.cmdCopyImage(commandBuffer,
+                    srcImage.Native, srcImageLayout,
+                    dstImage.Native, dstImageLayout,
+                    (uint)marshalled.Count, marshalled.Address);
+            }
+        }
+
+        public void PipelineBarrier(VkPipelineStageFlags srcStageMask, VkPipelineStageFlags dstStageMask, VkDependencyFlags flags,
+            MemoryBarrier[] memoryBarriers, BufferMemoryBarrier[] bufferMemoryBarriers, ImageMemoryBarrier[] imageMemoryBarriers) {
+
+            MarshalledArray<VkMemoryBarrier> memoryBarriersMarshalled = null;
+            uint mbCount = 0;
+            IntPtr mbAddress = IntPtr.Zero;
+            MarshalledArray<VkBufferMemoryBarrier> bufferBarriersMarshalled = null;
+            uint bbCount = 0;
+            IntPtr bbAddress = IntPtr.Zero;
+            MarshalledArray<VkImageMemoryBarrier> imageBarriersMarshalled = null;
+            uint ibCount = 0;
+            IntPtr ibAddress = IntPtr.Zero;
+
+            if (memoryBarriers != null) {
+                memoryBarriersMarshalled = new MarshalledArray<VkMemoryBarrier>(memoryBarriers.Length);
+                mbCount = (uint)memoryBarriers.Length;
+                mbAddress = memoryBarriersMarshalled.Address;
+
+                for (int i = 0; i < memoryBarriers.Length; i++) {
+                    var mb = memoryBarriers[i];
+                    var barrier = new VkMemoryBarrier();
+                    barrier.sType = VkStructureType.StructureTypeMemoryBarrier;
+                    barrier.srcAccessMask = mb.srcAccessMask;
+                    barrier.dstAccessMask = mb.dstAccessMask;
+
+                    memoryBarriersMarshalled[i] = barrier;
+                }
+            }
+
+            if (bufferMemoryBarriers != null) {
+                bufferBarriersMarshalled = new MarshalledArray<VkBufferMemoryBarrier>(bufferMemoryBarriers.Length);
+                bbCount = (uint)bufferMemoryBarriers.Length;
+                bbAddress = bufferBarriersMarshalled.Address;
+
+                for (int i = 0; i < bufferMemoryBarriers.Length; i++) {
+                    var bb = bufferMemoryBarriers[i];
+                    var barrier = new VkBufferMemoryBarrier();
+                    barrier.sType = VkStructureType.StructureTypeBufferMemoryBarrier;
+                    barrier.srcAccessMask = bb.srcAccessMask;
+                    barrier.dstAccessMask = bb.dstAccessMask;
+                    barrier.srcQueueFamilyIndex = bb.srcQueueFamilyIndex;
+                    barrier.dstQueueFamilyIndex = bb.dstQueueFamilyIndex;
+                    barrier.buffer = bb.buffer.Native;
+                    barrier.offset = bb.offset;
+                    barrier.size = bb.size;
+
+                    bufferBarriersMarshalled[i] = barrier;
+                }
+            }
+
+            if (imageMemoryBarriers != null) {
+                imageBarriersMarshalled = new MarshalledArray<VkImageMemoryBarrier>(imageMemoryBarriers.Length);
+                ibCount = (uint)imageMemoryBarriers.Length;
+                ibAddress = imageBarriersMarshalled.Address;
+
+                for (int i = 0; i < imageMemoryBarriers.Length; i++) {
+                    var ib = imageMemoryBarriers[i];
+                    var barrier = new VkImageMemoryBarrier();
+                    barrier.sType = VkStructureType.StructureTypeImageMemoryBarrier;
+                    barrier.srcAccessMask = ib.srcAccessMask;
+                    barrier.dstAccessMask = ib.dstAccessMask;
+                    barrier.oldLayout = ib.oldLayout;
+                    barrier.newLayout = ib.newLayout;
+                    barrier.srcQueueFamilyIndex = ib.srcQueueFamilyIndex;
+                    barrier.dstQueueFamilyIndex = ib.dstQueueFamilyIndex;
+                    barrier.image = ib.image.Native;
+                    barrier.subresourceRange = ib.subresourceRange;
+
+                    imageBarriersMarshalled[i] = barrier;
+                }
+            }
+
+            using (memoryBarriersMarshalled)
+            using (bufferBarriersMarshalled)
+            using (imageBarriersMarshalled) {
+                Device.Commands.cmdPipelineBarrier(commandBuffer,
+                    srcStageMask, dstStageMask, flags,
+                    mbCount, mbAddress,
+                    bbCount, bbAddress,
+                    ibCount, ibAddress);
             }
         }
 

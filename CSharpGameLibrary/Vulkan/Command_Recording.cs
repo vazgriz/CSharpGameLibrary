@@ -65,4 +65,29 @@ namespace CSGL.Vulkan {
             return info;
         }
     }
+    public class MemoryBarrier {
+        public VkAccessFlags srcAccessMask;
+        public VkAccessFlags dstAccessMask;
+    }
+    
+    public class BufferMemoryBarrier {
+        public VkAccessFlags srcAccessMask;
+        public VkAccessFlags dstAccessMask;
+        public uint srcQueueFamilyIndex;
+        public uint dstQueueFamilyIndex;
+        public Buffer buffer;
+        public ulong offset;
+        public ulong size;
+    }
+
+    public class ImageMemoryBarrier {
+        public VkAccessFlags srcAccessMask;
+        public VkAccessFlags dstAccessMask;
+        public VkImageLayout oldLayout;
+        public VkImageLayout newLayout;
+        public uint srcQueueFamilyIndex;
+        public uint dstQueueFamilyIndex;
+        public Image image;
+        public VkImageSubresourceRange subresourceRange;
+    }
 }

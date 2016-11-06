@@ -21,11 +21,19 @@ namespace CSGL.Vulkan {
         VkImage image;
         bool disposed = false;
 
+        VkMemoryRequirements requirements;
+
         public Device Device { get; private set; }
 
         public VkImage Native {
             get {
                 return image;
+            }
+        }
+
+        public VkMemoryRequirements MemoryRequirements {
+            get {
+                return requirements;
             }
         }
 
@@ -37,6 +45,10 @@ namespace CSGL.Vulkan {
         public Image(Device device, ImageCreateInfo info) {
             if (device == null) throw new ArgumentNullException(nameof(device));
             Device = device;
+
+            CreateImage(info);
+
+            Device.Commands.getImageMemoryRequirements(Device.Native, image, out requirements);
         }
 
         void CreateImage(ImageCreateInfo mInfo) {
@@ -67,8 +79,14 @@ namespace CSGL.Vulkan {
             }
         }
 
+        public void Bind(DeviceMemory memory, ulong offset) {
+            Device.Commands.bindImageMemory(Device.Native, image, memory.Native, offset);
+        }
+
         public void Dispose() {
             if (disposed) return;
+
+            Device.Commands.destroyImage(Device.Native, image, Device.Instance.AllocationCallbacks);
 
             disposed = true;
         }
