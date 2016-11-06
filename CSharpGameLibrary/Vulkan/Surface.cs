@@ -59,7 +59,7 @@ namespace CSGL.Vulkan {
 
             uint count = 0;
             getFormats(physicalDevice.Native, surface, ref count, IntPtr.Zero);
-            var formats = new MarshalledArray<VkSurfaceFormatKHR>((int)count);
+            var formats = new NativeArray<VkSurfaceFormatKHR>((int)count);
             getFormats(physicalDevice.Native, surface, ref count, formats.Address);
 
             for (int i = 0; i <count; i++) {

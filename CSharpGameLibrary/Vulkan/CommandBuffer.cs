@@ -49,7 +49,7 @@ namespace CSGL.Vulkan {
         }
 
         public void BindVertexBuffers(uint firstBinding, Buffer[] buffers, ulong[] offsets) {
-            using (var marshalled = new MarshalledArray<VkBuffer>(buffers)) {
+            using (var marshalled = new NativeArray<VkBuffer>(buffers)) {
                 Device.Commands.cmdBindVertexBuffers(commandBuffer, firstBinding, (uint)buffers.Length, marshalled.Address, ref offsets[0]);
             }
         }
@@ -59,7 +59,7 @@ namespace CSGL.Vulkan {
         }
 
         public void BindDescriptorSets(VkPipelineBindPoint pipelineBindPoint, PipelineLayout layout, uint firstSet, DescriptorSet[] descriptorSets, uint[] dynamicOffsets) {
-            using (var descriptorSetsMarshalled = new MarshalledArray<VkDescriptorSet>(descriptorSets))
+            using (var descriptorSetsMarshalled = new NativeArray<VkDescriptorSet>(descriptorSets))
             using (var offsetsMarshalled = new PinnedArray<uint>(dynamicOffsets)) {
                 Device.Commands.cmdBindDescriptorSets(commandBuffer, pipelineBindPoint, layout.Native,
                     firstSet, (uint)descriptorSets.Length, descriptorSetsMarshalled.Address,

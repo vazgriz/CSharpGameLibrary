@@ -30,7 +30,7 @@ namespace CSGL.Vulkan {
             VkPipelineLayoutCreateInfo info = new VkPipelineLayoutCreateInfo();
             info.sType = VkStructureType.StructureTypePipelineLayoutCreateInfo;
 
-            var layoutsMarshalled = new MarshalledArray<VkDescriptorSetLayout>(mInfo.setLayouts);
+            var layoutsMarshalled = new NativeArray<VkDescriptorSetLayout>(mInfo.setLayouts);
             info.setLayoutCount = (uint)layoutsMarshalled.Count;
             info.pSetLayouts = layoutsMarshalled.Address;
 

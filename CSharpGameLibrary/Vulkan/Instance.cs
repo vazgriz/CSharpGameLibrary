@@ -137,7 +137,7 @@ namespace CSGL.Vulkan {
             PhysicalDevices = new List<PhysicalDevice>();
             uint count = 0;
             Commands.enumeratePhysicalDevices(instance, ref count, IntPtr.Zero);
-            var devices = new MarshalledArray<VkPhysicalDevice>((int)count);
+            var devices = new NativeArray<VkPhysicalDevice>((int)count);
             Commands.enumeratePhysicalDevices(instance, ref count, devices.Address);
 
             for (int i = 0; i < count; i++) {

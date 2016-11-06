@@ -46,7 +46,7 @@ namespace CSGL.Vulkan {
             infoNative.commandBufferCount = info.count;
 
             var infoMarshalled = new Marshalled<VkCommandBufferAllocateInfo>(infoNative);
-            var commandBuffersMarshalled = new MarshalledArray<VkCommandBuffer>((int)info.count);
+            var commandBuffersMarshalled = new NativeArray<VkCommandBuffer>((int)info.count);
 
             CommandBuffer[] commandBuffers = new CommandBuffer[(int)info.count];
 
@@ -67,13 +67,13 @@ namespace CSGL.Vulkan {
         }
 
         public void Free(CommandBuffer[] commandBuffers) {
-            using (var commandBuffersMarshalled = new MarshalledArray<VkCommandBuffer>(commandBuffers)) {
+            using (var commandBuffersMarshalled = new NativeArray<VkCommandBuffer>(commandBuffers)) {
                 Device.Commands.freeCommandBuffers(Device.Native, commandPool, (uint)commandBuffers.Length, commandBuffersMarshalled.Address);
             }
         }
 
         public void Free(List<CommandBuffer> commandBuffers) {
-            using (var commandBuffersMarshalled = new MarshalledArray<VkCommandBuffer>(commandBuffers.Count)) {
+            using (var commandBuffersMarshalled = new NativeArray<VkCommandBuffer>(commandBuffers.Count)) {
                 Device.Commands.freeCommandBuffers(Device.Native, commandPool, (uint)commandBuffers.Count, commandBuffersMarshalled.Address);
             }
         }

@@ -242,7 +242,7 @@ namespace CSGL.Vulkan {
             var result = new VkPipelineDynamicStateCreateInfo();
             result.sType = VkStructureType.StructureTypePipelineDynamicStateCreateInfo;
 
-            var dynamicMarshalled = new MarshalledArray<int>(dynamicStates.Length);
+            var dynamicMarshalled = new NativeArray<int>(dynamicStates.Length);
             for (int i = 0; i < dynamicStates.Length; i++) {
                 dynamicMarshalled[i] = (int)dynamicStates[i];
             }

@@ -63,21 +63,21 @@ namespace CSGL.Vulkan {
                 var info = new VkSubmitInfo();
                 info.sType = VkStructureType.StructureTypeSubmitInfo;
 
-                var waitMarshalled = new MarshalledArray<VkSemaphore>(infos[i].waitSemaphores);
+                var waitMarshalled = new NativeArray<VkSemaphore>(infos[i].waitSemaphores);
                 info.waitSemaphoreCount = (uint)waitMarshalled.Count;
                 info.pWaitSemaphores = waitMarshalled.Address;
 
-                MarshalledArray<int> waitDstMarshalled = new MarshalledArray<int>(waitMarshalled.Count);    //waitDstStageMask is an array of enums, so it can't be used as int[]
-                for (int j = 0; j < waitDstMarshalled.Count; j++) {                                         //luckily, this is required to be the same length as waitSemaphores
+                var waitDstMarshalled = new NativeArray<int>(waitMarshalled.Count);     //waitDstStageMask is an array of enums, so it can't be used as int[]
+                for (int j = 0; j < waitDstMarshalled.Count; j++) {                     //luckily, this is required to be the same length as waitSemaphores
                     waitDstMarshalled[j] = (int)infos[i].waitDstStageMask[j];
                 }
                 info.pWaitDstStageMask = waitDstMarshalled.Address;
 
-                var commandBuffersMarshalled = new MarshalledArray<VkCommandBuffer>(infos[i].commandBuffers);
+                var commandBuffersMarshalled = new NativeArray<VkCommandBuffer>(infos[i].commandBuffers);
                 info.commandBufferCount = (uint)commandBuffersMarshalled.Count;
                 info.pCommandBuffers = commandBuffersMarshalled.Address;
 
-                var signalMarshalled = new MarshalledArray<VkSemaphore>(infos[i].signalSemaphores);
+                var signalMarshalled = new NativeArray<VkSemaphore>(infos[i].signalSemaphores);
                 info.signalSemaphoreCount = (uint)signalMarshalled.Count;
                 info.pSignalSemaphores = signalMarshalled.Address;
 
@@ -99,13 +99,13 @@ namespace CSGL.Vulkan {
         }
 
         public VkResult Present(PresentInfo info) {
-            var waitSemaphoresMarshalled = new MarshalledArray<VkSemaphore>(info.waitSemaphores);
-            var swapchainsMarshalled = new MarshalledArray<VkSwapchainKHR>(info.swapchains);
+            var waitSemaphoresMarshalled = new NativeArray<VkSemaphore>(info.waitSemaphores);
+            var swapchainsMarshalled = new NativeArray<VkSwapchainKHR>(info.swapchains);
             var indicesMarshalled = new PinnedArray<uint>(info.imageIndices);
-            MarshalledArray<int> resultsMarshalled = null;
+            NativeArray<int> resultsMarshalled = null;
 
             if (info.results != null) {
-                resultsMarshalled = new MarshalledArray<int>(info.results.Length);
+                resultsMarshalled = new NativeArray<int>(info.results.Length);
             }
 
             var infoNative = new VkPresentInfoKHR();

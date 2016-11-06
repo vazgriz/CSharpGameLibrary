@@ -117,6 +117,12 @@ namespace CSGL {
             }
         }
 
+        public int Count {
+            get {
+                return count;
+            }
+        }
+
         public void Dispose() {
             Dispose(true);
         }

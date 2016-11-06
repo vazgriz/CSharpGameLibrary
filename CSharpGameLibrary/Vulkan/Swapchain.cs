@@ -64,7 +64,7 @@ namespace CSGL.Vulkan {
 
             uint count = 0;
             getImages(Device.Native, swapchain, ref count, IntPtr.Zero);
-            var images = new MarshalledArray<VkImage>((int)count);
+            var images = new NativeArray<VkImage>((int)count);
             getImages(Device.Native, swapchain, ref count, images.Address);
 
             for (int i = 0; i < count; i++) {

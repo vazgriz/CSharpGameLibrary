@@ -71,10 +71,10 @@ namespace CSGL.Vulkan {
             infoNative.descriptorPool = descriptorPool;
             infoNative.descriptorSetCount = info.descriptorSetCount;
 
-            var layoutsMarshalled = new MarshalledArray<VkDescriptorSetLayout>(info.setLayouts);
+            var layoutsMarshalled = new NativeArray<VkDescriptorSetLayout>(info.setLayouts);
             infoNative.pSetLayouts = layoutsMarshalled.Address;
 
-            var descriptorSetsMarshalled = new MarshalledArray<VkDescriptorSet>((int)info.descriptorSetCount);
+            var descriptorSetsMarshalled = new NativeArray<VkDescriptorSet>((int)info.descriptorSetCount);
 
             var result = Device.Commands.allocateDescriptorSets(Device.Native, ref infoNative, descriptorSetsMarshalled.Address);
             if (result != VkResult.Success) throw new DescriptorPoolException(string.Format("Error allocating descriptor sets: {0}", result));
