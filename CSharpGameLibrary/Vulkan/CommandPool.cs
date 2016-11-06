@@ -43,18 +43,18 @@ namespace CSGL.Vulkan {
             infoNative.sType = VkStructureType.StructureTypeCommandBufferAllocateInfo;
             infoNative.level = info.level;
             infoNative.commandPool = commandPool;
-            infoNative.commandBufferCount = info.count;
+            infoNative.commandBufferCount = info.commandBufferCount;
 
             var infoMarshalled = new Marshalled<VkCommandBufferAllocateInfo>(infoNative);
-            var commandBuffersMarshalled = new NativeArray<VkCommandBuffer>((int)info.count);
+            var commandBuffersMarshalled = new NativeArray<VkCommandBuffer>((int)info.commandBufferCount);
 
-            CommandBuffer[] commandBuffers = new CommandBuffer[(int)info.count];
+            CommandBuffer[] commandBuffers = new CommandBuffer[(int)info.commandBufferCount];
 
             try {
                 var result = Device.Commands.allocateCommandBuffers(Device.Native, ref infoNative, commandBuffersMarshalled.Address);
                 if (result != VkResult.Success) throw new CommandPoolException(string.Format("Error allocating command buffers: {0}", result));
 
-                for (int i = 0; i < info.count; i++) {
+                for (int i = 0; i < info.commandBufferCount; i++) {
                     commandBuffers[i] = new CommandBuffer(Device, this, commandBuffersMarshalled[i]);
                 }
 

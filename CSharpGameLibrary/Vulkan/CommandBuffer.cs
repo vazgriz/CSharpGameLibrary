@@ -5,7 +5,7 @@ namespace CSGL.Vulkan {
     public class CommandBufferAllocateInfo {
         public CommandPool commandPool;
         public VkCommandBufferLevel level;
-        public uint count;
+        public uint commandBufferCount;
     }
 
     public class CommandBuffer: INative<VkCommandBuffer> {
