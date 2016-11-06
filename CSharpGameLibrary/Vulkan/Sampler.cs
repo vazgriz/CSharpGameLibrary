@@ -10,9 +10,9 @@ namespace CSGL.Vulkan {
         public VkSamplerAddressMode addressModeV;
         public VkSamplerAddressMode addressModeW;
         public float mipLodBias;
-        public uint anisotropyEnable;
+        public bool anisotropyEnable;
         public float maxAnisotropy;
-        public uint compareEnable;
+        public bool compareEnable;
         public VkCompareOp compareOp;
         public float minLod;
         public float maxLod;
@@ -20,7 +20,7 @@ namespace CSGL.Vulkan {
         public uint unnormalizedCoordinates;
     }
 
-    public class Sampler : INative<VkSampler> {
+    public class Sampler : IDisposable, INative<VkSampler> {
         VkSampler sampler;
         bool disposed;
 
@@ -48,8 +48,9 @@ namespace CSGL.Vulkan {
             info.addressModeV = mInfo.addressModeV;
             info.addressModeW = mInfo.addressModeW;
             info.mipLodBias = mInfo.mipLodBias;
-            info.anisotropyEnable = mInfo.anisotropyEnable;
-            info.compareEnable = mInfo.compareEnable;
+            info.anisotropyEnable = mInfo.anisotropyEnable ? 1u : 0u;
+            info.maxAnisotropy = mInfo.maxAnisotropy;
+            info.compareEnable = mInfo.compareEnable ? 1u : 0u;
             info.compareOp = mInfo.compareOp;
             info.minLod = mInfo.minLod;
             info.maxLod = mInfo.maxLod;
@@ -58,6 +59,18 @@ namespace CSGL.Vulkan {
 
             var result = Device.Commands.createSampler(Device.Native, ref info, Device.Instance.AllocationCallbacks, out sampler);
             if (result != VkResult.Success) throw new SamplerException(string.Format("Error creating sampler: {0}", result));
+        }
+
+        public void Dispose() {
+            Dispose(true);
+        }
+
+        void Dispose(bool disposing) {
+            if (disposed) return;
+
+            Device.Commands.destroySampler(Device.Native, sampler, Device.Instance.AllocationCallbacks);
+
+            disposed = true;
         }
     }
 
