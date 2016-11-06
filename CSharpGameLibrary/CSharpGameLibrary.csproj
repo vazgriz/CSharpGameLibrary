@@ -73,6 +73,7 @@
     <Compile Include="Vulkan\DescriptorPool.cs" />
     <Compile Include="Vulkan\DescriptorSet.cs" />
     <Compile Include="Vulkan\DescriptorSetLayout.cs" />
+    <Compile Include="Vulkan\Sampler.cs" />
     <Compile Include="Vulkan\Unmanaged\commands.cs" />
     <Compile Include="Vulkan\Unmanaged\delegates.cs" />
     <Compile Include="Vulkan\enums.cs" />

@@ -93,6 +93,9 @@ namespace CSGL.Vulkan {
             public vkFreeDescriptorSetsDelegate freeDescriptorSets;
             public vkUpdateDescriptorSetsDelegate updateDescriptorSets;
 
+            public vkCreateSamplerDelegate createSampler;
+            public vkDestroySamplerDelegate destroySampler;
+
             internal DeviceCommands(Device device) {
                 Type t = typeof(DeviceCommands);
                 FieldInfo[] fields = t.GetFields();
