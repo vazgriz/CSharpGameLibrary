@@ -29,9 +29,9 @@ namespace CSGL.Vulkan {
 
         internal VkPipelineVertexInputStateCreateInfo GetNative(List<IDisposable> marshalled) {
             var result = new VkPipelineVertexInputStateCreateInfo();
+            result.sType = VkStructureType.StructureTypePipelineVertexInputStateCreateInfo;
 
             var attMarshalled = new MarshalledArray<VkVertexInputAttributeDescription>(vertexAttributeDescriptions);
-            result.sType = VkStructureType.StructureTypePipelineVertexInputStateCreateInfo;
             result.vertexAttributeDescriptionCount = (uint)attMarshalled.Count;
             result.pVertexAttributeDescriptions = attMarshalled.Address;
 
