@@ -8,7 +8,7 @@ namespace CSGL {
         static int elementSize;
         IntPtr ptr;
         bool disposed = false;
-        bool _unsafe = false;
+        bool allocated = false;
 
         static MarshalledArray() {
             elementSize = Marshal.SizeOf<T>();
@@ -17,14 +17,16 @@ namespace CSGL {
         public static int ElementSize { get { return elementSize; } }
 
         public MarshalledArray(int count) {
-            Init(count);
+            this.count = count;
+            Allocate(count);
         }
 
         public MarshalledArray(uint count) : this((int)count) { }
 
         public MarshalledArray(T[] array) {
             if (array != null) {
-                Init(array.Length);
+                count = array.Length;
+                Allocate(count);
                 for (int i = 0; i < count; i++) {
                     Marshal.StructureToPtr(array[i], GetAddress(i), false);
                 }
@@ -33,7 +35,8 @@ namespace CSGL {
 
         public MarshalledArray(List<T> list) {
             if (list != null) {
-                Init(list.Count);
+                count = list.Count;
+                Allocate(count);
                 for (int i = 0; i < count; i++) {
                     Marshal.StructureToPtr(list[i], GetAddress(i), false);
                 }
@@ -42,7 +45,8 @@ namespace CSGL {
 
         public MarshalledArray(INative<T>[] array) {
             if (array != null) {
-                Init(array.Length);
+                count = array.Length;
+                Allocate(count);
                 for (int i = 0; i < count; i++) {
                     Marshal.StructureToPtr(array[i].Native, GetAddress(i), false);
                 }
@@ -59,12 +63,11 @@ namespace CSGL {
                     Marshal.StructureToPtr(array[i], GetAddress(i), false);
                 }
             }
-            _unsafe = true;
         }
 
-        void Init(int count) {
-            this.count = count;
+        void Allocate(int count) {
             if (count > 0) ptr = Marshal.AllocHGlobal(count * elementSize);
+            allocated = true;
         }
 
         public T this[int i] {
@@ -107,15 +110,16 @@ namespace CSGL {
                     Marshal.DestroyStructure<T>(GetAddress(i));
                 }
             }
-
-
-            if (!_unsafe) {
+            
+            if (allocated) {
                 Marshal.FreeHGlobal(ptr);
             }
+
+            disposed = true;
         }
 
         ~MarshalledArray() {
-            Dispose();
+            Dispose(false);
         }
     }
 }
