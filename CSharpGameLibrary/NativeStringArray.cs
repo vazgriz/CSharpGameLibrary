@@ -2,30 +2,30 @@
 using System.Collections.Generic;
 
 namespace CSGL {
-    public class MarshalledStringArray : IDisposable {
-        MarshalledArray<IntPtr> marshalled;
-        MarshalledArray<byte>[] strings;
+    public class NativeStringArray : IDisposable {
+        NativeArray<IntPtr> ptrs;
+        NativeArray<byte>[] strings;
 
         int count;
         IntPtr address;
 
         bool disposed = false;
 
-        public MarshalledStringArray(int count) {
+        public NativeStringArray(int count) {
             Init(count);
         }
 
-        public MarshalledStringArray(string[] array) {
+        public NativeStringArray(string[] array) {
             Init(array.Length);
 
             if (array != null) {
                 for (int i = 0; i < array.Length; i++) {
-                    this[i] = array[i];
+                    this[i] = array[i]; //indexer takes care of converting the strings
                 }
             }
         }
 
-        public MarshalledStringArray(List<string> list) {
+        public NativeStringArray(List<string> list) {
             Init(list.Count);
 
             if (list != null) {
@@ -36,19 +36,19 @@ namespace CSGL {
         }
 
         void Init(int count) {
-            marshalled = new MarshalledArray<IntPtr>(count);
-            strings = new MarshalledArray<byte>[count];
+            ptrs = new NativeArray<IntPtr>(count);
+            strings = new NativeArray<byte>[count];
 
-            address = marshalled.Address;
+            address = ptrs.Address;
             this.count = count;
         }
 
         public string this[int i] {
             set {
                 var native = Interop.GetUTF8(value);
-                var ms = new MarshalledArray<byte>(native);
-                strings[i] = ms;
-                marshalled[i] = ms.Address;
+                var nativeString = new NativeArray<byte>(native);
+                strings[i] = nativeString;
+                ptrs[i] = nativeString.Address;
             }
         }
 
@@ -72,20 +72,20 @@ namespace CSGL {
         void Dispose(bool disposing) {
             if (disposed) return;
 
-            marshalled.Dispose();
+            ptrs.Dispose();
             for (int i = 0; i < strings.Length; i++) {
-                strings[i]?.Dispose();
+                strings[i].Dispose();
             }
 
             if (disposing) {
-                marshalled = null;
+                ptrs = null;
                 strings = null;
             }
 
             disposed = true;
         }
 
-        ~MarshalledStringArray() {
+        ~NativeStringArray() {
             Dispose(false);
         }
     }

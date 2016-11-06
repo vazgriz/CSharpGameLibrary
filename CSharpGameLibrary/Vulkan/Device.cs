@@ -60,7 +60,7 @@ namespace CSGL.Vulkan {
         }
 
         void CreateDevice(DeviceCreateInfo mInfo) {
-            var extensionsMarshalled = new MarshalledStringArray(mInfo.extensions);
+            var extensionsMarshalled = new NativeStringArray(mInfo.extensions);
             MarshalledArray<VkDeviceQueueCreateInfo> queueInfos = null;
             PinnedArray<float>[] prioritiesMarshalled = null;
             Marshalled<VkPhysicalDeviceFeatures> features = new Marshalled<VkPhysicalDeviceFeatures>(mInfo.features);

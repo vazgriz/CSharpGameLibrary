@@ -96,8 +96,8 @@ namespace CSGL.Vulkan {
             InteropString engineName = null;
             Marshalled<VkApplicationInfo> appInfoMarshalled = null;
 
-            var extensionsMarshalled = new MarshalledStringArray(mInfo.extensions);
-            var layersMarshalled = new MarshalledStringArray(mInfo.layers);
+            var extensionsMarshalled = new NativeStringArray(mInfo.extensions);
+            var layersMarshalled = new NativeStringArray(mInfo.layers);
 
             var info = new VkInstanceCreateInfo();
             info.sType = VkStructureType.StructureTypeInstanceCreateInfo;
