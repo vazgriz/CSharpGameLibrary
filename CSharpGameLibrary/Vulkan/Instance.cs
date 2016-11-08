@@ -128,8 +128,12 @@ namespace CSGL.Vulkan {
                 appInfo.apiVersion = mInfo.applicationInfo.apiVersion;
                 appInfo.engineVersion = mInfo.applicationInfo.engineVersion;
                 appInfo.applicationVersion = mInfo.applicationInfo.applicationVersion;
+
                 appName = new InteropString(mInfo.applicationInfo.applicationName);
+                appInfo.pApplicationName = appName.Address;
+
                 engineName = new InteropString(mInfo.applicationInfo.engineName);
+                appInfo.pEngineName = engineName.Address;
 
                 appInfoMarshalled = new Marshalled<VkApplicationInfo>(appInfo);
                 info.pApplicationInfo = appInfoMarshalled.Address;
