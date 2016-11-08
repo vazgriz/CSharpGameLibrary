@@ -5,6 +5,7 @@ namespace CSGL {
     public class NativeStringArray : IDisposable {
         NativeArray<IntPtr> ptrs;
         NativeArray<byte>[] strings;
+        bool _null = true;
 
         int count;
         IntPtr address;
@@ -39,6 +40,7 @@ namespace CSGL {
 
             address = ptrs.Address;
             this.count = count;
+            _null = false;
         }
 
         public string this[int i] {
@@ -70,14 +72,16 @@ namespace CSGL {
         void Dispose(bool disposing) {
             if (disposed) return;
 
-            ptrs.Dispose();
-            for (int i = 0; i < strings.Length; i++) {
-                strings[i].Dispose();
-            }
+            if (!_null) {
+                ptrs.Dispose();
+                for (int i = 0; i < strings.Length; i++) {
+                    strings[i].Dispose();
+                }
 
-            if (disposing) {
-                ptrs = null;
-                strings = null;
+                if (disposing) {
+                    ptrs = null;
+                    strings = null;
+                }
             }
 
             disposed = true;
