@@ -150,12 +150,12 @@ namespace CSGL.Vulkan {
         }
 
         void GetPhysicalDevices() {
-            PhysicalDevices = new List<PhysicalDevice>();
             uint count = 0;
             Commands.enumeratePhysicalDevices(instance, ref count, IntPtr.Zero);
             var devices = new NativeArray<VkPhysicalDevice>((int)count);
             Commands.enumeratePhysicalDevices(instance, ref count, devices.Address);
 
+            physicalDevices = new List<PhysicalDevice>();
             for (int i = 0; i < count; i++) {
                 physicalDevices.Add(new PhysicalDevice(this, devices[i]));
             }
