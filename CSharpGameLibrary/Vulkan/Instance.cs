@@ -39,11 +39,15 @@ namespace CSGL.Vulkan {
         IntPtr alloc = IntPtr.Zero;
         bool disposed = false;
 
+        List<string> extensions;
+        List<string> layers;
+        List<PhysicalDevice> physicalDevices;
+
         vkGetInstanceProcAddrDelegate getProcAddrDel;
         public InstanceCommands Commands { get; private set; }
-        public List<string> Extensions { get; private set; }
-        public List<string> Layers { get; private set; }
-        public List<PhysicalDevice> PhysicalDevices { get; private set; }
+        public IList<string> Extensions { get; private set; }
+        public IList<string> Layers { get; private set; }
+        public IList<PhysicalDevice> PhysicalDevices { get; private set; }
 
         public VkInstance Native {
             get {
@@ -76,13 +80,25 @@ namespace CSGL.Vulkan {
             if (!GLFW.GLFW.VulkanSupported()) throw new InstanceException("Vulkan not supported");
             if (!initialized) throw new InstanceException("Vulkan was not initialized (make sure to call Vulkan.Init())");
 
-            Extensions = new List<string>(mInfo.extensions);
-            Layers = new List<string>(mInfo.layers);
+            if (mInfo.extensions == null) {
+                extensions = new List<string>();
+            } else {
+                extensions = new List<string>(mInfo.extensions);
+            }
+
+            if (mInfo.layers == null) {
+                layers = new List<string>();
+            } else {
+                layers = new List<string>(mInfo.layers);
+            }
+
+            Extensions = extensions.AsReadOnly();
+            Layers = layers.AsReadOnly();
 
             ValidateExtensions();
             ValidateLayers();
 
-            CreateInstanceInternal(mInfo);
+            CreateInstance(mInfo);
 
             Vulkan.Load(ref getProcAddrDel, instance);
 
@@ -91,7 +107,7 @@ namespace CSGL.Vulkan {
             GetPhysicalDevices();
         }
 
-        void CreateInstanceInternal(InstanceCreateInfo mInfo) {
+        void CreateInstance(InstanceCreateInfo mInfo) {
             InteropString appName = null;
             InteropString engineName = null;
             Marshalled<VkApplicationInfo> appInfoMarshalled = null;
@@ -141,8 +157,10 @@ namespace CSGL.Vulkan {
             Commands.enumeratePhysicalDevices(instance, ref count, devices.Address);
 
             for (int i = 0; i < count; i++) {
-                PhysicalDevices.Add(new PhysicalDevice(this, devices[i]));
+                physicalDevices.Add(new PhysicalDevice(this, devices[i]));
             }
+
+            PhysicalDevices = physicalDevices.AsReadOnly();
         }
 
         void ValidateLayers() {
