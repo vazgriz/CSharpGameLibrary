@@ -49,13 +49,13 @@ namespace CSGL.Vulkan {
             getExtensions = instance.Commands.getExtensions;
             getPresentationSupport = instance.Commands.getPresentationSupport;
 
-            //GetDeviceProperties();    //this causes occasional crashing when the instance is disposed
+            GetDeviceProperties();
             GetQueueProperties();
             GetDeviceFeatures();
             GetDeviceExtensions();
             GetMemoryProperties();
 
-            //Name = Properties.Name;
+            Name = Properties.Name;
         }
 
         void GetDeviceProperties() {
