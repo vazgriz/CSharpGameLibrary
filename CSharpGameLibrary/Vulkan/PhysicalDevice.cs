@@ -98,7 +98,7 @@ namespace CSGL.Vulkan {
             }
         }
 
-        VkFormatProperties GetFormatProperties(VkFormat format) {
+        public VkFormatProperties GetFormatProperties(VkFormat format) {
             using (var prop = new Marshalled<VkFormatProperties>()) {
                 Instance.Commands.getPhysicalDeviceFormatProperties(physicalDevice, format, prop.Address);
                 return prop.Value;
