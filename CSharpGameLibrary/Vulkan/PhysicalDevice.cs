@@ -33,21 +33,9 @@ namespace CSGL.Vulkan {
             }
         }
 
-        vkGetPhysicalDevicePropertiesDelegate getProperties;
-        vkGetPhysicalDeviceQueueFamilyPropertiesDelegate getQueueFamilyProperties;
-        vkGetPhysicalDeviceFeaturesDelegate getFeatures;
-        vkEnumerateDeviceExtensionPropertiesDelegate getExtensions;
-        vkGetPhysicalDeviceSurfaceSupportKHRDelegate getPresentationSupport;
-
         internal PhysicalDevice(Instance instance, VkPhysicalDevice device) {
             Instance = instance;
             this.device = device;
-
-            getProperties = instance.Commands.getProperties;
-            getQueueFamilyProperties = instance.Commands.getQueueFamilyProperties;
-            getFeatures = instance.Commands.getFeatures;
-            getExtensions = instance.Commands.getExtensions;
-            getPresentationSupport = instance.Commands.getPresentationSupport;
 
             GetDeviceProperties();
             GetQueueProperties();
@@ -60,7 +48,7 @@ namespace CSGL.Vulkan {
 
         void GetDeviceProperties() {
             using (var prop = new Marshalled<VkPhysicalDeviceProperties>()) {
-                getProperties(device, prop.Address);
+                Instance.Commands.getProperties(device, prop.Address);
                 Properties = new PhysicalDeviceProperties(prop.Value);
             }
         }
@@ -68,9 +56,9 @@ namespace CSGL.Vulkan {
         void GetQueueProperties() {
             QueueFamilies = new List<QueueFamily>();
             uint count = 0;
-            getQueueFamilyProperties(device, ref count, IntPtr.Zero);
+            Instance.Commands.getQueueFamilyProperties(device, ref count, IntPtr.Zero);
             var props = new MarshalledArray<VkQueueFamilyProperties>((int)count);
-            getQueueFamilyProperties(device, ref count, props.Address);
+            Instance.Commands.getQueueFamilyProperties(device, ref count, props.Address);
 
             for (int i = 0; i < count; i++) {
                 var queueFamily = props[i];
@@ -83,7 +71,7 @@ namespace CSGL.Vulkan {
 
         void GetDeviceFeatures() {
             using (var feat = new Marshalled<VkPhysicalDeviceFeatures>()) {
-                getFeatures(device, feat.Address);
+                Instance.Commands.getFeatures(device, feat.Address);
                 features = feat.Value;
             }
         }
@@ -91,9 +79,9 @@ namespace CSGL.Vulkan {
         void GetDeviceExtensions() {
             AvailableExtensions = new List<Extension>();
             uint count = 0;
-            getExtensions(device, null, ref count, IntPtr.Zero);
+            Instance.Commands.getExtensions(device, null, ref count, IntPtr.Zero);
             var props = new MarshalledArray<VkExtensionProperties>((int)count);
-            getExtensions(device, null, ref count, props.Address);
+            Instance.Commands.getExtensions(device, null, ref count, props.Address);
 
             for (int i = 0; i < count; i++) {
                 var ex = props[i];
@@ -131,7 +119,7 @@ namespace CSGL.Vulkan {
 
             public bool SurfaceSupported(Surface surface) {
                 bool supported;
-                pDevice.getPresentationSupport(pDevice.Native, index, surface.Native, out supported);
+                pDevice.Instance.Commands.getPresentationSupport(pDevice.Native, index, surface.Native, out supported);
                 return supported;
             }
         }
