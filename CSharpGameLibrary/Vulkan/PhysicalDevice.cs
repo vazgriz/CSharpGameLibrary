@@ -98,6 +98,13 @@ namespace CSGL.Vulkan {
             }
         }
 
+        VkFormatProperties GetFormatProperties(VkFormat format) {
+            using (var prop = new Marshalled<VkFormatProperties>()) {
+                Instance.Commands.getPhysicalDeviceFormatProperties(device, format, prop.Address);
+                return prop.Value;
+            }
+        }
+
         public class QueueFamily {
             public VkQueueFlags Flags { get; private set; }
             public uint QueueCount { get; private set; }
