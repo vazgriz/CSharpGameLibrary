@@ -13,7 +13,7 @@ namespace CSGL.Vulkan {
         public VkAttachmentReference[] InputAttachments { get; set; }
         public VkAttachmentReference[] ColorAttachments { get; set; }
         public VkAttachmentReference[] ResolveAttachments { get; set; }
-        public VkAttachmentReference[] DepthStencilAttachment { get; set; }
+        public VkAttachmentReference DepthStencilAttachment { get; set; }
         public uint[] PreserveAttachments { get; set; }
 
         internal VkSubpassDescription GetNative(List<IDisposable> marshalled) {
@@ -32,7 +32,7 @@ namespace CSGL.Vulkan {
             var resolveMarshalled = new MarshalledArray<VkAttachmentReference>(ResolveAttachments);
             result.pResolveAttachments = resolveMarshalled.Address;
 
-            var depthMarshalled = new MarshalledArray<VkAttachmentReference>(DepthStencilAttachment);
+            var depthMarshalled = new Marshalled<VkAttachmentReference>(DepthStencilAttachment);
             result.pDepthStencilAttachment = depthMarshalled.Address;
 
             if (PreserveAttachments != null) {
