@@ -25,7 +25,7 @@ namespace CSGL {
 
         public static string GetString(byte[] array) {
             int count = 0;
-            while (array[count] != 0) count++;
+            while (count < array.Length && array[count] != 0) count++;
             return utf8.GetString(array, 0, count);
         }
 
