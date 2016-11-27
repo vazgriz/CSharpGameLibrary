@@ -1,15 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Runtime.InteropServices;
 
 using CSGL.Vulkan.Unmanaged;
 
 namespace CSGL.Vulkan {
     public static class Vulkan {
-        public static void Init() {
-            Instance.Init();
-        }
-
         public static string GetCommand<T>() {
             Type t = typeof(T);
             return GetCommand(t);
@@ -54,10 +51,26 @@ namespace CSGL.Vulkan {
         static vkEnumerateInstanceExtensionPropertiesDelegate enumerateExtensionProperties;
         static vkEnumerateInstanceLayerPropertiesDelegate enumerateLayerProperties;
 
-        public static List<Extension> AvailableExtensions { get; private set; }
-        public static List<Layer> AvailableLayers { get; private set; }
+        static List<Extension> availableExtensions;
+        static ReadOnlyCollection<Extension> extensionsReadOnly;
+        static List<Layer> availableLayers;
+        static ReadOnlyCollection<Layer> layersReadOnly;
 
         static bool initialized = false;
+
+        public static IList<Extension> AvailableExtensions {
+            get {
+                if (!initialized) Init();
+                return extensionsReadOnly;
+            }
+        }
+
+        public static IList<Layer> AvailableLayers {
+            get {
+                if (!initialized) Init();
+                return layersReadOnly;
+            }
+        }
 
         internal static void Init() {
             Vulkan.Load(ref createInstance);
@@ -68,8 +81,8 @@ namespace CSGL.Vulkan {
         }
 
         static void GetLayersAndExtensions() {
-            AvailableExtensions = new List<Extension>();
-            AvailableLayers = new List<Layer>();
+            availableExtensions = new List<Extension>();
+            availableLayers = new List<Layer>();
 
             uint exCount = 0;
             enumerateExtensionProperties(null, ref exCount, IntPtr.Zero);
@@ -79,7 +92,7 @@ namespace CSGL.Vulkan {
 
             for (int i = 0; i < exCount; i++) {
                 var extension = ex[i];
-                AvailableExtensions.Add(new Extension(extension));
+                availableExtensions.Add(new Extension(extension));
             }
 
             uint lCount = 0;
@@ -90,8 +103,11 @@ namespace CSGL.Vulkan {
 
             for (int i = 0; i < lCount; i++) {
                 var layer = l[i];
-                AvailableLayers.Add(new Layer(layer));
+                availableLayers.Add(new Layer(layer));
             }
+
+            extensionsReadOnly = availableExtensions.AsReadOnly();
+            layersReadOnly = availableLayers.AsReadOnly();
 
             ex.Dispose();
             l.Dispose();

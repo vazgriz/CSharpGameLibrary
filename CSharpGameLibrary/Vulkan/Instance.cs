@@ -78,7 +78,7 @@ namespace CSGL.Vulkan {
 
         void Init(InstanceCreateInfo mInfo) {
             if (!GLFW.GLFW.VulkanSupported()) throw new InstanceException("Vulkan not supported");
-            if (!initialized) throw new InstanceException("Vulkan was not initialized (make sure to call Vulkan.Init())");
+            if (!initialized) Init();
 
             if (mInfo.extensions == null) {
                 extensions = new List<string>();
