@@ -32,7 +32,7 @@ namespace STB.Unmanaged {
         public static extern void stbi_ldr_to_hdr_scale(float scale);
 
         [DllImport(lib)]
-        public static extern bool stbi_is_hdr_from_memory(IntPtr buffer, int length);
+        public static extern int stbi_is_hdr_from_memory(IntPtr buffer, int length);
 
         [DllImport(lib)]
         public static extern void stbi_image_free(IntPtr image);
