@@ -93,13 +93,13 @@ namespace CSGL {
             }
         }
 
-        public static unsafe void Copy<T>(T[] source, IntPtr dest, int count) where T : struct {
+        public static void Copy<T>(T[] source, IntPtr dest, int count) where T : struct {
             GCHandle handle = GCHandle.Alloc(source, GCHandleType.Pinned);
             Copy(handle.AddrOfPinnedObject(), dest, count * Unsafe.SizeOf<T>());
             handle.Free();
         }
 
-        public static unsafe void Copy<T>(T[] source, IntPtr dest) where T : struct {
+        public static void Copy<T>(T[] source, IntPtr dest) where T : struct {
             Copy(source, dest, source.Length);
         }
 
