@@ -5,7 +5,7 @@ using CSGL;
 
 namespace STB.Unmanaged {
     class STB_native {
-        const string lib = "stb";
+        const string lib = "stb_native";
 
         [DllImport(lib)]
         public static extern IntPtr stbi_load_from_memory(IntPtr buffer, int length,
