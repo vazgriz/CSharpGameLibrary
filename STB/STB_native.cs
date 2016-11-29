@@ -35,9 +35,6 @@ namespace STB.Unmanaged {
         public static extern bool stbi_is_hdr_from_memory(IntPtr buffer, int length);
 
         [DllImport(lib)]
-        public static extern bool stbi_is_hdr(byte[] fileName);
-
-        [DllImport(lib)]
         public static extern void stbi_image_free(IntPtr image);
 
         [DllImport(lib)]
