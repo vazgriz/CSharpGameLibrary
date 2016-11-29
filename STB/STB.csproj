@@ -41,6 +41,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="STB_native.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\CSharpGameLibrary\CSharpGameLibrary.csproj">
+      <Project>{d7103402-1c84-4921-af9c-38d9a6231e7a}</Project>
+      <Name>CSharpGameLibrary</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
