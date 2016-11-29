@@ -9,14 +9,14 @@ namespace STB.Unmanaged {
 
         [DllImport(lib)]
         public static extern IntPtr stbi_load_from_memory(byte[] buffer, int length,
-            ref int x, ref int y,
-            ref int comp, int req_comp,
+            out int x, out int y,
+            out int comp, int req_comp,
             out IntPtr error);
 
         [DllImport(lib)]
         public static extern IntPtr stbi_loadf_from_memory(byte[] buffer, int length,
-            ref int x, ref int y,
-            ref int comp, int req_comp,
+            out int x, out int y,
+            out int comp, int req_comp,
             out IntPtr error);
 
         [DllImport(lib)]
@@ -42,9 +42,9 @@ namespace STB.Unmanaged {
 
         [DllImport(lib)]
         public static extern int stbi_info_from_memory(byte[] buffer, int len,
-            ref int x, ref int y,
-            ref int comp,
-            ref IntPtr error);
+            out int x, out int y,
+            out int comp,
+            out IntPtr error);
 
         [DllImport(lib)]
         public static extern void stbi_set_unpremultiply_on_load(int flag);
