@@ -43,8 +43,11 @@ namespace CSGL.Vulkan {
             var resolveMarshalled = new MarshalledArray<VkAttachmentReference>(ResolveAttachments);
             result.pResolveAttachments = resolveMarshalled.Address;
 
-            var depthMarshalled = new Marshalled<VkAttachmentReference>(DepthStencilAttachment);
-            result.pDepthStencilAttachment = depthMarshalled.Address;
+            if (hasDepthStencil) {
+                var depthMarshalled = new Marshalled<VkAttachmentReference>(DepthStencilAttachment);
+                result.pDepthStencilAttachment = depthMarshalled.Address;
+                marshalled.Add(depthMarshalled);
+            }
 
             if (PreserveAttachments != null) {
                 result.preserveAttachmentCount = (uint)PreserveAttachments.Length;
@@ -56,7 +59,6 @@ namespace CSGL.Vulkan {
             marshalled.Add(inputMarshalled);
             marshalled.Add(colorMarshalled);
             marshalled.Add(resolveMarshalled);
-            marshalled.Add(depthMarshalled);
 
             return result;
         }
