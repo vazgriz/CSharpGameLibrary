@@ -3,9 +3,9 @@ using System.Collections.Generic;
 
 namespace CSGL.Vulkan {
     public class RenderPassCreateInfo {
-        public VkAttachmentDescription[] Attachments { get; set; }
-        public SubpassDescription[] Subpasses { get; set; }
-        public VkSubpassDependency[] Dependencies { get; set; }
+        public VkAttachmentDescription[] attachments;
+        public SubpassDescription[] subpasses;
+        public VkSubpassDependency[] dependencies;
     }
 
     public class SubpassDescription {
@@ -88,20 +88,20 @@ namespace CSGL.Vulkan {
             info.sType = VkStructureType.StructureTypeRenderPassCreateInfo;
             var marshalledArrays = new List<IDisposable>();
 
-            var attachMarshalled = new MarshalledArray<VkAttachmentDescription>(mInfo.Attachments);
+            var attachMarshalled = new MarshalledArray<VkAttachmentDescription>(mInfo.attachments);
             info.attachmentCount = (uint)attachMarshalled.Count;
             info.pAttachments = attachMarshalled.Address;
 
-            var subpasses = new VkSubpassDescription[mInfo.Subpasses.Length];
+            var subpasses = new VkSubpassDescription[mInfo.subpasses.Length];
             for (int i = 0; i < subpasses.Length; i++) {
-                subpasses[i] = mInfo.Subpasses[i].GetNative(marshalledArrays);
+                subpasses[i] = mInfo.subpasses[i].GetNative(marshalledArrays);
             }
 
             var subpassMarshalled = new MarshalledArray<VkSubpassDescription>(subpasses);
             info.subpassCount = (uint)subpassMarshalled.Count;
             info.pSubpasses = subpassMarshalled.Address;
 
-            var dependMarshalled = new MarshalledArray<VkSubpassDependency>(mInfo.Dependencies);
+            var dependMarshalled = new MarshalledArray<VkSubpassDependency>(mInfo.dependencies);
             info.dependencyCount = (uint)dependMarshalled.Count;
             info.pDependencies = dependMarshalled.Address;
 
