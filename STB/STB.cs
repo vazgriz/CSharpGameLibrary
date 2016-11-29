@@ -14,7 +14,7 @@ namespace STB {
             IntPtr resultPtr = stbi_load_from_memory(ptr, buffer.Length, out x, out y, out comp, req_comp, out error);
 
             try {
-                if (error != IntPtr.Zero) {
+                if (resultPtr == IntPtr.Zero && error != IntPtr.Zero) {
                     throw new ImageException(Interop.GetString(error));
                 }
 
