@@ -3,7 +3,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 
 using CSGL;
-using static STB.Unmanaged.STB_native;
+using static CSGL.STB.Unmanaged.STB_native;
 
 namespace CSGL.STB {
     public static class STB {
