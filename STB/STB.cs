@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 using CSGL;
 using static STB.Unmanaged.STB_native;
 
-namespace STB {
+namespace CSGL.STB {
     public static class STB {
         public static byte[] Load(byte[] buffer, out int x, out int y, out int comp, int req_comp) {
             GCHandle handle = GCHandle.Alloc(buffer, GCHandleType.Pinned);

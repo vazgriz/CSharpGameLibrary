@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 
 using CSGL;
 
-namespace STB.Unmanaged {
+namespace CSGL.STB.Unmanaged {
     class STB_native {
         const string lib = "stb_native";
 
