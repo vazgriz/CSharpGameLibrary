@@ -13,8 +13,19 @@ namespace CSGL.Vulkan {
         public VkAttachmentReference[] InputAttachments { get; set; }
         public VkAttachmentReference[] ColorAttachments { get; set; }
         public VkAttachmentReference[] ResolveAttachments { get; set; }
-        public VkAttachmentReference DepthStencilAttachment { get; set; }
         public uint[] PreserveAttachments { get; set; }
+
+        VkAttachmentReference depthStencilAttachment;
+        bool hasDepthStencil = false;
+        public VkAttachmentReference DepthStencilAttachment {
+            get {
+                return depthStencilAttachment;
+            }
+            set {
+                hasDepthStencil = true;
+                depthStencilAttachment = value;
+            }
+        }
 
         internal VkSubpassDescription GetNative(List<IDisposable> marshalled) {
             var result = new VkSubpassDescription();
