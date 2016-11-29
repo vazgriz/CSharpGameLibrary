@@ -23,6 +23,13 @@ namespace CSGL {
             return utf8.GetString(array);
         }
 
+        public static string GetString(IntPtr ptr) {
+            unsafe
+            {
+                return GetString((byte*)ptr);
+            }
+        }
+
         public static string GetString(byte[] array) {
             int count = 0;
             while (count < array.Length && array[count] != 0) count++;
@@ -101,6 +108,18 @@ namespace CSGL {
 
         public static void Copy<T>(T[] source, IntPtr dest) where T : struct {
             Copy(source, dest, source.Length);
+        }
+
+        public static void Copy<T>(IntPtr source, T[] dest, int count) where T : struct {
+            GCHandle handle = GCHandle.Alloc(dest, GCHandleType.Pinned);
+            Copy(source, handle.AddrOfPinnedObject(), count);
+            handle.Free();
+        }
+
+        public static void Copy<T>(IntPtr source, T[] dest) where T : struct {
+            GCHandle handle = GCHandle.Alloc(dest, GCHandleType.Pinned);
+            Copy(source, handle.AddrOfPinnedObject(), dest.Length);
+            handle.Free();
         }
 
         public static int SizeOf<T>() {
