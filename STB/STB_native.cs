@@ -8,13 +8,13 @@ namespace STB.Unmanaged {
         const string lib = "stb";
 
         [DllImport(lib)]
-        public static extern IntPtr stbi_load_from_memory(IntPtr buffer, int length,
+        public static extern IntPtr stbi_load_from_memory(byte[] buffer, int length,
             ref int x, ref int y,
             ref int comp, int req_comp,
             out IntPtr error);
 
         [DllImport(lib)]
-        public static extern IntPtr stbi_loadf_from_memory(IntPtr buffer, int length,
+        public static extern IntPtr stbi_loadf_from_memory(byte[] buffer, int length,
             ref int x, ref int y,
             ref int comp, int req_comp,
             out IntPtr error);
@@ -41,7 +41,7 @@ namespace STB.Unmanaged {
         public static extern void stbi_image_free(IntPtr image);
 
         [DllImport(lib)]
-        public static extern int stbi_info_from_memory(IntPtr buffer, int len,
+        public static extern int stbi_info_from_memory(byte[] buffer, int len,
             ref int x, ref int y,
             ref int comp,
             ref IntPtr error);
