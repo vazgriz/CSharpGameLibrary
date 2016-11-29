@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Runtime.InteropServices;
 
 using CSGL;
@@ -32,6 +33,12 @@ namespace STB {
             }
         }
 
+        public static byte[] Load(Stream stream, out int x, out int y, out int comp, int req_comp) {
+            byte[] buffer = new byte[stream.Length - stream.Position];
+            stream.Read(buffer, 0, buffer.Length);
+            return Load(buffer, out x, out y, out comp, req_comp);
+        }
+
         public static float[] LoadHDR(byte[] buffer, out int x, out int y, out int comp, int req_comp) {
             GCHandle handle = GCHandle.Alloc(buffer, GCHandleType.Pinned);
             IntPtr ptr = handle.AddrOfPinnedObject();
@@ -58,6 +65,12 @@ namespace STB {
             }
         }
 
+        public static float[] LoadHDR(Stream stream, out int x, out int y, out int comp, int req_comp) {
+            byte[] buffer = new byte[stream.Length - stream.Position];
+            stream.Read(buffer, 0, buffer.Length);
+            return LoadHDR(buffer, out x, out y, out comp, req_comp);
+        }
+
         public static bool IsHDR(byte[] buffer) {
             GCHandle handle = GCHandle.Alloc(buffer, GCHandleType.Pinned);
             int result = stbi_is_hdr_from_memory(handle.AddrOfPinnedObject(), buffer.Length);
@@ -65,5 +78,9 @@ namespace STB {
 
             return result != 0;
         }
+    }
+
+    public class ImageException : Exception {
+        public ImageException(string message) : base(message) { }
     }
 }
