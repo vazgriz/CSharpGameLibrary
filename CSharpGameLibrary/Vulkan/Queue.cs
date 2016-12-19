@@ -50,7 +50,7 @@ namespace CSGL.Vulkan {
             Device.Commands.queueWaitIdle(queue);
         }
 
-        public VkResult Submit(SubmitInfo[] infos, Fence fence) {
+        public VkResult Submit(SubmitInfo[] infos, Fence fence = null) {
             VkFence temp = VkFence.Null;
             if (fence != null) {
                 temp = fence.Native;
