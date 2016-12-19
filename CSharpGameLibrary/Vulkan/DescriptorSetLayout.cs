@@ -29,7 +29,7 @@ namespace CSGL.Vulkan {
 
         void CreateDescriptorSetLayout(DescriptorSetLayoutCreateInfo mInfo) {
             var info = new VkDescriptorSetLayoutCreateInfo();
-            info.sType = VkStructureType.StructureTypeDescriptorSetLayoutCreateInfo;
+            info.sType = VkStructureType.DescriptorSetLayoutCreateInfo;
 
             var bindingsMarshalled = new MarshalledArray<VkDescriptorSetLayoutBinding>(mInfo.bindings);
             info.bindingCount = (uint)bindingsMarshalled.Count;

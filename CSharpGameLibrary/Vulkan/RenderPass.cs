@@ -87,7 +87,7 @@ namespace CSGL.Vulkan {
 
         void CreateRenderPass(RenderPassCreateInfo mInfo) {
             var info = new VkRenderPassCreateInfo();
-            info.sType = VkStructureType.StructureTypeRenderPassCreateInfo;
+            info.sType = VkStructureType.RenderPassCreateInfo;
             var marshalledArrays = new List<IDisposable>();
 
             var attachMarshalled = new MarshalledArray<VkAttachmentDescription>(mInfo.attachments);

@@ -32,7 +32,7 @@ namespace CSGL.Vulkan {
 
         void CreateDeviceMemory(MemoryAllocateInfo mInfo) {
             var info = new VkMemoryAllocateInfo();
-            info.sType = VkStructureType.StructureTypeMemoryAllocateInfo;
+            info.sType = VkStructureType.MemoryAllocateInfo;
             info.allocationSize = mInfo.allocationSize;
             info.memoryTypeIndex = mInfo.memoryTypeIndex;
 

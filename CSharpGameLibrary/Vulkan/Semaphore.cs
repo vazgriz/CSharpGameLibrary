@@ -23,7 +23,7 @@ namespace CSGL.Vulkan {
 
         void CreateSemaphore() {
             VkSemaphoreCreateInfo info = new VkSemaphoreCreateInfo();
-            info.sType = VkStructureType.StructureTypeSemaphoreCreateInfo;
+            info.sType = VkStructureType.SemaphoreCreateInfo;
             
             var result = Device.Commands.createSemaphore(Device.Native, ref info, Device.Instance.AllocationCallbacks, out semaphore);
             if (result != VkResult.Success) throw new SemaphoreException(string.Format("Error creating semaphore: {0}", result));

@@ -32,7 +32,7 @@ namespace CSGL.Vulkan {
 
         void CreateFramebuffer(FramebufferCreateInfo mInfo) {
             VkFramebufferCreateInfo info = new VkFramebufferCreateInfo();
-            info.sType = VkStructureType.StructureTypeFramebufferCreateInfo;
+            info.sType = VkStructureType.FramebufferCreateInfo;
             info.renderPass = mInfo.renderPass.Native;
            
             var attachmentsMarshalled = new NativeArray<VkImageView>(mInfo.attachments);

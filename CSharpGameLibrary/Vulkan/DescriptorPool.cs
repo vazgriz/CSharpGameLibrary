@@ -54,7 +54,7 @@ namespace CSGL.Vulkan {
 
         void CreateDescriptorPool(DescriptorPoolCreateInfo mInfo) {
             var info = new VkDescriptorPoolCreateInfo();
-            info.sType = VkStructureType.StructureTypeDescriptorPoolCreateInfo;
+            info.sType = VkStructureType.DescriptorPoolCreateInfo;
             info.flags = mInfo.flags;
             info.maxSets = mInfo.maxSets;
 
@@ -73,7 +73,7 @@ namespace CSGL.Vulkan {
 
         public DescriptorSet[] Allocate(DescriptorSetAllocateInfo info) {
             var infoNative = new VkDescriptorSetAllocateInfo();
-            infoNative.sType = VkStructureType.StructureTypeDescriptorSetAllocateInfo;
+            infoNative.sType = VkStructureType.DescriptorSetAllocateInfo;
             infoNative.descriptorPool = descriptorPool;
             infoNative.descriptorSetCount = info.descriptorSetCount;
 
@@ -105,7 +105,7 @@ namespace CSGL.Vulkan {
                     var write = writes[i];
 
                     var writeNative = new VkWriteDescriptorSet();
-                    writeNative.sType = VkStructureType.StructureTypeWriteDescriptorSet;
+                    writeNative.sType = VkStructureType.WriteDescriptorSet;
                     writeNative.dstSet = write.dstSet.Native;
                     writeNative.dstBinding = write.dstBinding;
                     writeNative.dstArrayElement = write.dstArrayElement;

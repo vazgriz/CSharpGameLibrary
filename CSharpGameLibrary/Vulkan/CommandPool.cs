@@ -30,7 +30,7 @@ namespace CSGL.Vulkan {
 
         void CreateCommandPool(CommandPoolCreateInfo mInfo) {
             VkCommandPoolCreateInfo info = new VkCommandPoolCreateInfo();
-            info.sType = VkStructureType.StructureTypeCommandPoolCreateInfo;
+            info.sType = VkStructureType.CommandPoolCreateInfo;
             info.flags = mInfo.Flags;
             info.queueFamilyIndex = mInfo.QueueFamilyIndex;
             
@@ -44,7 +44,7 @@ namespace CSGL.Vulkan {
 
         public CommandBuffer Allocate(VkCommandBufferLevel level) {
             var info = new VkCommandBufferAllocateInfo();
-            info.sType = VkStructureType.StructureTypeCommandBufferAllocateInfo;
+            info.sType = VkStructureType.CommandBufferAllocateInfo;
             info.level = level;
             info.commandPool = commandPool;
             info.commandBufferCount = 1;
@@ -66,7 +66,7 @@ namespace CSGL.Vulkan {
 
         public CommandBuffer[] Allocate(VkCommandBufferLevel level, int count) {
             var info = new VkCommandBufferAllocateInfo();
-            info.sType = VkStructureType.StructureTypeCommandBufferAllocateInfo;
+            info.sType = VkStructureType.CommandBufferAllocateInfo;
             info.level = level;
             info.commandPool = commandPool;
             info.commandBufferCount = (uint)count;

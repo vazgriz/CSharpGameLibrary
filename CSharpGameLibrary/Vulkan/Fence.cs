@@ -64,7 +64,7 @@ namespace CSGL.Vulkan {
 
 		void CreateFence(FenceCreateInfo mInfo) {
             VkFenceCreateInfo info = new VkFenceCreateInfo();
-            info.sType = VkStructureType.StructureTypeFenceCreateInfo;
+            info.sType = VkStructureType.FenceCreateInfo;
             info.flags = mInfo.Flags;
             
             var result = Device.Commands.createFence(Device.Native, ref info, Device.Instance.AllocationCallbacks, out fence);

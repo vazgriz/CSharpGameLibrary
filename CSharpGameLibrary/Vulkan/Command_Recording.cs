@@ -12,7 +12,7 @@ namespace CSGL.Vulkan {
 
         internal VkCommandBufferInheritanceInfo GetNative() {
             VkCommandBufferInheritanceInfo info = new VkCommandBufferInheritanceInfo();
-            info.sType = VkStructureType.StructureTypeCommandBufferInheritanceInfo;
+            info.sType = VkStructureType.CommandBufferInheritanceInfo;
             info.renderPass = renderPass.Native;
             info.subpass = subpass;
             info.framebuffer = framebuffer.Native;
@@ -30,7 +30,7 @@ namespace CSGL.Vulkan {
 
         internal VkCommandBufferBeginInfo GetNative(List<IDisposable> marshalled) {
             VkCommandBufferBeginInfo info = new VkCommandBufferBeginInfo();
-            info.sType = VkStructureType.StructureTypeCommandBufferBeginInfo;
+            info.sType = VkStructureType.CommandBufferBeginInfo;
             info.flags = flags;
 
             if (inheritanceInfo != null) {
@@ -51,7 +51,7 @@ namespace CSGL.Vulkan {
 
         internal VkRenderPassBeginInfo GetNative(List<IDisposable> marshalled) {
             VkRenderPassBeginInfo info = new VkRenderPassBeginInfo();
-            info.sType = VkStructureType.StructureTypeRenderPassBeginInfo;
+            info.sType = VkStructureType.RenderPassBeginInfo;
             info.renderPass = renderPass.Native;
             info.framebuffer = framebuffer.Native;
             info.renderArea = renderArea;

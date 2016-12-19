@@ -116,14 +116,14 @@ namespace CSGL.Vulkan {
             var layersMarshalled = new NativeStringArray(mInfo.layers);
 
             var info = new VkInstanceCreateInfo();
-            info.sType = VkStructureType.StructureTypeInstanceCreateInfo;
+            info.sType = VkStructureType.InstanceCreateInfo;
             info.enabledExtensionCount = (uint)extensionsMarshalled.Count;
             info.ppEnabledExtensionNames = extensionsMarshalled.Address;
             info.enabledLayerCount = (uint)layersMarshalled.Count;
             info.ppEnabledLayerNames = layersMarshalled.Address;
 
             var appInfo = new VkApplicationInfo();
-            appInfo.sType = VkStructureType.StructureTypeApplicationInfo;
+            appInfo.sType = VkStructureType.ApplicationInfo;
             if (mInfo.applicationInfo != null) {
                 appInfo.apiVersion = mInfo.applicationInfo.apiVersion;
                 appInfo.engineVersion = mInfo.applicationInfo.engineVersion;

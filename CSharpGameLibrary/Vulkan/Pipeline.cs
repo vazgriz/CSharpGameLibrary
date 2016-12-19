@@ -86,7 +86,7 @@ namespace CSGL.Vulkan {
                 VkGraphicsPipelineCreateInfo info = new VkGraphicsPipelineCreateInfo();
                 var mInfo = mInfos[i];
 
-                info.sType = VkStructureType.StructureTypeGraphicsPipelineCreateInfo;
+                info.sType = VkStructureType.GraphicsPipelineCreateInfo;
                 info.flags = mInfo.flags;
 
                 int stagesCount = mInfo.stages.Length;

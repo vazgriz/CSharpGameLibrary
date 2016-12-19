@@ -44,7 +44,7 @@ namespace CSGL.Vulkan {
 
         void CreateBuffer(BufferCreateInfo mInfo) {
             var info = new VkBufferCreateInfo();
-            info.sType = VkStructureType.StructureTypeBufferCreateInfo;
+            info.sType = VkStructureType.BufferCreateInfo;
             info.flags = mInfo.flags;
             info.size = mInfo.size;
             info.usage = mInfo.usage;

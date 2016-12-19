@@ -61,7 +61,7 @@ namespace CSGL.Vulkan {
 
             for (int i = 0; i < infos.Length; i++) {
                 var info = new VkSubmitInfo();
-                info.sType = VkStructureType.StructureTypeSubmitInfo;
+                info.sType = VkStructureType.SubmitInfo;
 
                 var waitMarshalled = new NativeArray<VkSemaphore>(infos[i].waitSemaphores);
                 info.waitSemaphoreCount = (uint)waitMarshalled.Count;
@@ -109,7 +109,7 @@ namespace CSGL.Vulkan {
             }
 
             var infoNative = new VkPresentInfoKHR();
-            infoNative.sType = VkStructureType.StructureTypePresentInfoKhr;
+            infoNative.sType = VkStructureType.PresentInfoKhr;
             infoNative.waitSemaphoreCount = (uint)waitSemaphoresMarshalled.Count;
             infoNative.pWaitSemaphores = waitSemaphoresMarshalled.Address;
             infoNative.swapchainCount = (uint)swapchainsMarshalled.Count;

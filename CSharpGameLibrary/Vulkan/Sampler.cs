@@ -42,7 +42,7 @@ namespace CSGL.Vulkan {
 
         void CreateSampler(SamplerCreateInfo mInfo) {
             var info = new VkSamplerCreateInfo();
-            info.sType = VkStructureType.StructureTypeSamplerCreateInfo;
+            info.sType = VkStructureType.SamplerCreateInfo;
             info.magFilter = mInfo.magFilter;
             info.minFilter = mInfo.minFilter;
             info.mipmapMode = mInfo.mipmapMode;

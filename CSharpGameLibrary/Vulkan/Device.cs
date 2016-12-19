@@ -66,7 +66,7 @@ namespace CSGL.Vulkan {
             Marshalled<VkPhysicalDeviceFeatures> features = new Marshalled<VkPhysicalDeviceFeatures>(mInfo.features);
 
             var info = new VkDeviceCreateInfo();
-            info.sType = VkStructureType.StructureTypeDeviceCreateInfo;
+            info.sType = VkStructureType.DeviceCreateInfo;
             info.enabledExtensionCount = (uint)extensionsMarshalled.Count;
             info.ppEnabledExtensionNames = extensionsMarshalled.Address;
             info.pEnabledFeatures = features.Address;
@@ -80,7 +80,7 @@ namespace CSGL.Vulkan {
                 for (int i = 0; i < length; i++) {
                     var mi = mInfo.queueCreateInfos[i];
                     var qInfo = new VkDeviceQueueCreateInfo();
-                    qInfo.sType = VkStructureType.StructureTypeDeviceQueueCreateInfo;
+                    qInfo.sType = VkStructureType.DeviceQueueCreateInfo;
 
                     prioritiesMarshalled[i] = new PinnedArray<float>(mi.priorities);
                     qInfo.pQueuePriorities = prioritiesMarshalled[i].Address;

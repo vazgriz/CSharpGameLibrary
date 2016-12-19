@@ -75,7 +75,7 @@ namespace CSGL.Vulkan {
 
         void CreateSwapchain(SwapchainCreateInfo mInfo) {
             var info = new VkSwapchainCreateInfoKHR();
-            info.sType = VkStructureType.StructureTypeSwapchainCreateInfoKhr;
+            info.sType = VkStructureType.SwapchainCreateInfoKhr;
             info.surface = mInfo.surface.Native;
             info.minImageCount = mInfo.minImageCount;
             info.imageFormat = mInfo.imageFormat;

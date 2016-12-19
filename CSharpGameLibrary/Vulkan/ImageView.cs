@@ -37,7 +37,7 @@ namespace CSGL.Vulkan {
 
         void CreateImageView(ImageViewCreateInfo mInfo) {
             VkImageViewCreateInfo info = new VkImageViewCreateInfo();
-            info.sType = VkStructureType.StructureTypeImageViewCreateInfo;
+            info.sType = VkStructureType.ImageViewCreateInfo;
             info.image = mInfo.image.Native;
             info.viewType = mInfo.viewType;
             info.format = mInfo.format;

@@ -53,7 +53,7 @@ namespace CSGL.Vulkan {
 
         void CreateImage(ImageCreateInfo mInfo) {
             var info = new VkImageCreateInfo();
-            info.sType = VkStructureType.StructureTypeImageCreateInfo;
+            info.sType = VkStructureType.ImageCreateInfo;
             info.flags = mInfo.flags;
             info.imageType = mInfo.imageType;
             info.format = mInfo.format;

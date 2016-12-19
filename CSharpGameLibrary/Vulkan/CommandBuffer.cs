@@ -114,7 +114,7 @@ namespace CSGL.Vulkan {
                 for (int i = 0; i < memoryBarriers.Length; i++) {
                     var mb = memoryBarriers[i];
                     var barrier = new VkMemoryBarrier();
-                    barrier.sType = VkStructureType.StructureTypeMemoryBarrier;
+                    barrier.sType = VkStructureType.MemoryBarrier;
                     barrier.srcAccessMask = mb.srcAccessMask;
                     barrier.dstAccessMask = mb.dstAccessMask;
 
@@ -130,7 +130,7 @@ namespace CSGL.Vulkan {
                 for (int i = 0; i < bufferMemoryBarriers.Length; i++) {
                     var bb = bufferMemoryBarriers[i];
                     var barrier = new VkBufferMemoryBarrier();
-                    barrier.sType = VkStructureType.StructureTypeBufferMemoryBarrier;
+                    barrier.sType = VkStructureType.BufferMemoryBarrier;
                     barrier.srcAccessMask = bb.srcAccessMask;
                     barrier.dstAccessMask = bb.dstAccessMask;
                     barrier.srcQueueFamilyIndex = bb.srcQueueFamilyIndex;
@@ -151,7 +151,7 @@ namespace CSGL.Vulkan {
                 for (int i = 0; i < imageMemoryBarriers.Length; i++) {
                     var ib = imageMemoryBarriers[i];
                     var barrier = new VkImageMemoryBarrier();
-                    barrier.sType = VkStructureType.StructureTypeImageMemoryBarrier;
+                    barrier.sType = VkStructureType.ImageMemoryBarrier;
                     barrier.srcAccessMask = ib.srcAccessMask;
                     barrier.dstAccessMask = ib.dstAccessMask;
                     barrier.oldLayout = ib.oldLayout;
