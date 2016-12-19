@@ -138,5 +138,13 @@ namespace CSGL {
                 return (byte*)Unsafe.AsPointer(ref field) - (byte*)Unsafe.AsPointer(ref type);
             }
         }
+
+        public static int MSizeOf<T>() {
+            return Marshal.SizeOf<T>();
+        }
+
+        public static int MSizeOf<T>(T[] array) {
+            return MSizeOf<T>() * array.Length;
+        }
     }
 }
