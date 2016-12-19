@@ -135,7 +135,7 @@ namespace CSGL {
             where T2 : struct {
             unsafe
             {
-                return (int)((byte*)Unsafe.AsPointer(ref field) - (byte*)Unsafe.AsPointer(ref type));
+                return (byte*)Unsafe.AsPointer(ref field) - (byte*)Unsafe.AsPointer(ref type);
             }
         }
     }
