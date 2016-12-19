@@ -51,9 +51,9 @@ namespace CSGL.Vulkan {
         }
 
         public VkResult Submit(SubmitInfo[] infos, Fence fence = null) {
-            VkFence temp = VkFence.Null;
+            VkFence nativeFence = VkFence.Null;
             if (fence != null) {
-                temp = fence.Native;
+                nativeFence = fence.Native;
             }
 
             var infosMarshalled = new MarshalledArray<VkSubmitInfo>(infos.Length);
@@ -89,7 +89,7 @@ namespace CSGL.Vulkan {
                 infosMarshalled[i] = info;
             }
 
-            var result = Device.Commands.queueSubmit(queue, (uint)infos.Length, infosMarshalled.Address, temp);
+            var result = Device.Commands.queueSubmit(queue, (uint)infos.Length, infosMarshalled.Address, nativeFence);
 
             for (int i = 0; i < disposables.Length; i++) {
                 disposables[i].Dispose();
