@@ -169,6 +169,7 @@ namespace CSGL {
 
             int size = MSizeOf<T>();
             byte* curDest = (byte*)dest;
+
             for (int i = 0; i < obj.Length; i++) {
                 Unsafe.Write(curDest, obj[i]);
                 curDest += size;
