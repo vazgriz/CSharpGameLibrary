@@ -160,18 +160,34 @@ namespace CSGL {
             return MSizeOf<T>() * array.Length;
         }
 
-        public static unsafe void Marshal<T>(INative<T> obj, void* dest) where T : struct {
-            Unsafe.Write(dest, obj.Native);
+        public static unsafe void Marshal<T>(T obj, void* dest) {
+            Unsafe.Write(dest, obj);
         }
 
-        public static unsafe void Marshal<T>(INative<T>[] obj, void* dest) where T : struct {
-            if (obj == null || obj.Length == 0) return;
+        public static unsafe void Marshal<T>(T[] array, void* dest) where T : struct {
+            if (array == null || array.Length == 0) return;
 
             int size = MSizeOf<T>();
             byte* curDest = (byte*)dest;
 
-            for (int i = 0; i < obj.Length; i++) {
-                Unsafe.Write(curDest, obj[i]);
+            for (int i = 0; i < array.Length; i++) {
+                Unsafe.Write(curDest, array[i]);
+                curDest += size;
+            }
+        }
+
+        public static unsafe void Marshal<T>(INative<T> obj, void* dest) where T : struct {
+            Unsafe.Write(dest, obj.Native);
+        }
+
+        public static unsafe void Marshal<T>(INative<T>[] array, void* dest) where T : struct {
+            if (array == null || array.Length == 0) return;
+
+            int size = MSizeOf<T>();
+            byte* curDest = (byte*)dest;
+
+            for (int i = 0; i < array.Length; i++) {
+                Unsafe.Write(curDest, array[i].Native);
                 curDest += size;
             }
         }
