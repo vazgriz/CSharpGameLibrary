@@ -88,30 +88,21 @@ namespace CSGL.Vulkan {
                     var info = new VkSubmitInfo();
                     info.sType = VkStructureType.SubmitInfo;
                     
+                    Interop.Marshal<VkSemaphore>(infos[i].waitSemaphores, &waitSemaphoresNative[waitSemaphoresIndex]);
+                    Interop.Marshal(infos[i].waitDstStageMask, &waitDstNative[waitSemaphoresIndex]);
                     info.waitSemaphoreCount = (uint)infos[i].waitSemaphores.Length;
                     info.pWaitSemaphores = (IntPtr)(&waitSemaphoresNative[waitSemaphoresIndex]);    //get address from index
                     info.pWaitDstStageMask = (IntPtr)(&waitDstNative[waitSemaphoresIndex]);
-                    
-                    for (int j = 0; j < infos[i].waitSemaphores.Length; j++) {
-                        waitSemaphoresNative[waitSemaphoresIndex + j] = infos[i].waitSemaphores[j].Native;    //fill both arrays at once
-                        waitDstNative[waitSemaphoresIndex + j] = (int)infos[i].waitDstStageMask[j];
-                    }
                     waitSemaphoresIndex += infos[i].waitSemaphores.Length;  //increment index
                     
+                    Interop.Marshal<VkCommandBuffer>(infos[i].commandBuffers, &commandBuffersNative[commandBuffersIndex]);
                     info.commandBufferCount = (uint)infos[i].commandBuffers.Length;
                     info.pCommandBuffers = (IntPtr)(&commandBuffersNative[commandBuffersIndex]);    //get address from index
-
-                    for (int j = 0; j < infos[i].commandBuffers.Length; j++) {
-                        commandBuffersNative[commandBuffersIndex + j] = infos[i].commandBuffers[j].Native;
-                    }
                     commandBuffersIndex += infos[i].commandBuffers.Length;
                     
+                    Interop.Marshal<VkSemaphore>(infos[i].signalSemaphores, &signalSemaphoresNative[signalSemaphoresIndex]);
                     info.signalSemaphoreCount = (uint)infos[i].signalSemaphores.Length;
                     info.pSignalSemaphores = (IntPtr)(&signalSemaphoresNative[signalSemaphoresIndex]);  //get address from index
-
-                    for (int j = 0; j < infos[i].signalSemaphores.Length; j++) {
-                        signalSemaphoresNative[signalSemaphoresIndex + j] = infos[i].signalSemaphores[j].Native;
-                    }
                     signalSemaphoresIndex += infos[i].signalSemaphores.Length;
 
                     infosNative[i] = info;
@@ -124,37 +115,42 @@ namespace CSGL.Vulkan {
         }
 
         public VkResult Present(PresentInfo info) {
-            var waitSemaphoresMarshalled = new NativeArray<VkSemaphore>(info.waitSemaphores);
-            var swapchainsMarshalled = new NativeArray<VkSwapchainKHR>(info.swapchains);
-            var indicesMarshalled = new PinnedArray<uint>(info.imageIndices);
-            NativeArray<int> resultsMarshalled = null;
+            unsafe
+            {
+                var waitSemaphoresNative = stackalloc VkSemaphore[info.waitSemaphores.Length];
 
-            if (info.results != null) {
-                resultsMarshalled = new NativeArray<int>(info.results.Length);
-            }
+                var waitSemaphoresMarshalled = new NativeArray<VkSemaphore>(info.waitSemaphores);
+                var swapchainsMarshalled = new NativeArray<VkSwapchainKHR>(info.swapchains);
+                var indicesMarshalled = new PinnedArray<uint>(info.imageIndices);
+                NativeArray<int> resultsMarshalled = null;
 
-            var infoNative = new VkPresentInfoKHR();
-            infoNative.sType = VkStructureType.PresentInfoKhr;
-            infoNative.waitSemaphoreCount = (uint)waitSemaphoresMarshalled.Count;
-            infoNative.pWaitSemaphores = waitSemaphoresMarshalled.Address;
-            infoNative.swapchainCount = (uint)swapchainsMarshalled.Count;
-            infoNative.pSwapchains = swapchainsMarshalled.Address;
-            infoNative.pImageIndices = indicesMarshalled.Address;
-
-            var result = Device.Commands.queuePresent(queue, ref infoNative);
-
-            if (info.results != null) {
-                for (int i = 0; i < info.results.Length; i++) {
-                    info.results[i] = (VkResult)resultsMarshalled[i];
+                if (info.results != null) {
+                    resultsMarshalled = new NativeArray<int>(info.results.Length);
                 }
-                resultsMarshalled.Dispose();
+
+                var infoNative = new VkPresentInfoKHR();
+                infoNative.sType = VkStructureType.PresentInfoKhr;
+                infoNative.waitSemaphoreCount = (uint)waitSemaphoresMarshalled.Count;
+                infoNative.pWaitSemaphores = waitSemaphoresMarshalled.Address;
+                infoNative.swapchainCount = (uint)swapchainsMarshalled.Count;
+                infoNative.pSwapchains = swapchainsMarshalled.Address;
+                infoNative.pImageIndices = indicesMarshalled.Address;
+
+                var result = Device.Commands.queuePresent(queue, ref infoNative);
+
+                if (info.results != null) {
+                    for (int i = 0; i < info.results.Length; i++) {
+                        info.results[i] = (VkResult)resultsMarshalled[i];
+                    }
+                    resultsMarshalled.Dispose();
+                }
+
+                waitSemaphoresMarshalled.Dispose();
+                swapchainsMarshalled.Dispose();
+                indicesMarshalled.Dispose();
+
+                return result;
             }
-
-            waitSemaphoresMarshalled.Dispose();
-            swapchainsMarshalled.Dispose();
-            indicesMarshalled.Dispose();
-
-            return result;
         }
     }
 }
