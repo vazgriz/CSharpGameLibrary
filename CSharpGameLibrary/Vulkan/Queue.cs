@@ -59,49 +59,68 @@ namespace CSGL.Vulkan {
             if (infos == null || infos.Length == 0) {
                 return Device.Commands.queueSubmit(queue, 0, IntPtr.Zero, fenceNative);
             }
-            
-            var infosMarshalled = new MarshalledArray<VkSubmitInfo>(infos.Length);
-            IDisposable[] disposables = new IDisposable[infos.Length * 4];
 
-            for (int i = 0; i < infos.Length; i++) {
-                var info = new VkSubmitInfo();
-                info.sType = VkStructureType.SubmitInfo;
+            unsafe
+            {
+                int totalWaitSemaphores = 0;
+                int totalCommandBuffers = 0;
+                int totalSignalSemaphores = 0;
 
-                var waitMarshalled = new NativeArray<VkSemaphore>(infos[i].waitSemaphores);
-                info.waitSemaphoreCount = (uint)waitMarshalled.Count;
-                info.pWaitSemaphores = waitMarshalled.Address;
-
-                var waitDstMarshalled = new NativeArray<int>(waitMarshalled.Count);     //waitDstStageMask is an array of enums, so it can't be used as int[]
-                for (int j = 0; j < waitDstMarshalled.Count; j++) {                     //luckily, this is required to be the same length as waitSemaphores
-                    waitDstMarshalled[j] = (int)infos[i].waitDstStageMask[j];
+                for (int i = 0; i < infos.Length; i++) {    //get the total length needed for each array
+                    var info = infos[i];
+                    if (info.waitSemaphores != null) totalWaitSemaphores += info.waitSemaphores.Length;
+                    if (info.commandBuffers != null) totalCommandBuffers += info.commandBuffers.Length;
+                    if (info.signalSemaphores != null) totalSignalSemaphores += info.signalSemaphores.Length;
                 }
-                info.pWaitDstStageMask = waitDstMarshalled.Address;
 
-                var commandBuffersMarshalled = new NativeArray<VkCommandBuffer>(infos[i].commandBuffers);
-                info.commandBufferCount = (uint)commandBuffersMarshalled.Count;
-                info.pCommandBuffers = commandBuffersMarshalled.Address;
+                var waitSemaphoresNative = stackalloc VkSemaphore[totalWaitSemaphores];
+                var waitDstNative = stackalloc int[totalWaitSemaphores];    //required to be the same length as above
+                var commandBuffersNative = stackalloc VkCommandBuffer[totalCommandBuffers];
+                var signalSemaphoresNative = stackalloc VkSemaphore[totalSignalSemaphores];
 
-                var signalMarshalled = new NativeArray<VkSemaphore>(infos[i].signalSemaphores);
-                info.signalSemaphoreCount = (uint)signalMarshalled.Count;
-                info.pSignalSemaphores = signalMarshalled.Address;
+                int waitSemaphoresIndex = 0;
+                int commandBuffersIndex = 0;
+                int signalSemaphoresIndex = 0;
 
-                disposables[(i * 4) + 0] = waitMarshalled;
-                disposables[(i * 4) + 1] = waitDstMarshalled;
-                disposables[(i * 4) + 2] = commandBuffersMarshalled;
-                disposables[(i * 4) + 3] = signalMarshalled;
+                var infosNative = stackalloc VkSubmitInfo[infos.Length];
 
-                infosMarshalled[i] = info;
+                for (int i = 0; i < infos.Length; i++) {
+                    var info = new VkSubmitInfo();
+                    info.sType = VkStructureType.SubmitInfo;
+                    
+                    info.waitSemaphoreCount = (uint)infos[i].waitSemaphores.Length;
+                    info.pWaitSemaphores = (IntPtr)(&waitSemaphoresNative[waitSemaphoresIndex]);    //get address from index
+                    info.pWaitDstStageMask = (IntPtr)(&waitDstNative[waitSemaphoresIndex]);
+                    
+                    for (int j = 0; j < infos[i].waitSemaphores.Length; j++) {
+                        waitSemaphoresNative[waitSemaphoresIndex + j] = infos[i].waitSemaphores[j].Native;    //fill both arrays at once
+                        waitDstNative[waitSemaphoresIndex + j] = (int)infos[i].waitDstStageMask[j];
+                    }
+                    waitSemaphoresIndex += infos[i].waitSemaphores.Length;  //increment index
+                    
+                    info.commandBufferCount = (uint)infos[i].commandBuffers.Length;
+                    info.pCommandBuffers = (IntPtr)(&commandBuffersNative[commandBuffersIndex]);    //get address from index
+
+                    for (int j = 0; j < infos[i].commandBuffers.Length; j++) {
+                        commandBuffersNative[commandBuffersIndex + j] = infos[i].commandBuffers[j].Native;
+                    }
+                    commandBuffersIndex += infos[i].commandBuffers.Length;
+                    
+                    info.signalSemaphoreCount = (uint)infos[i].signalSemaphores.Length;
+                    info.pSignalSemaphores = (IntPtr)(&signalSemaphoresNative[signalSemaphoresIndex]);  //get address from index
+
+                    for (int j = 0; j < infos[i].signalSemaphores.Length; j++) {
+                        signalSemaphoresNative[signalSemaphoresIndex + j] = infos[i].signalSemaphores[j].Native;
+                    }
+                    signalSemaphoresIndex += infos[i].signalSemaphores.Length;
+
+                    infosNative[i] = info;
+                }
+
+                var result = Device.Commands.queueSubmit(queue, (uint)infos.Length, (IntPtr)infosNative, fenceNative);
+
+                return result;
             }
-
-            var result = Device.Commands.queueSubmit(queue, (uint)infos.Length, infosMarshalled.Address, fenceNative);
-
-            infosMarshalled.Dispose();
-
-            for (int i = 0; i < disposables.Length; i++) {
-                disposables[i].Dispose();
-            }
-
-            return result;
         }
 
         public VkResult Present(PresentInfo info) {
