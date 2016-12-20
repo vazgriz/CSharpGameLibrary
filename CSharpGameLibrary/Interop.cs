@@ -2,6 +2,7 @@
 using System.Text;
 using System.Runtime.InteropServices;
 using System.Runtime.CompilerServices;
+using SMarshal = System.Runtime.InteropServices.Marshal;
 
 namespace CSGL {
     public static class Interop {
@@ -122,11 +123,11 @@ namespace CSGL {
             handle.Free();
         }
 
-        public static int SizeOf<T>() {
+        public static int SizeOf<T>() where T : struct {
             return Unsafe.SizeOf<T>();
         }
 
-        public static int SizeOf<T>(T[] array) {
+        public static int SizeOf<T>(T[] array) where T : struct {
             return Unsafe.SizeOf<T>() * array.Length;
         }
 
@@ -139,12 +140,39 @@ namespace CSGL {
             }
         }
 
-        public static int MSizeOf<T>() {
-            return Marshal.SizeOf<T>();
+        public static int MSizeOf<T>() where T : struct {
+            return SMarshal.SizeOf<T>();
         }
 
-        public static int MSizeOf<T>(T[] array) {
+        public static int MSizeOf<T>(T[] array) where T : struct {
             return MSizeOf<T>() * array.Length;
+        }
+
+        public static int MSizeOf<T>(INative<T> obj) where T : struct {
+            return SMarshal.SizeOf<T>();
+        }
+
+        public static int MSizeOf<T>(INative<T>[] array) where T : struct {
+            if (array == null) {
+                return 0;
+            }
+
+            return MSizeOf<T>() * array.Length;
+        }
+
+        public static unsafe void Marshal<T>(INative<T> obj, void* dest) where T : struct {
+            Unsafe.Write(dest, obj.Native);
+        }
+
+        public static unsafe void Marshal<T>(INative<T>[] obj, void* dest) where T : struct {
+            if (obj == null || obj.Length == 0) return;
+
+            int size = MSizeOf<T>();
+            byte* curDest = (byte*)dest;
+            for (int i = 0; i < obj.Length; i++) {
+                Unsafe.Write(curDest, obj[i]);
+                curDest += size;
+            }
         }
     }
 }
