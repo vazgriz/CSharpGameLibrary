@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 
 using CSGL.Vulkan.Unmanaged;
 
@@ -89,7 +90,12 @@ namespace CSGL.Vulkan {
                     info.sType = VkStructureType.SubmitInfo;
                     
                     Interop.Marshal<VkSemaphore>(infos[i].waitSemaphores, &waitSemaphoresNative[waitSemaphoresIndex]);
-                    Interop.Marshal(infos[i].waitDstStageMask, &waitDstNative[waitSemaphoresIndex]);
+
+                    for (int j = 0; j < infos[i].waitSemaphores.Length; j++) {
+                        //this has to copied manually because Marshal.SizeOf<> doesn't accept enums
+                        waitDstNative[waitSemaphoresIndex + j] = (int)infos[i].waitDstStageMask[j];
+                    }
+
                     info.waitSemaphoreCount = (uint)infos[i].waitSemaphores.Length;
                     info.pWaitSemaphores = (IntPtr)(&waitSemaphoresNative[waitSemaphoresIndex]);    //get address from index
                     info.pWaitDstStageMask = (IntPtr)(&waitDstNative[waitSemaphoresIndex]);
@@ -98,12 +104,12 @@ namespace CSGL.Vulkan {
                     Interop.Marshal<VkCommandBuffer>(infos[i].commandBuffers, &commandBuffersNative[commandBuffersIndex]);
                     info.commandBufferCount = (uint)infos[i].commandBuffers.Length;
                     info.pCommandBuffers = (IntPtr)(&commandBuffersNative[commandBuffersIndex]);    //get address from index
-                    commandBuffersIndex += infos[i].commandBuffers.Length;
-                    
+                    commandBuffersIndex += infos[i].commandBuffers.Length;  //increment index
+
                     Interop.Marshal<VkSemaphore>(infos[i].signalSemaphores, &signalSemaphoresNative[signalSemaphoresIndex]);
                     info.signalSemaphoreCount = (uint)infos[i].signalSemaphores.Length;
                     info.pSignalSemaphores = (IntPtr)(&signalSemaphoresNative[signalSemaphoresIndex]);  //get address from index
-                    signalSemaphoresIndex += infos[i].signalSemaphores.Length;
+                    signalSemaphoresIndex += infos[i].signalSemaphores.Length;  //increment index
 
                     infosNative[i] = info;
                 }
@@ -118,36 +124,35 @@ namespace CSGL.Vulkan {
             unsafe
             {
                 var waitSemaphoresNative = stackalloc VkSemaphore[info.waitSemaphores.Length];
+                Interop.Marshal<VkSemaphore>(info.waitSemaphores, waitSemaphoresNative);
 
-                var waitSemaphoresMarshalled = new NativeArray<VkSemaphore>(info.waitSemaphores);
-                var swapchainsMarshalled = new NativeArray<VkSwapchainKHR>(info.swapchains);
-                var indicesMarshalled = new PinnedArray<uint>(info.imageIndices);
-                NativeArray<int> resultsMarshalled = null;
+                var swapchainsNative = stackalloc VkSwapchainKHR[info.swapchains.Length];
+                Interop.Marshal<VkSwapchainKHR>(info.swapchains, swapchainsNative);
 
+                //info.indices is uint[], so it can be pinned and read directly
+                GCHandle handle = GCHandle.Alloc(info.imageIndices, GCHandleType.Pinned);
+
+                int resultsLength = 0;
                 if (info.results != null) {
-                    resultsMarshalled = new NativeArray<int>(info.results.Length);
+                    resultsLength = info.results.Length;
                 }
+                var results = stackalloc int[resultsLength];
 
                 var infoNative = new VkPresentInfoKHR();
                 infoNative.sType = VkStructureType.PresentInfoKhr;
-                infoNative.waitSemaphoreCount = (uint)waitSemaphoresMarshalled.Count;
-                infoNative.pWaitSemaphores = waitSemaphoresMarshalled.Address;
-                infoNative.swapchainCount = (uint)swapchainsMarshalled.Count;
-                infoNative.pSwapchains = swapchainsMarshalled.Address;
-                infoNative.pImageIndices = indicesMarshalled.Address;
+                infoNative.waitSemaphoreCount = (uint)info.waitSemaphores.Length;
+                infoNative.pWaitSemaphores = (IntPtr)waitSemaphoresNative;
+                infoNative.swapchainCount = (uint)info.swapchains.Length;
+                infoNative.pSwapchains = (IntPtr)swapchainsNative;
+                infoNative.pImageIndices = handle.AddrOfPinnedObject();
 
                 var result = Device.Commands.queuePresent(queue, ref infoNative);
-
-                if (info.results != null) {
-                    for (int i = 0; i < info.results.Length; i++) {
-                        info.results[i] = (VkResult)resultsMarshalled[i];
-                    }
-                    resultsMarshalled.Dispose();
+                
+                for (int i = 0; i < resultsLength; i++) {   //already determined if null
+                    info.results[i] = (VkResult)results[i];
                 }
 
-                waitSemaphoresMarshalled.Dispose();
-                swapchainsMarshalled.Dispose();
-                indicesMarshalled.Dispose();
+                handle.Free();
 
                 return result;
             }
