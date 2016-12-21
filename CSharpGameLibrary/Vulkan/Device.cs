@@ -20,7 +20,7 @@ namespace CSGL.Vulkan {
         VkDevice device;
         bool disposed = false;
 
-        Dictionary<VkQueue, Queue> queues;
+        Dictionary<QueueID, Queue> queues;
 
         vkGetDeviceProcAddrDelegate getDeviceProcAddr;
 
@@ -43,7 +43,7 @@ namespace CSGL.Vulkan {
 
             PhysicalDevice = physicalDevice;
             Instance = physicalDevice.Instance;
-            queues = new Dictionary<VkQueue, Queue>();
+            queues = new Dictionary<QueueID, Queue>();
 
             if (info.extensions == null) {
                 Extensions = new List<string>();
@@ -124,13 +124,15 @@ namespace CSGL.Vulkan {
         }
 
         public Queue GetQueue(uint familyIndex, uint index) {
-            VkQueue temp;
-            Commands.getDeviceQueue(device, familyIndex, index, out temp);
-            if (queues.ContainsKey(temp)) {
-                return queues[temp];
+            QueueID id = new QueueID(familyIndex, index);
+            if (queues.ContainsKey(id)) {
+                return queues[id];
             } else {
+                VkQueue temp;
+                Commands.getDeviceQueue(device, familyIndex, index, out temp);
+
                 var result = new Queue(this, temp);
-                queues.Add(temp, result);
+                queues.Add(id, result);
 
                 return result;
             }
@@ -150,6 +152,20 @@ namespace CSGL.Vulkan {
             Instance.Commands.destroyDevice(device, Instance.AllocationCallbacks);
 
             disposed = true;
+        }
+
+        struct QueueID {
+            public uint familyIndex;
+            public uint index;
+
+            public QueueID(uint familyIndex, uint index) {
+                this.familyIndex = familyIndex;
+                this.index = index;
+            }
+
+            public override int GetHashCode() {
+                return familyIndex.GetHashCode() ^ index.GetHashCode();
+            }
         }
     }
 
