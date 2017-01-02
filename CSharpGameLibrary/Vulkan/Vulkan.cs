@@ -60,14 +60,14 @@ namespace CSGL.Vulkan {
 
         public static IList<Extension> AvailableExtensions {
             get {
-                if (!initialized) Init();
+                if (extensionsReadOnly == null) GetExtensions();
                 return extensionsReadOnly;
             }
         }
 
         public static IList<Layer> AvailableLayers {
             get {
-                if (!initialized) Init();
+                if (layersReadOnly == null) GetLayers();
                 return layersReadOnly;
             }
         }
@@ -76,41 +76,42 @@ namespace CSGL.Vulkan {
             Vulkan.Load(ref createInstance);
             Vulkan.Load(ref enumerateExtensionProperties);
             Vulkan.Load(ref enumerateLayerProperties);
-            GetLayersAndExtensions();
             initialized = true;
         }
 
-        static void GetLayersAndExtensions() {
-            availableExtensions = new List<Extension>();
+        static void GetLayers() {
             availableLayers = new List<Layer>();
-
-            uint exCount = 0;
-            enumerateExtensionProperties(null, ref exCount, IntPtr.Zero);
-
-            var ex = new MarshalledArray<VkExtensionProperties>((int)exCount);
-            enumerateExtensionProperties(null, ref exCount, ex.Address);
-
-            for (int i = 0; i < exCount; i++) {
-                var extension = ex[i];
-                availableExtensions.Add(new Extension(extension));
-            }
 
             uint lCount = 0;
             enumerateLayerProperties(ref lCount, IntPtr.Zero);
 
-            var l = new MarshalledArray<VkLayerProperties>((int)lCount);
-            enumerateLayerProperties(ref lCount, l.Address);
+            using (var layersMarshalled = new MarshalledArray<VkLayerProperties>((int)lCount)) {
+                enumerateLayerProperties(ref lCount, layersMarshalled.Address);
 
-            for (int i = 0; i < lCount; i++) {
-                var layer = l[i];
-                availableLayers.Add(new Layer(layer));
+                for (int i = 0; i < lCount; i++) {
+                    var layer = layersMarshalled[i];
+                    availableLayers.Add(new Layer(layer));
+                }
+
             }
-
-            extensionsReadOnly = availableExtensions.AsReadOnly();
             layersReadOnly = availableLayers.AsReadOnly();
+        }
 
-            ex.Dispose();
-            l.Dispose();
+        static void GetExtensions() {
+            availableExtensions = new List<Extension>();
+
+            uint exCount = 0;
+            enumerateExtensionProperties(null, ref exCount, IntPtr.Zero);
+
+            using (var extensionsMarshalled = new MarshalledArray<VkExtensionProperties>((int)exCount)) {
+                enumerateExtensionProperties(null, ref exCount, extensionsMarshalled.Address);
+
+                for (int i = 0; i < exCount; i++) {
+                    var extension = extensionsMarshalled[i];
+                    availableExtensions.Add(new Extension(extension));
+                }
+            }
+            extensionsReadOnly = availableExtensions.AsReadOnly();
         }
     }
 }

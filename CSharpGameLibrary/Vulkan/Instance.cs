@@ -92,13 +92,10 @@ namespace CSGL.Vulkan {
                 layers = new List<string>(mInfo.layers);
             }
 
+            CreateInstance(mInfo);
+
             Extensions = extensions.AsReadOnly();
             Layers = layers.AsReadOnly();
-
-            ValidateExtensions();
-            ValidateLayers();
-
-            CreateInstance(mInfo);
 
             Vulkan.Load(ref getProcAddrDel, instance);
 
@@ -165,38 +162,6 @@ namespace CSGL.Vulkan {
             }
 
             PhysicalDevices = physicalDevices.AsReadOnly();
-        }
-
-        void ValidateLayers() {
-            foreach (var s in Layers) {
-                bool found = false;
-
-                for (int i = 0; i < AvailableLayers.Count; i++) {
-                    if (s == null) throw new ArgumentNullException(string.Format("Requested layer {0} is null", s));
-                    if (AvailableLayers[i].Name == s) {
-                        found = true;
-                        break;
-                    }
-                }
-
-                if (!found) throw new InstanceException(string.Format("Requested layer '{0}' is not available", s));
-            }
-        }
-
-        void ValidateExtensions() {
-            foreach (var s in Extensions) {
-                bool found = false;
-
-                for (int i = 0; i < AvailableExtensions.Count; i++) {
-                    if (s == null) throw new ArgumentNullException(string.Format("Requested extension {0} is null", s));
-                    if (AvailableExtensions[i].Name == s) {
-                        found = true;
-                        break;
-                    }
-                }
-
-                if (!found) throw new InstanceException(string.Format("Requested extension '{0}' is not available", s));
-            }
         }
 
         public IntPtr GetProcAddress(string command) {
