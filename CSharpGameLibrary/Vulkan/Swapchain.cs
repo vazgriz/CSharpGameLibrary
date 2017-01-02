@@ -71,6 +71,8 @@ namespace CSGL.Vulkan {
                 var image = images[i];
                 Images.Add(new Image(Device, image));
             }
+
+            imagesNative.Dispose();
         }
 
         void CreateSwapchain(SwapchainCreateInfo mInfo) {
