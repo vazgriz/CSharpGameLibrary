@@ -131,7 +131,7 @@ namespace CSGL.Vulkan {
                 VkQueue temp;
                 Commands.getDeviceQueue(device, familyIndex, index, out temp);
 
-                var result = new Queue(this, temp);
+                var result = new Queue(this, temp, familyIndex);
                 queues.Add(id, result);
 
                 return result;

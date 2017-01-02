@@ -36,9 +36,12 @@ namespace CSGL.Vulkan {
 
         Device device;
 
-        internal Queue(Device device, VkQueue queue) {
+        public uint FamilyIndex { get; private set; }
+
+        internal Queue(Device device, VkQueue queue, uint familyIndex) {
             this.device = device;
             this.queue = queue;
+            FamilyIndex = familyIndex;
         }
 
         public Device Device {
