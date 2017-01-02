@@ -97,6 +97,7 @@ namespace CSGL.Vulkan {
             info.compositeAlpha = mInfo.compositeAlpha;
             info.presentMode = mInfo.presentMode;
             info.clipped = mInfo.clipped ? 1u : 0u;
+
             if (mInfo.oldSwapchain != null) {
                 info.oldSwapchain = mInfo.oldSwapchain.Native;
             }
@@ -106,6 +107,7 @@ namespace CSGL.Vulkan {
                 if (result != VkResult.Success) throw new SwapchainException(string.Format("Error creating swapchain: {0}", result));
             }
             finally {
+                indicesMarshalled.Dispose();
             }
         }
 
