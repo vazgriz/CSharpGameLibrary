@@ -10,8 +10,8 @@ namespace CSGL.Vulkan {
         public string Name { get; private set; }
         public Instance Instance { get; private set; }
         public PhysicalDeviceProperties Properties { get; private set; }
-        public List<QueueFamily> QueueFamilies { get; private set; }
-        public List<Extension> AvailableExtensions { get; private set; }
+        public IList<QueueFamily> QueueFamilies { get; private set; }
+        public IList<Extension> AvailableExtensions { get; private set; }
 
         public VkPhysicalDevice Native {
             get {
@@ -54,7 +54,7 @@ namespace CSGL.Vulkan {
         }
 
         void GetQueueProperties() {
-            QueueFamilies = new List<QueueFamily>();
+            List<QueueFamily> queueFamilies = new List<QueueFamily>();
             uint count = 0;
             Instance.Commands.getQueueFamilyProperties(physicalDevice, ref count, IntPtr.Zero);
             var props = new MarshalledArray<VkQueueFamilyProperties>((int)count);
@@ -63,8 +63,10 @@ namespace CSGL.Vulkan {
             for (int i = 0; i < count; i++) {
                 var queueFamily = props[i];
                 var fam = new QueueFamily(queueFamily, this, (uint)i);
-                QueueFamilies.Add(fam);
+                queueFamilies.Add(fam);
             }
+
+            QueueFamilies = queueFamilies.AsReadOnly();
 
             props.Dispose();
         }
@@ -77,7 +79,7 @@ namespace CSGL.Vulkan {
         }
 
         void GetDeviceExtensions() {
-            AvailableExtensions = new List<Extension>();
+            List<Extension> availableExtensions = new List<Extension>();
             uint count = 0;
             Instance.Commands.getExtensions(physicalDevice, null, ref count, IntPtr.Zero);
             var props = new MarshalledArray<VkExtensionProperties>((int)count);
@@ -85,8 +87,10 @@ namespace CSGL.Vulkan {
 
             for (int i = 0; i < count; i++) {
                 var ex = props[i];
-                AvailableExtensions.Add(new Extension(ex));
+                availableExtensions.Add(new Extension(ex));
             }
+
+            AvailableExtensions = availableExtensions.AsReadOnly();
 
             props.Dispose();
         }
