@@ -104,31 +104,31 @@ namespace CSGL.Vulkan {
                 return prop.Value;
             }
         }
+    }
 
-        public class QueueFamily {
-            public VkQueueFlags Flags { get; private set; }
-            public uint QueueCount { get; private set; }
-            public uint TimestampValidBits { get; private set; }
-            public VkExtent3D MinImageTransferGranularity { get; private set; }
+    public class QueueFamily {
+        public VkQueueFlags Flags { get; private set; }
+        public uint QueueCount { get; private set; }
+        public uint TimestampValidBits { get; private set; }
+        public VkExtent3D MinImageTransferGranularity { get; private set; }
 
-            PhysicalDevice pDevice;
-            uint index;
+        PhysicalDevice pDevice;
+        uint index;
 
-            internal QueueFamily(VkQueueFamilyProperties prop, PhysicalDevice pDevice, uint index) {
-                this.pDevice = pDevice;
-                this.index = index;
+        internal QueueFamily(VkQueueFamilyProperties prop, PhysicalDevice pDevice, uint index) {
+            this.pDevice = pDevice;
+            this.index = index;
 
-                Flags = prop.queueFlags;
-                QueueCount = prop.queueCount;
-                TimestampValidBits = prop.timestampValidBits;
-                MinImageTransferGranularity = prop.minImageTransferGranularity;
-            }
+            Flags = prop.queueFlags;
+            QueueCount = prop.queueCount;
+            TimestampValidBits = prop.timestampValidBits;
+            MinImageTransferGranularity = prop.minImageTransferGranularity;
+        }
 
-            public bool SurfaceSupported(Surface surface) {
-                bool supported;
-                pDevice.Instance.Commands.getPresentationSupport(pDevice.Native, index, surface.Native, out supported);
-                return supported;
-            }
+        public bool SurfaceSupported(Surface surface) {
+            bool supported;
+            pDevice.Instance.Commands.getPresentationSupport(pDevice.Native, index, surface.Native, out supported);
+            return supported;
         }
     }
 
