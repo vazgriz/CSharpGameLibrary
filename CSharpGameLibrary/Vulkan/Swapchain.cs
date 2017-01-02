@@ -36,7 +36,7 @@ namespace CSGL.Vulkan {
         
         public Surface Surface { get; private set; }
         public Device Device { get; private set; }
-        public List<Image> Images { get; private set; }
+        public IList<Image> Images { get; private set; }
 
         public VkSwapchainKHR Native {
             get {
@@ -60,17 +60,19 @@ namespace CSGL.Vulkan {
         }
 
         void GetImages() {
-            Images = new List<Image>();
+            List<Image> images = new List<Image>();
 
             uint count = 0;
             getImages(Device.Native, swapchain, ref count, IntPtr.Zero);
-            var images = new NativeArray<VkImage>((int)count);
-            getImages(Device.Native, swapchain, ref count, images.Address);
+            var imagesNative = new NativeArray<VkImage>((int)count);
+            getImages(Device.Native, swapchain, ref count, imagesNative.Address);
 
             for (int i = 0; i < count; i++) {
-                var image = images[i];
-                Images.Add(new Image(Device, image));
+                var image = imagesNative[i];
+                images.Add(new Image(Device, image));
             }
+
+            Images = images.AsReadOnly();
 
             imagesNative.Dispose();
         }
