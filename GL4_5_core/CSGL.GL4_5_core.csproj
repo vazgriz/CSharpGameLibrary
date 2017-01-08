@@ -8,7 +8,7 @@
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>CSGL.OpenGL.GL4_5_core</RootNamespace>
-    <AssemblyName>GL4_5_core</AssemblyName>
+    <AssemblyName>CSGL.GL4_5_core</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
