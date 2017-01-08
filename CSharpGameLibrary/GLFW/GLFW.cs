@@ -2,8 +2,6 @@
 using System.Text;
 
 using CSGL.Input;
-using CSGL.Vulkan;
-using CSGL.Vulkan.Unmanaged;
 using static CSGL.GLFW.Unmanaged.GLFW_native;
 
 namespace CSGL.GLFW {
@@ -33,7 +31,7 @@ namespace CSGL.GLFW {
             glfwSetErrorCallback(InternalError);    //has to be set here, so that errors made before glfwInit() are caught
         }
         
-        static void CheckError() {      //only way to convert GLFW error to managed exception
+        public static void CheckError() {      //only way to convert GLFW error to managed exception
             if (exception != null) {    //the error callback creates an exception without throwing it
                 var ex = exception;     //and stores it in a thread local variable
                 exception = null;       //if that variable is not null when this method is called, an exception is thrown
@@ -635,50 +633,6 @@ namespace CSGL.GLFW {
 
         public static IntPtr GetProcAddress(string procName) {
             var result = glfwGetProcAddress(procName);
-            CheckError();
-            return result;
-        }
-
-        public static bool VulkanSupported() {
-            var result = glfwVulkanSupported();
-            CheckError();
-            return result;
-        }
-
-        public static string[] GetRequiredInstanceExceptions() {
-            string[] result;
-            unsafe
-            {
-                uint count;
-                byte** strings = glfwGetRequiredInstanceExtensions(out count);
-
-                if (strings == null) {
-                    result = null;
-                } else {
-                    result = new string[count];
-                    for (int i = 0; i < count; i++) {
-                        result[i] = Interop.GetString(strings[i]);
-                    }
-                }
-            }
-            CheckError();
-            return result;
-        }
-
-        public static IntPtr GetInstanceProcAddress(VkInstance instance, string proc) {
-            var result = glfwGetInstanceProcAddress(instance, proc);
-            CheckError();
-            return result;
-        }
-
-        public static bool GetPhysicalDevicePresentationSupport(VkInstance instance, VkPhysicalDevice device, uint queueFamily) {
-            var result = glfwGetPhysicalDevicePresentationSupport(instance, device, queueFamily);
-            CheckError();
-            return result;
-        }
-
-        public static VkResult CreateWindowSurface(VkInstance instance, WindowPtr ptr, IntPtr alloc, out VkSurfaceKHR surface) {
-            var result = glfwCreateWindowSurface(instance, ptr, alloc, out surface);
             CheckError();
             return result;
         }

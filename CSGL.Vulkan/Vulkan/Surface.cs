@@ -50,7 +50,7 @@ namespace CSGL.Vulkan {
         }
 
         void CreateSurface(WindowPtr window) {
-            var result = GLFW.GLFW.CreateWindowSurface(Instance.Native, window, Instance.AllocationCallbacks, out surface);
+            var result = GLFW_VK.CreateWindowSurface(Instance.Native, window, Instance.AllocationCallbacks, out surface);
             if (result != VkResult.Success) throw new SurfaceException(string.Format("Error creating surface: {0}", result));
         }
 

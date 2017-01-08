@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
-using CSGL;
+using CSGL.GLFW;
 using CSGL.Vulkan.Unmanaged;
 
 namespace CSGL.Vulkan {
@@ -77,7 +77,7 @@ namespace CSGL.Vulkan {
         }
 
         void Init(InstanceCreateInfo mInfo) {
-            if (!GLFW.GLFW.VulkanSupported()) throw new InstanceException("Vulkan not supported");
+            if (!GLFW_VK.VulkanSupported()) throw new InstanceException("Vulkan not supported");
             if (!initialized) Init();
 
             if (mInfo.extensions == null) {

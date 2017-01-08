@@ -70,45 +70,10 @@
     <Compile Include="NativeArray.cs" />
     <Compile Include="PinnedArray.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Vulkan\DescriptorPool.cs" />
-    <Compile Include="Vulkan\DescriptorSet.cs" />
-    <Compile Include="Vulkan\DescriptorSetLayout.cs" />
-    <Compile Include="Vulkan\Sampler.cs" />
-    <Compile Include="Vulkan\Unmanaged\commands.cs" />
-    <Compile Include="Vulkan\Unmanaged\delegates.cs" />
-    <Compile Include="Vulkan\enums.cs" />
-    <Compile Include="Vulkan\Buffer.cs" />
-    <Compile Include="Vulkan\CommandBuffer.cs" />
-    <Compile Include="Vulkan\CommandPool.cs" />
-    <Compile Include="Vulkan\Commands.cs" />
-    <Compile Include="Vulkan\Command_Recording.cs" />
-    <Compile Include="Vulkan\Device.cs" />
-    <Compile Include="Vulkan\DeviceMemory.cs" />
-    <Compile Include="Vulkan\Extension.cs" />
-    <Compile Include="Vulkan\Framebuffer.cs" />
-    <Compile Include="Vulkan\Image.cs" />
-    <Compile Include="Vulkan\ImageView.cs" />
-    <Compile Include="Vulkan\Instance.cs" />
-    <Compile Include="Vulkan\Layer.cs" />
-    <Compile Include="Vulkan\PhysicalDevice.cs" />
-    <Compile Include="Vulkan\Pipeline.cs" />
-    <Compile Include="Vulkan\PipelineCache.cs" />
-    <Compile Include="Vulkan\PipelineLayout.cs" />
-    <Compile Include="Vulkan\Pipeline_Creation.cs" />
-    <Compile Include="Vulkan\Queue.cs" />
-    <Compile Include="Vulkan\RenderPass.cs" />
-    <Compile Include="Vulkan\Semaphore.cs" />
-    <Compile Include="Vulkan\Surface.cs" />
-    <Compile Include="Vulkan\Swapchain.cs" />
     <Compile Include="MarshalledArray.cs" />
-    <Compile Include="Vulkan\VkVersion.cs" />
-    <Compile Include="Vulkan\Vulkan.cs" />
-    <Compile Include="Vulkan\ShaderModule.cs" />
-    <Compile Include="Vulkan\structs.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-    <Compile Include="Vulkan\Fence.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
