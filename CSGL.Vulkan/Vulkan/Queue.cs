@@ -93,28 +93,34 @@ namespace CSGL.Vulkan {
                 for (int i = 0; i < infos.Length; i++) {
                     var info = new VkSubmitInfo();
                     info.sType = VkStructureType.SubmitInfo;
-                    
-                    Interop.Marshal<VkSemaphore>(infos[i].waitSemaphores, &waitSemaphoresNative[waitSemaphoresIndex]);
 
-                    for (int j = 0; j < infos[i].waitSemaphores.Length; j++) {
-                        //this has to copied manually because Marshal.SizeOf<> doesn't accept enums
-                        waitDstNative[waitSemaphoresIndex + j] = (int)infos[i].waitDstStageMask[j];
+                    if (infos[i].waitSemaphores != null) {
+                        Interop.Marshal<VkSemaphore>(infos[i].waitSemaphores, &waitSemaphoresNative[waitSemaphoresIndex]);
+
+                        for (int j = 0; j < infos[i].waitSemaphores.Length; j++) {
+                            //this has to copied manually because Marshal.SizeOf<> doesn't accept enums
+                            waitDstNative[waitSemaphoresIndex + j] = (int)infos[i].waitDstStageMask[j];
+                        }
+
+                        info.waitSemaphoreCount = (uint)infos[i].waitSemaphores.Length;
+                        info.pWaitSemaphores = (IntPtr)(&waitSemaphoresNative[waitSemaphoresIndex]);    //get address from index
+                        info.pWaitDstStageMask = (IntPtr)(&waitDstNative[waitSemaphoresIndex]);
+                        waitSemaphoresIndex += infos[i].waitSemaphores.Length;  //increment index
                     }
 
-                    info.waitSemaphoreCount = (uint)infos[i].waitSemaphores.Length;
-                    info.pWaitSemaphores = (IntPtr)(&waitSemaphoresNative[waitSemaphoresIndex]);    //get address from index
-                    info.pWaitDstStageMask = (IntPtr)(&waitDstNative[waitSemaphoresIndex]);
-                    waitSemaphoresIndex += infos[i].waitSemaphores.Length;  //increment index
-                    
-                    Interop.Marshal<VkCommandBuffer>(infos[i].commandBuffers, &commandBuffersNative[commandBuffersIndex]);
-                    info.commandBufferCount = (uint)infos[i].commandBuffers.Length;
-                    info.pCommandBuffers = (IntPtr)(&commandBuffersNative[commandBuffersIndex]);    //get address from index
-                    commandBuffersIndex += infos[i].commandBuffers.Length;  //increment index
+                    if (infos[i].commandBuffers != null) {
+                        Interop.Marshal<VkCommandBuffer>(infos[i].commandBuffers, &commandBuffersNative[commandBuffersIndex]);
+                        info.commandBufferCount = (uint)infos[i].commandBuffers.Length;
+                        info.pCommandBuffers = (IntPtr)(&commandBuffersNative[commandBuffersIndex]);    //get address from index
+                        commandBuffersIndex += infos[i].commandBuffers.Length;  //increment index
+                    }
 
-                    Interop.Marshal<VkSemaphore>(infos[i].signalSemaphores, &signalSemaphoresNative[signalSemaphoresIndex]);
-                    info.signalSemaphoreCount = (uint)infos[i].signalSemaphores.Length;
-                    info.pSignalSemaphores = (IntPtr)(&signalSemaphoresNative[signalSemaphoresIndex]);  //get address from index
-                    signalSemaphoresIndex += infos[i].signalSemaphores.Length;  //increment index
+                    if (infos[i].signalSemaphores != null) {
+                        Interop.Marshal<VkSemaphore>(infos[i].signalSemaphores, &signalSemaphoresNative[signalSemaphoresIndex]);
+                        info.signalSemaphoreCount = (uint)infos[i].signalSemaphores.Length;
+                        info.pSignalSemaphores = (IntPtr)(&signalSemaphoresNative[signalSemaphoresIndex]);  //get address from index
+                        signalSemaphoresIndex += infos[i].signalSemaphores.Length;  //increment index
+                    }
 
                     infosNative[i] = info;
                 }
