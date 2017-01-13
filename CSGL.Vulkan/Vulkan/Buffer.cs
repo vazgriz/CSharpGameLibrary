@@ -50,16 +50,13 @@ namespace CSGL.Vulkan {
             info.usage = mInfo.usage;
             info.sharingMode = mInfo.sharingMode;
 
-            var indicesMarshalled = new PinnedArray<uint>(mInfo.queueFamilyIndices);
+            var indicesMarshalled = new PinnedArray<uint>(mInfo.queueFamilyIndices));
             info.queueFamilyIndexCount = (uint)indicesMarshalled.Length;
             info.pQueueFamilyIndices = indicesMarshalled.Address;
 
-            try {
+            using (indicesMarshalled) {
                 var result = Device.Commands.createBuffer(Device.Native, ref info, Device.Instance.AllocationCallbacks, out buffer);
                 if (result != VkResult.Success) throw new BufferException(string.Format("Error creating Buffer: {0}", result));
-            }
-            finally {
-                indicesMarshalled.Dispose();
             }
         }
 

@@ -43,12 +43,9 @@ namespace CSGL.Vulkan {
             info.height = mInfo.height;
             info.layers = mInfo.layers;
 
-            try {
+            using (attachmentsMarshalled) {
                 var result = Device.Commands.createFramebuffer(Device.Native, ref info, Device.Instance.AllocationCallbacks, out framebuffer);
                 if (result != VkResult.Success) throw new FramebufferException(string.Format("Error creating framebuffer: {0}", result));
-            }
-            finally {
-                attachmentsMarshalled.Dispose();
             }
         }
 

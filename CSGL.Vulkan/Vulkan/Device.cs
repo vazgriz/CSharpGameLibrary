@@ -93,17 +93,17 @@ namespace CSGL.Vulkan {
                 info.pQueueCreateInfos = queueInfos.Address;
             }
 
-            try {
-                var result = Instance.Commands.createDevice(PhysicalDevice.Native, ref info, Instance.AllocationCallbacks, out device);
-                if (result != VkResult.Success) throw new DeviceException(string.Format("Error creating device: {0}", result));
-            }
-            finally {
-                extensionsMarshalled.Dispose();
-                queueInfos?.Dispose();
-                features.Dispose();
-
-                for (int i = 0; i < prioritiesMarshalled.Length; i++) {
-                    prioritiesMarshalled[i].Dispose();
+            using (extensionsMarshalled)
+            using (queueInfos)
+            using (features) {
+                try {
+                    var result = Instance.Commands.createDevice(PhysicalDevice.Native, ref info, Instance.AllocationCallbacks, out device);
+                    if (result != VkResult.Success) throw new DeviceException(string.Format("Error creating device: {0}", result));
+                }
+                finally {
+                    for (int i = 0; i < prioritiesMarshalled.Length; i++) {
+                        prioritiesMarshalled[i].Dispose();
+                    }
                 }
             }
         }

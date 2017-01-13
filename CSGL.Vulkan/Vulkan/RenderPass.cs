@@ -107,18 +107,18 @@ namespace CSGL.Vulkan {
             info.dependencyCount = (uint)dependMarshalled.Count;
             info.pDependencies = dependMarshalled.Address;
 
-            try {
-                var result = Device.Commands.createRenderPass(Device.Native, ref info, Device.Instance.AllocationCallbacks, out renderPass);
-                if (result != VkResult.Success) throw new RenderPassException(string.Format("Error creating render pass: {0}"));
-            }
-            finally {
-                foreach (var m in marshalledArrays) {
-                    m.Dispose();
+            using (attachMarshalled)
+            using (subpassMarshalled)
+            using (dependMarshalled) {
+                try {
+                    var result = Device.Commands.createRenderPass(Device.Native, ref info, Device.Instance.AllocationCallbacks, out renderPass);
+                    if (result != VkResult.Success) throw new RenderPassException(string.Format("Error creating render pass: {0}"));
                 }
-
-                attachMarshalled.Dispose();
-                subpassMarshalled.Dispose();
-                dependMarshalled.Dispose();
+                finally {
+                    foreach (var m in marshalledArrays) {
+                        m.Dispose();
+                    }
+                }
             }
         }
 

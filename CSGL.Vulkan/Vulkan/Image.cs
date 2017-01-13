@@ -70,12 +70,9 @@ namespace CSGL.Vulkan {
             info.pQueueFamilyIndices = indicesMarshalled.Address;
             info.initialLayout = mInfo.initialLayout;
 
-            try {
+            using (indicesMarshalled) {
                 var result = Device.Commands.createImage(Device.Native, ref info, Device.Instance.AllocationCallbacks, out image);
                 if (result != VkResult.Success) throw new ImageException(string.Format("Error creating image: {0}", result));
-            }
-            finally {
-                indicesMarshalled.Dispose();
             }
         }
 

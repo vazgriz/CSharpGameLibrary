@@ -136,17 +136,13 @@ namespace CSGL.Vulkan {
                 info.pApplicationInfo = appInfoMarshalled.Address;
             }
 
-            try {
+            using (appName)
+            using (engineName)
+            using (appInfoMarshalled)
+            using (extensionsMarshalled)
+            using (layersMarshalled) {
                 var result = createInstance(ref info, alloc, out instance);
                 if (result != VkResult.Success) throw new InstanceException(string.Format("Error creating instance: {0}", result));
-            }
-            finally {
-                appName?.Dispose();
-                engineName?.Dispose();
-                appInfoMarshalled?.Dispose();
-
-                extensionsMarshalled.Dispose();
-                layersMarshalled.Dispose();
             }
         }
 

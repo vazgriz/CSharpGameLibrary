@@ -67,14 +67,14 @@ namespace CSGL.Vulkan {
             var imagesNative = new NativeArray<VkImage>((int)count);
             getImages(Device.Native, swapchain, ref count, imagesNative.Address);
 
-            for (int i = 0; i < count; i++) {
-                var image = imagesNative[i];
-                images.Add(new Image(Device, image));
+            using (imagesNative) {
+                for (int i = 0; i < count; i++) {
+                    var image = imagesNative[i];
+                    images.Add(new Image(Device, image));
+                }
             }
 
             Images = images.AsReadOnly();
-
-            imagesNative.Dispose();
         }
 
         void CreateSwapchain(SwapchainCreateInfo mInfo) {
@@ -102,12 +102,9 @@ namespace CSGL.Vulkan {
                 info.oldSwapchain = mInfo.oldSwapchain.Native;
             }
 
-            try {
+            using (indicesMarshalled) {
                 var result = Device.Commands.createSwapchain(Device.Native, ref info, Device.Instance.AllocationCallbacks, out swapchain);
                 if (result != VkResult.Success) throw new SwapchainException(string.Format("Error creating swapchain: {0}", result));
-            }
-            finally {
-                indicesMarshalled.Dispose();
             }
         }
 

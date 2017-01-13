@@ -35,12 +35,9 @@ namespace CSGL.Vulkan {
             info.bindingCount = (uint)bindingsMarshalled.Count;
             info.pBindings = bindingsMarshalled.Address;
 
-            try {
+            using (bindingsMarshalled) {
                 var result = Device.Commands.createDescriptorSetLayout(Device.Native, ref info, Device.Instance.AllocationCallbacks, out descriptorSetLayout);
                 if (result != VkResult.Success) throw new DescriptorSetLayoutException(string.Format("Error creating description set layout: {0}", result));
-            }
-            finally {
-                bindingsMarshalled.Dispose();
             }
         }
 

@@ -38,13 +38,10 @@ namespace CSGL.Vulkan {
             info.pushConstantRangeCount = (uint)pushConstantsMarshalled.Count;
             info.pPushConstantRanges = pushConstantsMarshalled.Address;
 
-            try {
+            using (layoutsMarshalled)
+            using (pushConstantsMarshalled) {
                 var result = Device.Commands.createPipelineLayout(Device.Native, ref info, Device.Instance.AllocationCallbacks, out pipelineLayout);
                 if (result != VkResult.Success) throw new PipelineLayoutException(string.Format("Error creating pipeline layout: {0}", result));
-            }
-            finally {
-                layoutsMarshalled.Dispose();
-                pushConstantsMarshalled.Dispose();
             }
         }
 

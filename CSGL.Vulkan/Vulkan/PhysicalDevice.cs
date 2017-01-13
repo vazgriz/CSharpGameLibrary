@@ -60,15 +60,15 @@ namespace CSGL.Vulkan {
             var props = new MarshalledArray<VkQueueFamilyProperties>((int)count);
             Instance.Commands.getQueueFamilyProperties(physicalDevice, ref count, props.Address);
 
-            for (int i = 0; i < count; i++) {
-                var queueFamily = props[i];
-                var fam = new QueueFamily(queueFamily, this, (uint)i);
-                queueFamilies.Add(fam);
+            using (props) {
+                for (int i = 0; i < count; i++) {
+                    var queueFamily = props[i];
+                    var fam = new QueueFamily(queueFamily, this, (uint)i);
+                    queueFamilies.Add(fam);
+                }
             }
 
             QueueFamilies = queueFamilies.AsReadOnly();
-
-            props.Dispose();
         }
 
         void GetDeviceFeatures() {
@@ -85,14 +85,14 @@ namespace CSGL.Vulkan {
             var props = new MarshalledArray<VkExtensionProperties>((int)count);
             Instance.Commands.getExtensions(physicalDevice, null, ref count, props.Address);
 
-            for (int i = 0; i < count; i++) {
-                var ex = props[i];
-                availableExtensions.Add(new Extension(ex));
+            using (props) {
+                for (int i = 0; i < count; i++) {
+                    var ex = props[i];
+                    availableExtensions.Add(new Extension(ex));
+                }
             }
 
             AvailableExtensions = availableExtensions.AsReadOnly();
-
-            props.Dispose();
         }
 
         void GetMemoryProperties() {

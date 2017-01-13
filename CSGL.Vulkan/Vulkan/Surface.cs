@@ -62,12 +62,12 @@ namespace CSGL.Vulkan {
             var formats = new NativeArray<VkSurfaceFormatKHR>((int)count);
             getFormats(physicalDevice.Native, surface, ref count, formats.Address);
 
-            for (int i = 0; i <count; i++) {
-                var format = formats[i];
-                Formats.Add(format);
+            using (formats) {
+                for (int i = 0; i < count; i++) {
+                    var format = formats[i];
+                    Formats.Add(format);
+                }
             }
-
-            formats.Dispose();
         }
 
         void GetModes() {

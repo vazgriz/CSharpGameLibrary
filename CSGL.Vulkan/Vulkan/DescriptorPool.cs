@@ -62,12 +62,9 @@ namespace CSGL.Vulkan {
             info.poolSizeCount = (uint)poolSizesMarshalled.Length;
             info.pPoolSizes = poolSizesMarshalled.Address;
 
-            try {
+            using (poolSizesMarshalled) {
                 var result = Device.Commands.createDescriptorPool(Device.Native, ref info, Device.Instance.AllocationCallbacks, out descriptorPool);
                 if (result != VkResult.Success) throw new DescriptorPoolException(string.Format("Error creating descriptor pool: {0}", result));
-            }
-            finally {
-                poolSizesMarshalled.Dispose();
             }
         }
 
@@ -82,19 +79,19 @@ namespace CSGL.Vulkan {
 
             var descriptorSetsMarshalled = new NativeArray<VkDescriptorSet>((int)info.descriptorSetCount);
 
-            var result = Device.Commands.allocateDescriptorSets(Device.Native, ref infoNative, descriptorSetsMarshalled.Address);
-            if (result != VkResult.Success) throw new DescriptorPoolException(string.Format("Error allocating descriptor sets: {0}", result));
+            using (layoutsMarshalled)
+            using (descriptorSetsMarshalled) {
+                var result = Device.Commands.allocateDescriptorSets(Device.Native, ref infoNative, descriptorSetsMarshalled.Address);
+                if (result != VkResult.Success) throw new DescriptorPoolException(string.Format("Error allocating descriptor sets: {0}", result));
 
-            var results = new DescriptorSet[(int)info.descriptorSetCount];
+                var results = new DescriptorSet[(int)info.descriptorSetCount];
 
-            for (int i = 0; i < info.descriptorSetCount; i++) {
-                results[i] = new DescriptorSet(Device, this, descriptorSetsMarshalled[i]);
+                for (int i = 0; i < info.descriptorSetCount; i++) {
+                    results[i] = new DescriptorSet(Device, this, descriptorSetsMarshalled[i]);
+                }
+
+                return results;
             }
-
-            layoutsMarshalled.Dispose();
-            descriptorSetsMarshalled.Dispose();
-
-            return results;
         }
 
         public void Update(WriteDescriptorSet[] writes) {

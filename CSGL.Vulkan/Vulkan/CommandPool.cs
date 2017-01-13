@@ -48,19 +48,14 @@ namespace CSGL.Vulkan {
             info.level = level;
             info.commandPool = commandPool;
             info.commandBufferCount = 1;
-            
-            var commandBufferMarshalled = new Native<VkCommandBuffer>();
 
-            try {
+            using (var commandBufferMarshalled = new Native<VkCommandBuffer>()) {
                 var result = Device.Commands.allocateCommandBuffers(Device.Native, ref info, commandBufferMarshalled.Address);
                 if (result != VkResult.Success) throw new CommandPoolException(string.Format("Error allocating command buffer: {0}", result));
 
                 CommandBuffer commandBuffer = new CommandBuffer(Device, this, commandBufferMarshalled.Value);
 
                 return commandBuffer;
-            }
-            finally {
-                commandBufferMarshalled.Dispose();
             }
         }
 
@@ -71,11 +66,8 @@ namespace CSGL.Vulkan {
             info.commandPool = commandPool;
             info.commandBufferCount = (uint)count;
 
-            var commandBuffersMarshalled = new NativeArray<VkCommandBuffer>(count);
-
-            CommandBuffer[] commandBuffers = new CommandBuffer[count];
-
-            try {
+            using (var commandBuffersMarshalled = new NativeArray<VkCommandBuffer>(count)) {
+                CommandBuffer[] commandBuffers = new CommandBuffer[count];
                 var result = Device.Commands.allocateCommandBuffers(Device.Native, ref info, commandBuffersMarshalled.Address);
                 if (result != VkResult.Success) throw new CommandPoolException(string.Format("Error allocating command buffers: {0}", result));
 
@@ -84,9 +76,6 @@ namespace CSGL.Vulkan {
                 }
 
                 return commandBuffers;
-            }
-            finally {
-                commandBuffersMarshalled.Dispose();
             }
         }
 

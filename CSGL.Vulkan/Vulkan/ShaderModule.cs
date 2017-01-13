@@ -54,15 +54,11 @@ namespace CSGL.Vulkan {
             info.codeSize = (ulong)mInfo.Data.LongLength;
 
             var dataPinned = new PinnedArray<byte>(mInfo.Data);
-
             info.pCode = dataPinned.Address;
 
-            try {
+            using (dataPinned) {
                 var result = createShaderModule(device.Native, ref info, device.Instance.AllocationCallbacks, out shaderModule);
                 if (result != VkResult.Success) throw new ShaderModuleException(string.Format("Error creating shader module: {0}"));
-            }
-            finally {
-                dataPinned.Dispose();
             }
         }
 

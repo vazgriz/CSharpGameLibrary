@@ -168,22 +168,19 @@ namespace CSGL.Vulkan {
                 infos[i] = info;
             }
 
-            var infosMarshalled = new MarshalledArray<VkGraphicsPipelineCreateInfo>(infos);
-            var pipelinesMarshalled = new PinnedArray<VkPipeline>(pipelineResults);
+            using (var infosMarshalled = new MarshalledArray<VkGraphicsPipelineCreateInfo>(infos))
+            using (var pipelinesMarshalled = new PinnedArray<VkPipeline>(pipelineResults)) {
+                try {
+                    var result = device.Commands.createGraphicsPiplines(
+                        device.Native, cache,
+                        (uint)count, infosMarshalled.Address,
+                        device.Instance.AllocationCallbacks, pipelinesMarshalled.Address);
 
-            try {
-                var result = device.Commands.createGraphicsPiplines(
-                    device.Native, cache, 
-                    (uint)count, infosMarshalled.Address,
-                    device.Instance.AllocationCallbacks, pipelinesMarshalled.Address);
-
-                if (result != VkResult.Success) throw new PipelineException(string.Format("Error creating pipeline: {0}", result));
-            }
-            finally {
-                pipelinesMarshalled.Dispose();
-                infosMarshalled.Dispose();
-
-                foreach (var m in marshalledArrays) m.Dispose();
+                    if (result != VkResult.Success) throw new PipelineException(string.Format("Error creating pipeline: {0}", result));
+                }
+                finally {
+                    foreach (var m in marshalledArrays) m.Dispose();
+                }
             }
 
             return pipelineResults;

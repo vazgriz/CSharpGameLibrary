@@ -27,12 +27,11 @@ namespace CSGL.Vulkan {
                 fencesNative[i] = fences[i].Native;
             }
 
-            var fencesMarshalled = new PinnedArray<VkFence>(fencesNative);
-            var result = device.Commands.resetFences(device.Native, (uint)fences.Length, fencesMarshalled.Address);
-
-            fencesMarshalled.Dispose();
-            if (result != VkResult.Success) throw new FenceException(string.Format("Error resetting fences: {0}", result));
-            return result;
+            using (var fencesMarshalled = new PinnedArray<VkFence>(fencesNative)) {
+                var result = device.Commands.resetFences(device.Native, (uint)fences.Length, fencesMarshalled.Address);
+                if (result != VkResult.Success) throw new FenceException(string.Format("Error resetting fences: {0}", result));
+                return result;
+            }
         }
 
 		public static VkResult Wait(Device device, Fence[] fences, bool waitAll, ulong timeout) {
@@ -45,14 +44,12 @@ namespace CSGL.Vulkan {
                 fencesNative[i] = fences[i].Native;
             }
 
-            var fencesMarshalled = new PinnedArray<VkFence>(fencesNative);
-
-            uint waitAllNative = waitAll ? 1u : 0u;
-            var result = device.Commands.waitFences(device.Native, (uint)fences.Length, fencesMarshalled.Address, waitAllNative, timeout);
-
-            fencesMarshalled.Dispose();
-            if (!(result == VkResult.Success || result == VkResult.Timeout)) throw new FenceException(string.Format("Error waiting on fences: {0}", result));
-            return result;
+            using (var fencesMarshalled = new PinnedArray<VkFence>(fencesNative)) {
+                uint waitAllNative = waitAll ? 1u : 0u;
+                var result = device.Commands.waitFences(device.Native, (uint)fences.Length, fencesMarshalled.Address, waitAllNative, timeout);
+                if (!(result == VkResult.Success || result == VkResult.Timeout)) throw new FenceException(string.Format("Error waiting on fences: {0}", result));
+                return result;
+            }
         }
 
 		public Fence(Device device, FenceCreateInfo info) {
