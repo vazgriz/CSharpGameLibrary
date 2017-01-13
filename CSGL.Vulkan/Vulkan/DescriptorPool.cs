@@ -115,7 +115,7 @@ namespace CSGL.Vulkan {
                         imageInfo.imageLayout = write.imageInfo.imageLayout;
 
                         var imageInfoMarshalled = new Marshalled<VkDescriptorImageInfo>(imageInfo);
-                        disposables[i * 2] = imageInfoMarshalled;
+                        disposables.Add(imageInfoMarshalled);
                         writeNative.pImageInfo = imageInfoMarshalled.Address;
                     }
 
@@ -126,7 +126,7 @@ namespace CSGL.Vulkan {
                         bufferInfo.range = write.bufferInfo.range;
 
                         var bufferInfoMarshalled = new Marshalled<VkDescriptorBufferInfo>(bufferInfo);
-                        disposables[i * 2 + 1] = bufferInfoMarshalled;
+                        disposables.Add(bufferInfoMarshalled);
                         writeNative.pBufferInfo = bufferInfoMarshalled.Address;
                     }
 
