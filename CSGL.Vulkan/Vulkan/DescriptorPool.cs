@@ -95,9 +95,8 @@ namespace CSGL.Vulkan {
         }
 
         public void Update(WriteDescriptorSet[] writes) {
-            using (var writesMarshalled = new MarshalledArray<VkWriteDescriptorSet>(writes.Length)) {
-                var disposables = new IDisposable[writes.Length * 2];
-                
+            using (var writesMarshalled = new MarshalledArray<VkWriteDescriptorSet>(writes.Length))
+            using (var disposables = new DisposableList<IDisposable>(writes.Length * 2)) {
                 for (int i = 0; i < writes.Length; i++) {
                     var write = writes[i];
 
@@ -137,10 +136,6 @@ namespace CSGL.Vulkan {
                 }
 
                 Device.Commands.updateDescriptorSets(Device.Native, (uint)writes.Length, writesMarshalled.Address, 0, IntPtr.Zero);
-
-                for (int i = 0; i < disposables.Length; i++) {
-                    disposables[i]?.Dispose();
-                }
             }
         }
 

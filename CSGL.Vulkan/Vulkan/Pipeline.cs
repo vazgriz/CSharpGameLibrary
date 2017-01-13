@@ -80,7 +80,7 @@ namespace CSGL.Vulkan {
             int count = mInfos.Length;
             var infos = new VkGraphicsPipelineCreateInfo[count];
             var pipelineResults = new VkPipeline[count];
-            var marshalledArrays = new List<IDisposable>(count);
+            var marshalledArrays = new DisposableList<IDisposable>(count);
 
             for (int i = 0; i < count; i++) {
                 VkGraphicsPipelineCreateInfo info = new VkGraphicsPipelineCreateInfo();
@@ -169,21 +169,16 @@ namespace CSGL.Vulkan {
             }
 
             using (var infosMarshalled = new MarshalledArray<VkGraphicsPipelineCreateInfo>(infos))
-            using (var pipelinesMarshalled = new PinnedArray<VkPipeline>(pipelineResults)) {
-                try {
-                    var result = device.Commands.createGraphicsPiplines(
-                        device.Native, cache,
-                        (uint)count, infosMarshalled.Address,
-                        device.Instance.AllocationCallbacks, pipelinesMarshalled.Address);
+            using (var pipelinesMarshalled = new PinnedArray<VkPipeline>(pipelineResults))
+            using (marshalledArrays) {
+                var result = device.Commands.createGraphicsPiplines(
+                    device.Native, cache,
+                    (uint)count, infosMarshalled.Address,
+                    device.Instance.AllocationCallbacks, pipelinesMarshalled.Address);
 
-                    if (result != VkResult.Success) throw new PipelineException(string.Format("Error creating pipeline: {0}", result));
-                }
-                finally {
-                    foreach (var m in marshalledArrays) m.Dispose();
-                }
+                if (result != VkResult.Success) throw new PipelineException(string.Format("Error creating pipeline: {0}", result));
+                return pipelineResults;
             }
-
-            return pipelineResults;
         }
 
         public void Dispose() {

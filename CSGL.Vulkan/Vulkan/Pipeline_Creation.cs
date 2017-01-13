@@ -8,7 +8,7 @@ namespace CSGL.Vulkan {
         public string name;
         public IntPtr specializationInfo;
 
-        internal VkPipelineShaderStageCreateInfo GetNative(List<IDisposable> marshalled) {
+        internal VkPipelineShaderStageCreateInfo GetNative(DisposableList<IDisposable> marshalled) {
             var result = new VkPipelineShaderStageCreateInfo();
             result.sType = VkStructureType.PipelineShaderStageCreateInfo;
             result.stage = stage;
@@ -27,7 +27,7 @@ namespace CSGL.Vulkan {
         public VkVertexInputBindingDescription[] vertexBindingDescriptions;
         public VkVertexInputAttributeDescription[] vertexAttributeDescriptions;
 
-        internal VkPipelineVertexInputStateCreateInfo GetNative(List<IDisposable> marshalled) {
+        internal VkPipelineVertexInputStateCreateInfo GetNative(DisposableList<IDisposable> marshalled) {
             var result = new VkPipelineVertexInputStateCreateInfo();
             result.sType = VkStructureType.PipelineVertexInputStateCreateInfo;
 
@@ -76,7 +76,7 @@ namespace CSGL.Vulkan {
         public VkViewport[] viewports;
         public VkRect2D[] scissors;
 
-        internal VkPipelineViewportStateCreateInfo GetNative(List<IDisposable> marshalled) {
+        internal VkPipelineViewportStateCreateInfo GetNative(DisposableList<IDisposable> marshalled) {
             var result = new VkPipelineViewportStateCreateInfo();
             result.sType = VkStructureType.PipelineViewportStateCreateInfo;
 
@@ -206,7 +206,7 @@ namespace CSGL.Vulkan {
         public PipelineColorBlendAttachmentState[] attachments;
         public float[] blendConstants;
 
-        internal VkPipelineColorBlendStateCreateInfo GetNative(List<IDisposable> marshalled) {
+        internal VkPipelineColorBlendStateCreateInfo GetNative(DisposableList<IDisposable> marshalled) {
             var result = new VkPipelineColorBlendStateCreateInfo();
             result.sType = VkStructureType.PipelineColorBlendStateCreateInfo;
             result.logicOpEnable = logicOpEnable ? 1u : 0u;
@@ -238,7 +238,7 @@ namespace CSGL.Vulkan {
     public class PipelineDynamicStateCreateInfo {
         public VkDynamicState[] dynamicStates;
 
-        internal VkPipelineDynamicStateCreateInfo GetNative(List<IDisposable> marshalled) {
+        internal VkPipelineDynamicStateCreateInfo GetNative(DisposableList<IDisposable> marshalled) {
             var result = new VkPipelineDynamicStateCreateInfo();
             result.sType = VkStructureType.PipelineDynamicStateCreateInfo;
 

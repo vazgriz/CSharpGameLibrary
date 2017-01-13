@@ -28,7 +28,7 @@ namespace CSGL.Vulkan {
         public VkCommandBufferUsageFlags flags;
         public CommandBufferInheritanceInfo inheritanceInfo;
 
-        internal VkCommandBufferBeginInfo GetNative(List<IDisposable> marshalled) {
+        internal VkCommandBufferBeginInfo GetNative(DisposableList<IDisposable> marshalled) {
             VkCommandBufferBeginInfo info = new VkCommandBufferBeginInfo();
             info.sType = VkStructureType.CommandBufferBeginInfo;
             info.flags = flags;
@@ -49,7 +49,7 @@ namespace CSGL.Vulkan {
         public VkRect2D renderArea;
         public VkClearValue[] clearValues;
 
-        internal VkRenderPassBeginInfo GetNative(List<IDisposable> marshalled) {
+        internal VkRenderPassBeginInfo GetNative(DisposableList<IDisposable> marshalled) {
             VkRenderPassBeginInfo info = new VkRenderPassBeginInfo();
             info.sType = VkStructureType.RenderPassBeginInfo;
             info.renderPass = renderPass.Native;

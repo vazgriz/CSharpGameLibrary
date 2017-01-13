@@ -26,21 +26,17 @@ namespace CSGL.Vulkan {
         }
 
         public void Begin(CommandBufferBeginInfo info) {
-            List<IDisposable> marshalled = new List<IDisposable>();
-            var infoNative = info.GetNative(marshalled);
-
-            Device.Commands.beginCommandBuffer(commandBuffer, ref infoNative);
-
-            foreach (var m in marshalled) m.Dispose();
+            using (var marshalled = new DisposableList<IDisposable>()) {
+                var infoNative = info.GetNative(marshalled);
+                Device.Commands.beginCommandBuffer(commandBuffer, ref infoNative);
+            }
         }
 
         public void BeginRenderPass(RenderPassBeginInfo info, VkSubpassContents contents) {
-            List<IDisposable> marshalled = new List<IDisposable>();
-            var infoNative = info.GetNative(marshalled);
-
-            Device.Commands.cmdBeginRenderPass(commandBuffer, ref infoNative, contents);
-
-            foreach (var m in marshalled) m.Dispose();
+            using (var marshalled = new DisposableList<IDisposable>()) {
+                var infoNative = info.GetNative(marshalled);
+                Device.Commands.cmdBeginRenderPass(commandBuffer, ref infoNative, contents);
+            }
         }
 
         public void BindPipeline(VkPipelineBindPoint bindPoint, Pipeline pipeline) {

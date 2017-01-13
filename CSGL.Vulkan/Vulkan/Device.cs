@@ -62,7 +62,7 @@ namespace CSGL.Vulkan {
         void CreateDevice(DeviceCreateInfo mInfo) {
             var extensionsMarshalled = new NativeStringArray(mInfo.extensions);
             MarshalledArray<VkDeviceQueueCreateInfo> queueInfos = null;
-            PinnedArray<float>[] prioritiesMarshalled = null;
+            DisposableList<PinnedArray<float>> prioritiesMarshalled = null;
             Marshalled<VkPhysicalDeviceFeatures> features = new Marshalled<VkPhysicalDeviceFeatures>(mInfo.features);
 
             var info = new VkDeviceCreateInfo();
@@ -75,7 +75,7 @@ namespace CSGL.Vulkan {
                 int length = mInfo.queueCreateInfos.Length;
                 info.queueCreateInfoCount = (uint)length;
                 queueInfos = new MarshalledArray<VkDeviceQueueCreateInfo>(length);
-                prioritiesMarshalled = new PinnedArray<float>[length];
+                prioritiesMarshalled = new DisposableList<PinnedArray<float>>(length);
 
                 for (int i = 0; i < length; i++) {
                     var mi = mInfo.queueCreateInfos[i];
@@ -95,16 +95,10 @@ namespace CSGL.Vulkan {
 
             using (extensionsMarshalled)
             using (queueInfos)
-            using (features) {
-                try {
-                    var result = Instance.Commands.createDevice(PhysicalDevice.Native, ref info, Instance.AllocationCallbacks, out device);
-                    if (result != VkResult.Success) throw new DeviceException(string.Format("Error creating device: {0}", result));
-                }
-                finally {
-                    for (int i = 0; i < prioritiesMarshalled.Length; i++) {
-                        prioritiesMarshalled[i].Dispose();
-                    }
-                }
+            using (features)
+            using (prioritiesMarshalled) {
+                var result = Instance.Commands.createDevice(PhysicalDevice.Native, ref info, Instance.AllocationCallbacks, out device);
+                if (result != VkResult.Success) throw new DeviceException(string.Format("Error creating device: {0}", result));
             }
         }
 

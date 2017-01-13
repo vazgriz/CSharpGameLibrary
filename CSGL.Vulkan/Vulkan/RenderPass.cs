@@ -27,7 +27,7 @@ namespace CSGL.Vulkan {
             }
         }
 
-        internal VkSubpassDescription GetNative(List<IDisposable> marshalled) {
+        internal VkSubpassDescription GetNative(DisposableList<IDisposable> marshalled) {
             var result = new VkSubpassDescription();
 
             result.pipelineBindPoint = PipelineBindPoint;
@@ -88,7 +88,7 @@ namespace CSGL.Vulkan {
         void CreateRenderPass(RenderPassCreateInfo mInfo) {
             var info = new VkRenderPassCreateInfo();
             info.sType = VkStructureType.RenderPassCreateInfo;
-            var marshalledArrays = new List<IDisposable>();
+            var marshalledArrays = new DisposableList<IDisposable>();
 
             var attachMarshalled = new MarshalledArray<VkAttachmentDescription>(mInfo.attachments);
             info.attachmentCount = (uint)attachMarshalled.Count;
@@ -109,16 +109,10 @@ namespace CSGL.Vulkan {
 
             using (attachMarshalled)
             using (subpassMarshalled)
-            using (dependMarshalled) {
-                try {
-                    var result = Device.Commands.createRenderPass(Device.Native, ref info, Device.Instance.AllocationCallbacks, out renderPass);
-                    if (result != VkResult.Success) throw new RenderPassException(string.Format("Error creating render pass: {0}"));
-                }
-                finally {
-                    foreach (var m in marshalledArrays) {
-                        m.Dispose();
-                    }
-                }
+            using (dependMarshalled)
+            using (marshalledArrays)  {
+                var result = Device.Commands.createRenderPass(Device.Native, ref info, Device.Instance.AllocationCallbacks, out renderPass);
+                if (result != VkResult.Success) throw new RenderPassException(string.Format("Error creating render pass: {0}"));
             }
         }
 
