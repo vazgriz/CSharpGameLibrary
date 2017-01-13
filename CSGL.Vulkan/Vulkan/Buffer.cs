@@ -50,7 +50,7 @@ namespace CSGL.Vulkan {
             info.usage = mInfo.usage;
             info.sharingMode = mInfo.sharingMode;
 
-            var indicesMarshalled = new PinnedArray<uint>(mInfo.queueFamilyIndices));
+            var indicesMarshalled = new PinnedArray<uint>(mInfo.queueFamilyIndices);
             info.queueFamilyIndexCount = (uint)indicesMarshalled.Length;
             info.pQueueFamilyIndices = indicesMarshalled.Address;
 
