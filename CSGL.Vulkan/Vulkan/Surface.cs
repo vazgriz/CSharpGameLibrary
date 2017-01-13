@@ -17,8 +17,8 @@ namespace CSGL.Vulkan {
 
         public Instance Instance { get; private set; }
 
-        public List<VkSurfaceFormatKHR> Formats { get; private set; }
-        public List<VkPresentModeKHR> PresentModes { get; private set; }
+        public IList<VkSurfaceFormatKHR> Formats { get; private set; }
+        public IList<VkPresentModeKHR> PresentModes { get; private set; }
         public VkSurfaceCapabilitiesKHR Capabilities { get; private set; }
 
         public VkSurfaceKHR Native {
@@ -55,23 +55,25 @@ namespace CSGL.Vulkan {
         }
 
         void GetFormats() {
-            Formats = new List<VkSurfaceFormatKHR>();
+            var formats = new List<VkSurfaceFormatKHR>();
 
             uint count = 0;
             getFormats(physicalDevice.Native, surface, ref count, IntPtr.Zero);
-            var formats = new NativeArray<VkSurfaceFormatKHR>((int)count);
-            getFormats(physicalDevice.Native, surface, ref count, formats.Address);
+            var formatsNative = new NativeArray<VkSurfaceFormatKHR>((int)count);
+            getFormats(physicalDevice.Native, surface, ref count, formatsNative.Address);
 
-            using (formats) {
+            using (formatsNative) {
                 for (int i = 0; i < count; i++) {
-                    var format = formats[i];
-                    Formats.Add(format);
+                    var format = formatsNative[i];
+                    formats.Add(format);
                 }
             }
+
+            Formats = formats.AsReadOnly();
         }
 
         void GetModes() {
-            PresentModes = new List<VkPresentModeKHR>();
+            var presentModes = new List<VkPresentModeKHR>();
 
             uint count = 0;
             getModes(physicalDevice.Native, surface, ref count, IntPtr.Zero);
@@ -81,8 +83,10 @@ namespace CSGL.Vulkan {
 
             for (int i = 0; i < count; i++) {
                 var mode = (VkPresentModeKHR)modes[i];
-                PresentModes.Add(mode);
+                presentModes.Add(mode);
             }
+
+            PresentModes = presentModes.AsReadOnly();
         }
 
         public void Dispose() {
