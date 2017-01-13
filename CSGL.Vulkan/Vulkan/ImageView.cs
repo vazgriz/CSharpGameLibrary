@@ -50,11 +50,8 @@ namespace CSGL.Vulkan {
 
         public void Dispose() {
             if (disposed) return;
-
-            unsafe
-            {
-                Device.Commands.destroyImageView(Device.Native, imageView, Device.Instance.AllocationCallbacks);
-            }
+            
+            Device.Commands.destroyImageView(Device.Native, imageView, Device.Instance.AllocationCallbacks);
 
             disposed = true;
         }
