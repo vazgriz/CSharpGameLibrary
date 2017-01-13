@@ -82,8 +82,9 @@ namespace CSGL.Vulkan {
                     var qInfo = new VkDeviceQueueCreateInfo();
                     qInfo.sType = VkStructureType.DeviceQueueCreateInfo;
 
-                    prioritiesMarshalled[i] = new PinnedArray<float>(mi.priorities);
-                    qInfo.pQueuePriorities = prioritiesMarshalled[i].Address;
+                    var priorityMarshalled = new PinnedArray<float>(mi.priorities);
+                    prioritiesMarshalled.Add(priorityMarshalled);
+                    qInfo.pQueuePriorities = priorityMarshalled.Address;
                     qInfo.queueCount = mi.queueCount;
                     qInfo.queueFamilyIndex = mi.queueFamilyIndex;
 
