@@ -65,6 +65,7 @@ namespace CSGL.Vulkan {
             return info;
         }
     }
+
     public class MemoryBarrier {
         public VkAccessFlags srcAccessMask;
         public VkAccessFlags dstAccessMask;
