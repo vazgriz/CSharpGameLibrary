@@ -172,8 +172,15 @@ namespace CSGL.Vulkan {
             }
         }
 
-        public void ClearColorImage(Image image, VkImageLayout imageLayout, ref VkClearColorValue clearColor) {
-            Device.Commands.cmdClearColorImage(commandBuffer, image.Native, imageLayout, ref clearColor, 0, IntPtr.Zero);
+        public void ClearColorImage(Image image, VkImageLayout imageLayout, ref VkClearColorValue clearColor, VkImageSubresourceRange[] ranges) {
+            if (ranges == null) throw new ArgumentNullException(nameof(ranges));
+
+            unsafe
+            {
+                var rangesNative = stackalloc VkImageSubresourceRange[ranges.Length];
+                Interop.Marshal(ranges, rangesNative);
+                Device.Commands.cmdClearColorImage(commandBuffer, image.Native, imageLayout, ref clearColor, (uint)ranges.Length, (IntPtr)rangesNative);
+            }
         }
 
         public void EndRenderPass() {
