@@ -3,8 +3,8 @@ using System.Collections.Generic;
 
 namespace CSGL.Vulkan {
     public class CommandPoolCreateInfo {
-        public VkCommandPoolCreateFlags Flags { get; set; }
-        public uint QueueFamilyIndex { get; set; }
+        public VkCommandPoolCreateFlags flags;
+        public uint queueFamilyIndex;
     }
 
     public class CommandPool : IDisposable, INative<VkCommandPool> {
@@ -31,8 +31,8 @@ namespace CSGL.Vulkan {
         void CreateCommandPool(CommandPoolCreateInfo mInfo) {
             VkCommandPoolCreateInfo info = new VkCommandPoolCreateInfo();
             info.sType = VkStructureType.CommandPoolCreateInfo;
-            info.flags = mInfo.Flags;
-            info.queueFamilyIndex = mInfo.QueueFamilyIndex;
+            info.flags = mInfo.flags;
+            info.queueFamilyIndex = mInfo.queueFamilyIndex;
             
             var result = Device.Commands.createCommandPool(Device.Native, ref info, Device.Instance.AllocationCallbacks, out commandPool);
             if (result != VkResult.Success) throw new CommandPoolException(string.Format("Error creating command pool: {0}", result));
