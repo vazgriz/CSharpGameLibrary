@@ -72,6 +72,7 @@ namespace CSGL.Vulkan {
             public vkCmdCopyBufferDelegate cmdCopyBuffer;
             public vkCmdPipelineBarrierDelegate cmdPipelineBarrier;
             public vkCmdCopyImageDelegate cmdCopyImage;
+            public vkCmdClearColorImageDelegate cmdClearColorImage;
 
             public vkCreateBufferDelegate createBuffer;
             public vkDestroyBufferDelegate destroyBuffer;

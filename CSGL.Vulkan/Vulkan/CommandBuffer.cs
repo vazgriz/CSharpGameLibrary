@@ -172,6 +172,10 @@ namespace CSGL.Vulkan {
             }
         }
 
+        public void ClearColorImage(Image image, VkImageLayout imageLayout, ref VkClearColorValue clearColor) {
+            Device.Commands.cmdClearColorImage(commandBuffer, image.Native, imageLayout, ref clearColor, 0, IntPtr.Zero);
+        }
+
         public void EndRenderPass() {
             Device.Commands.cmdEndRenderPass(commandBuffer);
         }
