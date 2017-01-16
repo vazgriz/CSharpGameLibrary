@@ -56,13 +56,13 @@ namespace CSGL.Vulkan {
             Device.Commands.queueWaitIdle(queue);
         }
 
-        public VkResult Submit(SubmitInfo[] infos, Fence fence = null) {
+        public VkResult Submit(List<SubmitInfo> infos, Fence fence = null) {
             VkFence fenceNative = VkFence.Null;
             if (fence != null) {
                 fenceNative = fence.Native;
             }
 
-            if (infos == null || infos.Length == 0) {
+            if (infos == null || infos.Count == 0) {
                 return Device.Commands.queueSubmit(queue, 0, IntPtr.Zero, fenceNative);
             }
 
@@ -72,7 +72,7 @@ namespace CSGL.Vulkan {
                 int totalCommandBuffers = 0;
                 int totalSignalSemaphores = 0;
 
-                for (int i = 0; i < infos.Length; i++) {    //get the total length needed for each array
+                for (int i = 0; i < infos.Count; i++) {    //get the total length needed for each array
                     var info = infos[i];
                     if (info.waitSemaphores != null) totalWaitSemaphores += info.waitSemaphores.Count;
                     if (info.commandBuffers != null) totalCommandBuffers += info.commandBuffers.Count;
@@ -88,9 +88,9 @@ namespace CSGL.Vulkan {
                 int commandBuffersIndex = 0;
                 int signalSemaphoresIndex = 0;
 
-                var infosNative = stackalloc VkSubmitInfo[infos.Length];
+                var infosNative = stackalloc VkSubmitInfo[infos.Count];
 
-                for (int i = 0; i < infos.Length; i++) {
+                for (int i = 0; i < infos.Count; i++) {
                     var info = new VkSubmitInfo();
                     info.sType = VkStructureType.SubmitInfo;
 
@@ -130,7 +130,7 @@ namespace CSGL.Vulkan {
                     infosNative[i] = info;
                 }
 
-                var result = Device.Commands.queueSubmit(queue, (uint)infos.Length, (IntPtr)infosNative, fenceNative);
+                var result = Device.Commands.queueSubmit(queue, (uint)infos.Count, (IntPtr)infosNative, fenceNative);
 
                 return result;
             }
@@ -144,9 +144,15 @@ namespace CSGL.Vulkan {
 
                 var swapchainsNative = stackalloc VkSwapchainKHR[info.swapchains.Count];
                 Interop.Marshal<VkSwapchainKHR, Swapchain>(info.swapchains, swapchainsNative);
-
-                //info.indices is uint[], so it can be pinned and read directly
-                GCHandle handle = GCHandle.Alloc(info.imageIndices, GCHandleType.Pinned);
+                
+                int indicesCount = 0;
+                if (info.imageIndices != null) {
+                    indicesCount = info.imageIndices.Count;
+                }
+                uint* imageIndices = stackalloc uint[info.imageIndices.Count];
+                for (int i = 0; i < info.imageIndices.Count; i++) {
+                    imageIndices[i] = info.imageIndices[i];
+                }
 
                 int resultsLength = 0;
                 if (info.results != null) {
@@ -160,15 +166,14 @@ namespace CSGL.Vulkan {
                 infoNative.pWaitSemaphores = (IntPtr)waitSemaphoresNative;
                 infoNative.swapchainCount = (uint)info.swapchains.Count;
                 infoNative.pSwapchains = (IntPtr)swapchainsNative;
-                infoNative.pImageIndices = handle.AddrOfPinnedObject();
+                infoNative.pImageIndices = (IntPtr)imageIndices;
 
                 var result = Device.Commands.queuePresent(queue, ref infoNative);
                 
                 for (int i = 0; i < resultsLength; i++) {   //already determined if null
                     info.results[i] = (VkResult)results[i];
                 }
-
-                handle.Free();
+                
 
                 return result;
             }
