@@ -180,16 +180,19 @@ namespace CSGL {
             Unsafe.Write(dest, obj.Native);
         }
 
-        public static unsafe void Marshal<T>(INative<T>[] array, void* dest) where T : struct {
-            if (array == null || array.Length == 0) return;
-
+        public static unsafe void Marshal<T>(INative<T>[] array, void* dest, int count) where T : struct {
             int size = MSizeOf<T>();
             byte* curDest = (byte*)dest;
 
-            for (int i = 0; i < array.Length; i++) {
+            for (int i = 0; i < count; i++) {
                 Unsafe.Write(curDest, array[i].Native);
                 curDest += size;
             }
+        }
+
+        public static unsafe void Marshal<T>(INative<T>[] array, void* dest) where T : struct {
+            if (array == null || array.Length == 0) return;
+            Marshal(array, dest, array.Length);
         }
     }
 }
