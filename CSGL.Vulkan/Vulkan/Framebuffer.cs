@@ -1,9 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace CSGL.Vulkan {
     public class FramebufferCreateInfo {
         public RenderPass renderPass;
-        public ImageView[] attachments;
+        public List<ImageView> attachments;
         public uint width;
         public uint height;
         public uint layers;
@@ -35,8 +36,13 @@ namespace CSGL.Vulkan {
             info.sType = VkStructureType.FramebufferCreateInfo;
             info.renderPass = mInfo.renderPass.Native;
            
-            var attachmentsMarshalled = new NativeArray<VkImageView>(mInfo.attachments);
-            info.attachmentCount = (uint)mInfo.attachments.Length; 
+            var attachmentsMarshalled = new NativeArray<VkImageView>(mInfo.attachments.Count);
+
+            for (int i = 0; i < mInfo.attachments.Count; i++) {
+                attachmentsMarshalled[i] = mInfo.attachments[i].Native;
+            }
+
+            info.attachmentCount = (uint)mInfo.attachments.Count; 
             info.pAttachments = attachmentsMarshalled.Address;
 
             info.width = mInfo.width;

@@ -47,7 +47,7 @@ namespace CSGL.Vulkan {
         public RenderPass renderPass;
         public Framebuffer framebuffer;
         public VkRect2D renderArea;
-        public VkClearValue[] clearValues;
+        public List<VkClearValue> clearValues;
 
         internal VkRenderPassBeginInfo GetNative(DisposableList<IDisposable> marshalled) {
             VkRenderPassBeginInfo info = new VkRenderPassBeginInfo();
@@ -56,8 +56,8 @@ namespace CSGL.Vulkan {
             info.framebuffer = framebuffer.Native;
             info.renderArea = renderArea;
 
-            var clearValuesMarshalled = new PinnedArray<VkClearValue>(clearValues);
-            info.clearValueCount = (uint)clearValues.Length;
+            var clearValuesMarshalled = new NativeArray<VkClearValue>(clearValues);
+            info.clearValueCount = (uint)clearValues.Count;
             info.pClearValues = clearValuesMarshalled.Address;
 
             marshalled.Add(clearValuesMarshalled);

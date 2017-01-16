@@ -24,8 +24,8 @@ namespace CSGL.Vulkan {
     }
 
     public class PipelineVertexInputStateCreateInfo {
-        public VkVertexInputBindingDescription[] vertexBindingDescriptions;
-        public VkVertexInputAttributeDescription[] vertexAttributeDescriptions;
+        public List<VkVertexInputBindingDescription> vertexBindingDescriptions;
+        public List<VkVertexInputAttributeDescription> vertexAttributeDescriptions;
 
         internal VkPipelineVertexInputStateCreateInfo GetNative(DisposableList<IDisposable> marshalled) {
             var result = new VkPipelineVertexInputStateCreateInfo();

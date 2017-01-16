@@ -6,12 +6,12 @@ namespace CSGL {
         T[] array;
         GCHandle handle;
         bool disposed = false;
-        int length;
+        int count;
 
         public PinnedArray(T[] array) {
             this.array = array;
             if (array != null) {
-                length = array.Length;
+                count = array.Length;
             }
             Init();
         }
@@ -19,7 +19,7 @@ namespace CSGL {
         public PinnedArray(int count) {
             if (count < 0) throw new ArgumentOutOfRangeException(nameof(count), "Count must be positive");
             array = new T[count];
-            length = count;
+            this.count = count;
             Init();
         }
 
@@ -33,9 +33,9 @@ namespace CSGL {
             }
         }
 
-        public int Length {
+        public int Count {
             get {
-                return length;
+                return count;
             }
         }
 

@@ -1,10 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace CSGL.Vulkan {
     public class DescriptorPoolCreateInfo {
         public VkDescriptorPoolCreateFlags flags;
         public uint maxSets;
-        public VkDescriptorPoolSize[] poolSizes;
+        public List<VkDescriptorPoolSize> poolSizes;
     }
 
     public class DescriptorBufferInfo {
@@ -58,8 +59,8 @@ namespace CSGL.Vulkan {
             info.flags = mInfo.flags;
             info.maxSets = mInfo.maxSets;
 
-            var poolSizesMarshalled = new PinnedArray<VkDescriptorPoolSize>(mInfo.poolSizes);
-            info.poolSizeCount = (uint)poolSizesMarshalled.Length;
+            var poolSizesMarshalled = new NativeArray<VkDescriptorPoolSize>(mInfo.poolSizes);
+            info.poolSizeCount = (uint)poolSizesMarshalled.Count;
             info.pPoolSizes = poolSizesMarshalled.Address;
 
             using (poolSizesMarshalled) {
@@ -74,7 +75,10 @@ namespace CSGL.Vulkan {
             infoNative.descriptorPool = descriptorPool;
             infoNative.descriptorSetCount = info.descriptorSetCount;
 
-            var layoutsMarshalled = new NativeArray<VkDescriptorSetLayout>(info.setLayouts);
+            var layoutsMarshalled = new NativeArray<VkDescriptorSetLayout>(info.setLayouts.Count);
+            for (int i = 0; i < info.setLayouts.Count; i++) {
+                layoutsMarshalled[i] = info.setLayouts[i].Native;
+            }
             infoNative.pSetLayouts = layoutsMarshalled.Address;
 
             var descriptorSetsMarshalled = new NativeArray<VkDescriptorSet>((int)info.descriptorSetCount);

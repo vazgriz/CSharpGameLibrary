@@ -1,8 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace CSGL.Vulkan {
     public class DescriptorSetLayoutCreateInfo {
-        public VkDescriptorSetLayoutBinding[] bindings;
+        public List<VkDescriptorSetLayoutBinding> bindings;
     }
 
     public class DescriptorSetLayout : IDisposable, INative<VkDescriptorSetLayout> {

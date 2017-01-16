@@ -58,7 +58,7 @@ namespace CSGL.Vulkan {
             using (var offsetsMarshalled = new PinnedArray<uint>(dynamicOffsets)) {
                 Device.Commands.cmdBindDescriptorSets(commandBuffer, pipelineBindPoint, layout.Native,
                     firstSet, (uint)descriptorSets.Length, descriptorSetsMarshalled.Address,
-                    (uint)offsetsMarshalled.Length, offsetsMarshalled.Address);
+                    (uint)offsetsMarshalled.Count, offsetsMarshalled.Address);
             }
         }
 

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 using CSGL;
 
@@ -8,7 +9,7 @@ namespace CSGL.Vulkan {
         public ulong size;
         public VkBufferUsageFlags usage;
         public VkSharingMode sharingMode;
-        public uint[] queueFamilyIndices;
+        public List<uint> queueFamilyIndices;
     }
 
     public class Buffer : IDisposable, INative<VkBuffer> {
@@ -50,8 +51,8 @@ namespace CSGL.Vulkan {
             info.usage = mInfo.usage;
             info.sharingMode = mInfo.sharingMode;
 
-            var indicesMarshalled = new PinnedArray<uint>(mInfo.queueFamilyIndices);
-            info.queueFamilyIndexCount = (uint)indicesMarshalled.Length;
+            var indicesMarshalled = new NativeArray<uint>(mInfo.queueFamilyIndices);
+            info.queueFamilyIndexCount = (uint)indicesMarshalled.Count;
             info.pQueueFamilyIndices = indicesMarshalled.Address;
 
             using (indicesMarshalled) {

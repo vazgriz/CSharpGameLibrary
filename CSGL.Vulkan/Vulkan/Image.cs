@@ -13,7 +13,7 @@ namespace CSGL.Vulkan {
         public VkImageTiling tiling;
         public VkImageUsageFlags usage;
         public VkSharingMode sharingMode;
-        public uint[] queueFamilyIndices;
+        public List<uint> queueFamilyIndices;
         public VkImageLayout initialLayout;
     }
 
@@ -65,8 +65,8 @@ namespace CSGL.Vulkan {
             info.usage = mInfo.usage;
             info.sharingMode = mInfo.sharingMode;
 
-            var indicesMarshalled = new PinnedArray<uint>(mInfo.queueFamilyIndices);
-            info.queueFamilyIndexCount = (uint)indicesMarshalled.Length;
+            var indicesMarshalled = new NativeArray<uint>(mInfo.queueFamilyIndices);
+            info.queueFamilyIndexCount = (uint)indicesMarshalled.Count;
             info.pQueueFamilyIndices = indicesMarshalled.Address;
             info.initialLayout = mInfo.initialLayout;
 

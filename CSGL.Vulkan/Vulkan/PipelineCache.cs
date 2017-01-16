@@ -2,7 +2,7 @@
 
 namespace CSGL.Vulkan {
     public class PipelineCacheCreateInfo {
-        public byte[] InitialData;
+        public byte[] initialData;
     }
 
     public class PipelineCache : INative<VkPipelineCache> {
@@ -22,8 +22,8 @@ namespace CSGL.Vulkan {
 
         void CreateCache(PipelineCacheCreateInfo mInfo) {
             var info = new VkPipelineCacheCreateInfo();
-            info.initialDataSize = (ulong)mInfo.InitialData.LongLength;
-            var initialDataMarshalled = new PinnedArray<byte>(mInfo.InitialData);
+            info.initialDataSize = (ulong)mInfo.initialData.LongLength;
+            var initialDataMarshalled = new PinnedArray<byte>(mInfo.initialData);
             info.pInitialData = initialDataMarshalled.Address;
 
             using (initialDataMarshalled) {
