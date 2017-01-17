@@ -154,9 +154,9 @@ namespace CSGL.GLFW.Unmanaged {
         public static void SetGammaRamp(MonitorPtr monitor, GammaRamp ramp) {
             unsafe
             {
-                fixed (short* r = &ramp.red[0])
-                fixed (short* g = &ramp.green[0])
-                fixed (short* b = &ramp.blue[0]) {
+                fixed (ushort* r = &ramp.red[0])
+                fixed (ushort* g = &ramp.green[0])
+                fixed (ushort* b = &ramp.blue[0]) {
                     NativeGammaRamp ngr = new NativeGammaRamp(r, g, b, ramp.size);
                     NativeGammaRamp* ptr = &ngr;
                     glfwSetGammaRamp(monitor, ptr);

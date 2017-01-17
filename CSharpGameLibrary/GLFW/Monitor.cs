@@ -46,7 +46,6 @@ namespace CSGL.GLFW {
         }
 
         MonitorPtr monitor;
-        IList<VideoMode> videoModes;
         GammaRamp gammaRamp;
 
         public MonitorPtr Native {

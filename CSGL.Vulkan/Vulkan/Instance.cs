@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
-using CSGL.GLFW;
+using CSGL.GLFW.Unmanaged;
 using CSGL.Vulkan.Unmanaged;
 
 namespace CSGL.Vulkan {
