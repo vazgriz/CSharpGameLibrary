@@ -24,10 +24,10 @@ namespace CSGL.Vulkan {
 
     public class InstanceCreateInfo {
         public ApplicationInfo applicationInfo;
-        public string[] extensions;
-        public string[] layers;
+        public List<String> extensions;
+        public List<string> layers;
 
-        public InstanceCreateInfo(ApplicationInfo applicationInfo, string[] extensions, string[] layers) {
+        public InstanceCreateInfo(ApplicationInfo applicationInfo, List<string> extensions, List<string> layers) {
             this.applicationInfo = applicationInfo;
             this.extensions = extensions;
             this.layers = layers;

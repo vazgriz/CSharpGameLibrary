@@ -5,11 +5,11 @@ using CSGL.Vulkan.Unmanaged;
 
 namespace CSGL.Vulkan {
     public class DeviceCreateInfo {
-        public string[] extensions;
-        public DeviceQueueCreateInfo[] queueCreateInfos;
+        public List<string> extensions;
+        public List<DeviceQueueCreateInfo> queueCreateInfos;
         public VkPhysicalDeviceFeatures features;
 
-        public DeviceCreateInfo(string[] extensions, DeviceQueueCreateInfo[] queueCreateInfos, VkPhysicalDeviceFeatures features) {
+        public DeviceCreateInfo(List<String> extensions, List<DeviceQueueCreateInfo> queueCreateInfos, VkPhysicalDeviceFeatures features) {
             this.extensions = extensions;
             this.queueCreateInfos = queueCreateInfos;
             this.features = features;
@@ -62,7 +62,7 @@ namespace CSGL.Vulkan {
         void CreateDevice(DeviceCreateInfo mInfo) {
             var extensionsMarshalled = new NativeStringArray(mInfo.extensions);
             MarshalledArray<VkDeviceQueueCreateInfo> queueInfos = null;
-            DisposableList<PinnedArray<float>> prioritiesMarshalled = null;
+            DisposableList<NativeArray<float>> prioritiesMarshalled = null;
             Marshalled<VkPhysicalDeviceFeatures> features = new Marshalled<VkPhysicalDeviceFeatures>(mInfo.features);
 
             var info = new VkDeviceCreateInfo();
@@ -72,17 +72,17 @@ namespace CSGL.Vulkan {
             info.pEnabledFeatures = features.Address;
 
             if (mInfo.queueCreateInfos != null) {
-                int length = mInfo.queueCreateInfos.Length;
+                int length = mInfo.queueCreateInfos.Count;
                 info.queueCreateInfoCount = (uint)length;
                 queueInfos = new MarshalledArray<VkDeviceQueueCreateInfo>(length);
-                prioritiesMarshalled = new DisposableList<PinnedArray<float>>(length);
+                prioritiesMarshalled = new DisposableList<NativeArray<float>>(length);
 
                 for (int i = 0; i < length; i++) {
                     var mi = mInfo.queueCreateInfos[i];
                     var qInfo = new VkDeviceQueueCreateInfo();
                     qInfo.sType = VkStructureType.DeviceQueueCreateInfo;
 
-                    var priorityMarshalled = new PinnedArray<float>(mi.priorities);
+                    var priorityMarshalled = new NativeArray<float>(mi.priorities);
                     prioritiesMarshalled.Add(priorityMarshalled);
                     qInfo.pQueuePriorities = priorityMarshalled.Address;
                     qInfo.queueCount = mi.queueCount;

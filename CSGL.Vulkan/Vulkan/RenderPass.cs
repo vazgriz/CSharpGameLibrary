@@ -3,17 +3,17 @@ using System.Collections.Generic;
 
 namespace CSGL.Vulkan {
     public class RenderPassCreateInfo {
-        public VkAttachmentDescription[] attachments;
-        public SubpassDescription[] subpasses;
-        public VkSubpassDependency[] dependencies;
+        public List<VkAttachmentDescription> attachments;
+        public List<SubpassDescription> subpasses;
+        public List<VkSubpassDependency> dependencies;
     }
 
     public class SubpassDescription {
         public VkPipelineBindPoint PipelineBindPoint { get; set; }
-        public VkAttachmentReference[] InputAttachments { get; set; }
-        public VkAttachmentReference[] ColorAttachments { get; set; }
-        public VkAttachmentReference[] ResolveAttachments { get; set; }
-        public uint[] PreserveAttachments { get; set; }
+        public List<VkAttachmentReference> InputAttachments { get; set; }
+        public List<VkAttachmentReference> ColorAttachments { get; set; }
+        public List<VkAttachmentReference> ResolveAttachments { get; set; }
+        public List<uint> PreserveAttachments { get; set; }
 
         VkAttachmentReference depthStencilAttachment;
         bool hasDepthStencil = false;
@@ -50,8 +50,8 @@ namespace CSGL.Vulkan {
             }
 
             if (PreserveAttachments != null) {
-                result.preserveAttachmentCount = (uint)PreserveAttachments.Length;
-                var preserveAttachmentsMarshalled = new PinnedArray<uint>(PreserveAttachments);
+                result.preserveAttachmentCount = (uint)PreserveAttachments.Count;
+                var preserveAttachmentsMarshalled = new NativeArray<uint>(PreserveAttachments);
                 result.pPreserveAttachments = preserveAttachmentsMarshalled.Address;
                 marshalled.Add(preserveAttachmentsMarshalled);
             }
@@ -94,7 +94,7 @@ namespace CSGL.Vulkan {
             info.attachmentCount = (uint)attachMarshalled.Count;
             info.pAttachments = attachMarshalled.Address;
 
-            var subpasses = new VkSubpassDescription[mInfo.subpasses.Length];
+            var subpasses = new VkSubpassDescription[mInfo.subpasses.Count];
             for (int i = 0; i < subpasses.Length; i++) {
                 subpasses[i] = mInfo.subpasses[i].GetNative(marshalledArrays);
             }

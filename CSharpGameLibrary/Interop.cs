@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Text;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Runtime.CompilerServices;
 using SMarshal = System.Runtime.InteropServices.Marshal;
@@ -181,6 +182,8 @@ namespace CSGL {
         }
 
         public static unsafe void Marshal<T>(INative<T>[] array, void* dest, int count) where T : struct {
+            if (array == null || array.Length == 0) return;
+
             int size = MSizeOf<T>();
             byte* curDest = (byte*)dest;
 
@@ -193,6 +196,23 @@ namespace CSGL {
         public static unsafe void Marshal<T>(INative<T>[] array, void* dest) where T : struct {
             if (array == null || array.Length == 0) return;
             Marshal(array, dest, array.Length);
+        }
+
+        public static unsafe void Marshal<T, U>(List<U> list, void* dest, int count) where T : struct where U : INative<T> {
+            if (list == null || list.Count == 0) return;
+
+            int size = MSizeOf<T>();
+            byte* curDest = (byte*)dest;
+
+            for (int i = 0; i < count; i++) {
+                Unsafe.Write(curDest, list[i].Native);
+                curDest += size;
+            }
+        }
+
+        public static unsafe void Marshal<T, U>(List<U> list, void* dest) where T : struct where U : INative<T> {
+            if (list == null || list.Count == 0) return;
+            Marshal<T, U>(list, dest, list.Count);
         }
     }
 }

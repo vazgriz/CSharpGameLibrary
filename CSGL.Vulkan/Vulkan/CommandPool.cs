@@ -87,6 +87,9 @@ namespace CSGL.Vulkan {
 
         public void Free(List<CommandBuffer> commandBuffers) {
             using (var commandBuffersMarshalled = new NativeArray<VkCommandBuffer>(commandBuffers.Count)) {
+                for (int i = 0; i < commandBuffers.Count; i++) {
+                    commandBuffersMarshalled[i] = commandBuffers[i].Native;
+                }
                 Device.Commands.freeCommandBuffers(Device.Native, commandPool, (uint)commandBuffers.Count, commandBuffersMarshalled.Address);
             }
         }

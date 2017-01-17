@@ -1,9 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace CSGL.Vulkan {
     public class DescriptorSetAllocateInfo {
         public uint descriptorSetCount;
-        public DescriptorSetLayout[] setLayouts;
+        public List<DescriptorSetLayout> setLayouts;
     }
 
     public class DescriptorSet : INative<VkDescriptorSet> {

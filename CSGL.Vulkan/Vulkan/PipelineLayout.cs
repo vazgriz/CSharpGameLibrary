@@ -1,9 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace CSGL.Vulkan {
     public class PipelineLayoutCreateInfo {
-        public DescriptorSetLayout[] setLayouts;
-        public VkPushConstantRange[] pushConstantRanges;
+        public List<DescriptorSetLayout> setLayouts;
+        public List<VkPushConstantRange> pushConstantRanges;
     }
 
     public class PipelineLayout : IDisposable, INative<VkPipelineLayout> {
@@ -30,9 +31,15 @@ namespace CSGL.Vulkan {
             VkPipelineLayoutCreateInfo info = new VkPipelineLayoutCreateInfo();
             info.sType = VkStructureType.PipelineLayoutCreateInfo;
 
-            var layoutsMarshalled = new NativeArray<VkDescriptorSetLayout>(mInfo.setLayouts);
-            info.setLayoutCount = (uint)layoutsMarshalled.Count;
-            info.pSetLayouts = layoutsMarshalled.Address;
+            NativeArray<VkDescriptorSetLayout> layoutsMarshalled = null;
+            if (mInfo.setLayouts != null) {
+                layoutsMarshalled = new NativeArray<VkDescriptorSetLayout>(mInfo.setLayouts.Count);
+                for (int i = 0; i < mInfo.setLayouts.Count; i++) {
+                    layoutsMarshalled[i] = mInfo.setLayouts[i].Native;
+                }
+                info.setLayoutCount = (uint)layoutsMarshalled.Count;
+                info.pSetLayouts = layoutsMarshalled.Address;
+            }
 
             var pushConstantsMarshalled = new MarshalledArray<VkPushConstantRange>(mInfo.pushConstantRanges);
             info.pushConstantRangeCount = (uint)pushConstantsMarshalled.Count;

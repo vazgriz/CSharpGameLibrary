@@ -6,7 +6,7 @@ using CSGL.Vulkan.Unmanaged;
 namespace CSGL.Vulkan {
     public class GraphicsPipelineCreateInfo {
         public VkPipelineCreateFlags flags;
-        public PipelineShaderStageCreateInfo[] stages;
+        public List<PipelineShaderStageCreateInfo> stages;
         public PipelineVertexInputStateCreateInfo vertexInputState;
         public PipelineInputAssemblyStateCreateInfo inputAssemblyState;
         public PipelineTessellationStateCreateInfo tessellationState;
@@ -89,7 +89,7 @@ namespace CSGL.Vulkan {
                 info.sType = VkStructureType.GraphicsPipelineCreateInfo;
                 info.flags = mInfo.flags;
 
-                int stagesCount = mInfo.stages.Length;
+                int stagesCount = mInfo.stages.Count;
                 var stagesMarshalled = new MarshalledArray<VkPipelineShaderStageCreateInfo>(stagesCount);
                 for (int j = 0; j < stagesCount; j++) {
                     stagesMarshalled[j] = mInfo.stages[j].GetNative(marshalledArrays);

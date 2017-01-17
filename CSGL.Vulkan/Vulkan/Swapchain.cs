@@ -15,7 +15,7 @@ namespace CSGL.Vulkan {
         public uint imageArrayLayers;
         public VkImageUsageFlags imageUsage;
         public VkSharingMode imageSharingMode;
-        public uint[] queueFamilyIndices;
+        public List<uint> queueFamilyIndices;
         public VkSurfaceTransformFlagsKHR preTransform;
         public VkCompositeAlphaFlagsKHR compositeAlpha;
         public VkPresentModeKHR presentMode;
@@ -89,8 +89,8 @@ namespace CSGL.Vulkan {
             info.imageUsage = mInfo.imageUsage;
             info.imageSharingMode = mInfo.imageSharingMode;
 
-            var indicesMarshalled = new PinnedArray<uint>(mInfo.queueFamilyIndices);
-            info.queueFamilyIndexCount = (uint)indicesMarshalled.Length;
+            var indicesMarshalled = new NativeArray<uint>(mInfo.queueFamilyIndices);
+            info.queueFamilyIndexCount = (uint)indicesMarshalled.Count;
             info.pQueueFamilyIndices = indicesMarshalled.Address;
 
             info.preTransform = mInfo.preTransform;
