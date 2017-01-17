@@ -2,6 +2,7 @@
 using System.Runtime.InteropServices;
 
 using CSGL.Input;
+using CSGL.GLFW.Unmanaged;
 
 namespace CSGL.GLFW {
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
@@ -53,7 +54,7 @@ namespace CSGL.GLFW {
     public delegate void FileDropCallback(WindowPtr window, int count, IntPtr stringArray);
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    public delegate void MonitorConnectionCallback(MonitorPtr window, ConnectionStatus status);
+    public delegate void MonitorConnectionCallback(MonitorPtr monitor, ConnectionStatus status);
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate void JoystickConnectionCallback(int joystick, ConnectionStatus status);

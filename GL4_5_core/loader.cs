@@ -11,7 +11,7 @@ namespace CSGL.OpenGL.GL4_5_core {
             Type type = typeof(CSGL.OpenGL.Unmanaged.GL);
             foreach (var name in names) {
                 FieldInfo field = type.GetField(name);
-                IntPtr ptr = GLFW.GLFW.GetProcAddress(name);
+                IntPtr ptr = GLFW.Unmanaged.GLFW.GetProcAddress(name);
 
                 if (ptr == IntPtr.Zero) {
                     Console.WriteLine("Could not load OpenGL function '{0}'", name);

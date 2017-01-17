@@ -4,7 +4,7 @@ using CSGL.GLFW;
 using CSGL.Vulkan;
 using static CSGL.GLFW.Unmanaged.GLFW_vk_native;
 
-namespace CSGL.GLFW {
+namespace CSGL.GLFW.Unmanaged {
     public static class GLFW_VK {
         //this depends on the error handling setup in the main GLFW wrapper
 
