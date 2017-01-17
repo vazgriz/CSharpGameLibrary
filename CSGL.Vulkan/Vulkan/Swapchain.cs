@@ -37,6 +37,12 @@ namespace CSGL.Vulkan {
         public Surface Surface { get; private set; }
         public Device Device { get; private set; }
         public IList<Image> Images { get; private set; }
+        public VkExtent2D Extent { get; private set; }
+        public VkFormat Format { get; private set; }
+        public VkPresentModeKHR PresentMode { get; private set; }
+        public VkColorSpaceKHR ColorSpace { get; private set; }
+        public VkImageUsageFlags Usage { get; private set; }
+        public VkSharingMode SharingMode { get; private set; }
 
         public VkSwapchainKHR Native {
             get {
@@ -106,6 +112,13 @@ namespace CSGL.Vulkan {
                 var result = Device.Commands.createSwapchain(Device.Native, ref info, Device.Instance.AllocationCallbacks, out swapchain);
                 if (result != VkResult.Success) throw new SwapchainException(string.Format("Error creating swapchain: {0}", result));
             }
+
+            Format = info.imageFormat;
+            Extent = info.imageExtent;
+            PresentMode = info.presentMode;
+            ColorSpace = info.imageColorSpace;
+            Usage = info.imageUsage;
+            SharingMode = info.imageSharingMode;
         }
 
         public VkResult AcquireNextImage(ulong timeout, Semaphore semaphore, Fence fence, out uint index) {
