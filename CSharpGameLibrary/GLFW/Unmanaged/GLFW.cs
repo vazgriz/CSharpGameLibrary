@@ -227,9 +227,14 @@ namespace CSGL.GLFW.Unmanaged {
         }
 
         public static void SetWindowIcon(WindowPtr window, Image[] images) {
-            NativeImage[] nimgs = new NativeImage[images.Length];
             unsafe
             {
+                if (images == null || images.Length == 0) {
+                    glfwSetWindowIcon(window, 0, null);
+                    return;
+                }
+
+                NativeImage[] nimgs = new NativeImage[images.Length];
                 fixed (NativeImage* ptr = &nimgs[0]) {
                     for (int i = 0; i < images.Length; i++) {
                         fixed (byte* data = &images[i].data[0]) {
