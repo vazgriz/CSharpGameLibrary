@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 
 using CSGL.GLFW;
+using CSGL.GLFW.Unmanaged;
 using CSGL.Vulkan.Unmanaged;
 
 namespace CSGL.Vulkan {
@@ -31,6 +32,17 @@ namespace CSGL.Vulkan {
             if (device == null) throw new ArgumentNullException(nameof(device));
             if (window == null) throw new ArgumentNullException(nameof(window));
 
+            Init(device, window.Native);
+        }
+
+        public Surface(PhysicalDevice device, WindowPtr window) {
+            if (device == null) throw new ArgumentNullException(nameof(device));
+            if (window == WindowPtr.Null) throw new ArgumentNullException(nameof(window));
+
+            Init(device, window);
+        }
+
+        void Init(PhysicalDevice device, WindowPtr window) {
             physicalDevice = device;
             Instance = device.Instance;
             
@@ -49,8 +61,8 @@ namespace CSGL.Vulkan {
             GetModes();
         }
 
-        void CreateSurface(Window window) {
-            var result = (VkResult)GLFW.GLFW.CreateWindowSurface(Instance.Native.native, window.Native, Instance.AllocationCallbacks, out surface.native);
+        void CreateSurface(WindowPtr window) {
+            var result = (VkResult)GLFW.GLFW.CreateWindowSurface(Instance.Native.native, window, Instance.AllocationCallbacks, out surface.native);
             if (result != VkResult.Success) throw new SurfaceException(string.Format("Error creating surface: {0}", result));
         }
 
