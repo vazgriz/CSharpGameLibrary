@@ -23,7 +23,6 @@ namespace CSGL.GLFW {
         bool resizeable;
         bool decorated;
         bool floating;
-        ClientAPI clientAPI;
 
         bool shouldClose;
 
@@ -82,12 +81,6 @@ namespace CSGL.GLFW {
         public bool Floating {
             get {
                 return floating;
-            }
-        }
-
-        public ClientAPI ClientAPI {
-            get {
-                return clientAPI;
             }
         }
 
@@ -184,7 +177,6 @@ namespace CSGL.GLFW {
             resizeable = UGLFW.GetWindowAttribute(window, WindowAttribute.Resizable) != 0;
             decorated = UGLFW.GetWindowAttribute(window, WindowAttribute.Decorated) != 0;
             floating = UGLFW.GetWindowAttribute(window, WindowAttribute.Floating) != 0;
-            clientAPI = (ClientAPI)UGLFW.GetWindowAttribute(window, (WindowAttribute)WindowHint.ClientAPI);
         }
 
         public void Focus() {
