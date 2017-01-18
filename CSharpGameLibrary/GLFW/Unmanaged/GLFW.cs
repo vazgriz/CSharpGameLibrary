@@ -6,6 +6,9 @@ using static CSGL.GLFW.Unmanaged.GLFW_native;
 
 namespace CSGL.GLFW.Unmanaged {
     public static class GLFW {
+        [ThreadStatic]
+        static Exception exception;
+        
         static ErrorCallback errorCallback;
         static MonitorConnectionCallback monitorConnection;
         static JoystickConnectionCallback joystickConnection;
