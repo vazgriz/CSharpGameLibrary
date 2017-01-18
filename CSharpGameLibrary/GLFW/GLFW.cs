@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 
 using CSGL.Input;
-using glfw = CSGL.GLFW.Unmanaged.GLFW;
+using UGLFW = CSGL.GLFW.Unmanaged.GLFW;
 
 namespace CSGL.GLFW {
     public static class GLFW {
@@ -18,12 +18,12 @@ namespace CSGL.GLFW {
         }
 
         public static bool Init() {
-            bool result = glfw.Init();
+            bool result = UGLFW.Init();
 
-            Version = glfw.GetVersion();
+            Version = UGLFW.GetVersion();
 
             int major, minor, revision;
-            glfw.GetVersion(out major, out minor, out revision);
+            UGLFW.GetVersion(out major, out minor, out revision);
             VersionMajor = major;
             VersionMinor = minor;
             VersionPatch = revision;
@@ -34,7 +34,23 @@ namespace CSGL.GLFW {
         }
 
         public static void Terminate() {
-            glfw.Terminate();
+            UGLFW.Terminate();
+        }
+
+        public static void SwapInterval(int interval) {
+            UGLFW.SwapInterval(interval);
+        }
+
+        public static void WindowHint(WindowHint hint, int value) {
+            UGLFW.WindowHint(hint, value);
+        }
+
+        public static void DefaultWindowHints() {
+            UGLFW.DefaultWindowHints();
+        }
+
+        public static void PollEvents() {
+            UGLFW.PollEvents();
         }
     }
 }
