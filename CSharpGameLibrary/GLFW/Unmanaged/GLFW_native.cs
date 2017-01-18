@@ -306,6 +306,6 @@ namespace CSGL.GLFW.Unmanaged {
         public static extern bool glfwGetPhysicalDevicePresentationSupport(IntPtr instance, IntPtr device, uint queuefamily);
 
         [DllImport(lib)]
-        public static extern int glfwCreateWindowSurface(IntPtr instance, WindowPtr window, IntPtr allocator, out IntPtr surface);
+        public static extern int glfwCreateWindowSurface(IntPtr instance, WindowPtr window, IntPtr allocator, out ulong surface);
     }
 }

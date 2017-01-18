@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 
 using CSGL.GLFW;
-using CSGL.GLFW.Unmanaged;
 using CSGL.Vulkan.Unmanaged;
 
 namespace CSGL.Vulkan {
@@ -51,7 +50,7 @@ namespace CSGL.Vulkan {
         }
 
         void CreateSurface(Window window) {
-            var result = GLFW_VK.CreateWindowSurface(Instance.Native, window.Native, Instance.AllocationCallbacks, out surface);
+            var result = (VkResult)GLFW.GLFW.CreateWindowSurface(Instance.Native.native, window.Native, Instance.AllocationCallbacks, out surface.native);
             if (result != VkResult.Success) throw new SurfaceException(string.Format("Error creating surface: {0}", result));
         }
 

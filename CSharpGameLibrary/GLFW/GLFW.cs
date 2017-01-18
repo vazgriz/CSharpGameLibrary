@@ -708,7 +708,7 @@ namespace CSGL.GLFW {
             return result;
         }
 
-        public static int CreateWindowSurface(IntPtr instance, WindowPtr ptr, IntPtr alloc, out IntPtr surface) {
+        public static int CreateWindowSurface(IntPtr instance, WindowPtr ptr, IntPtr alloc, out ulong surface) {
             var result = glfwCreateWindowSurface(instance, ptr, alloc, out surface);
             CheckError();
             return result;
