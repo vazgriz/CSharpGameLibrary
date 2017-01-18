@@ -194,6 +194,7 @@ namespace CSGL.GLFW {
         }
 
         void Close(WindowPtr window) {
+            shouldClose = true;
             OnClose();
         }
 
