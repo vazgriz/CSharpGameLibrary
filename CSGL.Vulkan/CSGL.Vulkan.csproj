@@ -42,7 +42,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="GLFW_VK\GLFW.cs" />
+    <Compile Include="GLFW_VK\GLFW_VK.cs" />
     <Compile Include="GLFW_VK\Unmanaged\GLFW_vk_native.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Vulkan\Buffer.cs" />
