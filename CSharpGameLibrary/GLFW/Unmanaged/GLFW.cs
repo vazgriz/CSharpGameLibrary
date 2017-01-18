@@ -67,6 +67,13 @@ namespace CSGL.GLFW.Unmanaged {
             glfwTerminate();
         }
 
+        public static ErrorCallback SetErrorCallback(ErrorCallback callback) {
+            var old = errorCallback;
+            errorCallback = callback;
+            glfwSetErrorCallback(callback);
+            return old;
+        }
+
         public static void GetVersion(out int major, out int minor, out int revision) {
             glfwGetVersion(out major, out minor, out revision);
         }
