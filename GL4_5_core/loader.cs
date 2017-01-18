@@ -3,15 +3,13 @@ using System;
 using System.Reflection;
 using System.Runtime.InteropServices;
 
-using CSGL.GLFW.Unmanaged;
-
 namespace CSGL.OpenGL.GL4_5_core {
     public static partial class GL {
         public static void Load() {
             Type type = typeof(CSGL.OpenGL.Unmanaged.GL);
             foreach (var name in names) {
                 FieldInfo field = type.GetField(name);
-                IntPtr ptr = GLFW.Unmanaged.GLFW.GetProcAddress(name);
+                IntPtr ptr = GLFW.GLFW.GetProcAddress(name);
 
                 if (ptr == IntPtr.Zero) {
                     Console.WriteLine("Could not load OpenGL function '{0}'", name);

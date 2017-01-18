@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 
 using CSGL.GLFW.Unmanaged;
-using UGLFW = CSGL.GLFW.Unmanaged.GLFW;
 
 namespace CSGL.GLFW {
     public class Monitor : INative<MonitorPtr> {
@@ -13,7 +12,7 @@ namespace CSGL.GLFW {
         public static Monitor Primary { get; private set; }
 
         internal static void Init() {
-            UGLFW.SetMonitorCallback(MonitorConnection);
+            GLFW.SetMonitorCallback(MonitorConnection);
             monitors = new List<Monitor>();
             monitorMap = new Dictionary<MonitorPtr, Monitor>();
             Monitors = monitors.AsReadOnly();
@@ -21,7 +20,7 @@ namespace CSGL.GLFW {
         
         static void GetMonitors() {
             monitors.Clear();
-            var monitorsNative = UGLFW.GetMonitors();
+            var monitorsNative = GLFW.GetMonitors();
 
             foreach (var n in monitorsNative) {
                 if (monitorMap.ContainsKey(n)) {
@@ -67,7 +66,7 @@ namespace CSGL.GLFW {
                 return gammaRamp;
             }
             set {
-                UGLFW.SetGammaRamp(monitor, value);
+                GLFW.SetGammaRamp(monitor, value);
                 gammaRamp = value;
             }
         }
@@ -75,25 +74,25 @@ namespace CSGL.GLFW {
         Monitor(MonitorPtr monitor) {
             this.monitor = monitor;
 
-            Name = UGLFW.GetMonitorName(monitor);
+            Name = GLFW.GetMonitorName(monitor);
 
-            VideoModes = new List<VideoMode>(UGLFW.GetVideoModes(monitor)).AsReadOnly();
+            VideoModes = new List<VideoMode>(GLFW.GetVideoModes(monitor)).AsReadOnly();
 
             int x, y, w, h;
-            UGLFW.GetMonitorPhysicalSize(monitor, out w, out h);
-            UGLFW.GetMonitorPos(monitor, out x, out y);
+            GLFW.GetMonitorPhysicalSize(monitor, out w, out h);
+            GLFW.GetMonitorPos(monitor, out x, out y);
 
             Width = w;
             Height = h;
             PositionX = x;
             PositionY = y;
 
-            gammaRamp = UGLFW.GetGammaRamp(monitor);
+            gammaRamp = GLFW.GetGammaRamp(monitor);
         }
 
         public void SetGamma(float gamma) {
-            UGLFW.SetGamma(monitor, gamma);
-            gammaRamp = UGLFW.GetGammaRamp(monitor);
+            GLFW.SetGamma(monitor, gamma);
+            gammaRamp = GLFW.GetGammaRamp(monitor);
         }
     }
 }

@@ -51,10 +51,9 @@
     <Compile Include="DisposableList.cs" />
     <Compile Include="GLFW\Cursor.cs" />
     <Compile Include="GLFW\enums.cs" />
-    <Compile Include="GLFW\GLFW.cs" />
     <Compile Include="GLFW\GLFWException.cs" />
     <Compile Include="GLFW\Monitor.cs" />
-    <Compile Include="GLFW\Unmanaged\GLFW.cs" />
+    <Compile Include="GLFW\GLFW.cs" />
     <Compile Include="GLFW\Unmanaged\MonitorPtr.cs" />
     <Compile Include="GLFW\Unmanaged\WindowPtr.cs" />
     <Compile Include="GLFW\structs.cs" />

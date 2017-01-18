@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 
 using CSGL.GLFW.Unmanaged;
-using UGLFW = CSGL.GLFW.Unmanaged.GLFW;
 
 namespace CSGL.GLFW {
     public class Window : IDisposable, INative<WindowPtr> {
@@ -44,9 +43,9 @@ namespace CSGL.GLFW {
             }
             set {
                 if (value) {
-                    UGLFW.IconifyWindow(window);
+                    GLFW.IconifyWindow(window);
                 } else {
-                    if (iconified) UGLFW.RestoreWindow(window);
+                    if (iconified) GLFW.RestoreWindow(window);
                 }
                 iconified = value;
             }
@@ -58,9 +57,9 @@ namespace CSGL.GLFW {
             }
             set {
                 if (value) {
-                    UGLFW.MaximizeWindow(window);
+                    GLFW.MaximizeWindow(window);
                 } else {
-                    if (maximized) UGLFW.RestoreWindow(window);
+                    if (maximized) GLFW.RestoreWindow(window);
                 }
                 maximized = value;
             }
@@ -89,7 +88,7 @@ namespace CSGL.GLFW {
                 return shouldClose;
             }
             set {
-                UGLFW.SetWindowShouldClose(window, value);
+                GLFW.SetWindowShouldClose(window, value);
                 shouldClose = value;
             }
         }
@@ -99,7 +98,7 @@ namespace CSGL.GLFW {
                 return title;
             }
             set {
-                UGLFW.SetWindowTitle(window, value);
+                GLFW.SetWindowTitle(window, value);
             }
         }
 
@@ -154,32 +153,32 @@ namespace CSGL.GLFW {
             var windowNative = WindowPtr.Null;
             if (share != null) windowNative = share.Native;
 
-            window = UGLFW.CreateWindow(width, height, title, monitorNative, windowNative);
+            window = GLFW.CreateWindow(width, height, title, monitorNative, windowNative);
 
             this.title = title;
 
-            UGLFW.GetWindowPos(window, out x, out y);
-            UGLFW.GetWindowSize(window, out width, out height);
-            UGLFW.GetFramebufferSize(window, out framebufferWidth, out framebufferHeight);
+            GLFW.GetWindowPos(window, out x, out y);
+            GLFW.GetWindowSize(window, out width, out height);
+            GLFW.GetFramebufferSize(window, out framebufferWidth, out framebufferHeight);
 
-            UGLFW.SetWindowPosCallback(window, Pos);
-            UGLFW.SetWindowSizeCallback(window, Size);
-            UGLFW.SetWindowCloseCallback(window, Close);
-            UGLFW.SetWindowRefreshCallback(window, Refresh);
-            UGLFW.SetWindowFocusCallback(window, Focus);
-            UGLFW.SetWindowIconifyCallback(window, Iconify);
-            UGLFW.SetFramebufferSizeCallback(window, Framebuffer);
+            GLFW.SetWindowPosCallback(window, Pos);
+            GLFW.SetWindowSizeCallback(window, Size);
+            GLFW.SetWindowCloseCallback(window, Close);
+            GLFW.SetWindowRefreshCallback(window, Refresh);
+            GLFW.SetWindowFocusCallback(window, Focus);
+            GLFW.SetWindowIconifyCallback(window, Iconify);
+            GLFW.SetFramebufferSizeCallback(window, Framebuffer);
 
-            focused = UGLFW.GetWindowAttribute(window, WindowAttribute.Focused) != 0;
-            iconified = UGLFW.GetWindowAttribute(window, WindowAttribute.Iconified) != 0;
-            maximized = UGLFW.GetWindowAttribute(window, WindowAttribute.Maximized) != 0;
-            resizeable = UGLFW.GetWindowAttribute(window, WindowAttribute.Resizable) != 0;
-            decorated = UGLFW.GetWindowAttribute(window, WindowAttribute.Decorated) != 0;
-            floating = UGLFW.GetWindowAttribute(window, WindowAttribute.Floating) != 0;
+            focused = GLFW.GetWindowAttribute(window, WindowAttribute.Focused) != 0;
+            iconified = GLFW.GetWindowAttribute(window, WindowAttribute.Iconified) != 0;
+            maximized = GLFW.GetWindowAttribute(window, WindowAttribute.Maximized) != 0;
+            resizeable = GLFW.GetWindowAttribute(window, WindowAttribute.Resizable) != 0;
+            decorated = GLFW.GetWindowAttribute(window, WindowAttribute.Decorated) != 0;
+            floating = GLFW.GetWindowAttribute(window, WindowAttribute.Floating) != 0;
         }
 
         public void Focus() {
-            UGLFW.FocusWindow(window);
+            GLFW.FocusWindow(window);
         }
 
         void Pos(WindowPtr window, int x, int y) {
@@ -226,7 +225,7 @@ namespace CSGL.GLFW {
         protected virtual void Dispose(bool disposing) {
             if (disposed) return;
 
-            UGLFW.DestroyWindow(window);
+            GLFW.DestroyWindow(window);
 
             disposed = true;
         }

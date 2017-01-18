@@ -292,5 +292,20 @@ namespace CSGL.GLFW.Unmanaged {
 
         [DllImport(lib)]
         public static extern IntPtr glfwGetProcAddress(string procName);
+
+        [DllImport(lib)]
+        public static extern bool glfwVulkanSupported();
+
+        [DllImport(lib)]
+        public static extern byte** glfwGetRequiredInstanceExtensions(out uint count);
+
+        [DllImport(lib)]
+        public static extern IntPtr glfwGetInstanceProcAddress(IntPtr instance, string procName);
+
+        [DllImport(lib)]
+        public static extern bool glfwGetPhysicalDevicePresentationSupport(IntPtr instance, IntPtr device, uint queuefamily);
+
+        [DllImport(lib)]
+        public static extern int glfwCreateWindowSurface(IntPtr instance, WindowPtr window, IntPtr allocator, out IntPtr surface);
     }
 }
