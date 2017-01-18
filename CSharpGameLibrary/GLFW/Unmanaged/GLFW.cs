@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 using CSGL.Input;
 using static CSGL.GLFW.Unmanaged.GLFW_native;
@@ -8,26 +9,40 @@ namespace CSGL.GLFW.Unmanaged {
         [ThreadStatic]
         static Exception exception;
         
-        static WindowPositionCallback windowPosition;   //need to store these delegates
-        static WindowSizeCallback windowSize;           //otherwise the garbage collector will clean them up while the unmanaged code holds a pointer to them
-        static WindowCloseCallback windowClose;
-        static WindowRefreshCallback windowRefresh;
-        static WindowFocusCallback windowFocus;
-        static WindowIconifyCallback windowIconify;
-        static FramebufferSizeCallback framebufferSize;
-        static MouseButtonCallback mouseButton;
-        static CursorPosCallback cursorPos;
-        static CursorEnterCallback cursorEnter;
-        static ScrollCallback scroll;
-        static KeyCallback key;
-        static CharCallback _char;
-        static CharModsCallback charMods;
-        static FileDropCallback fileDrop;
+        static ErrorCallback errorCallback;
         static MonitorConnectionCallback monitorConnection;
         static JoystickConnectionCallback joystickConnection;
 
+        class WindowCallbacks {
+            public WindowPositionCallback windowPosition;   //need to store these delegates
+            public WindowSizeCallback windowSize;           //otherwise the garbage collector will clean them up while the unmanaged code holds a pointer to them
+            public WindowCloseCallback windowClose;
+            public WindowRefreshCallback windowRefresh;
+            public WindowFocusCallback windowFocus;
+            public WindowIconifyCallback windowIconify;
+            public FramebufferSizeCallback framebufferSize;
+            public MouseButtonCallback mouseButton;
+            public CursorPosCallback cursorPos;
+            public CursorEnterCallback cursorEnter;
+            public ScrollCallback scroll;
+            public KeyCallback key;
+            public CharCallback _char;
+            public CharModsCallback charMods;
+            public FileDropCallback fileDrop;
+        }
+
+        static Dictionary<WindowPtr, WindowCallbacks> callbackMap;
+
         static GLFW() {
             glfwSetErrorCallback(InternalError);    //has to be set here, so that errors made before glfwInit() are caught
+            callbackMap = new Dictionary<WindowPtr, WindowCallbacks>();
+        }
+
+        static WindowCallbacks GetCallbacks(WindowPtr window) {
+            if (!callbackMap.ContainsKey(window)) {
+                callbackMap.Add(window, new WindowCallbacks());
+            }
+            return callbackMap[window];
         }
         
         public static void CheckError() {      //only way to convert GLFW error to managed exception
@@ -178,11 +193,14 @@ namespace CSGL.GLFW.Unmanaged {
         public static WindowPtr CreateWindow(int width, int height, string title, MonitorPtr monitor, WindowPtr share) {
             var result = glfwCreateWindow(width, height, title, monitor, share);
             CheckError();
+
+            GetCallbacks(result);
             return result;
         }
 
         public static void DestroyWindow(WindowPtr window) {
             glfwDestroyWindow(window);
+            callbackMap.Remove(window);
         }
 
         public static bool WindowShouldClose(WindowPtr window) {
@@ -311,56 +329,63 @@ namespace CSGL.GLFW.Unmanaged {
         }
 
         public static WindowPositionCallback SetWindowPosCallback(WindowPtr window, WindowPositionCallback callback) {
-            var old = windowPosition;
-            windowPosition = callback;
+            var callbacks = GetCallbacks(window);
+            var old = callbacks.windowPosition;
+            callbacks.windowPosition = callback;
             glfwSetWindowPosCallback(window, callback);
             CheckError();
             return old;
         }
 
         public static WindowSizeCallback SetWindowSizeCallback(WindowPtr window, WindowSizeCallback callback) {
-            var old = windowSize;
-            windowSize = callback;
+            var callbacks = GetCallbacks(window);
+            var old = callbacks.windowSize;
+            callbacks.windowSize = callback;
             glfwSetWindowSizeCallback(window, callback);
             CheckError();
             return old;
         }
 
         public static WindowCloseCallback SetWindowCloseCallback(WindowPtr window, WindowCloseCallback callback) {
-            var old = windowClose;
-            windowClose = callback;
+            var callbacks = GetCallbacks(window);
+            var old = callbacks.windowClose;
+            callbacks.windowClose = callback;
             glfwSetWindowCloseCallback(window, callback);
             CheckError();
             return old;
         }
 
         public static WindowRefreshCallback SetWindowRefreshCallback(WindowPtr window, WindowRefreshCallback callback) {
-            var old = windowRefresh;
-            windowRefresh = callback;
+            var callbacks = GetCallbacks(window);
+            var old = callbacks.windowRefresh;
+            callbacks.windowRefresh = callback;
             glfwSetWindowRefreshCallback(window, callback);
             CheckError();
             return old;
         }
 
         public static WindowFocusCallback SetWindowFocusCallback(WindowPtr window, WindowFocusCallback callback) {
-            var old = windowFocus;
-            windowFocus = callback;
+            var callbacks = GetCallbacks(window);
+            var old = callbacks.windowFocus;
+            callbacks.windowFocus = callback;
             glfwSetWindowFocusCallback(window, callback);
             CheckError();
             return old;
         }
 
         public static WindowIconifyCallback SetWindowIconifyCallback(WindowPtr window, WindowIconifyCallback callback) {
-            var old = windowIconify;
-            windowIconify = callback;
+            var callbacks = GetCallbacks(window);
+            var old = callbacks.windowIconify;
+            callbacks.windowIconify = callback;
             glfwSetWindowIconifyCallback(window, callback);
             CheckError();
             return old;
         }
 
         public static FramebufferSizeCallback SetFramebufferSizeCallback(WindowPtr window, FramebufferSizeCallback callback) {
-            var old = framebufferSize;
-            framebufferSize = callback;
+            var callbacks = GetCallbacks(window);
+            var old = callbacks.framebufferSize;
+            callbacks.framebufferSize = callback;
             glfwSetFramebufferSizeCallback(window, callback);
             CheckError();
             return old;
@@ -444,64 +469,72 @@ namespace CSGL.GLFW.Unmanaged {
         }
 
         public static KeyCallback SetKeyCallback(WindowPtr window, KeyCallback callback) {
-            var old = key;
-            key = callback;
+            var callbacks = GetCallbacks(window);
+            var old = callbacks.key;
+            callbacks.key = callback;
             glfwSetKeyCallback(window, callback);
             CheckError();
             return old;
         }
 
         public static CharCallback SetCharCallback(WindowPtr window, CharCallback callback) {
-            var old = _char;
-            _char = callback;
+            var callbacks = GetCallbacks(window);
+            var old = callbacks._char;
+            callbacks._char = callback;
             glfwSetCharCallback(window, callback);
             CheckError();
             return old;
         }
 
         public static CharModsCallback SetCharModsCallback(WindowPtr window, CharModsCallback callback) {
-            var old = charMods;
-            charMods = callback;
+            var callbacks = GetCallbacks(window);
+            var old = callbacks.charMods;
+            callbacks.charMods = callback;
             glfwSetCharModsCallback(window, callback);
             CheckError();
             return old;
         }
 
         public static MouseButtonCallback SetMouseButtonCallback(WindowPtr window, MouseButtonCallback callback) {
-            var old = mouseButton;
-            mouseButton = callback;
+            var callbacks = GetCallbacks(window);
+            var old = callbacks.mouseButton;
+            callbacks.mouseButton = callback;
             glfwSetMouseButtonCallback(window, callback);
             CheckError();
             return old;
         }
 
         public static CursorPosCallback SetCursorPosCallback(WindowPtr window, CursorPosCallback callback) {
-            var old = cursorPos;
-            cursorPos = callback;
+            var callbacks = GetCallbacks(window);
+            var old = callbacks.cursorPos;
+            callbacks.cursorPos = callback;
             glfwSetCursorPosCallback(window, callback);
             CheckError();
             return old;
         }
 
         public static CursorEnterCallback SetCursorEnterCallback(WindowPtr window, CursorEnterCallback callback) {
-            var old = cursorEnter;
-            cursorEnter = callback;
+            var callbacks = GetCallbacks(window);
+            var old = callbacks.cursorEnter;
+            callbacks.cursorEnter = callback;
             glfwSetCursorEnterCallback(window, callback);
             CheckError();
             return old;
         }
 
         public static ScrollCallback SetScrollCallback(WindowPtr window, ScrollCallback callback) {
-            var old = scroll;
-            scroll = callback;
+            var callbacks = GetCallbacks(window);
+            var old = callbacks.scroll;
+            callbacks.scroll = callback;
             glfwSetScrollCallback(window, callback);
             CheckError();
             return old;
         }
 
         public static FileDropCallback SetDropCallback(WindowPtr window, FileDropCallback callback) {
-            var old = fileDrop;
-            fileDrop = callback;
+            var callbacks = GetCallbacks(window);
+            var old = callbacks.fileDrop;
+            callbacks.fileDrop = callback;
             glfwSetDropCallback(window, callback);
             CheckError();
             return old;
