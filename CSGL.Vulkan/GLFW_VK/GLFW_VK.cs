@@ -6,11 +6,8 @@ using static CSGL.GLFW.Unmanaged.GLFW_vk_native;
 
 namespace CSGL.GLFW.Unmanaged {
     public static class GLFW_VK {
-        //this depends on the error handling setup in the main GLFW wrapper
-
         public static bool VulkanSupported() {
             var result = glfwVulkanSupported();
-            GLFW.CheckError();
             return result;
         }
 
@@ -30,26 +27,20 @@ namespace CSGL.GLFW.Unmanaged {
                     }
                 }
             }
-            GLFW.CheckError();
+
             return result;
         }
 
         public static IntPtr GetInstanceProcAddress(VkInstance instance, string proc) {
-            var result = glfwGetInstanceProcAddress(instance, proc);
-            GLFW.CheckError();
-            return result;
+            return glfwGetInstanceProcAddress(instance, proc);
         }
 
         public static bool GetPhysicalDevicePresentationSupport(VkInstance instance, VkPhysicalDevice device, uint queueFamily) {
-            var result = glfwGetPhysicalDevicePresentationSupport(instance, device, queueFamily);
-            GLFW.CheckError();
-            return result;
+            return glfwGetPhysicalDevicePresentationSupport(instance, device, queueFamily);
         }
 
         public static VkResult CreateWindowSurface(VkInstance instance, WindowPtr ptr, IntPtr alloc, out VkSurfaceKHR surface) {
-            var result = glfwCreateWindowSurface(instance, ptr, alloc, out surface);
-            GLFW.CheckError();
-            return result;
+            return glfwCreateWindowSurface(instance, ptr, alloc, out surface);
         }
     }
 }
