@@ -7,21 +7,35 @@ using UGLFW = CSGL.GLFW.Unmanaged.GLFW;
 namespace CSGL.GLFW {
     public class Monitor : INative<MonitorPtr> {
         static List<Monitor> monitors;
+        static IList<Monitor> monitorsReadOnly;
+        static Monitor primary;
         static Dictionary<MonitorPtr, Monitor> monitorMap;
 
-        public static IList<Monitor> Monitors { get; private set; }
-        public static Monitor Primary { get; private set; }
+        public static IList<Monitor> Monitors {
+            get {
+                if (monitorsReadOnly == null) GetMonitors();
+                return monitorsReadOnly;
+            }
+        }
+        public static Monitor Primary {
+            get {
+                if (primary == null) GetMonitors();
+                return primary;
+            }
+        }
 
         internal static void Init() {
             UGLFW.SetMonitorCallback(MonitorConnection);
             monitors = new List<Monitor>();
             monitorMap = new Dictionary<MonitorPtr, Monitor>();
-            Monitors = monitors.AsReadOnly();
+            monitorsReadOnly = monitors.AsReadOnly();
+            GetMonitors();
         }
         
         static void GetMonitors() {
-            monitors.Clear();
             var monitorsNative = UGLFW.GetMonitors();
+            GLFW.CheckError();
+            monitors.Clear();
 
             foreach (var n in monitorsNative) {
                 if (monitorMap.ContainsKey(n)) {
@@ -33,7 +47,7 @@ namespace CSGL.GLFW {
                 }
             }
 
-            Primary = Monitors[0];
+            primary = Monitors[0];
         }
 
         static void MonitorConnection(MonitorPtr monitor, ConnectionStatus status) {

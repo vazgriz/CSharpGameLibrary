@@ -162,6 +162,7 @@ namespace CSGL.GLFW {
             if (share != null) windowNative = share.Native;
 
             window = UGLFW.CreateWindow(width, height, title, monitorNative, windowNative);
+            GLFW.CheckError();
 
             this.title = title;
 
