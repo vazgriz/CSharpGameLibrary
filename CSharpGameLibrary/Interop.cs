@@ -14,6 +14,7 @@ namespace CSGL {
         }
 
         public static unsafe string GetString(byte* ptr) {
+            if (ptr == null) return null;
             int length = 0;
             while (ptr[length] != 0) {
                 length++;
