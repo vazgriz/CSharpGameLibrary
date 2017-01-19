@@ -261,7 +261,7 @@ namespace CSGL.Input {
         _ButtonLast   = Button8,
     }
 
-    public enum CursorState {
+    public enum CursorMode {
         Normal = 0x00034001,
         Hidden = 0x00034002,
         Disabled = 0x00034003
