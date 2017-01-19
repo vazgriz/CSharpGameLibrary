@@ -411,13 +411,13 @@ namespace CSGL.GLFW {
             CheckError();
         }
 
-        public static int GetInputMode(WindowPtr window, int mode) {
+        public static int GetInputMode(WindowPtr window, InputMode mode) {
             var result = glfwGetInputMode(window, mode);
             CheckError();
             return result;
         }
 
-        public static void SetInputMode(WindowPtr window, int mode, int value) {
+        public static void SetInputMode(WindowPtr window, InputMode mode, int value) {
             glfwSetInputMode(window, mode, value);
             CheckError();
         }

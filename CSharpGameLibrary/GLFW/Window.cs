@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
+using CSGL.Input;
 using CSGL.GLFW.Unmanaged;
 
 namespace CSGL.GLFW {
@@ -24,6 +25,9 @@ namespace CSGL.GLFW {
         bool floating;
 
         bool shouldClose;
+
+        bool stickyKeys;
+        CursorMode cursorMode;
 
         public WindowPtr Native {
             get {
@@ -138,6 +142,26 @@ namespace CSGL.GLFW {
             }
         }
 
+        public bool StickyKeys {
+            get {
+                return stickyKeys;
+            }
+            set {
+                stickyKeys = value;
+                GLFW.SetInputMode(window, InputMode.StickyKeys, stickyKeys ? 1 : 0);
+            }
+        }
+
+        public CursorMode CursorMode {
+            get {
+                return cursorMode;
+            }
+            set {
+                cursorMode = value;
+                GLFW.SetInputMode(window, InputMode.Cursor, (int)value);
+            }
+        }
+
         public event Action<int, int> OnPositionChanged = delegate { };
         public event Action<int, int> OnSizeChanged = delegate { };
         public event Action OnClose = delegate { };
@@ -145,6 +169,16 @@ namespace CSGL.GLFW {
         public event Action<bool> OnFocus = delegate { };
         public event Action<bool> OnIconify = delegate { };
         public event Action<int, int> OnFramebufferChanged = delegate { };
+
+        public event Action<KeyCode, int, KeyAction, KeyMod> OnKey = delegate { };
+        public event Action<string> OnText = delegate { };
+        public event Action<string, KeyMod> OnTextMod = delegate { };
+
+        public event Action<double, double> OnCursorPos = delegate { };
+        public event Action<MouseButton, KeyAction, KeyMod> OnMouseButton = delegate { };
+        public event Action<double, double> OnScroll = delegate { };
+
+        public event Action<string[]> OnPathDrop = delegate { };
 
         public Window(int width, int height, string title, Monitor monitor = null, Window share = null) {
             var monitorNative = MonitorPtr.Null;
@@ -175,6 +209,19 @@ namespace CSGL.GLFW {
             resizeable = GLFW.GetWindowAttribute(window, WindowAttribute.Resizable) != 0;
             decorated = GLFW.GetWindowAttribute(window, WindowAttribute.Decorated) != 0;
             floating = GLFW.GetWindowAttribute(window, WindowAttribute.Floating) != 0;
+
+            GLFW.SetKeyCallback(window, Key);
+            GLFW.SetCharModsCallback(window, Text);
+            GLFW.SetCursorPosCallback(window, CursorPos);
+            GLFW.SetMouseButtonCallback(window, MouseButton);
+            GLFW.SetScrollCallback(window, Scroll);
+
+            stickyKeys = GLFW.GetInputMode(window, InputMode.StickyKeys) != 0;
+            cursorMode = (CursorMode)GLFW.GetInputMode(window, InputMode.Cursor);
+        }
+
+        public string GetClipboard() {
+            return GLFW.GetClipboardString(window);
         }
 
         public void Focus() {
@@ -216,6 +263,45 @@ namespace CSGL.GLFW {
             framebufferWidth = width;
             framebufferHeight = height;
             OnFramebufferChanged(width, height);
+        }
+
+        void Key(WindowPtr window, KeyCode code, int scancode, KeyAction action, KeyMod modifiers) {
+            OnKey(code, scancode, action, modifiers);
+        }
+
+        void Text(WindowPtr window, uint value, KeyMod modifiers) {
+            //as a premature optimization, this method handles both events to make sure string is only made once
+            var utf32 = (int)value;
+            var s = char.ConvertFromUtf32(utf32);
+            OnText(s);
+            OnTextMod(s, modifiers);
+        }
+
+        void CursorPos(WindowPtr window, double xPos, double yPos) {
+            OnCursorPos(xPos, yPos);
+        }
+
+        void MouseButton(WindowPtr window, MouseButton button, KeyAction action, KeyMod mod) {
+            OnMouseButton(button, action, mod);
+        }
+
+        void Scroll(WindowPtr window, double x, double y) {
+            OnScroll(x, y);
+        }
+
+        void PathDrop(WindowPtr window, int count, IntPtr stringArray) {
+            string[] result = new string[count];
+
+            unsafe
+            {
+                byte** paths = (byte**)stringArray;
+
+                for (int i = 0; i < count; i++) {
+                    result[i] = Interop.GetString(paths[i]);
+                }
+            }
+
+            OnPathDrop(result);
         }
 
         public void Dispose() {
