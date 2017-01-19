@@ -186,10 +186,10 @@ namespace CSGL.GLFW.Unmanaged {
         public static extern void glfwPostEmptyEvent();
 
         [DllImport(lib)]
-        public static extern int glfwGetInputMode(WindowPtr window, int mode);
+        public static extern int glfwGetInputMode(WindowPtr window, InputMode mode);
 
         [DllImport(lib)]
-        public static extern void glfwSetInputMode(WindowPtr window, int mode, int value);
+        public static extern void glfwSetInputMode(WindowPtr window, InputMode mode, int value);
 
         [DllImport(lib)]
         public static extern IntPtr glfwGetKeyName(KeyCode key, int scan);

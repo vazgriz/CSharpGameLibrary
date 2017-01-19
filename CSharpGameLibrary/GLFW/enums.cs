@@ -266,4 +266,9 @@ namespace CSGL.Input {
         Hidden = 0x00034002,
         Disabled = 0x00034003
     }
+
+    public enum InputMode {
+        Cursor = 0x33001,
+        StickyKeys = 0x33002
+    }
 }
