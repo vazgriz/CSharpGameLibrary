@@ -171,8 +171,8 @@ namespace CSGL.GLFW {
         public event Action<int, int> OnFramebufferChanged = delegate { };
 
         public event Action<KeyCode, int, KeyAction, KeyMod> OnKey = delegate { };
-        public event Action<string> OnText = delegate { };
-        public event Action<string, KeyMod> OnTextMod = delegate { };
+        public event Action<uint> OnText = delegate { };
+        public event Action<uint, KeyMod> OnTextMod = delegate { };
 
         public event Action<double, double> OnCursorPos = delegate { };
         public event Action<MouseButton, KeyAction, KeyMod> OnMouseButton = delegate { };
@@ -269,12 +269,9 @@ namespace CSGL.GLFW {
             OnKey(code, scancode, action, modifiers);
         }
 
-        void Text(WindowPtr window, uint value, KeyMod modifiers) {
-            //as a premature optimization, this method handles both events to make sure string is only made once
-            var utf32 = (int)value;
-            var s = char.ConvertFromUtf32(utf32);
-            OnText(s);
-            OnTextMod(s, modifiers);
+        void Text(WindowPtr window, uint utf32, KeyMod modifiers) {
+            OnText(utf32);
+            OnTextMod(utf32, modifiers);
         }
 
         void CursorPos(WindowPtr window, double xPos, double yPos) {
