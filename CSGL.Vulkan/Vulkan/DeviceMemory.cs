@@ -48,9 +48,9 @@ namespace CSGL.Vulkan {
             Size = info.allocationSize;
         }
 
-        public IntPtr Map(ulong offset, ulong size, VkMemoryMapFlags flags) {
+        public IntPtr Map(ulong offset, ulong size) {
             IntPtr data;
-            var result = Device.Commands.mapMemory(Device.Native, deviceMemory, offset, size, flags, out data);
+            var result = Device.Commands.mapMemory(Device.Native, deviceMemory, offset, size, VkMemoryMapFlags.None, out data);
             if (result != VkResult.Success) throw new DeviceMemoryException(string.Format("Error mapping memory: {0}", result));
 
             return data;
