@@ -25,18 +25,27 @@ namespace CSGL.Vulkan {
             if (info == null) throw new ArgumentNullException(nameof(info));
 
             Device = device;
-            Size = info.allocationSize;
 
-            CreateDeviceMemory(info);
+            CreateDeviceMemory(info.allocationSize, info.memoryTypeIndex);
         }
 
-        void CreateDeviceMemory(MemoryAllocateInfo mInfo) {
+        public DeviceMemory(Device device, ulong allocationSize, uint memoryTypeIndex) {
+            if (device == null) throw new ArgumentNullException(nameof(device));
+
+            Device = device;
+
+            CreateDeviceMemory(allocationSize, memoryTypeIndex);
+        }
+
+        void CreateDeviceMemory(ulong allocationSize, uint memoryTypeIndex) {
             var info = new VkMemoryAllocateInfo();
             info.sType = VkStructureType.MemoryAllocateInfo;
-            info.allocationSize = mInfo.allocationSize;
-            info.memoryTypeIndex = mInfo.memoryTypeIndex;
+            info.allocationSize = allocationSize;
+            info.memoryTypeIndex = memoryTypeIndex;
 
             Device.Commands.allocateMemory(Device.Native, ref info, Device.Instance.AllocationCallbacks, out deviceMemory);
+
+            Size = info.allocationSize;
         }
 
         public IntPtr Map(ulong offset, ulong size, VkMemoryMapFlags flags) {
