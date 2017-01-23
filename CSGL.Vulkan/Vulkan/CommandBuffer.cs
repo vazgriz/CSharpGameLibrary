@@ -80,6 +80,25 @@ namespace CSGL.Vulkan {
             }
         }
 
+        public void Copy(Buffer srcBuffer, Buffer dstBuffer) {
+            unsafe
+            {
+                VkBufferCopy region = new VkBufferCopy();
+                region.srcOffset = srcBuffer.Offset;
+                region.dstOffset = dstBuffer.Offset;
+                region.size = System.Math.Min(srcBuffer.Size, dstBuffer.Size);
+                
+                Device.Commands.cmdCopyBuffer(commandBuffer, srcBuffer.Native, dstBuffer.Native, 1, (IntPtr)(&region));
+            }
+        }
+
+        public void Copy(Buffer srcBuffer, Buffer dstBuffer, VkBufferCopy region) {
+            unsafe
+            {
+                Device.Commands.cmdCopyBuffer(commandBuffer, srcBuffer.Native, dstBuffer.Native, 1, (IntPtr)(&region));
+            }
+        }
+
         public void Copy(Image srcImage, VkImageLayout srcImageLayout, Image dstImage, VkImageLayout dstImageLayout, VkImageCopy[] regions) {
             using (var marshalled = new MarshalledArray<VkImageCopy>(regions)) {
                 Device.Commands.cmdCopyImage(commandBuffer,
