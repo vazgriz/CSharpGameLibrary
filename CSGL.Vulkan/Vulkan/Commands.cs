@@ -58,6 +58,7 @@ namespace CSGL.Vulkan {
             public vkDestroyCommandPoolDelegate destroyCommandPool;
             public vkAllocateCommandBuffersDelegate allocateCommandBuffers;
             public vkFreeCommandBuffersDelegate freeCommandBuffers;
+            public vkResetCommandBufferDelegate resetCommandBuffers;
 
             public vkBeginCommandBufferDelegate beginCommandBuffer;
             public vkEndCommandBufferDelegate endCommandBuffer;

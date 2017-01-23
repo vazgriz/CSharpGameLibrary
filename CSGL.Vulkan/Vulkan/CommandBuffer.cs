@@ -190,5 +190,9 @@ namespace CSGL.Vulkan {
         public VkResult End() {
             return Device.Commands.endCommandBuffer(commandBuffer);
         }
+
+        public VkResult Reset(VkCommandBufferResetFlags flags) {
+            return Device.Commands.resetCommandBuffers(commandBuffer, flags);
+        }
     }
 }
