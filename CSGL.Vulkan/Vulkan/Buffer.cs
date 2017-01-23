@@ -73,7 +73,8 @@ namespace CSGL.Vulkan {
         public void Bind(DeviceMemory deviceMemory, ulong offset) {
             if (deviceMemory == null) throw new ArgumentNullException(nameof(deviceMemory));
 
-            Device.Commands.bindBuffer(Device.Native, buffer, deviceMemory.Native, offset);
+            var result = Device.Commands.bindBuffer(Device.Native, buffer, deviceMemory.Native, offset);
+            if (result != VkResult.Success) throw new BufferException(string.Format("Error binding buffer: {0}", result));
         }
 
         public void Dispose() {
