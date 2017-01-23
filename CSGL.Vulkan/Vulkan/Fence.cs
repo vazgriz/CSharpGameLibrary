@@ -56,6 +56,8 @@ namespace CSGL.Vulkan {
             if (device == null) throw new ArgumentNullException(nameof(device));
             if (info == null) throw new ArgumentNullException(nameof(info));
 
+            Device = device;
+
             CreateFence(info);
         }
 
