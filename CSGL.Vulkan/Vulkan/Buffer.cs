@@ -17,6 +17,7 @@ namespace CSGL.Vulkan {
         bool disposed;
 
         VkMemoryRequirements requirements;
+        VkBufferUsageFlags usage;
         
         public Device Device { get; private set; }
 
@@ -29,6 +30,12 @@ namespace CSGL.Vulkan {
         public VkMemoryRequirements Requirements {
             get {
                 return requirements;
+            }
+        }
+
+        public VkBufferUsageFlags Usage {
+            get {
+                return usage;
             }
         }
 
@@ -59,6 +66,8 @@ namespace CSGL.Vulkan {
                 var result = Device.Commands.createBuffer(Device.Native, ref info, Device.Instance.AllocationCallbacks, out buffer);
                 if (result != VkResult.Success) throw new BufferException(string.Format("Error creating Buffer: {0}", result));
             }
+
+            usage = mInfo.usage;
         }
 
         public void Bind(DeviceMemory deviceMemory, ulong offset) {
