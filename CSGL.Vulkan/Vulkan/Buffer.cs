@@ -19,6 +19,7 @@ namespace CSGL.Vulkan {
         VkMemoryRequirements requirements;
         VkBufferUsageFlags usage;
         ulong offset;
+        bool bound;
         
         public Device Device { get; private set; }
 
@@ -49,6 +50,12 @@ namespace CSGL.Vulkan {
         public ulong Size {
             get {
                 return requirements.size;
+            }
+        }
+
+        public bool Bound {
+            get {
+                return bound;
             }
         }
 
@@ -90,6 +97,7 @@ namespace CSGL.Vulkan {
             if (result != VkResult.Success) throw new BufferException(string.Format("Error binding buffer: {0}", result));
 
             this.offset = offset;
+            bound = true;
         }
 
         public void Dispose() {
