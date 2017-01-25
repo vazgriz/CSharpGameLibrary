@@ -84,8 +84,8 @@ namespace CSGL.Vulkan {
             unsafe
             {
                 VkBufferCopy region = new VkBufferCopy();
-                region.srcOffset = srcBuffer.Offset;
-                region.dstOffset = dstBuffer.Offset;
+                region.srcOffset = 0;
+                region.dstOffset = 0;
                 region.size = System.Math.Min(srcBuffer.Size, dstBuffer.Size);
                 
                 Device.Commands.cmdCopyBuffer(commandBuffer, srcBuffer.Native, dstBuffer.Native, 1, (IntPtr)(&region));
