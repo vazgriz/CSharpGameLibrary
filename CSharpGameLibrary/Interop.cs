@@ -48,6 +48,18 @@ namespace CSGL {
         }
 
         public static unsafe void Copy(void* source, void* dest, long size) {
+            //if source and dest are not congruent modulo
+            if ((ulong)source % 8 != (ulong)dest % 8) {
+                byte* _source = (byte*)source;
+                byte* _dest = (byte*)dest;
+
+                for (long i = 0; i < size; i++) {
+                    _dest[i] = _source[i];
+                }
+
+                return;
+            }
+
             //copies start, middle end sections seperately so that the middle section can be copied by boundary aligned double words
             long s = (long)source;
 
