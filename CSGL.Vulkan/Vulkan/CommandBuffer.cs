@@ -145,6 +145,20 @@ namespace CSGL.Vulkan {
             }
         }
 
+        public void CopyImage(Image srcImage, VkImageLayout srcImageLayout, Image dstImage, VkImageLayout dstImageLayout, List<VkImageCopy> regions) {
+            unsafe
+            {
+                var regionsNative = stackalloc VkImageCopy[regions.Count];
+
+                Interop.Marshal(regions, regionsNative);
+
+                Device.Commands.cmdCopyImage(commandBuffer,
+                    srcImage.Native, srcImageLayout,
+                    dstImage.Native, dstImageLayout,
+                    (uint)regions.Count, (IntPtr)regionsNative);
+            }
+        }
+
         public void PipelineBarrier(VkPipelineStageFlags srcStageMask, VkPipelineStageFlags dstStageMask, VkDependencyFlags flags,
             MemoryBarrier[] memoryBarriers, BufferMemoryBarrier[] bufferMemoryBarriers, ImageMemoryBarrier[] imageMemoryBarriers) {
 
