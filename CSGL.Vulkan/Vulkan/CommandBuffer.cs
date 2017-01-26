@@ -44,8 +44,34 @@ namespace CSGL.Vulkan {
         }
 
         public void BindVertexBuffers(uint firstBinding, Buffer[] buffers, ulong[] offsets) {
-            using (var marshalled = new NativeArray<VkBuffer>(buffers)) {
-                Device.Commands.cmdBindVertexBuffers(commandBuffer, firstBinding, (uint)buffers.Length, marshalled.Address, ref offsets[0]);
+            if (buffers == null) throw new ArgumentNullException(nameof(buffers));
+            if (offsets == null) throw new ArgumentNullException(nameof(offsets));
+
+            unsafe
+            {
+                var buffersNative = stackalloc VkBuffer[buffers.Length];
+
+                for (int i = 0; i < buffers.Length; i++) {
+                    buffersNative[i] = buffers[i].Native;
+                }
+
+                Device.Commands.cmdBindVertexBuffers(commandBuffer, firstBinding, (uint)buffers.Length, (IntPtr)(buffersNative), ref offsets[0]);
+            }
+        }
+
+        public void BindVertexBuffers(uint firstBinding, List<Buffer> buffers, ulong[] offsets) {
+            if (buffers == null) throw new ArgumentNullException(nameof(buffers));
+            if (offsets == null) throw new ArgumentNullException(nameof(offsets));
+
+            unsafe
+            {
+                var buffersNative = stackalloc VkBuffer[buffers.Count];
+
+                for (int i = 0; i < buffers.Count; i++) {
+                    buffersNative[i] = buffers[i].Native;
+                }
+
+                Device.Commands.cmdBindVertexBuffers(commandBuffer, firstBinding, (uint)buffers.Count, (IntPtr)(buffersNative), ref offsets[0]);
             }
         }
 
