@@ -74,6 +74,10 @@ namespace CSGL.Vulkan {
             BindDescriptorSets(pipelineBindPoint, layout, firstSet, descriptorSets, null);
         }
 
+        public void Draw(uint vertexCount, uint instanceCount, uint firstVertex, uint firstInstance) {
+            Device.Commands.cmdDraw(commandBuffer, vertexCount, instanceCount, firstVertex, firstInstance);
+        }
+
         public void Draw(int vertexCount, int instanceCount, int firstVertex, int firstInstance) {
             Device.Commands.cmdDraw(commandBuffer, (uint)vertexCount, (uint)instanceCount, (uint)firstVertex, (uint)firstInstance);
         }
