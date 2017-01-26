@@ -44,9 +44,6 @@ namespace CSGL.Vulkan {
         }
 
         public void BindVertexBuffers(uint firstBinding, Buffer[] buffers, ulong[] offsets) {
-            if (buffers == null) throw new ArgumentNullException(nameof(buffers));
-            if (offsets == null) throw new ArgumentNullException(nameof(offsets));
-
             unsafe
             {
                 var buffersNative = stackalloc VkBuffer[buffers.Length];
@@ -58,9 +55,6 @@ namespace CSGL.Vulkan {
         }
 
         public void BindVertexBuffers(uint firstBinding, List<Buffer> buffers, ulong[] offsets) {
-            if (buffers == null) throw new ArgumentNullException(nameof(buffers));
-            if (offsets == null) throw new ArgumentNullException(nameof(offsets));
-
             unsafe
             {
                 var buffersNative = stackalloc VkBuffer[buffers.Count];
@@ -235,8 +229,6 @@ namespace CSGL.Vulkan {
         }
 
         public void ClearColorImage(Image image, VkImageLayout imageLayout, ref VkClearColorValue clearColor, VkImageSubresourceRange[] ranges) {
-            if (ranges == null) throw new ArgumentNullException(nameof(ranges));
-
             unsafe
             {
                 var rangesNative = stackalloc VkImageSubresourceRange[ranges.Length];
