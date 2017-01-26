@@ -139,11 +139,15 @@ namespace CSGL.Vulkan {
         }
 
         public void Copy(Image srcImage, VkImageLayout srcImageLayout, Image dstImage, VkImageLayout dstImageLayout, VkImageCopy[] regions) {
-            using (var marshalled = new MarshalledArray<VkImageCopy>(regions)) {
+            unsafe {
+                var regionsNative = stackalloc VkImageCopy[regions.Length];
+
+                Interop.Marshal(regions, regionsNative);
+
                 Device.Commands.cmdCopyImage(commandBuffer,
                     srcImage.Native, srcImageLayout,
                     dstImage.Native, dstImageLayout,
-                    (uint)marshalled.Count, marshalled.Address);
+                    (uint)regions.Length, (IntPtr)regionsNative);
             }
         }
 
