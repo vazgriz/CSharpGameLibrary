@@ -51,9 +51,7 @@ namespace CSGL.Vulkan {
             {
                 var buffersNative = stackalloc VkBuffer[buffers.Length];
 
-                for (int i = 0; i < buffers.Length; i++) {
-                    buffersNative[i] = buffers[i].Native;
-                }
+                Interop.Marshal<VkBuffer>(buffers, buffersNative);
 
                 Device.Commands.cmdBindVertexBuffers(commandBuffer, firstBinding, (uint)buffers.Length, (IntPtr)(buffersNative), ref offsets[0]);
             }
@@ -67,9 +65,7 @@ namespace CSGL.Vulkan {
             {
                 var buffersNative = stackalloc VkBuffer[buffers.Count];
 
-                for (int i = 0; i < buffers.Count; i++) {
-                    buffersNative[i] = buffers[i].Native;
-                }
+                Interop.Marshal(buffers, buffersNative);
 
                 Device.Commands.cmdBindVertexBuffers(commandBuffer, firstBinding, (uint)buffers.Count, (IntPtr)(buffersNative), ref offsets[0]);
             }
