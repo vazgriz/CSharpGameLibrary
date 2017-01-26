@@ -49,6 +49,14 @@ namespace CSGL.Vulkan {
             }
         }
 
+        public void BindVertexBuffer(uint firstBinding, Buffer buffer, ulong offset) {
+            unsafe
+            {
+                VkBuffer bufferNative = buffer.Native;
+                Device.Commands.cmdBindVertexBuffers(commandBuffer, firstBinding, 1, (IntPtr)(&bufferNative), ref offset);
+            }
+        }
+
         public void BindIndexBuffer(Buffer buffer, ulong offset, VkIndexType indexType) {
             Device.Commands.cmdBindIndexBuffer(commandBuffer, buffer.Native, offset, indexType);
         }
