@@ -102,7 +102,7 @@ namespace CSGL.Vulkan {
             Device.Commands.cmdDrawIndexed(commandBuffer, indexCount, instanceCount, firstIndex, vertexOffset, firstInstance);
         }
 
-        public void Copy(Buffer srcBuffer, Buffer dstBuffer, VkBufferCopy[] regions) {
+        public void CopyBuffer(Buffer srcBuffer, Buffer dstBuffer, VkBufferCopy[] regions) {
             unsafe
             {
                 var regionsNative = stackalloc VkBufferCopy[regions.Length];
@@ -113,7 +113,7 @@ namespace CSGL.Vulkan {
             }
         }
 
-        public void Copy(Buffer srcBuffer, Buffer dstBuffer) {
+        public void CopyBuffer(Buffer srcBuffer, Buffer dstBuffer) {
             unsafe
             {
                 VkBufferCopy region = new VkBufferCopy();
@@ -125,14 +125,14 @@ namespace CSGL.Vulkan {
             }
         }
 
-        public void Copy(Buffer srcBuffer, Buffer dstBuffer, VkBufferCopy region) {
+        public void CopyBuffer(Buffer srcBuffer, Buffer dstBuffer, VkBufferCopy region) {
             unsafe
             {
                 Device.Commands.cmdCopyBuffer(commandBuffer, srcBuffer.Native, dstBuffer.Native, 1, (IntPtr)(&region));
             }
         }
 
-        public void Copy(Image srcImage, VkImageLayout srcImageLayout, Image dstImage, VkImageLayout dstImageLayout, VkImageCopy[] regions) {
+        public void CopyImage(Image srcImage, VkImageLayout srcImageLayout, Image dstImage, VkImageLayout dstImageLayout, VkImageCopy[] regions) {
             unsafe {
                 var regionsNative = stackalloc VkImageCopy[regions.Length];
 
