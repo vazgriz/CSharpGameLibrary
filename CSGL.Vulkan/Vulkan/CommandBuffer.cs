@@ -113,8 +113,13 @@ namespace CSGL.Vulkan {
         }
 
         public void Copy(Buffer srcBuffer, Buffer dstBuffer, VkBufferCopy[] regions) {
-            using (var pinned = new MarshalledArray<VkBufferCopy>(regions)) {
-                Device.Commands.cmdCopyBuffer(commandBuffer, srcBuffer.Native, dstBuffer.Native, (uint)pinned.Count, pinned.Address);
+            unsafe
+            {
+                var regionsNative = stackalloc VkBufferCopy[regions.Length];
+
+                Interop.Marshal(regions, regionsNative);
+
+                Device.Commands.cmdCopyBuffer(commandBuffer, srcBuffer.Native, dstBuffer.Native, (uint)regions.Length, (IntPtr)regionsNative);
             }
         }
 
