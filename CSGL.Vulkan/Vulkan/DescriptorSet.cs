@@ -123,5 +123,9 @@ namespace CSGL.Vulkan {
                 device.Commands.updateDescriptorSets(device.Native, (uint)writes.Count, (IntPtr)writesNative, 0, IntPtr.Zero);
             }
         }
+
+        public void Update(List<WriteDescriptorSet> writes) {
+            Update(Device, writes);
+        }
     }
 }
