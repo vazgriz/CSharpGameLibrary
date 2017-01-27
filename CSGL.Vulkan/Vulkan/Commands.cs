@@ -81,6 +81,9 @@ namespace CSGL.Vulkan {
             public vkGetPhysicalDeviceMemoryPropertiesDelegate getMemoryProperties;
             public vkBindBufferMemoryDelegate bindBuffer;
 
+            public vkCreateBufferViewDelegate createBufferView;
+            public vkDestroyBufferViewDelegate destroyBufferView;
+
             public vkAllocateMemoryDelegate allocateMemory;
             public vkFreeMemoryDelegate freeMemory;
             public vkMapMemoryDelegate mapMemory;
