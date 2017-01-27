@@ -165,12 +165,12 @@ namespace CSGL {
             }
         }
 
-        public static int MSizeOf<T>() where T : struct {
+        public static int MarshalledSizeOf<T>() where T : struct {
             return SMarshal.SizeOf<T>();
         }
 
-        public static int MSizeOf<T>(T[] array) where T : struct {
-            return MSizeOf<T>() * array.Length;
+        public static int MarshalledSizeOf<T>(T[] array) where T : struct {
+            return MarshalledSizeOf<T>() * array.Length;
         }
 
         public static int MSizeOf<T>(INative<T> obj) where T : struct {
