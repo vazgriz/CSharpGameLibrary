@@ -137,6 +137,17 @@ namespace CSGL {
             handle.Free();
         }
 
+        public static void Copy<T>(T source, IntPtr dest) where T : struct {
+            unsafe
+            {
+                Unsafe.Write((void*)dest, source);
+            }
+        }
+
+        public static unsafe void Copy<T>(T source, void* dest) where T : struct {
+            Unsafe.Write(dest, source);
+        }
+
         public static int SizeOf<T>() where T : struct {
             return Unsafe.SizeOf<T>();
         }
@@ -171,7 +182,7 @@ namespace CSGL {
                 return 0;
             }
 
-            return MSizeOf<T>() * array.Length;
+            return MarshalledSizeOf<T>() * array.Length;
         }
 
         public static unsafe void Marshal<T>(T obj, void* dest) {
@@ -181,7 +192,7 @@ namespace CSGL {
         public static unsafe void Marshal<T>(T[] array, void* dest) where T : struct {
             if (array == null || array.Length == 0) return;
 
-            int size = MSizeOf<T>();
+            int size = MarshalledSizeOf<T>();
             byte* curDest = (byte*)dest;
 
             for (int i = 0; i < array.Length; i++) {
@@ -197,7 +208,7 @@ namespace CSGL {
         public static unsafe void Marshal<T>(INative<T>[] array, void* dest, int count) where T : struct {
             if (array == null || array.Length == 0) return;
 
-            int size = MSizeOf<T>();
+            int size = MarshalledSizeOf<T>();
             byte* curDest = (byte*)dest;
 
             for (int i = 0; i < count; i++) {
@@ -214,7 +225,7 @@ namespace CSGL {
         public static unsafe void Marshal<T, U>(List<U> list, void* dest, int count) where T : struct where U : INative<T> {
             if (list == null || list.Count == 0) return;
 
-            int size = MSizeOf<T>();
+            int size = MarshalledSizeOf<T>();
             byte* curDest = (byte*)dest;
 
             for (int i = 0; i < count; i++) {
