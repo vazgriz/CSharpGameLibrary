@@ -8,29 +8,6 @@ namespace CSGL.Vulkan {
         public List<VkDescriptorPoolSize> poolSizes;
     }
 
-    public class DescriptorBufferInfo {
-        public Buffer buffer;
-        public ulong offset;
-        public ulong range;
-    }
-
-    public class DescriptorImageInfo {
-        public Sampler sampler;
-        public ImageView imageView;
-        public VkImageLayout imageLayout;
-    }
-
-    public class WriteDescriptorSet {
-        public DescriptorSet dstSet;
-        public uint dstBinding;
-        public uint dstArrayElement;
-        public uint descriptorCount;
-        public VkDescriptorType descriptorType;
-        public DescriptorImageInfo imageInfo;
-        public DescriptorBufferInfo bufferInfo;
-        public IntPtr pTexelBufferView;
-    }
-
     public class DescriptorPool : IDisposable, INative<VkDescriptorPool> {
         VkDescriptorPool descriptorPool;
 
@@ -95,51 +72,6 @@ namespace CSGL.Vulkan {
                 }
 
                 return results;
-            }
-        }
-
-        public void Update(WriteDescriptorSet[] writes) {
-            using (var writesMarshalled = new MarshalledArray<VkWriteDescriptorSet>(writes.Length))
-            using (var disposables = new DisposableList<IDisposable>(writes.Length * 2)) {
-                for (int i = 0; i < writes.Length; i++) {
-                    var write = writes[i];
-
-                    var writeNative = new VkWriteDescriptorSet();
-                    writeNative.sType = VkStructureType.WriteDescriptorSet;
-                    writeNative.dstSet = write.dstSet.Native;
-                    writeNative.dstBinding = write.dstBinding;
-                    writeNative.dstArrayElement = write.dstArrayElement;
-                    writeNative.descriptorCount = write.descriptorCount;
-                    writeNative.descriptorType = write.descriptorType;
-
-                    if (write.imageInfo != null) {
-                        var imageInfo = new VkDescriptorImageInfo();
-                        imageInfo.sampler = write.imageInfo.sampler.Native;
-                        imageInfo.imageView = write.imageInfo.imageView.Native;
-                        imageInfo.imageLayout = write.imageInfo.imageLayout;
-
-                        var imageInfoMarshalled = new Marshalled<VkDescriptorImageInfo>(imageInfo);
-                        disposables.Add(imageInfoMarshalled);
-                        writeNative.pImageInfo = imageInfoMarshalled.Address;
-                    }
-
-                    if (write.bufferInfo != null) {
-                        var bufferInfo = new VkDescriptorBufferInfo();
-                        bufferInfo.buffer = write.bufferInfo.buffer.Native;
-                        bufferInfo.offset = write.bufferInfo.offset;
-                        bufferInfo.range = write.bufferInfo.range;
-
-                        var bufferInfoMarshalled = new Marshalled<VkDescriptorBufferInfo>(bufferInfo);
-                        disposables.Add(bufferInfoMarshalled);
-                        writeNative.pBufferInfo = bufferInfoMarshalled.Address;
-                    }
-
-                    writeNative.pTexelBufferView = write.pTexelBufferView;
-
-                    writesMarshalled[i] = writeNative;
-                }
-
-                Device.Commands.updateDescriptorSets(Device.Native, (uint)writes.Length, writesMarshalled.Address, 0, IntPtr.Zero);
             }
         }
 
