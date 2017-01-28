@@ -60,8 +60,8 @@ namespace CSGL.Vulkan {
                 var buffersNative = stackalloc VkBuffer[buffers.Count];
                 var offsetsNative = stackalloc ulong[offsets.Count];
 
-                Interop.Marshal(buffers, buffersNative);
-                Interop.Marshal(offsets, offsetsNative);
+                Interop.Marshal<VkBuffer, Buffer>(buffers, buffersNative);
+                Interop.Copy(offsets, (IntPtr)offsetsNative);
 
                 Device.Commands.cmdBindVertexBuffers(commandBuffer, firstBinding, (uint)buffers.Count, (IntPtr)(buffersNative), ref offsetsNative[0]);
             }
@@ -109,7 +109,7 @@ namespace CSGL.Vulkan {
             {
                 var regionsNative = stackalloc VkBufferCopy[regions.Length];
 
-                Interop.Marshal(regions, regionsNative);
+                Interop.Copy(regions, (IntPtr)regionsNative);
 
                 Device.Commands.cmdCopyBuffer(commandBuffer, srcBuffer.Native, dstBuffer.Native, (uint)regions.Length, (IntPtr)regionsNative);
             }
@@ -138,7 +138,7 @@ namespace CSGL.Vulkan {
             unsafe {
                 var regionsNative = stackalloc VkImageCopy[regions.Length];
 
-                Interop.Marshal(regions, regionsNative);
+                Interop.Copy(regions, (IntPtr)regionsNative);
 
                 Device.Commands.cmdCopyImage(commandBuffer,
                     srcImage.Native, srcImageLayout,
@@ -152,7 +152,7 @@ namespace CSGL.Vulkan {
             {
                 var regionsNative = stackalloc VkImageCopy[regions.Count];
 
-                Interop.Marshal(regions, regionsNative);
+                Interop.Copy(regions, (IntPtr)regionsNative);
 
                 Device.Commands.cmdCopyImage(commandBuffer,
                     srcImage.Native, srcImageLayout,
@@ -248,7 +248,7 @@ namespace CSGL.Vulkan {
             unsafe
             {
                 var rangesNative = stackalloc VkImageSubresourceRange[ranges.Length];
-                Interop.Marshal(ranges, rangesNative);
+                Interop.Copy(ranges, (IntPtr)rangesNative);
                 Device.Commands.cmdClearColorImage(commandBuffer, image.Native, imageLayout, ref clearColor, (uint)ranges.Length, (IntPtr)rangesNative);
             }
         }

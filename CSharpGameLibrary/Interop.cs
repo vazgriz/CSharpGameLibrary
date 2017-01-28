@@ -145,10 +145,6 @@ namespace CSGL {
             }
         }
 
-        public static unsafe void Copy<T>(T source, void* dest) where T : struct {
-            Unsafe.Write(dest, source);
-        }
-
         public static int SizeOf<T>() where T : struct {
             return Unsafe.SizeOf<T>();
         }
@@ -188,26 +184,6 @@ namespace CSGL {
             }
 
             return MarshalledSizeOf<T>() * array.Length;
-        }
-
-        public static unsafe void Marshal<T>(T obj, void* dest) {
-            Unsafe.Write(dest, obj);
-        }
-
-        public static unsafe void Marshal<T>(T[] array, void* dest) where T : struct {
-            if (array == null || array.Length == 0) return;
-
-            int size = MarshalledSizeOf<T>();
-            byte* curDest = (byte*)dest;
-
-            for (int i = 0; i < array.Length; i++) {
-                Unsafe.Write(curDest, array[i]);
-                curDest += size;
-            }
-        }
-
-        public static unsafe void Marshal<T>(INative<T> obj, void* dest) where T : struct {
-            Unsafe.Write(dest, obj.Native);
         }
 
         public static unsafe void Marshal<T>(INative<T>[] array, void* dest, int count) where T : struct {
