@@ -41,7 +41,11 @@ namespace CSGL.Vulkan {
         }
 
         public void Dispose() {
+            if (disposed) return;
+
             Device.Commands.destroyBufferView(Device.Native, bufferView, Device.Instance.AllocationCallbacks);
+
+            disposed = true;
         }
     }
 
