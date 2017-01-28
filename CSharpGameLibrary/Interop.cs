@@ -144,6 +144,17 @@ namespace CSGL {
             }
         }
 
+        public static void Copy<T>(List<T> source, IntPtr dest) where T : struct {
+            unsafe
+            {
+                int size = SizeOf<T>();
+                for (int i = 0; i < source.Count; i++) {
+                    Unsafe.Write((void*)dest, source[i]);
+                    dest += size;
+                }
+            }
+        }
+
         public static unsafe void Copy<T>(T source, void* dest) where T : struct {
             Unsafe.Write(dest, source);
         }
