@@ -166,30 +166,10 @@ namespace CSGL {
             }
         }
 
-        public static int MarshalledSizeOf<T>() where T : struct {
-            return SMarshal.SizeOf<T>();
-        }
-
-        public static int MarshalledSizeOf<T>(T[] array) where T : struct {
-            return MarshalledSizeOf<T>() * array.Length;
-        }
-
-        public static int MSizeOf<T>(INative<T> obj) where T : struct {
-            return SMarshal.SizeOf<T>();
-        }
-
-        public static int MSizeOf<T>(INative<T>[] array) where T : struct {
-            if (array == null) {
-                return 0;
-            }
-
-            return MarshalledSizeOf<T>() * array.Length;
-        }
-
         public static unsafe void Marshal<T>(INative<T>[] array, void* dest, int count) where T : struct {
             if (array == null || array.Length == 0) return;
 
-            int size = MarshalledSizeOf<T>();
+            int size = SizeOf<T>();
             byte* curDest = (byte*)dest;
 
             for (int i = 0; i < count; i++) {
@@ -206,7 +186,7 @@ namespace CSGL {
         public static unsafe void Marshal<T, U>(List<U> list, void* dest, int count) where T : struct where U : INative<T> {
             if (list == null || list.Count == 0) return;
 
-            int size = MarshalledSizeOf<T>();
+            int size = SizeOf<T>();
             byte* curDest = (byte*)dest;
 
             for (int i = 0; i < count; i++) {
