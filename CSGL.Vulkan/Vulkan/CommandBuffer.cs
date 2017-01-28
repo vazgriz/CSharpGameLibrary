@@ -162,85 +162,64 @@ namespace CSGL.Vulkan {
         }
 
         public void PipelineBarrier(VkPipelineStageFlags srcStageMask, VkPipelineStageFlags dstStageMask, VkDependencyFlags flags,
-            MemoryBarrier[] memoryBarriers, BufferMemoryBarrier[] bufferMemoryBarriers, ImageMemoryBarrier[] imageMemoryBarriers) {
+            List<MemoryBarrier> memoryBarriers, List<BufferMemoryBarrier> bufferMemoryBarriers, List<ImageMemoryBarrier> imageMemoryBarriers) {
+            
+            int mbCount = 0;
+            int bbCount = 0;
+            int ibCount = 0;
 
-            MarshalledArray<VkMemoryBarrier> memoryBarriersMarshalled = null;
-            uint mbCount = 0;
-            IntPtr mbAddress = IntPtr.Zero;
-            MarshalledArray<VkBufferMemoryBarrier> bufferBarriersMarshalled = null;
-            uint bbCount = 0;
-            IntPtr bbAddress = IntPtr.Zero;
-            MarshalledArray<VkImageMemoryBarrier> imageBarriersMarshalled = null;
-            uint ibCount = 0;
-            IntPtr ibAddress = IntPtr.Zero;
+            if (memoryBarriers != null) mbCount = memoryBarriers.Count;
+            if (bufferMemoryBarriers != null) bbCount = bufferMemoryBarriers.Count;
+            if (imageMemoryBarriers != null) ibCount = imageMemoryBarriers.Count;
 
-            if (memoryBarriers != null) {
-                memoryBarriersMarshalled = new MarshalledArray<VkMemoryBarrier>(memoryBarriers.Length);
-                mbCount = (uint)memoryBarriers.Length;
-                mbAddress = memoryBarriersMarshalled.Address;
+            unsafe
+            {
+                var mbNative = stackalloc VkMemoryBarrier[mbCount];
 
-                for (int i = 0; i < memoryBarriers.Length; i++) {
+                for (int i = 0; i < mbCount; i++) {
                     var mb = memoryBarriers[i];
-                    var barrier = new VkMemoryBarrier();
-                    barrier.sType = VkStructureType.MemoryBarrier;
-                    barrier.srcAccessMask = mb.srcAccessMask;
-                    barrier.dstAccessMask = mb.dstAccessMask;
-
-                    memoryBarriersMarshalled[i] = barrier;
+                    mbNative[i] = new VkMemoryBarrier();
+                    mbNative[i].sType = VkStructureType.MemoryBarrier;
+                    mbNative[i].srcAccessMask = mb.srcAccessMask;
+                    mbNative[i].dstAccessMask = mb.dstAccessMask;
                 }
-            }
 
-            if (bufferMemoryBarriers != null) {
-                bufferBarriersMarshalled = new MarshalledArray<VkBufferMemoryBarrier>(bufferMemoryBarriers.Length);
-                bbCount = (uint)bufferMemoryBarriers.Length;
-                bbAddress = bufferBarriersMarshalled.Address;
+                var bbNative = stackalloc VkBufferMemoryBarrier[bbCount];
 
-                for (int i = 0; i < bufferMemoryBarriers.Length; i++) {
+                for (int i = 0; i < bbCount; i++) {
                     var bb = bufferMemoryBarriers[i];
-                    var barrier = new VkBufferMemoryBarrier();
-                    barrier.sType = VkStructureType.BufferMemoryBarrier;
-                    barrier.srcAccessMask = bb.srcAccessMask;
-                    barrier.dstAccessMask = bb.dstAccessMask;
-                    barrier.srcQueueFamilyIndex = bb.srcQueueFamilyIndex;
-                    barrier.dstQueueFamilyIndex = bb.dstQueueFamilyIndex;
-                    barrier.buffer = bb.buffer.Native;
-                    barrier.offset = bb.offset;
-                    barrier.size = bb.size;
-
-                    bufferBarriersMarshalled[i] = barrier;
+                    bbNative[i] = new VkBufferMemoryBarrier();
+                    bbNative[i].sType = VkStructureType.BufferMemoryBarrier;
+                    bbNative[i].srcAccessMask = bb.srcAccessMask;
+                    bbNative[i].dstAccessMask = bb.dstAccessMask;
+                    bbNative[i].srcQueueFamilyIndex = bb.srcQueueFamilyIndex;
+                    bbNative[i].dstQueueFamilyIndex = bb.dstQueueFamilyIndex;
+                    bbNative[i].buffer = bb.buffer.Native;
+                    bbNative[i].offset = bb.offset;
+                    bbNative[i].size = bb.size;
                 }
-            }
 
-            if (imageMemoryBarriers != null) {
-                imageBarriersMarshalled = new MarshalledArray<VkImageMemoryBarrier>(imageMemoryBarriers.Length);
-                ibCount = (uint)imageMemoryBarriers.Length;
-                ibAddress = imageBarriersMarshalled.Address;
+                var ibNative = stackalloc VkImageMemoryBarrier[ibCount];
 
-                for (int i = 0; i < imageMemoryBarriers.Length; i++) {
+                for (int i = 0; i < ibCount; i++) {
                     var ib = imageMemoryBarriers[i];
-                    var barrier = new VkImageMemoryBarrier();
-                    barrier.sType = VkStructureType.ImageMemoryBarrier;
-                    barrier.srcAccessMask = ib.srcAccessMask;
-                    barrier.dstAccessMask = ib.dstAccessMask;
-                    barrier.oldLayout = ib.oldLayout;
-                    barrier.newLayout = ib.newLayout;
-                    barrier.srcQueueFamilyIndex = ib.srcQueueFamilyIndex;
-                    barrier.dstQueueFamilyIndex = ib.dstQueueFamilyIndex;
-                    barrier.image = ib.image.Native;
-                    barrier.subresourceRange = ib.subresourceRange;
-
-                    imageBarriersMarshalled[i] = barrier;
+                    ibNative[i] = new VkImageMemoryBarrier();
+                    ibNative[i].sType = VkStructureType.ImageMemoryBarrier;
+                    ibNative[i].srcAccessMask = ib.srcAccessMask;
+                    ibNative[i].dstAccessMask = ib.dstAccessMask;
+                    ibNative[i].oldLayout = ib.oldLayout;
+                    ibNative[i].newLayout = ib.newLayout;
+                    ibNative[i].srcQueueFamilyIndex = ib.srcQueueFamilyIndex;
+                    ibNative[i].dstQueueFamilyIndex = ib.dstQueueFamilyIndex;
+                    ibNative[i].image = ib.image.Native;
+                    ibNative[i].subresourceRange = ib.subresourceRange;
                 }
-            }
 
-            using (memoryBarriersMarshalled)
-            using (bufferBarriersMarshalled)
-            using (imageBarriersMarshalled) {
                 Device.Commands.cmdPipelineBarrier(commandBuffer,
                     srcStageMask, dstStageMask, flags,
-                    mbCount, mbAddress,
-                    bbCount, bbAddress,
-                    ibCount, ibAddress);
+                    (uint)mbCount, (IntPtr)mbNative,
+                    (uint)bbCount, (IntPtr)bbNative,
+                    (uint)ibCount, (IntPtr)ibNative);
             }
         }
 
