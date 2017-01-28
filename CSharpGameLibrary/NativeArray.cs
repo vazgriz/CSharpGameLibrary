@@ -60,17 +60,6 @@ namespace CSGL {
                 }
             }
         }
-
-        public unsafe NativeArray(void* ptr, T[] array) {
-            if (ptr == null) throw new ArgumentNullException(nameof(ptr));
-
-            if (array != null) {
-                count = array.Length;
-                this.ptr = ptr;
-
-                Interop.Copy(array, ptr);
-            }
-        }
         
         void Allocate(int count) {
             unsafe
