@@ -156,6 +156,10 @@ namespace CSGL {
             return Unsafe.SizeOf<T>() * array.Length;
         }
 
+        public static int SizeOf<T>(List<T> list) where T : struct {
+            return Unsafe.SizeOf<T>() * list.Count;
+        }
+
         public static long Offset<T1, T2>(ref T1 type, ref T2 field)
             where T1 : struct
             where T2 : struct {
