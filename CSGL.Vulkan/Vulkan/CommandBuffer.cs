@@ -54,14 +54,16 @@ namespace CSGL.Vulkan {
             }
         }
 
-        public void BindVertexBuffers(uint firstBinding, List<Buffer> buffers, ulong[] offsets) {
+        public void BindVertexBuffers(uint firstBinding, List<Buffer> buffers, List<ulong> offsets) {
             unsafe
             {
                 var buffersNative = stackalloc VkBuffer[buffers.Count];
+                var offsetsNative = stackalloc ulong[offsets.Count];
 
                 Interop.Marshal(buffers, buffersNative);
+                Interop.Marshal(offsets, offsetsNative);
 
-                Device.Commands.cmdBindVertexBuffers(commandBuffer, firstBinding, (uint)buffers.Count, (IntPtr)(buffersNative), ref offsets[0]);
+                Device.Commands.cmdBindVertexBuffers(commandBuffer, firstBinding, (uint)buffers.Count, (IntPtr)(buffersNative), ref offsetsNative[0]);
             }
         }
 
