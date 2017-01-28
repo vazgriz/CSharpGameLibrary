@@ -29,7 +29,7 @@ namespace CSGL {
                 unsafe
                 {
                     for (int i = 0; i < count; i++) {
-                        Interop.Copy(array, ptr);
+                        Interop.Copy(array, (IntPtr)ptr);
                     }
                 }
             }
