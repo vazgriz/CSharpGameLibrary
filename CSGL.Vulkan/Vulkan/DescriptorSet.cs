@@ -102,8 +102,17 @@ namespace CSGL.Vulkan {
 
                         for (int j = 0; j < writesNative[i].descriptorCount; j++) {
                             VkDescriptorImageInfo imageInfo = new VkDescriptorImageInfo();
-                            imageInfo.sampler = mWrite.imageInfo[j].sampler.Native;
-                            imageInfo.imageView = mWrite.imageInfo[j].imageView.Native;
+                            imageInfo.sampler = VkSampler.Null;
+                            imageInfo.imageView = VkImageView.Null;
+
+                            if (mWrite.imageInfo[j].sampler != null) {
+                                imageInfo.sampler = mWrite.imageInfo[j].sampler.Native;
+                            }
+
+                            if (mWrite.imageInfo[j].imageView != null) {
+                                imageInfo.imageView = mWrite.imageInfo[j].imageView.Native;
+                            }
+
                             imageInfo.imageLayout = mWrite.imageInfo[j].imageLayout;
 
                             imageInfos[imageIndex] = imageInfo;
