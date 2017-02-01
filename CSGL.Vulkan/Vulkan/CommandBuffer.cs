@@ -39,6 +39,10 @@ namespace CSGL.Vulkan {
             }
         }
 
+        public void NextSubpass(VkSubpassContents contents) {
+            Device.Commands.cmdNextSubpass(commandBuffer, contents);
+        }
+
         public void BindPipeline(VkPipelineBindPoint bindPoint, Pipeline pipeline) {
             Device.Commands.cmdBindPipeline(commandBuffer, bindPoint, pipeline.Native);
         }

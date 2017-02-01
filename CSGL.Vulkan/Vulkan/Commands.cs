@@ -63,6 +63,7 @@ namespace CSGL.Vulkan {
             public vkBeginCommandBufferDelegate beginCommandBuffer;
             public vkEndCommandBufferDelegate endCommandBuffer;
             public vkCmdBeginRenderPassDelegate cmdBeginRenderPass;
+            public vkCmdNextSubpassDelegate cmdNextSubpass;
             public vkCmdEndRenderPassDelegate cmdEndRenderPass;
             public vkCmdBindPipelineDelegate cmdBindPipeline;
             public vkCmdDrawDelegate cmdDraw;
