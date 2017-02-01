@@ -8,60 +8,18 @@ namespace CSGL.Vulkan {
         public List<VkSubpassDependency> dependencies;
     }
 
+    public class AttachmentReference {
+        public uint attachment;
+        public VkImageLayout layout;
+    }
+
     public class SubpassDescription {
-        public VkPipelineBindPoint PipelineBindPoint { get; set; }
-        public List<VkAttachmentReference> InputAttachments { get; set; }
-        public List<VkAttachmentReference> ColorAttachments { get; set; }
-        public List<VkAttachmentReference> ResolveAttachments { get; set; }
-        public List<uint> PreserveAttachments { get; set; }
-
-        VkAttachmentReference depthStencilAttachment;
-        bool hasDepthStencil = false;
-        public VkAttachmentReference DepthStencilAttachment {
-            get {
-                return depthStencilAttachment;
-            }
-            set {
-                hasDepthStencil = true;
-                depthStencilAttachment = value;
-            }
-        }
-
-        internal VkSubpassDescription GetNative(DisposableList<IDisposable> marshalled) {
-            var result = new VkSubpassDescription();
-
-            result.pipelineBindPoint = PipelineBindPoint;
-
-            var inputMarshalled = new MarshalledArray<VkAttachmentReference>(InputAttachments);
-            result.inputAttachmentCount = (uint)inputMarshalled.Count;
-            result.pInputAttachments = inputMarshalled.Address;
-
-            var colorMarshalled = new MarshalledArray<VkAttachmentReference>(ColorAttachments);
-            result.colorAttachmentCount = (uint)colorMarshalled.Count;
-            result.pColorAttachments = colorMarshalled.Address;
-
-            var resolveMarshalled = new MarshalledArray<VkAttachmentReference>(ResolveAttachments);
-            result.pResolveAttachments = resolveMarshalled.Address;
-
-            if (hasDepthStencil) {
-                var depthMarshalled = new Marshalled<VkAttachmentReference>(DepthStencilAttachment);
-                result.pDepthStencilAttachment = depthMarshalled.Address;
-                marshalled.Add(depthMarshalled);
-            }
-
-            if (PreserveAttachments != null) {
-                result.preserveAttachmentCount = (uint)PreserveAttachments.Count;
-                var preserveAttachmentsMarshalled = new NativeArray<uint>(PreserveAttachments);
-                result.pPreserveAttachments = preserveAttachmentsMarshalled.Address;
-                marshalled.Add(preserveAttachmentsMarshalled);
-            }
-
-            marshalled.Add(inputMarshalled);
-            marshalled.Add(colorMarshalled);
-            marshalled.Add(resolveMarshalled);
-
-            return result;
-        }
+        public VkPipelineBindPoint pipelineBindPoint;
+        public List<AttachmentReference> inputAttachments;
+        public List<AttachmentReference> colorAttachments;
+        public List<AttachmentReference> resolveAttachments;
+        public List<uint> preserveAttachments;
+        public AttachmentReference depthStencilAttachment;
     }
 
     public class RenderPass : IDisposable, INative<VkRenderPass> {
@@ -86,31 +44,132 @@ namespace CSGL.Vulkan {
         }
 
         void CreateRenderPass(RenderPassCreateInfo mInfo) {
-            var info = new VkRenderPassCreateInfo();
-            info.sType = VkStructureType.RenderPassCreateInfo;
-            var marshalledArrays = new DisposableList<IDisposable>();
+            unsafe
+            {
+                var info = new VkRenderPassCreateInfo();
+                info.sType = VkStructureType.RenderPassCreateInfo;
 
-            var attachMarshalled = new MarshalledArray<VkAttachmentDescription>(mInfo.attachments);
-            info.attachmentCount = (uint)attachMarshalled.Count;
-            info.pAttachments = attachMarshalled.Address;
+                //for CreateInfo
+                int attachmentCount = 0;
+                int subpassCount = 0;
+                int dependencyCount = 0;
 
-            var subpasses = new VkSubpassDescription[mInfo.subpasses.Count];
-            for (int i = 0; i < subpasses.Length; i++) {
-                subpasses[i] = mInfo.subpasses[i].GetNative(marshalledArrays);
-            }
+                //for CreateInfo.subpasses
+                int totalInputAttachments = 0;
+                int totalColorAttachments = 0;
+                int totalResolveAttachments = 0;
+                int totalDepthStencilAttachments = 0;
+                int totalPreserveAttachments = 0;
 
-            var subpassMarshalled = new MarshalledArray<VkSubpassDescription>(subpasses);
-            info.subpassCount = (uint)subpassMarshalled.Count;
-            info.pSubpasses = subpassMarshalled.Address;
+                if (mInfo.attachments != null) attachmentCount = mInfo.attachments.Count;
+                if (mInfo.subpasses != null) subpassCount = mInfo.subpasses.Count;
+                if (mInfo.dependencies != null) dependencyCount = mInfo.dependencies.Count;
 
-            var dependMarshalled = new MarshalledArray<VkSubpassDependency>(mInfo.dependencies);
-            info.dependencyCount = (uint)dependMarshalled.Count;
-            info.pDependencies = dependMarshalled.Address;
+                for (int i = 0; i < subpassCount; i++) {
+                    var subpass = mInfo.subpasses[i];
+                    if (subpass.inputAttachments != null) totalInputAttachments += subpass.inputAttachments.Count;
+                    if (subpass.colorAttachments != null) totalColorAttachments += subpass.colorAttachments.Count;
+                    if (subpass.resolveAttachments != null) totalResolveAttachments += subpass.resolveAttachments.Count;
+                    if (subpass.depthStencilAttachment != null) totalDepthStencilAttachments += 1;
+                    if (subpass.preserveAttachments != null) totalPreserveAttachments += subpass.preserveAttachments.Count;
+                }
 
-            using (attachMarshalled)
-            using (subpassMarshalled)
-            using (dependMarshalled)
-            using (marshalledArrays)  {
+                //for CreateInfo
+                var attachments = stackalloc VkAttachmentDescription[attachmentCount];
+                var subpasses = stackalloc VkSubpassDescription[subpassCount];
+                var dependencies = stackalloc VkSubpassDependency[dependencyCount];
+
+                //for CreateInfo.subpasses
+                var inputAttachments = stackalloc VkAttachmentReference[totalInputAttachments];
+                var colorAttachments = stackalloc VkAttachmentReference[totalColorAttachments];
+                var resolveAttachments = stackalloc VkAttachmentReference[totalResolveAttachments];
+                var depthAttachments = stackalloc VkAttachmentReference[totalDepthStencilAttachments];
+                var preserveAttachments = stackalloc uint[totalPreserveAttachments];
+
+                int inputIndex = 0;
+                int colorIndex = 0;
+                int resolveIndex = 0;
+                int depthIndex = 0;
+                int preserveIndex = 0;
+
+                //marshal CreateInfo.attachments
+                for (int i = 0; i < attachmentCount; i++) {
+                    attachments[i] = mInfo.attachments[i];
+                }
+
+                //marshal CreateInfo.subpasses
+                for (int i = 0; i < subpassCount; i++) {
+                    var subpass = mInfo.subpasses[i];
+                    if (subpass.inputAttachments != null) {
+                        for (int j = 0; j < subpass.inputAttachments.Count; j++) {
+                            inputAttachments[j + inputIndex] = new VkAttachmentReference {
+                                attachment = subpass.inputAttachments[j].attachment,
+                                layout = subpass.inputAttachments[j].layout
+                            };
+                        }
+
+                        subpasses[i].inputAttachmentCount = (uint)subpass.inputAttachments.Count;
+                        subpasses[i].pInputAttachments = (IntPtr)(&inputAttachments[inputIndex]);
+                        inputIndex += subpass.inputAttachments.Count;
+                    }
+                    if (subpass.colorAttachments != null) {
+                        for (int j = 0; j < subpass.colorAttachments.Count; j++) {
+                            colorAttachments[j + colorIndex] = new VkAttachmentReference {
+                                attachment = subpass.colorAttachments[j].attachment,
+                                layout = subpass.colorAttachments[j].layout
+                            };
+                        }
+                        
+                        subpasses[i].colorAttachmentCount = (uint)subpass.colorAttachments.Count;
+                        subpasses[i].pColorAttachments = (IntPtr)(&colorAttachments[colorIndex]);
+                        colorIndex += subpass.colorAttachments.Count;
+                    }
+                    if (subpass.resolveAttachments != null) {
+                        for (int j = 0; j < subpass.resolveAttachments.Count; j++) {
+                            resolveAttachments[j + resolveIndex] = new VkAttachmentReference {
+                                attachment = subpass.resolveAttachments[j].attachment,
+                                layout = subpass.resolveAttachments[j].layout
+                            };
+                        }
+                        
+                        subpasses[i].pResolveAttachments = (IntPtr)(&resolveAttachments[inputIndex]);
+                        resolveIndex += subpass.resolveAttachments.Count;
+                    }
+                    if (subpass.depthStencilAttachment != null) {
+                        depthAttachments[depthIndex] = new VkAttachmentReference {
+                            attachment = subpass.depthStencilAttachment.attachment,
+                            layout = subpass.depthStencilAttachment.layout
+                        };
+                        
+                        subpasses[i].pDepthStencilAttachment = (IntPtr)(&depthAttachments[depthIndex]);
+                        depthIndex += 1;
+                    }
+                    if (subpass.preserveAttachments != null) {
+                        for (int j = 0; j < subpass.preserveAttachments.Count; j++) {
+                            preserveAttachments[j + preserveIndex] = subpass.preserveAttachments[j];
+                        }
+
+                        subpasses[i].preserveAttachmentCount = (uint)subpass.preserveAttachments.Count;
+                        subpasses[i].pPreserveAttachments = (IntPtr)(&preserveAttachments[preserveIndex]);
+                        preserveIndex += subpass.preserveAttachments.Count;
+                    }
+
+                    subpasses[i].pipelineBindPoint = subpass.pipelineBindPoint;
+                }
+
+                //marshal CreateInfo.dependencies
+                for (int i = 0; i < dependencyCount; i++) {
+                    dependencies[i] = mInfo.dependencies[i];
+                }
+
+                //marshal CreateInfo
+                info.attachmentCount = (uint)attachmentCount;
+                info.pAttachments = (IntPtr)attachments;
+                info.subpassCount = (uint)subpassCount;
+                info.pSubpasses = (IntPtr)subpasses;
+                info.dependencyCount = (uint)dependencyCount;
+                info.pDependencies = (IntPtr)dependencies;
+
                 var result = Device.Commands.createRenderPass(Device.Native, ref info, Device.Instance.AllocationCallbacks, out renderPass);
                 if (result != VkResult.Success) throw new RenderPassException(string.Format("Error creating render pass: {0}"));
             }
