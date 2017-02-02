@@ -15,7 +15,11 @@ namespace CSGL.Vulkan {
             info.sType = VkStructureType.CommandBufferInheritanceInfo;
             info.renderPass = renderPass.Native;
             info.subpass = subpass;
-            info.framebuffer = framebuffer.Native;
+
+            var framebufferNative = VkFramebuffer.Null;
+            if (framebuffer != null) framebufferNative = framebuffer.Native;
+            info.framebuffer = framebufferNative;
+
             info.occlusionQueryEnable = occlusionQueryEnable ? 1u : 0u;
             info.queryFlags = queryFlags;
             info.pipelineStatistics = pipelineStatistics;
