@@ -162,7 +162,7 @@ namespace CSGL.Vulkan {
                             };
                         }
                         
-                        subpasses[i].pResolveAttachments = (IntPtr)(&resolveAttachments[inputIndex]);
+                        subpasses[i].pResolveAttachments = (IntPtr)(&resolveAttachments[resolveIndex]);
                         resolveIndex += subpass.resolveAttachments.Count;
                     }
                     if (subpass.depthStencilAttachment != null) {
