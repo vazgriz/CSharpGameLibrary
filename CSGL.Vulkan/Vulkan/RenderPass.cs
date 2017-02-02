@@ -3,9 +3,21 @@ using System.Collections.Generic;
 
 namespace CSGL.Vulkan {
     public class RenderPassCreateInfo {
-        public List<VkAttachmentDescription> attachments;
+        public List<AttachmentDescription> attachments;
         public List<SubpassDescription> subpasses;
-        public List<VkSubpassDependency> dependencies;
+        public List<SubpassDependency> dependencies;
+    }
+
+    public class AttachmentDescription {
+        public VkAttachmentDescriptionFlags flags;
+        public VkFormat format;
+        public VkSampleCountFlags samples;
+        public VkAttachmentLoadOp loadOp;
+        public VkAttachmentStoreOp storeOp;
+        public VkAttachmentLoadOp stencilLoadOp;
+        public VkAttachmentStoreOp stencilStoreOp;
+        public VkImageLayout initialLayout;
+        public VkImageLayout finalLayout;
     }
 
     public class AttachmentReference {
@@ -20,6 +32,16 @@ namespace CSGL.Vulkan {
         public List<AttachmentReference> resolveAttachments;
         public List<uint> preserveAttachments;
         public AttachmentReference depthStencilAttachment;
+    }
+
+    public class SubpassDependency {
+        public uint srcSubpass;
+        public uint dstSubpass;
+        public VkPipelineStageFlags srcStageMask;
+        public VkPipelineStageFlags dstStageMask;
+        public VkAccessFlags srcAccessMask;
+        public VkAccessFlags dstAccessMask;
+        public VkDependencyFlags dependencyFlags;
     }
 
     public class RenderPass : IDisposable, INative<VkRenderPass> {
@@ -94,7 +116,15 @@ namespace CSGL.Vulkan {
 
                 //marshal CreateInfo.attachments
                 for (int i = 0; i < attachmentCount; i++) {
-                    attachments[i] = mInfo.attachments[i];
+                    attachments[i].flags = mInfo.attachments[i].flags;
+                    attachments[i].format = mInfo.attachments[i].format;
+                    attachments[i].samples = mInfo.attachments[i].samples;
+                    attachments[i].loadOp = mInfo.attachments[i].loadOp;
+                    attachments[i].storeOp = mInfo.attachments[i].storeOp;
+                    attachments[i].stencilLoadOp = mInfo.attachments[i].stencilLoadOp;
+                    attachments[i].stencilStoreOp = mInfo.attachments[i].stencilStoreOp;
+                    attachments[i].initialLayout = mInfo.attachments[i].initialLayout;
+                    attachments[i].finalLayout = mInfo.attachments[i].finalLayout;
                 }
 
                 //marshal CreateInfo.subpasses
@@ -159,7 +189,12 @@ namespace CSGL.Vulkan {
 
                 //marshal CreateInfo.dependencies
                 for (int i = 0; i < dependencyCount; i++) {
-                    dependencies[i] = mInfo.dependencies[i];
+                    dependencies[i].srcSubpass = mInfo.dependencies[i].srcSubpass;
+                    dependencies[i].dstSubpass = mInfo.dependencies[i].dstSubpass;
+                    dependencies[i].srcStageMask = mInfo.dependencies[i].srcStageMask;
+                    dependencies[i].dstStageMask = mInfo.dependencies[i].dstStageMask;
+                    dependencies[i].srcAccessMask = mInfo.dependencies[i].srcAccessMask;
+                    dependencies[i].dependencyFlags = mInfo.dependencies[i].dependencyFlags;
                 }
 
                 //marshal CreateInfo
