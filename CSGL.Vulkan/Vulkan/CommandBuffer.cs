@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 
 namespace CSGL.Vulkan {
     public class CommandBufferAllocateInfo {
@@ -84,15 +85,54 @@ namespace CSGL.Vulkan {
         }
 
         public void BindDescriptorSets(VkPipelineBindPoint pipelineBindPoint, PipelineLayout layout, uint firstSet, DescriptorSet[] descriptorSets, uint[] dynamicOffsets) {
-            using (var descriptorSetsMarshalled = new NativeArray<VkDescriptorSet>(descriptorSets))
-            using (var offsetsMarshalled = new PinnedArray<uint>(dynamicOffsets)) {
+            unsafe
+            {
+                var sets = stackalloc VkDescriptorSet[descriptorSets.Length];
+
+                for (int i = 0; i < descriptorSets.Length; i++) {
+                    sets[i] = descriptorSets[i].Native;
+                }
+
+                int dynamicOffsetCount = 0;
+                if (dynamicOffsets != null) dynamicOffsetCount = dynamicOffsets.Length;
+                GCHandle handle = GCHandle.Alloc(dynamicOffsets, GCHandleType.Pinned);
+
                 Device.Commands.cmdBindDescriptorSets(commandBuffer, pipelineBindPoint, layout.Native,
-                    firstSet, (uint)descriptorSets.Length, descriptorSetsMarshalled.Address,
-                    (uint)offsetsMarshalled.Count, offsetsMarshalled.Address);
+                    firstSet, (uint)descriptorSets.Length, (IntPtr)sets,
+                    (uint)dynamicOffsetCount, handle.AddrOfPinnedObject());
+
+                handle.Free();
             }
         }
 
         public void BindDescriptorSets(VkPipelineBindPoint pipelineBindPoint, PipelineLayout layout, uint firstSet, DescriptorSet[] descriptorSets) {
+            BindDescriptorSets(pipelineBindPoint, layout, firstSet, descriptorSets, null);
+        }
+
+        public void BindDescriptorSets(VkPipelineBindPoint pipelineBindPoint, PipelineLayout layout, uint firstSet, List<DescriptorSet> descriptorSets, List<uint> dynamicOffsets) {
+            unsafe
+            {
+                int dynamicOffsetCount = 0;
+                if (dynamicOffsets != null) dynamicOffsetCount = dynamicOffsets.Count;
+
+                var sets = stackalloc VkDescriptorSet[descriptorSets.Count];
+                var offsets = stackalloc uint[dynamicOffsetCount];
+
+                for (int i = 0; i < descriptorSets.Count; i++) {
+                    sets[i] = descriptorSets[i].Native;
+                }
+
+                for (int i = 0; i < dynamicOffsetCount; i++) {
+                    offsets[i] = dynamicOffsets[i];
+                }
+
+                Device.Commands.cmdBindDescriptorSets(commandBuffer, pipelineBindPoint, layout.Native,
+                    firstSet, (uint)descriptorSets.Count, (IntPtr)sets,
+                    (uint)dynamicOffsetCount, (IntPtr)offsets);
+            }
+        }
+
+        public void BindDescriptorSets(VkPipelineBindPoint pipelineBindPoint, PipelineLayout layout, uint firstSet, List<DescriptorSet> descriptorSets) {
             BindDescriptorSets(pipelineBindPoint, layout, firstSet, descriptorSets, null);
         }
 
@@ -116,6 +156,17 @@ namespace CSGL.Vulkan {
                 Interop.Copy(regions, (IntPtr)regionsNative);
 
                 Device.Commands.cmdCopyBuffer(commandBuffer, srcBuffer.Native, dstBuffer.Native, (uint)regions.Length, (IntPtr)regionsNative);
+            }
+        }
+
+        public void CopyBuffer(Buffer srcBuffer, Buffer dstBuffer, List<VkBufferCopy> regions) {
+            unsafe
+            {
+                var regionsNative = stackalloc VkBufferCopy[regions.Count];
+
+                Interop.Copy(regions, (IntPtr)regionsNative);
+
+                Device.Commands.cmdCopyBuffer(commandBuffer, srcBuffer.Native, dstBuffer.Native, (uint)regions.Count, (IntPtr)regionsNative);
             }
         }
 
@@ -228,11 +279,16 @@ namespace CSGL.Vulkan {
         }
 
         public void ClearColorImage(Image image, VkImageLayout imageLayout, ref VkClearColorValue clearColor, VkImageSubresourceRange[] ranges) {
+            GCHandle handle = GCHandle.Alloc(ranges, GCHandleType.Pinned);
+            Device.Commands.cmdClearColorImage(commandBuffer, image.Native, imageLayout, ref clearColor, (uint)ranges.Length, handle.AddrOfPinnedObject());
+        }
+
+        public void ClearColorImage(Image image, VkImageLayout imageLayout, ref VkClearColorValue clearColor, List<VkImageSubresourceRange> ranges) {
             unsafe
             {
-                var rangesNative = stackalloc VkImageSubresourceRange[ranges.Length];
+                var rangesNative = stackalloc VkImageSubresourceRange[ranges.Count];
                 Interop.Copy(ranges, (IntPtr)rangesNative);
-                Device.Commands.cmdClearColorImage(commandBuffer, image.Native, imageLayout, ref clearColor, (uint)ranges.Length, (IntPtr)rangesNative);
+                Device.Commands.cmdClearColorImage(commandBuffer, image.Native, imageLayout, ref clearColor, (uint)ranges.Count, (IntPtr)rangesNative);
             }
         }
 
