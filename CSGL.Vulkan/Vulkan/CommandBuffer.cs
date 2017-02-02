@@ -292,6 +292,14 @@ namespace CSGL.Vulkan {
             }
         }
 
+        public void Execute(List<CommandBuffer> commandBuffers) {
+            unsafe {
+                var commandBuffersNative = stackalloc VkCommandBuffer[commandBuffers.Count];
+                Interop.Marshal<VkCommandBuffer, CommandBuffer>(commandBuffers, commandBuffersNative);
+                Device.Commands.cmdExecuteCommands(commandBuffer, (uint)commandBuffers.Count, (IntPtr)commandBuffersNative);
+            }
+        }
+
         public void EndRenderPass() {
             Device.Commands.cmdEndRenderPass(commandBuffer);
         }
