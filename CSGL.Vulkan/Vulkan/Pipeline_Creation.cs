@@ -73,8 +73,8 @@ namespace CSGL.Vulkan {
     }
 
     public class PipelineViewportStateCreateInfo {
-        public VkViewport[] viewports;
-        public VkRect2D[] scissors;
+        public List<VkViewport> viewports;
+        public List<VkRect2D> scissors;
 
         internal VkPipelineViewportStateCreateInfo GetNative(DisposableList<IDisposable> marshalled) {
             var result = new VkPipelineViewportStateCreateInfo();
@@ -129,7 +129,7 @@ namespace CSGL.Vulkan {
         public VkSampleCountFlags rasterizationSamples;
         public bool sampleShadingEnable;
         public float minSampleShading;
-        public uint[] sampleMask;
+        public List<uint> sampleMask;
         public bool alphaToCoverageEnable;
         public bool alphaToOneEnable;
 
@@ -203,17 +203,17 @@ namespace CSGL.Vulkan {
     public class PipelineColorBlendStateCreateInfo {
         public bool logicOpEnable;
         public VkLogicOp logicOp;
-        public PipelineColorBlendAttachmentState[] attachments;
-        public float[] blendConstants;
+        public List<PipelineColorBlendAttachmentState> attachments;
+        public List<float> blendConstants;
 
         internal VkPipelineColorBlendStateCreateInfo GetNative(DisposableList<IDisposable> marshalled) {
             var result = new VkPipelineColorBlendStateCreateInfo();
             result.sType = VkStructureType.PipelineColorBlendStateCreateInfo;
             result.logicOpEnable = logicOpEnable ? 1u : 0u;
             result.logicOp = logicOp;
-            result.attachmentCount = (uint)this.attachments.Length;
+            result.attachmentCount = (uint)this.attachments.Count;
 
-            var attachments = new VkPipelineColorBlendAttachmentState[this.attachments.Length];
+            var attachments = new VkPipelineColorBlendAttachmentState[this.attachments.Count];
             for (int i = 0; i < attachments.Length; i++) {
                 attachments[i] = this.attachments[i].GetNative();
             }
@@ -236,14 +236,14 @@ namespace CSGL.Vulkan {
     }
 
     public class PipelineDynamicStateCreateInfo {
-        public VkDynamicState[] dynamicStates;
+        public List<VkDynamicState> dynamicStates;
 
         internal VkPipelineDynamicStateCreateInfo GetNative(DisposableList<IDisposable> marshalled) {
             var result = new VkPipelineDynamicStateCreateInfo();
             result.sType = VkStructureType.PipelineDynamicStateCreateInfo;
 
-            var dynamicMarshalled = new NativeArray<int>(dynamicStates.Length);
-            for (int i = 0; i < dynamicStates.Length; i++) {
+            var dynamicMarshalled = new NativeArray<int>(dynamicStates.Count);
+            for (int i = 0; i < dynamicStates.Count; i++) {
                 dynamicMarshalled[i] = (int)dynamicStates[i];
             }
             result.dynamicStateCount = (uint)dynamicMarshalled.Count;
