@@ -61,7 +61,7 @@ namespace CSGL.Vulkan {
             info.renderArea = renderArea;
 
             var clearValuesMarshalled = new NativeArray<VkClearValue>(clearValues);
-            info.clearValueCount = (uint)clearValues.Count;
+            info.clearValueCount = (uint)clearValuesMarshalled.Count;
             info.pClearValues = clearValuesMarshalled.Address;
 
             marshalled.Add(clearValuesMarshalled);
