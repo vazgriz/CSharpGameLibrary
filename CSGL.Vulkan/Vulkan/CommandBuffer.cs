@@ -136,6 +136,13 @@ namespace CSGL.Vulkan {
             BindDescriptorSets(pipelineBindPoint, layout, firstSet, descriptorSets, null);
         }
 
+        public void BindDescriptorSet(VkPipelineBindPoint pipelineBindPoint, PipelineLayout layout, uint firstSet, DescriptorSet descriptorSet) {
+            unsafe {
+                VkDescriptorSet set = descriptorSet.Native;
+                Device.Commands.cmdBindDescriptorSets(commandBuffer, pipelineBindPoint, layout.Native, firstSet, 1, (IntPtr)(&set), 0, IntPtr.Zero);
+            }
+        }
+
         public void Draw(uint vertexCount, uint instanceCount, uint firstVertex, uint firstInstance) {
             Device.Commands.cmdDraw(commandBuffer, vertexCount, instanceCount, firstVertex, firstInstance);
         }
