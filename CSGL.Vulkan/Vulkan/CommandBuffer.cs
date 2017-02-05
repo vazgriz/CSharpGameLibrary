@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using System.Runtime.CompilerServices;
 
 namespace CSGL.Vulkan {
     public class CommandBufferAllocateInfo {
@@ -324,6 +325,15 @@ namespace CSGL.Vulkan {
                 byte* native = stackalloc byte[size * data.Count];
                 Interop.Copy(data, (IntPtr)native);
                 Device.Commands.cmdPushConstants(commandBuffer, layout.Native, stageFlags, offset, (uint)(size * data.Count), (IntPtr)native);
+            }
+        }
+
+        public void PushConstants<T>(PipelineLayout layout, VkShaderStageFlags stageFlags, uint offset, T data) where T : struct {
+            unsafe
+            {
+                //can't take address of generic variable in c#
+                IntPtr native = (IntPtr)Unsafe.AsPointer(ref data);
+                Device.Commands.cmdPushConstants(commandBuffer, layout.Native, stageFlags, offset, (uint)Interop.SizeOf<T>(), native);
             }
         }
 
