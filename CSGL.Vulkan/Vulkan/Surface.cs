@@ -20,7 +20,16 @@ namespace CSGL.Vulkan {
 
         public IList<VkSurfaceFormatKHR> Formats { get; private set; }
         public IList<VkPresentModeKHR> PresentModes { get; private set; }
-        public VkSurfaceCapabilitiesKHR Capabilities { get; private set; }
+        public VkSurfaceCapabilitiesKHR Capabilities {
+            get {
+                unsafe
+                {
+                    VkSurfaceCapabilitiesKHR cap;
+                    getCapabilities(physicalDevice.Native, surface, (IntPtr)(&cap));
+                    return cap;
+                }
+            }
+        }
 
         public VkSurfaceKHR Native {
             get {
@@ -51,11 +60,6 @@ namespace CSGL.Vulkan {
             getModes = Instance.Commands.getModes;
 
             CreateSurface(window);
-
-            using (var capMarshalled = new Marshalled<VkSurfaceCapabilitiesKHR>()) {
-                getCapabilities(physicalDevice.Native, surface, capMarshalled.Address);
-                Capabilities = capMarshalled.Value;
-            }
 
             GetFormats();
             GetModes();
