@@ -9,7 +9,7 @@ namespace CSGL.Vulkan {
         public uint commandBufferCount;
     }
 
-    public class CommandBuffer: INative<VkCommandBuffer> {
+    public class CommandBuffer : INative<VkCommandBuffer> {
         VkCommandBuffer commandBuffer;
 
         public VkCommandBuffer Native {
@@ -185,7 +185,7 @@ namespace CSGL.Vulkan {
                 region.srcOffset = 0;
                 region.dstOffset = 0;
                 region.size = System.Math.Min(srcBuffer.Size, dstBuffer.Size);
-                
+
                 Device.Commands.cmdCopyBuffer(commandBuffer, srcBuffer.Native, dstBuffer.Native, 1, (IntPtr)(&region));
             }
         }
@@ -226,7 +226,7 @@ namespace CSGL.Vulkan {
 
         public void PipelineBarrier(VkPipelineStageFlags srcStageMask, VkPipelineStageFlags dstStageMask, VkDependencyFlags flags,
             List<MemoryBarrier> memoryBarriers, List<BufferMemoryBarrier> bufferMemoryBarriers, List<ImageMemoryBarrier> imageMemoryBarriers) {
-            
+
             int mbCount = 0;
             int bbCount = 0;
             int ibCount = 0;
