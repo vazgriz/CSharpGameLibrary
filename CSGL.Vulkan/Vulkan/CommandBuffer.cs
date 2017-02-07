@@ -119,8 +119,13 @@ namespace CSGL.Vulkan {
                 var sets = stackalloc VkDescriptorSet[descriptorSets.Count];
                 var offsets = stackalloc uint[dynamicOffsetCount];
 
-                Interop.Marshal<VkDescriptorSet, DescriptorSet>(descriptorSets, sets);
-                Interop.Copy(dynamicOffsets, (IntPtr)offsets);
+                for (int i = 0; i < descriptorSets.Count; i++) {
+                    sets[i] = descriptorSets[i].Native;
+                }
+
+                for (int i = 0; i < dynamicOffsetCount; i++) {
+                    offsets[i] = dynamicOffsets[i];
+                }
 
                 Device.Commands.cmdBindDescriptorSets(commandBuffer, pipelineBindPoint, layout.Native,
                     firstSet, (uint)descriptorSets.Count, (IntPtr)sets,
