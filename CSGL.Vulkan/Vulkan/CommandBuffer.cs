@@ -139,6 +139,23 @@ namespace CSGL.Vulkan {
             }
         }
 
+        public void BindDescriptorSets(VkPipelineBindPoint pipelineBindPoint, PipelineLayout layout, uint firstSet, DescriptorSet descriptorSet, List<uint> dynamicOffsets) {
+            unsafe
+            {
+                int dynamicOffsetCount = 0;
+                if (dynamicOffsets != null) dynamicOffsetCount = dynamicOffsets.Count;
+                
+                var offsets = stackalloc uint[dynamicOffsetCount];
+
+                VkDescriptorSet setNative = descriptorSet.Native;
+                Interop.Copy(dynamicOffsets, (IntPtr)offsets);
+
+                Device.Commands.cmdBindDescriptorSets(commandBuffer, VkPipelineBindPoint.Graphics, layout.Native,
+                    firstSet, 1, (IntPtr)(&setNative),
+                    (uint)dynamicOffsetCount, (IntPtr)offsets);
+            }
+        }
+
         public void Draw(uint vertexCount, uint instanceCount, uint firstVertex, uint firstInstance) {
             Device.Commands.cmdDraw(commandBuffer, vertexCount, instanceCount, firstVertex, firstInstance);
         }
