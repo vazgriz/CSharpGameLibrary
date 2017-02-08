@@ -54,6 +54,12 @@ namespace CSGL.Vulkan {
             public vkResetFencesDelegate resetFences;
             public vkWaitForFencesDelegate waitFences;
 
+            public vkCreateEventDelegate createEvent;
+            public vkDestroyEventDelegate destroyEvent;
+            public vkGetEventStatusDelegate getEventStatus;
+            public vkSetEventDelegate setEvent;
+            public vkResetEventDelegate resetEvent;
+
             public vkCreateCommandPoolDelegate createCommandPool;
             public vkDestroyCommandPoolDelegate destroyCommandPool;
             public vkAllocateCommandBuffersDelegate allocateCommandBuffers;
@@ -77,6 +83,9 @@ namespace CSGL.Vulkan {
             public vkCmdClearColorImageDelegate cmdClearColorImage;
             public vkCmdExecuteCommandsDelegate cmdExecuteCommands;
             public vkCmdPushConstantsDelegate cmdPushConstants;
+            public vkCmdSetEventDelegate cmdSetEvent;
+            public vkCmdResetEventDelegate cmdResetEvent;
+            public vkCmdWaitEventsDelegate cmdWaitEvents;
 
             public vkCreateBufferDelegate createBuffer;
             public vkDestroyBufferDelegate destroyBuffer;
