@@ -22,14 +22,12 @@ namespace CSGL.Vulkan {
             if (device == null) throw new ArgumentNullException(nameof(device));
             if (fences == null) throw new ArgumentNullException(nameof(fences));
 
-            var fencesNative = new VkFence[fences.Length];
-
-			for (int i = 0; i < fencesNative.Length; i++) {
-                fencesNative[i] = fences[i].Native;
-            }
-
-            using (var fencesMarshalled = new PinnedArray<VkFence>(fencesNative)) {
-                var result = device.Commands.resetFences(device.Native, (uint)fences.Length, fencesMarshalled.Address);
+            unsafe
+            {
+                var fencesNative = stackalloc VkFence[fences.Length];
+                Interop.Marshal(fences, fencesNative);
+                
+                var result = device.Commands.resetFences(device.Native, (uint)fences.Length, (IntPtr)fencesNative);
                 if (result != VkResult.Success) throw new FenceException(string.Format("Error resetting fences: {0}", result));
                 return result;
             }
@@ -54,15 +52,13 @@ namespace CSGL.Vulkan {
             if (device == null) throw new ArgumentNullException(nameof(device));
             if (fences == null) throw new ArgumentNullException(nameof(fences));
 
-            var fencesNative = new VkFence[fences.Length];
-
-            for (int i = 0; i < fencesNative.Length; i++) {
-                fencesNative[i] = fences[i].Native;
-            }
-
-            using (var fencesMarshalled = new PinnedArray<VkFence>(fencesNative)) {
+            unsafe
+            {
+                var fencesNative = stackalloc VkFence[fences.Length];
+                Interop.Marshal(fences, fencesNative);
+                
                 uint waitAllNative = waitAll ? 1u : 0u;
-                var result = device.Commands.waitFences(device.Native, (uint)fences.Length, fencesMarshalled.Address, waitAllNative, timeout);
+                var result = device.Commands.waitFences(device.Native, (uint)fences.Length, (IntPtr)fencesNative, waitAllNative, timeout);
                 if (!(result == VkResult.Success || result == VkResult.Timeout)) throw new FenceException(string.Format("Error waiting on fences: {0}", result));
                 return result;
             }
