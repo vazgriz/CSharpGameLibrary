@@ -59,6 +59,7 @@
     <Compile Include="Vulkan\Device.cs" />
     <Compile Include="Vulkan\DeviceMemory.cs" />
     <Compile Include="Vulkan\enums.cs" />
+    <Compile Include="Vulkan\Event.cs" />
     <Compile Include="Vulkan\Extension.cs" />
     <Compile Include="Vulkan\Fence.cs" />
     <Compile Include="Vulkan\Framebuffer.cs" />

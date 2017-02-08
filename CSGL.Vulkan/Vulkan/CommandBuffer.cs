@@ -364,6 +364,92 @@ namespace CSGL.Vulkan {
             }
         }
 
+        public void SetEvent(Event _event, VkPipelineStageFlags stageMask) {
+            Device.Commands.cmdSetEvent(commandBuffer, _event.Native, stageMask);
+        }
+
+        public void ResetEvent(Event _event, VkPipelineStageFlags stageMask) {
+            Device.Commands.cmdResetEvent(commandBuffer, _event.Native, stageMask);
+        }
+
+        public void WaitEvents(List<Event> events, VkPipelineStageFlags srcStageMask, VkPipelineStageFlags dstStageMask,
+            List<MemoryBarrier> memoryBarriers, List<BufferMemoryBarrier> bufferMemoryBarriers, List<ImageMemoryBarrier> imageMemoryBarriers) {
+            unsafe
+            {
+                var eventsNative = stackalloc VkEvent[events.Count];
+                Interop.Marshal<VkEvent, Event>(events, eventsNative);
+
+                int mbCount = 0;
+                int bbCount = 0;
+                int ibCount = 0;
+
+                if (memoryBarriers != null) mbCount = memoryBarriers.Count;
+                if (bufferMemoryBarriers != null) bbCount = bufferMemoryBarriers.Count;
+                if (imageMemoryBarriers != null) ibCount = imageMemoryBarriers.Count;
+
+                var mbNative = stackalloc VkMemoryBarrier[mbCount];
+                var bbNative = stackalloc VkBufferMemoryBarrier[bbCount];
+                var ibNative = stackalloc VkImageMemoryBarrier[ibCount];
+
+                for (int i = 0; i < mbCount; i++) {
+                    var mb = memoryBarriers[i];
+                    mbNative[i] = new VkMemoryBarrier();
+                    mbNative[i].sType = VkStructureType.MemoryBarrier;
+                    mbNative[i].srcAccessMask = mb.srcAccessMask;
+                    mbNative[i].dstAccessMask = mb.dstAccessMask;
+                }
+
+                for (int i = 0; i < bbCount; i++) {
+                    var bb = bufferMemoryBarriers[i];
+                    bbNative[i] = new VkBufferMemoryBarrier();
+                    bbNative[i].sType = VkStructureType.BufferMemoryBarrier;
+                    bbNative[i].srcAccessMask = bb.srcAccessMask;
+                    bbNative[i].dstAccessMask = bb.dstAccessMask;
+                    bbNative[i].srcQueueFamilyIndex = bb.srcQueueFamilyIndex;
+                    bbNative[i].dstQueueFamilyIndex = bb.dstQueueFamilyIndex;
+                    bbNative[i].buffer = bb.buffer.Native;
+                    bbNative[i].offset = bb.offset;
+                    bbNative[i].size = bb.size;
+                }
+
+                for (int i = 0; i < ibCount; i++) {
+                    var ib = imageMemoryBarriers[i];
+                    ibNative[i] = new VkImageMemoryBarrier();
+                    ibNative[i].sType = VkStructureType.ImageMemoryBarrier;
+                    ibNative[i].srcAccessMask = ib.srcAccessMask;
+                    ibNative[i].dstAccessMask = ib.dstAccessMask;
+                    ibNative[i].oldLayout = ib.oldLayout;
+                    ibNative[i].newLayout = ib.newLayout;
+                    ibNative[i].srcQueueFamilyIndex = ib.srcQueueFamilyIndex;
+                    ibNative[i].dstQueueFamilyIndex = ib.dstQueueFamilyIndex;
+                    ibNative[i].image = ib.image.Native;
+                    ibNative[i].subresourceRange = ib.subresourceRange;
+                }
+
+                Device.Commands.cmdWaitEvents(commandBuffer,
+                    (uint)events.Count, (IntPtr)eventsNative,
+                    srcStageMask, dstStageMask,
+                    (uint)mbCount, (IntPtr)mbNative,
+                    (uint)bbCount, (IntPtr)bbNative,
+                    (uint)ibCount, (IntPtr)ibNative);
+            }
+        }
+
+        public void WaitEvents(List<Event> events, VkPipelineStageFlags srcStageMask, VkPipelineStageFlags dstStageMask) {
+            unsafe
+            {
+                var eventsNative = stackalloc VkEvent[events.Count];
+                Interop.Marshal<VkEvent, Event>(events, eventsNative);
+
+                Device.Commands.cmdWaitEvents(commandBuffer,
+                    (uint)events.Count, (IntPtr)eventsNative,
+                    srcStageMask, dstStageMask,
+                    0, IntPtr.Zero,
+                    0, IntPtr.Zero,
+                    0, IntPtr.Zero);
+            }
+        }
+
         public void EndRenderPass() {
             Device.Commands.cmdEndRenderPass(commandBuffer);
         }
