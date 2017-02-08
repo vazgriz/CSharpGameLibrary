@@ -186,10 +186,10 @@ namespace CSGL.GLFW.Unmanaged {
         public static extern void glfwPostEmptyEvent();
 
         [DllImport(lib)]
-        public static extern int glfwGetInputMode(WindowPtr window, int mode);
+        public static extern int glfwGetInputMode(WindowPtr window, InputMode mode);
 
         [DllImport(lib)]
-        public static extern void glfwSetInputMode(WindowPtr window, int mode, int value);
+        public static extern void glfwSetInputMode(WindowPtr window, InputMode mode, int value);
 
         [DllImport(lib)]
         public static extern IntPtr glfwGetKeyName(KeyCode key, int scan);
@@ -292,5 +292,20 @@ namespace CSGL.GLFW.Unmanaged {
 
         [DllImport(lib)]
         public static extern IntPtr glfwGetProcAddress(string procName);
+
+        [DllImport(lib)]
+        public static extern bool glfwVulkanSupported();
+
+        [DllImport(lib)]
+        public static extern byte** glfwGetRequiredInstanceExtensions(out uint count);
+
+        [DllImport(lib)]
+        public static extern IntPtr glfwGetInstanceProcAddress(IntPtr instance, string procName);
+
+        [DllImport(lib)]
+        public static extern bool glfwGetPhysicalDevicePresentationSupport(IntPtr instance, IntPtr device, uint queuefamily);
+
+        [DllImport(lib)]
+        public static extern int glfwCreateWindowSurface(IntPtr instance, WindowPtr window, IntPtr allocator, out ulong surface);
     }
 }

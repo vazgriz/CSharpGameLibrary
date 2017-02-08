@@ -29,7 +29,7 @@ namespace CSGL {
                 unsafe
                 {
                     for (int i = 0; i < count; i++) {
-                        Interop.Copy(array, ptr);
+                        Interop.Copy(array, (IntPtr)ptr);
                     }
                 }
             }
@@ -58,17 +58,6 @@ namespace CSGL {
                         Unsafe.Write(GetAddressInternal(i), array[i].Native);
                     }
                 }
-            }
-        }
-
-        public unsafe NativeArray(void* ptr, T[] array) {
-            if (ptr == null) throw new ArgumentNullException(nameof(ptr));
-
-            if (array != null) {
-                count = array.Length;
-                this.ptr = ptr;
-
-                Interop.Copy(array, ptr);
             }
         }
         

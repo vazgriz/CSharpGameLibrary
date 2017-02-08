@@ -34,6 +34,10 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=4.0.2.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\..\UnnamedEngine\packages\System.Runtime.CompilerServices.Unsafe.4.3.0\lib\netstandard1.0\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -42,10 +46,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="GLFW_VK\GLFW.cs" />
-    <Compile Include="GLFW_VK\Unmanaged\GLFW_vk_native.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Vulkan\Buffer.cs" />
+    <Compile Include="Vulkan\BufferView.cs" />
     <Compile Include="Vulkan\CommandBuffer.cs" />
     <Compile Include="Vulkan\CommandPool.cs" />
     <Compile Include="Vulkan\Commands.cs" />
@@ -56,6 +59,7 @@
     <Compile Include="Vulkan\Device.cs" />
     <Compile Include="Vulkan\DeviceMemory.cs" />
     <Compile Include="Vulkan\enums.cs" />
+    <Compile Include="Vulkan\Event.cs" />
     <Compile Include="Vulkan\Extension.cs" />
     <Compile Include="Vulkan\Fence.cs" />
     <Compile Include="Vulkan\Framebuffer.cs" />
@@ -87,6 +91,8 @@
       <Name>CSharpGameLibrary</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

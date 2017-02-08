@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 
 using CSGL.GLFW;
+using CSGL.GLFW.Unmanaged;
 using CSGL.Vulkan.Unmanaged;
 
 namespace CSGL.Vulkan {
@@ -19,7 +20,16 @@ namespace CSGL.Vulkan {
 
         public IList<VkSurfaceFormatKHR> Formats { get; private set; }
         public IList<VkPresentModeKHR> PresentModes { get; private set; }
-        public VkSurfaceCapabilitiesKHR Capabilities { get; private set; }
+        public VkSurfaceCapabilitiesKHR Capabilities {
+            get {
+                unsafe
+                {
+                    VkSurfaceCapabilitiesKHR cap;
+                    getCapabilities(physicalDevice.Native, surface, (IntPtr)(&cap));
+                    return cap;
+                }
+            }
+        }
 
         public VkSurfaceKHR Native {
             get {
@@ -27,10 +37,21 @@ namespace CSGL.Vulkan {
             }
         }
 
-        public Surface(PhysicalDevice device, WindowPtr window) {
-            if (device == null) throw new ArgumentException(string.Format("{0} can not be null", nameof(device)));
-            if (window == WindowPtr.Null) throw new ArgumentException(string.Format("{0} can not be null", nameof(window)));
+        public Surface(PhysicalDevice device, Window window) {
+            if (device == null) throw new ArgumentNullException(nameof(device));
+            if (window == null) throw new ArgumentNullException(nameof(window));
 
+            Init(device, window.Native);
+        }
+
+        public Surface(PhysicalDevice device, WindowPtr window) {
+            if (device == null) throw new ArgumentNullException(nameof(device));
+            if (window == WindowPtr.Null) throw new ArgumentNullException(nameof(window));
+
+            Init(device, window);
+        }
+
+        void Init(PhysicalDevice device, WindowPtr window) {
             physicalDevice = device;
             Instance = device.Instance;
             
@@ -40,17 +61,12 @@ namespace CSGL.Vulkan {
 
             CreateSurface(window);
 
-            using (var capMarshalled = new Marshalled<VkSurfaceCapabilitiesKHR>()) {
-                getCapabilities(physicalDevice.Native, surface, capMarshalled.Address);
-                Capabilities = capMarshalled.Value;
-            }
-
             GetFormats();
             GetModes();
         }
 
         void CreateSurface(WindowPtr window) {
-            var result = GLFW_VK.CreateWindowSurface(Instance.Native, window, Instance.AllocationCallbacks, out surface);
+            var result = (VkResult)GLFW.GLFW.CreateWindowSurface(Instance.Native.native, window, Instance.AllocationCallbacks, out surface.native);
             if (result != VkResult.Success) throw new SurfaceException(string.Format("Error creating surface: {0}", result));
         }
 

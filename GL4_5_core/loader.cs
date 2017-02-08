@@ -3,8 +3,6 @@ using System;
 using System.Reflection;
 using System.Runtime.InteropServices;
 
-using CSGL.GLFW.Unmanaged;
-
 namespace CSGL.OpenGL.GL4_5_core {
     public static partial class GL {
         public static void Load() {

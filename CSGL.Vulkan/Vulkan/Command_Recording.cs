@@ -15,7 +15,11 @@ namespace CSGL.Vulkan {
             info.sType = VkStructureType.CommandBufferInheritanceInfo;
             info.renderPass = renderPass.Native;
             info.subpass = subpass;
-            info.framebuffer = framebuffer.Native;
+
+            var framebufferNative = VkFramebuffer.Null;
+            if (framebuffer != null) framebufferNative = framebuffer.Native;
+            info.framebuffer = framebufferNative;
+
             info.occlusionQueryEnable = occlusionQueryEnable ? 1u : 0u;
             info.queryFlags = queryFlags;
             info.pipelineStatistics = pipelineStatistics;
@@ -57,7 +61,7 @@ namespace CSGL.Vulkan {
             info.renderArea = renderArea;
 
             var clearValuesMarshalled = new NativeArray<VkClearValue>(clearValues);
-            info.clearValueCount = (uint)clearValues.Count;
+            info.clearValueCount = (uint)clearValuesMarshalled.Count;
             info.pClearValues = clearValuesMarshalled.Address;
 
             marshalled.Add(clearValuesMarshalled);

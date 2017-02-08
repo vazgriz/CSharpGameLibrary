@@ -60,14 +60,20 @@ namespace CSGL.Vulkan {
 
         public static IList<Extension> AvailableExtensions {
             get {
-                if (extensionsReadOnly == null) GetExtensions();
+                if (extensionsReadOnly == null) {
+                    if (!initialized) Init();
+                    GetExtensions();
+                }
                 return extensionsReadOnly;
             }
         }
 
         public static IList<Layer> AvailableLayers {
             get {
-                if (layersReadOnly == null) GetLayers();
+                if (layersReadOnly == null) {
+                    if (!initialized) Init();
+                    GetLayers();
+                }
                 return layersReadOnly;
             }
         }

@@ -54,14 +54,22 @@ namespace CSGL.Vulkan {
             public vkResetFencesDelegate resetFences;
             public vkWaitForFencesDelegate waitFences;
 
+            public vkCreateEventDelegate createEvent;
+            public vkDestroyEventDelegate destroyEvent;
+            public vkGetEventStatusDelegate getEventStatus;
+            public vkSetEventDelegate setEvent;
+            public vkResetEventDelegate resetEvent;
+
             public vkCreateCommandPoolDelegate createCommandPool;
             public vkDestroyCommandPoolDelegate destroyCommandPool;
             public vkAllocateCommandBuffersDelegate allocateCommandBuffers;
             public vkFreeCommandBuffersDelegate freeCommandBuffers;
+            public vkResetCommandBufferDelegate resetCommandBuffers;
 
             public vkBeginCommandBufferDelegate beginCommandBuffer;
             public vkEndCommandBufferDelegate endCommandBuffer;
             public vkCmdBeginRenderPassDelegate cmdBeginRenderPass;
+            public vkCmdNextSubpassDelegate cmdNextSubpass;
             public vkCmdEndRenderPassDelegate cmdEndRenderPass;
             public vkCmdBindPipelineDelegate cmdBindPipeline;
             public vkCmdDrawDelegate cmdDraw;
@@ -73,12 +81,20 @@ namespace CSGL.Vulkan {
             public vkCmdPipelineBarrierDelegate cmdPipelineBarrier;
             public vkCmdCopyImageDelegate cmdCopyImage;
             public vkCmdClearColorImageDelegate cmdClearColorImage;
+            public vkCmdExecuteCommandsDelegate cmdExecuteCommands;
+            public vkCmdPushConstantsDelegate cmdPushConstants;
+            public vkCmdSetEventDelegate cmdSetEvent;
+            public vkCmdResetEventDelegate cmdResetEvent;
+            public vkCmdWaitEventsDelegate cmdWaitEvents;
 
             public vkCreateBufferDelegate createBuffer;
             public vkDestroyBufferDelegate destroyBuffer;
             public vkGetBufferMemoryRequirementsDelegate getMemoryRequirements;
             public vkGetPhysicalDeviceMemoryPropertiesDelegate getMemoryProperties;
             public vkBindBufferMemoryDelegate bindBuffer;
+
+            public vkCreateBufferViewDelegate createBufferView;
+            public vkDestroyBufferViewDelegate destroyBufferView;
 
             public vkAllocateMemoryDelegate allocateMemory;
             public vkFreeMemoryDelegate freeMemory;

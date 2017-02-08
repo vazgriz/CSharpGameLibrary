@@ -2,7 +2,7 @@
 using System.Runtime.InteropServices;
 
 namespace CSGL.GLFW {
-    [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    [StructLayout(LayoutKind.Sequential)]
     public struct VideoMode {
         public readonly int width;
         public readonly int height;
@@ -12,14 +12,14 @@ namespace CSGL.GLFW {
         public readonly int refreshRate;
     }
 
-    [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    [StructLayout(LayoutKind.Sequential)]
     public unsafe struct NativeGammaRamp {
-        public short* red;
-        public short* green;
-        public short* blue;
+        public ushort* red;
+        public ushort* green;
+        public ushort* blue;
         public uint size;
 
-        public NativeGammaRamp(short* red, short* green, short* blue, uint size) {
+        public NativeGammaRamp(ushort* red, ushort* green, ushort* blue, uint size) {
             this.red = red;
             this.green = green;
             this.blue = blue;
@@ -28,12 +28,12 @@ namespace CSGL.GLFW {
     }
 
     public struct GammaRamp {
-        public short[] red;
-        public short[] green;
-        public short[] blue;
+        public ushort[] red;
+        public ushort[] green;
+        public ushort[] blue;
         public uint size;
 
-        public GammaRamp(short[] red, short[] green, short[] blue, uint size) {
+        public GammaRamp(ushort[] red, ushort[] green, ushort[] blue, uint size) {
             this.red = red;
             this.green = green;
             this.blue = blue;
@@ -42,25 +42,22 @@ namespace CSGL.GLFW {
 
         public GammaRamp(NativeGammaRamp ramp) {
             size = ramp.size;
-            red = new short[size];
-            green = new short[size];
-            blue = new short[size];
+            red = new ushort[size];
+            green = new ushort[size];
+            blue = new ushort[size];
 
             unsafe
             {
                 for (int i = 0; i < size; i++) {
-                    short r = ramp.red[i];
-                    short g = ramp.green[i];
-                    short b = ramp.blue[i];
-                    red[i] = r;
-                    green[i] = g;
-                    blue[i] = b;
+                    red[i] = ramp.red[i];
+                    green[i] = ramp.green[i];
+                    blue[i] = ramp.blue[i];
                 }
             }
         }
     }
 
-    [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    [StructLayout(LayoutKind.Sequential)]
     public unsafe struct NativeImage {
         public int width;
         public int height;

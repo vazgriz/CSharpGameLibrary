@@ -1,34 +1,34 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 
-namespace CSGL.GLFW {
+namespace CSGL.GLFW.Unmanaged {
     [StructLayout(LayoutKind.Sequential)]
-    public struct MonitorPtr : IEquatable<MonitorPtr> {
+    public struct WindowPtr : IEquatable<WindowPtr> {
         internal IntPtr ptr;
 
-        internal MonitorPtr(IntPtr ptr) {
+        internal WindowPtr(IntPtr ptr) {
             this.ptr = ptr;
         }
 
-        public bool Equals(MonitorPtr other) {
+        public bool Equals(WindowPtr other) {
             return ptr == other.ptr;
         }
 
         public bool IsNull { get { return ptr == IntPtr.Zero; } }
 
-        public static readonly MonitorPtr Null = new MonitorPtr();
+        public static readonly WindowPtr Null = new WindowPtr();
 
-        public static bool operator == (MonitorPtr a, MonitorPtr b) {
+        public static bool operator == (WindowPtr a, WindowPtr b) {
             return a.Equals(b);
         }
 
-        public static bool operator !=(MonitorPtr a, MonitorPtr b) {
+        public static bool operator != (WindowPtr a, WindowPtr b) {
             return !a.Equals(b);
         }
 
         public override bool Equals(object o) {
-            if (o is MonitorPtr) {
-                return (MonitorPtr)o == this;
+            if (o is WindowPtr) {
+                return (WindowPtr)o == this;
             }
             return false;
         }

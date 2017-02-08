@@ -78,7 +78,7 @@ namespace CSGL.Vulkan {
 
         static VkPipeline[] CreatePipelinesInternal(Device device, GraphicsPipelineCreateInfo[] mInfos, VkPipelineCache cache) {
             int count = mInfos.Length;
-            var infos = new VkGraphicsPipelineCreateInfo[count];
+            var infosMarshalled = new MarshalledArray<VkGraphicsPipelineCreateInfo>(count);
             var pipelineResults = new VkPipeline[count];
             var marshalledArrays = new DisposableList<IDisposable>(count);
 
@@ -165,12 +165,12 @@ namespace CSGL.Vulkan {
                 }
                 info.basePipelineIndex = mInfo.basePipelineIndex;
 
-                infos[i] = info;
+                infosMarshalled[i] = info;
             }
 
-            using (var infosMarshalled = new MarshalledArray<VkGraphicsPipelineCreateInfo>(infos))
-            using (var pipelinesMarshalled = new PinnedArray<VkPipeline>(pipelineResults))
-            using (marshalledArrays) {
+            using (infosMarshalled)
+            using (marshalledArrays)
+            using (var pipelinesMarshalled = new PinnedArray<VkPipeline>(pipelineResults)) {
                 var result = device.Commands.createGraphicsPiplines(
                     device.Native, cache,
                     (uint)count, infosMarshalled.Address,

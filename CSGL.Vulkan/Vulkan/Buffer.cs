@@ -17,6 +17,9 @@ namespace CSGL.Vulkan {
         bool disposed;
 
         VkMemoryRequirements requirements;
+        VkBufferUsageFlags usage;
+        ulong offset;
+        bool bound;
         
         public Device Device { get; private set; }
 
@@ -29,6 +32,30 @@ namespace CSGL.Vulkan {
         public VkMemoryRequirements Requirements {
             get {
                 return requirements;
+            }
+        }
+
+        public VkBufferUsageFlags Usage {
+            get {
+                return usage;
+            }
+        }
+
+        public ulong Offset {
+            get {
+                return offset;
+            }
+        }
+
+        public ulong Size {
+            get {
+                return requirements.size;
+            }
+        }
+
+        public bool Bound {
+            get {
+                return bound;
             }
         }
 
@@ -59,12 +86,18 @@ namespace CSGL.Vulkan {
                 var result = Device.Commands.createBuffer(Device.Native, ref info, Device.Instance.AllocationCallbacks, out buffer);
                 if (result != VkResult.Success) throw new BufferException(string.Format("Error creating Buffer: {0}", result));
             }
+
+            usage = mInfo.usage;
         }
 
         public void Bind(DeviceMemory deviceMemory, ulong offset) {
             if (deviceMemory == null) throw new ArgumentNullException(nameof(deviceMemory));
 
-            Device.Commands.bindBuffer(Device.Native, buffer, deviceMemory.Native, offset);
+            var result = Device.Commands.bindBuffer(Device.Native, buffer, deviceMemory.Native, offset);
+            if (result != VkResult.Success) throw new BufferException(string.Format("Error binding buffer: {0}", result));
+
+            this.offset = offset;
+            bound = true;
         }
 
         public void Dispose() {
