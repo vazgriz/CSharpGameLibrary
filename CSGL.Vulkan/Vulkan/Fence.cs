@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace CSGL.Vulkan {
 	public class FenceCreateInfo {
@@ -34,6 +35,21 @@ namespace CSGL.Vulkan {
             }
         }
 
+        public static VkResult Reset(Device device, List<Fence> fences) {
+            if (device == null) throw new ArgumentNullException(nameof(device));
+            if (fences == null) throw new ArgumentNullException(nameof(fences));
+
+            unsafe
+            {
+                var fencesNative = stackalloc VkFence[fences.Count];
+                Interop.Marshal<VkFence, Fence>(fences, fencesNative);
+
+                var result = device.Commands.resetFences(device.Native, (uint)fences.Count, (IntPtr)fencesNative);
+                if (result != VkResult.Success) throw new FenceException(string.Format("Error resetting fences: {0}", result));
+                return result;
+            }
+        }
+
 		public static VkResult Wait(Device device, Fence[] fences, bool waitAll, ulong timeout) {
             if (device == null) throw new ArgumentNullException(nameof(device));
             if (fences == null) throw new ArgumentNullException(nameof(fences));
@@ -47,6 +63,22 @@ namespace CSGL.Vulkan {
             using (var fencesMarshalled = new PinnedArray<VkFence>(fencesNative)) {
                 uint waitAllNative = waitAll ? 1u : 0u;
                 var result = device.Commands.waitFences(device.Native, (uint)fences.Length, fencesMarshalled.Address, waitAllNative, timeout);
+                if (!(result == VkResult.Success || result == VkResult.Timeout)) throw new FenceException(string.Format("Error waiting on fences: {0}", result));
+                return result;
+            }
+        }
+
+        public static VkResult Wait(Device device, List<Fence> fences, bool waitAll, ulong timeout) {
+            if (device == null) throw new ArgumentNullException(nameof(device));
+            if (fences == null) throw new ArgumentNullException(nameof(fences));
+
+            unsafe
+            {
+                var fencesNative = stackalloc VkFence[fences.Count];
+                Interop.Marshal<VkFence, Fence>(fences, fencesNative);
+
+                uint waitAllNative = waitAll ? 1u : 0u;
+                var result = device.Commands.waitFences(device.Native, (uint)fences.Count, (IntPtr)fencesNative, waitAllNative, timeout);
                 if (!(result == VkResult.Success || result == VkResult.Timeout)) throw new FenceException(string.Format("Error waiting on fences: {0}", result));
                 return result;
             }
