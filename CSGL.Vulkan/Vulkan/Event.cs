@@ -16,6 +16,8 @@ namespace CSGL.Vulkan {
         public Event(Device device) {
             if (device == null) throw new ArgumentNullException(nameof(device));
 
+            Device = device;
+
             CreateEvent();
         }
 
