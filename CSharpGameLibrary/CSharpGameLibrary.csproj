@@ -60,6 +60,7 @@
     <Compile Include="GLFW\delegates.cs" />
     <Compile Include="GLFW\Unmanaged\GLFW_native.cs" />
     <Compile Include="GLFW\Window.cs" />
+    <Compile Include="Graphics\Bitmap.cs" />
     <Compile Include="Graphics\Color.cs" />
     <Compile Include="Graphics\Color32.cs" />
     <Compile Include="INative.cs" />
