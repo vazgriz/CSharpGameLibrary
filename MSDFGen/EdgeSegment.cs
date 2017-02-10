@@ -24,10 +24,10 @@ namespace MSDFGen {
         public abstract EdgeSegment Clone();
         public abstract Vector2 GetPoint(double t);
         public abstract Vector2 GetDirection(double t);
-        public abstract SignedDistance GetSignedDistance(Vector2 origin, double t);
-        public abstract void Bounds(out double left, out double bottom, out double right, out double top);
+        public abstract SignedDistance GetSignedDistance(Vector2 origin, out double t);
+        public abstract void Bounds(ref double left, ref double bottom, ref double right, ref double top);
 
-        public abstract void MoveStatePoint(Vector2 to);
+        public abstract void MoveStartPoint(Vector2 to);
         public abstract void MoveEndPoint(Vector2 to);
         public abstract void SplitInThirds(out EdgeSegment part1, out EdgeSegment part2, out EdgeSegment part3);
 
