@@ -84,5 +84,93 @@ namespace MSDFGen {
             if (result == 0) return 1;
             return result;
         }
+
+        protected struct Roots {
+            public double x0;
+            public double x1;
+            public double x2;
+
+            public double this[int i] {
+                get {
+                    switch (i) {
+                        case 0: return x0;
+                        case 1: return x1;
+                        case 2: return x2;
+                        default: throw new ArgumentOutOfRangeException();
+                    }
+                }
+            }
+        }
+
+        protected int SolveQuadratic(ref Roots roots, double a, double b, double c) {
+            if (Math.Abs(a) < 1e-14) {
+                if (Math.Abs(b) < 1e-14) {
+                    if (c == 0) return -1;
+                    return 0;
+                }
+                roots.x0 = -c / b;
+                return 1;
+            }
+
+            double discriminant = b * b - 4 * a * c;
+
+            if (discriminant > 0) {
+                discriminant = Math.Sqrt(discriminant);
+                roots.x0 = (-b + discriminant) / (2 * a);
+                roots.x1 = (-b - discriminant) / (2 * a);
+                return 2;
+            } else if (discriminant == 0) {
+                roots.x0 = -b / (2 * a);
+                return 1;
+            } else {
+                return 0;
+            }
+        }
+
+        protected int SolveCubicNormed(ref Roots roots, double a, double b, double c) {
+            double aSquared = a * a;
+            double q = (aSquared - 3 * b) / 9;
+            double r = (a * (2 * aSquared - 9 * b) + 27 * c) / 54;
+            double rSquared = r * r;
+            double qCubed = q * q * q;
+
+            if (rSquared < qCubed) {
+                double t = Math.Sqrt(qCubed);
+                if (t < -1) t = -1;
+                if (t > 1) t = 1;
+                t = Math.Acos(t);
+                a /= 3;
+                q = -2 * Math.Sqrt(q);
+
+                roots.x0 = q * Math.Cos(t / 3) - a;
+                roots.x1 = q * Math.Cos((t + 2 * Math.PI) / 3) - a;
+                roots.x2 = q * Math.Cos((t - 2 * Math.PI) / 3) - a;
+
+                return 3;
+            } else {
+                double A = -Math.Pow(
+                    Math.Abs(r) + Math.Sqrt(rSquared - qCubed),
+                    1 / 3d
+                );
+                if (r < 0) A = -A;
+                double B = A == 0 ? 0 : q / A;
+                a /= 3;
+
+                roots.x0 = (A + B) - a;
+                roots.x1 = -0.5 * (A + B) - a;
+                roots.x2 = 0.5 * Math.Sqrt(3) * (A - B);
+
+                if (Math.Abs(roots.x2) < 1e-14) return 2;
+                return 3;
+            }
+        }
+
+        protected int SolveCubic(ref Roots roots, double a, double b, double c, double d) {
+            if (Math.Abs(a) < 1e-14) {
+                return SolveQuadratic(ref roots, b, c, d);
+            }
+
+            return SolveCubicNormed(ref roots, b / a, c / a, d / a);
+        }
     }
 }
