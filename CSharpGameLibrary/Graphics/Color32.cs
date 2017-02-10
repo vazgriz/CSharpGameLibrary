@@ -14,7 +14,7 @@ namespace CSGL.Graphics {
 
         public Color32(int r, int g, int b, int a) : this((byte)r, (byte)g, (byte)b, (byte)a) { }
 
-        public Color32(Color color) {
+        public Color32(Color4 color) {
             r = (byte)(color.r * 255);
             g = (byte)(color.g * 255);
             b = (byte)(color.b * 255);
