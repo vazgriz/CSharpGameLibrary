@@ -44,6 +44,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CubicSegment.cs" />
     <Compile Include="EdgeSegment.cs" />
     <Compile Include="LinearSegment.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
