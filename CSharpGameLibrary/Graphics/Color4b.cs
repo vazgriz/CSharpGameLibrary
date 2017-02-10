@@ -2,24 +2,36 @@
 using System.Runtime.InteropServices;
 
 namespace CSGL.Graphics {
-    public struct Color32 : IEquatable<Color32> {
+    public struct Color4b : IEquatable<Color4b> {
         public byte r, g, b, a;
 
-        public Color32(byte r, byte g, byte b, byte a) {
+        public Color4b(byte r, byte g, byte b, byte a) {
             this.r = r;
             this.g = g;
             this.b = b;
             this.a = a;
         }
 
-        public Color32(int r, int g, int b, int a) : this((byte)r, (byte)g, (byte)b, (byte)a) { }
+        public Color4b(int r, int g, int b, int a) : this((byte)r, (byte)g, (byte)b, (byte)a) { }
 
-        public Color32(Color4 color) {
+        public Color4b(Color4 color) {
             r = (byte)(color.r * 255);
             g = (byte)(color.g * 255);
             b = (byte)(color.b * 255);
             a = (byte)(color.a * 255);
         }
+
+        public Color4b(Color3b color, byte a) : this(color.r, color.g, color.b, a) { }
+        public Color4b(Color3b color, int a) : this(color, (byte)a) { }
+
+        public Color4b(Color3 color, byte a) {
+            r = (byte)(color.r * 255);
+            g = (byte)(color.g * 255);
+            b = (byte)(color.b * 255);
+            this.a = a;
+        }
+
+        public Color4b(Color3 color, int a) : this(color, (byte)a) { }
 
         public uint ToUint() {
             uint result = 0;
@@ -30,24 +42,24 @@ namespace CSGL.Graphics {
             return result;
         }
 
-        public bool Equals(Color32 other) {
+        public bool Equals(Color4b other) {
             return r == other.r &&
                 g == other.g &&
                 b == other.b &&
                 a == other.a;
         }
 
-        public static bool operator == (Color32 a, Color32 b) {
+        public static bool operator == (Color4b a, Color4b b) {
             return a.Equals(b);
         }
 
-        public static bool operator != (Color32 a, Color32 b) {
+        public static bool operator != (Color4b a, Color4b b) {
             return !a.Equals(b);
         }
 
         public override bool Equals(object other) {
-            if (other is Color32) {
-                return Equals((Color32)other);
+            if (other is Color4b) {
+                return Equals((Color4b)other);
             }
             return false;
         }

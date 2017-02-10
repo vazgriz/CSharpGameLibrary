@@ -12,11 +12,20 @@ namespace CSGL.Graphics {
             this.a = a;
         }
 
-        public Color4(Color32 color) {
+        public Color4(Color4b color) {
             r = color.r / 255f;
             g = color.g / 255f;
             b = color.b / 255f;
             a = color.a / 255f;
+        }
+
+        public Color4(Color3 color, float a) : this(color.r, color.g, color.b, a) { }
+
+        public Color4(Color3b color, float a) {
+            r = color.r / 255f;
+            g = color.g / 255f;
+            b = color.b / 255f;
+            this.a = a;
         }
 
         public bool Equals(Color4 other) {

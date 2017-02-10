@@ -61,8 +61,10 @@
     <Compile Include="GLFW\Unmanaged\GLFW_native.cs" />
     <Compile Include="GLFW\Window.cs" />
     <Compile Include="Graphics\Bitmap.cs" />
+    <Compile Include="Graphics\Color3b.cs" />
+    <Compile Include="Graphics\Color3.cs" />
     <Compile Include="Graphics\Color4.cs" />
-    <Compile Include="Graphics\Color32.cs" />
+    <Compile Include="Graphics\Color4b.cs" />
     <Compile Include="INative.cs" />
     <Compile Include="Interop.cs" />
     <Compile Include="InteropString.cs" />

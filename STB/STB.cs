@@ -50,7 +50,7 @@ namespace CSGL.STB {
             return Load(buffer, out x, out y, out comp, req_comp);
         }
 
-        public static Bitmap<Color32> Load(Stream stream) {
+        public static Bitmap<Color4b> Load(Stream stream) {
             byte[] buffer = new byte[stream.Length - stream.Position];
             stream.Read(buffer, 0, buffer.Length);
 
@@ -59,7 +59,7 @@ namespace CSGL.STB {
             int components;
 
             IntPtr data = LoadPtr(buffer, out x, out y, out components, 4);
-            Bitmap<Color32> result = new Bitmap<Color32>(x, y);
+            Bitmap<Color4b> result = new Bitmap<Color4b>(x, y);
             Interop.Copy(data, result.Data);
             FreeImage(data);
 
