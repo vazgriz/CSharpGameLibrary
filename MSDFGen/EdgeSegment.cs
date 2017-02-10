@@ -16,9 +16,11 @@ namespace MSDFGen {
 
     public abstract class EdgeSegment {
         public EdgeColor Color { get; set; }
+        public List<Vector2> Points { get; private set; }
 
         protected EdgeSegment(EdgeColor color) {
             Color = color;
+            Points = new List<Vector2>();
         }
 
         public abstract EdgeSegment Clone();
@@ -59,6 +61,20 @@ namespace MSDFGen {
                     }
                 }
             }
+        }
+
+        public Vector2 GetOrthonormal(Vector2 v, bool polarity, bool allowZero) {
+            float len = v.Length();
+
+            if (len == 0) return polarity ? new Vector2(0, allowZero ? 0 : 1) : new Vector2(0, allowZero ? 0 : -1);
+            return polarity ? new Vector2(-v.Y / len, v.X / len) : new Vector2(v.Y / len, v.X / len);
+        }
+
+        protected void PointBounds(Vector2 p, ref double left, ref double bottom, ref double right, ref double top) {
+            if (p.X < left) left = p.X;
+            if (p.Y < bottom) bottom = p.Y;
+            if (p.X > right) right = p.X;
+            if (p.Y > top) top = p.Y;
         }
     }
 }
