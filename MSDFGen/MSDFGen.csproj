@@ -44,6 +44,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Contour.cs" />
     <Compile Include="CubicSegment.cs" />
     <Compile Include="EdgeSegment.cs" />
     <Compile Include="LinearSegment.cs" />
