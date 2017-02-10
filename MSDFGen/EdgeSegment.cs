@@ -25,7 +25,7 @@ namespace MSDFGen {
         public abstract Vector2 GetPoint(double t);
         public abstract Vector2 GetDirection(double t);
         public abstract SignedDistance GetSignedDistance(Vector2 origin, out double t);
-        public abstract void Bounds(ref double left, ref double bottom, ref double right, ref double top);
+        public abstract void GetBounds(ref double left, ref double bottom, ref double right, ref double top);
 
         public abstract void MoveStartPoint(Vector2 to);
         public abstract void MoveEndPoint(Vector2 to);

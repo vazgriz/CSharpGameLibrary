@@ -85,7 +85,7 @@ namespace MSDFGen {
             }
         }
 
-        public override void Bounds(ref double left, ref double bottom, ref double right, ref double top) {
+        public override void GetBounds(ref double left, ref double bottom, ref double right, ref double top) {
             PointBounds(p0, ref left, ref bottom, ref right, ref top);
             PointBounds(p2, ref left, ref bottom, ref right, ref top);
             Vector2 bot = (p1 - p0) - (p2 - p1);

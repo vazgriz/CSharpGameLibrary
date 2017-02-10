@@ -41,7 +41,7 @@ namespace MSDFGen {
             );
         }
 
-        public override void Bounds(ref double left, ref double bottom, ref double right, ref double top) {
+        public override void GetBounds(ref double left, ref double bottom, ref double right, ref double top) {
             PointBounds(p0, ref left, ref bottom, ref right, ref top);
             PointBounds(p1, ref left, ref bottom, ref right, ref top);
         }
