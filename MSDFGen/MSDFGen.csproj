@@ -50,6 +50,7 @@
     <Compile Include="LinearSegment.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="QuadraticSegment.cs" />
+    <Compile Include="Shape.cs" />
     <Compile Include="SignedDistance.cs" />
   </ItemGroup>
   <ItemGroup>
