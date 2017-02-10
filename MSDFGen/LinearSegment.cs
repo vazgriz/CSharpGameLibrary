@@ -4,28 +4,31 @@ using System.Collections.Generic;
 
 namespace MSDFGen {
     public class LinearSegment : EdgeSegment {
+        Vector2 p0;
+        Vector2 p1;
+
         public LinearSegment(Vector2 p0, Vector2 p1, EdgeColor color) : base(color) {
-            Points.Add(p0);
-            Points.Add(p1);
+            this.p0 = p0;
+            this.p1 = p1;
         }
 
         public override EdgeSegment Clone() {
-            return new LinearSegment(Points[0], Points[1], Color);
+            return new LinearSegment(p0, p1, Color);
         }
 
         public override Vector2 GetPoint(double t) {
-            return Vector2.Lerp(Points[0], Points[1], (float)t);
+            return Vector2.Lerp(p0, p1, (float)t);
         }
 
         public override Vector2 GetDirection(double t) {
-            return Points[1] - Points[0];
+            return p1 - p0;
         }
 
         public override SignedDistance GetSignedDistance(Vector2 origin, out double t) {
-            Vector2 aq = origin - Points[0];
-            Vector2 ab = Points[1] - Points[0];
+            Vector2 aq = origin - p0;
+            Vector2 ab = p1 - p0;
             t = Vector2.Dot(aq, ab) / Vector2.Dot(ab, ab);
-            Vector2 eq = Points[t > 0.5d ? 1 : 0] - origin;
+            Vector2 eq = (t > 0.5d ? p1 : p0) - origin;
             double endPointDistance = eq.Length();
 
             if (t > 0 && t < 1) {
@@ -39,22 +42,22 @@ namespace MSDFGen {
         }
 
         public override void Bounds(ref double left, ref double bottom, ref double right, ref double top) {
-            PointBounds(Points[0], ref left, ref bottom, ref right, ref top);
-            PointBounds(Points[1], ref left, ref bottom, ref right, ref top);
+            PointBounds(p0, ref left, ref bottom, ref right, ref top);
+            PointBounds(p1, ref left, ref bottom, ref right, ref top);
         }
 
         public override void MoveStartPoint(Vector2 to) {
-            Points[0] = to;
+            p0 = to;
         }
 
         public override void MoveEndPoint(Vector2 to) {
-            Points[1] = to;
+            p1 = to;
         }
 
         public override void SplitInThirds(out EdgeSegment part1, out EdgeSegment part2, out EdgeSegment part3) {
-            part1 = new LinearSegment(Points[0], GetPoint(1 / 3d), Color);
+            part1 = new LinearSegment(p0, GetPoint(1 / 3d), Color);
             part2 = new LinearSegment(GetPoint(1 / 3d), GetPoint(2 / 3d), Color);
-            part3 = new LinearSegment(GetPoint(2 / 3d), Points[1], Color);
+            part3 = new LinearSegment(GetPoint(2 / 3d), p1, Color);
         }
     }
 }

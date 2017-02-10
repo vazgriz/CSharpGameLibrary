@@ -16,11 +16,9 @@ namespace MSDFGen {
 
     public abstract class EdgeSegment {
         public EdgeColor Color { get; set; }
-        public List<Vector2> Points { get; private set; }
 
         protected EdgeSegment(EdgeColor color) {
             Color = color;
-            Points = new List<Vector2>();
         }
 
         public abstract EdgeSegment Clone();
