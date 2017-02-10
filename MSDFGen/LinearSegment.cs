@@ -33,7 +33,7 @@ namespace MSDFGen {
                 if (Math.Abs(orthoDistance) < endPointDistance) return new SignedDistance(orthoDistance, 0);
             }
             return new SignedDistance(
-                Math.Sign(Vector3.Cross(new Vector3(aq, 0), new Vector3(ab, 0)).Length()) * endPointDistance,
+                NonZeroSign(Cross(aq, ab)) * endPointDistance,
                 Math.Abs(Vector2.Dot(Vector2.Normalize(ab), Vector2.Normalize(eq)))
             );
         }

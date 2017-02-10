@@ -40,7 +40,7 @@ namespace MSDFGen {
                 double ts = Vector2.Dot(aq, dir);
 
                 if (ts < 0) {
-                    double pseudoDistance = Vector3.Cross(new Vector3(aq, 0), new Vector3(dir, 0)).Length();    //c++ version calculates magnitude of 0-extended 3d vectors
+                    double pseudoDistance = Cross(aq, dir);    //c++ version calculates magnitude of 0-extended 3d vectors
 
                     if (Math.Abs(pseudoDistance) <= Math.Abs(distance.distance)) {
                         distance.distance = pseudoDistance;
@@ -53,7 +53,7 @@ namespace MSDFGen {
                 double ts = Vector2.Dot(bq, dir);
 
                 if (ts > 0) {
-                    double pseudoDistance = Vector3.Cross(new Vector3(bq, 0), new Vector3(dir, 0)).Length();    //c++ version calculates magnitude of 0-extended 3d vectors
+                    double pseudoDistance = Cross(bq, dir);    //c++ version calculates magnitude of 0-extended 3d vectors
 
                     if (Math.Abs(pseudoDistance) <= Math.Abs(distance.distance)) {
                         distance.distance = pseudoDistance;
@@ -75,6 +75,16 @@ namespace MSDFGen {
             if (p.Y < bottom) bottom = p.Y;
             if (p.X > right) right = p.X;
             if (p.Y > top) top = p.Y;
+        }
+
+        protected double Cross(Vector2 a, Vector2 b) {
+            return Vector3.Cross(new Vector3(a, 0), new Vector3(b, 0)).Length();
+        }
+
+        protected int NonZeroSign(double d) {
+            int result = Math.Sign(d);
+            if (result == 0) return 1;
+            return result;
         }
     }
 }
