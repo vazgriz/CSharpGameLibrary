@@ -147,7 +147,7 @@ namespace MSDFGen {
         public override void SplitInThirds(out EdgeSegment part1, out EdgeSegment part2, out EdgeSegment part3) {
             part1 = new CubicSegment(
                 p0,
-                Vector2.Lerp(p0, p1, 1 / 3f),
+                p0 == p1 ? p0 : Vector2.Lerp(p0, p1, 1 / 3f),
                 Vector2.Lerp(
                     Vector2.Lerp(p0, p1, 1 / 3f),
                     Vector2.Lerp(p1, p2, 1 / 3f),
@@ -194,7 +194,7 @@ namespace MSDFGen {
                     Vector2.Lerp(p2, p3, 2 / 3f),
                     2 / 3f
                 ),
-                Vector2.Lerp(p2, p3, 2 / 3f),
+                p2 == p3 ? p3 : Vector2.Lerp(p2, p3, 2 / 3f),
                 p3,
                 Color
             );
