@@ -104,10 +104,7 @@ namespace MSDFGen {
             }
 
             {
-                List<double> contourSD = new List<double>(contourCount);
-                for (int k = 0; k < contourCount; k++) {
-                    contourSD.Add(0);
-                }
+                double[] contourSD = new double[contourCount];
 
                 for (int y = 0; y < h; y++) {
                     int row = shape.InverseYAxis ? h - y - 1 : y;
