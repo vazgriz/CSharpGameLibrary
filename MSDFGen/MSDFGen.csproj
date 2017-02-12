@@ -64,6 +64,8 @@
     <Compile Include="CubicSegment.cs" />
     <Compile Include="EdgeSegment.cs" />
     <Compile Include="LinearSegment.cs" />
+    <Compile Include="MSDF.cs" />
+    <Compile Include="MSDF_Font.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="QuadraticSegment.cs" />
     <Compile Include="Shape.cs" />
