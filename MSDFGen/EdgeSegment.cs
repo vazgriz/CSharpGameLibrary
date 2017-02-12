@@ -76,7 +76,7 @@ namespace MSDFGen {
         }
 
         protected double Cross(Vector2 a, Vector2 b) {
-            return Vector3.Cross(new Vector3(a, 0), new Vector3(b, 0)).Length();
+            return a.X * b.Y - a.Y * b.X;
         }
 
         protected int NonZeroSign(double d) {
