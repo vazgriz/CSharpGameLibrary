@@ -1,17 +1,21 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\packages\SharpFont.4.0.1\build\SharpFont.props" Condition="Exists('..\packages\SharpFont.4.0.1\build\SharpFont.props')" />
+  <Import Project="..\packages\SharpFont.Dependencies.2.6\build\SharpFont.Dependencies.props" Condition="Exists('..\packages\SharpFont.Dependencies.2.6\build\SharpFont.Dependencies.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{D7103402-1C84-4921-AF9C-38D9A6231E7A}</ProjectGuid>
+    <ProjectGuid>{C54DAD5A-6E13-47AF-856B-BF5CC4C519B4}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>CSGL</RootNamespace>
-    <AssemblyName>CSharpGameLibrary</AssemblyName>
+    <RootNamespace>MSDFGen</RootNamespace>
+    <AssemblyName>MSDFGen</AssemblyName>
     <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -31,12 +35,14 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <LangVersion>default</LangVersion>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="SharpFont, Version=4.0.1.200, Culture=neutral, PublicKeyToken=48add4c483071cdf, processorArchitecture=MSIL">
+      <HintPath>..\packages\SharpFont.4.0.1\lib\net45\SharpFont.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Numerics" />
     <Reference Include="System.Numerics.Vectors, Version=4.1.2.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Numerics.Vectors.4.3.0\lib\net46\System.Numerics.Vectors.dll</HintPath>
@@ -46,42 +52,43 @@
       <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.4.3.0\lib\netstandard1.0\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DisposableList.cs" />
-    <Compile Include="GLFW\Cursor.cs" />
-    <Compile Include="GLFW\enums.cs" />
-    <Compile Include="GLFW\GLFWException.cs" />
-    <Compile Include="GLFW\Monitor.cs" />
-    <Compile Include="GLFW\GLFW.cs" />
-    <Compile Include="GLFW\Unmanaged\MonitorPtr.cs" />
-    <Compile Include="GLFW\Unmanaged\WindowPtr.cs" />
-    <Compile Include="GLFW\structs.cs" />
-    <Compile Include="GLFW\delegates.cs" />
-    <Compile Include="GLFW\Unmanaged\GLFW_native.cs" />
-    <Compile Include="GLFW\Window.cs" />
-    <Compile Include="Graphics\Bitmap.cs" />
-    <Compile Include="Graphics\Color3b.cs" />
-    <Compile Include="Graphics\Color3.cs" />
-    <Compile Include="Graphics\Color4.cs" />
-    <Compile Include="Graphics\Color4b.cs" />
-    <Compile Include="INative.cs" />
-    <Compile Include="Interop.cs" />
-    <Compile Include="InteropString.cs" />
-    <Compile Include="Marshalled.cs" />
-    <Compile Include="NativeStringArray.cs" />
-    <Compile Include="Math\Rectangle.cs" />
-    <Compile Include="Math\Rectanglei.cs" />
-    <Compile Include="Native.cs" />
-    <Compile Include="NativeArray.cs" />
-    <Compile Include="PinnedArray.cs" />
+    <Compile Include="Contour.cs" />
+    <Compile Include="CubicSegment.cs" />
+    <Compile Include="EdgeSegment.cs" />
+    <Compile Include="LinearSegment.cs" />
+    <Compile Include="MSDF.cs" />
+    <Compile Include="MSDF_edgecoloring.cs" />
+    <Compile Include="MSDF_Font.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="MarshalledArray.cs" />
+    <Compile Include="QuadraticSegment.cs" />
+    <Compile Include="Shape.cs" />
+    <Compile Include="SignedDistance.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\CSharpGameLibrary\CSharpGameLibrary.csproj">
+      <Project>{d7103402-1c84-4921-af9c-38d9a6231e7a}</Project>
+      <Name>CSharpGameLibrary</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\SharpFont.Dependencies.2.6\build\SharpFont.Dependencies.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\SharpFont.Dependencies.2.6\build\SharpFont.Dependencies.props'))" />
+    <Error Condition="!Exists('..\packages\SharpFont.4.0.1\build\SharpFont.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\SharpFont.4.0.1\build\SharpFont.props'))" />
+  </Target>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

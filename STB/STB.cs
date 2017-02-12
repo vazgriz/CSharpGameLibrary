@@ -2,7 +2,7 @@
 using System.IO;
 using System.Runtime.InteropServices;
 
-using CSGL;
+using CSGL.Graphics;
 using static CSGL.STB.Unmanaged.STB_native;
 
 namespace CSGL.STB {
@@ -50,6 +50,22 @@ namespace CSGL.STB {
             return Load(buffer, out x, out y, out comp, req_comp);
         }
 
+        public static Bitmap<Color4b> Load(Stream stream) {
+            byte[] buffer = new byte[stream.Length - stream.Position];
+            stream.Read(buffer, 0, buffer.Length);
+
+            int x;
+            int y;
+            int components;
+
+            IntPtr data = LoadPtr(buffer, out x, out y, out components, 4);
+            Bitmap<Color4b> result = new Bitmap<Color4b>(x, y);
+            Interop.Copy(data, result.Data);
+            FreeImage(data);
+
+            return result;
+        }
+
         public static IntPtr LoadHDRPtr(byte[] buffer, out int x, out int y, out int comp, int req_comp) {
             GCHandle handle = GCHandle.Alloc(buffer, GCHandleType.Pinned);
             IntPtr ptr = handle.AddrOfPinnedObject();
@@ -91,6 +107,22 @@ namespace CSGL.STB {
             byte[] buffer = new byte[stream.Length - stream.Position];
             stream.Read(buffer, 0, buffer.Length);
             return LoadHDR(buffer, out x, out y, out comp, req_comp);
+        }
+
+        public static Bitmap<Color4> LoadHDR(Stream stream) {
+            byte[] buffer = new byte[stream.Length - stream.Position];
+            stream.Read(buffer, 0, buffer.Length);
+
+            int x;
+            int y;
+            int components;
+
+            IntPtr data = LoadHDRPtr(buffer, out x, out y, out components, 4);
+            Bitmap<Color4> result = new Bitmap<Color4>(x, y);
+            Interop.Copy(data, result.Data);
+            FreeImage(data);
+
+            return result;
         }
 
         public static bool IsHDR(byte[] buffer) {

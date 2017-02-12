@@ -2,41 +2,38 @@
 using System.Runtime.InteropServices;
 
 namespace CSGL.Graphics {
-    public struct Color : IEquatable<Color> {
-        public float r, g, b, a;
+    public struct Color3 : IEquatable<Color3> {
+        public float r, g, b;
 
-        public Color(float r, float g, float b, float a) {
+        public Color3(float r, float g, float b) {
             this.r = r;
             this.g = g;
             this.b = b;
-            this.a = a;
         }
 
-        public Color(Color32 color) {
+        public Color3(Color3b color) {
             r = color.r / 255f;
             g = color.g / 255f;
             b = color.b / 255f;
-            a = color.a / 255f;
         }
 
-        public bool Equals(Color other) {
+        public bool Equals(Color3 other) {
             return r == other.r &&
                 g == other.g &&
-                b == other.b &&
-                a == other.a;
+                b == other.b;
         }
 
-        public static bool operator ==(Color a, Color b) {
+        public static bool operator ==(Color3 a, Color3 b) {
             return a.Equals(b);
         }
 
-        public static bool operator !=(Color a, Color b) {
+        public static bool operator !=(Color3 a, Color3 b) {
             return !a.Equals(b);
         }
 
         public override bool Equals(object other) {
-            if (other is Color) {
-                return Equals((Color)other);
+            if (other is Color3) {
+                return Equals((Color3)other);
             }
             return false;
         }
@@ -44,8 +41,7 @@ namespace CSGL.Graphics {
         public override int GetHashCode() {
             return r.GetHashCode() ^
                 g.GetHashCode() ^
-                b.GetHashCode() ^
-                a.GetHashCode();
+                b.GetHashCode();
         }
     }
 }
