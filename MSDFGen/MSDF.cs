@@ -120,7 +120,7 @@ namespace MSDFGen {
 
                         for (int i = 0; i < contourCount; i++) {
                             Contour contour = shape.Contours[i];
-                            SignedDistance minDistance = new SignedDistance();
+                            SignedDistance minDistance = new SignedDistance(-1e240, 1);
 
                             for (int j = 0; j < contour.Edges.Count; j++) {
                                 EdgeSegment edge = contour.Edges[j];
