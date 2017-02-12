@@ -64,8 +64,8 @@ namespace MSDFGen {
         public Vector2 GetOrthonormal(Vector2 v, bool polarity, bool allowZero) {
             float len = v.Length();
 
-            if (len == 0) return polarity ? new Vector2(0, allowZero ? 0 : 1) : new Vector2(0, allowZero ? 0 : -1);
-            return polarity ? new Vector2(-v.Y / len, v.X / len) : new Vector2(v.Y / len, v.X / len);
+            if (len == 0) return polarity ? new Vector2(0, !allowZero ? 1 : 0) : new Vector2(0, -(!allowZero ? 1 : 0));
+            return polarity ? new Vector2(-v.Y / len, v.X / len) : new Vector2(v.Y / len, -v.X / len);
         }
 
         protected void PointBounds(Vector2 p, ref double left, ref double bottom, ref double right, ref double top) {
