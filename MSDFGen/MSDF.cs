@@ -102,11 +102,11 @@ namespace MSDFGen {
             return Math.Max(Math.Min(a, b), Math.Min(Math.Max(a, b), c));
         }
 
-        public static void GenerateSDF(Bitmap<float> output, Shape shape, double range, Vector2 scale) {
-            GenerateSDF(output, shape, new Rectangle(0, 0, output.Width, output.Height), range, scale);
+        public static void GenerateSDF(Bitmap<float> output, Shape shape, double range, Vector2 scale, Vector2 translate) {
+            GenerateSDF(output, shape, new Rectangle(0, 0, output.Width, output.Height), range, scale, translate);
         }
 
-        public static void GenerateSDF(Bitmap<float> output, Shape shape, Rectangle region, double range, Vector2 scale) {
+        public static void GenerateSDF(Bitmap<float> output, Shape shape, Rectangle region, double range, Vector2 scale, Vector2 translate) {
             int contourCount = shape.Contours.Count;
             int[] windings = new int[contourCount];
 
@@ -125,7 +125,7 @@ namespace MSDFGen {
                 int row = shape.InverseYAxis ? output.Height - y - 1 : y;
                 for (int x = xStart; x < xEnd; x++) {
                     double dummy;
-                    Vector2 p = new Vector2(x + 0.5f, y + 0.5f) / scale;
+                    Vector2 p = new Vector2(x + 0.5f, y + 0.5f) / scale - region.Position - translate;
                     double negDist = -SignedDistance.Infinite.distance;
                     double posDist = SignedDistance.Infinite.distance;
                     int winding = 0;
@@ -189,11 +189,11 @@ namespace MSDFGen {
             public double nearParam;
         }
 
-        public static void GenerateMSDF(Bitmap<Color3> output, Shape shape, double range, Vector2 scale, double edgeThreshold) {
-            GenerateMSDF(output, shape, new Rectangle(0, 0, output.Width, output.Height), range, scale, edgeThreshold);
+        public static void GenerateMSDF(Bitmap<Color3> output, Shape shape, double range, Vector2 scale, Vector2 translate, double edgeThreshold) {
+            GenerateMSDF(output, shape, new Rectangle(0, 0, output.Width, output.Height), range, scale, translate, edgeThreshold);
         }
 
-        public static void GenerateMSDF(Bitmap<Color3> output, Shape shape, Rectangle region, double range, Vector2 scale, double edgeThreshold) {
+        public static void GenerateMSDF(Bitmap<Color3> output, Shape shape, Rectangle region, double range, Vector2 scale, Vector2 translate, double edgeThreshold) {
             int contourCount = shape.Contours.Count;
             int[] windings = new int[contourCount];
 
@@ -211,7 +211,7 @@ namespace MSDFGen {
             for (int y = yStart; y < yEnd; y++) {
                 int row = shape.InverseYAxis ? output.Height - y - 1 : y;
                 for (int x = xStart; x < xEnd; x++) {
-                    Vector2 p = new Vector2(x + 0.5f, y + 0.5f) / scale;
+                    Vector2 p = new Vector2(x + 0.5f, y + 0.5f) / scale - region.Position - translate;
 
                     EdgePoint sr = new EdgePoint {
                         minDistance = new SignedDistance(-1e240, 1)
