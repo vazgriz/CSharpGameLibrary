@@ -38,8 +38,7 @@ namespace MSDFGen {
                 double ts = Vector2.Dot(aq, dir);
 
                 if (ts < 0) {
-                    double pseudoDistance = Cross(aq, dir);    //c++ version calculates magnitude of 0-extended 3d vectors
-
+                    double pseudoDistance = Cross(aq, dir);
                     if (Math.Abs(pseudoDistance) <= Math.Abs(distance.distance)) {
                         distance.distance = pseudoDistance;
                         distance.dot = 0;
@@ -51,8 +50,7 @@ namespace MSDFGen {
                 double ts = Vector2.Dot(bq, dir);
 
                 if (ts > 0) {
-                    double pseudoDistance = Cross(bq, dir);    //c++ version calculates magnitude of 0-extended 3d vectors
-
+                    double pseudoDistance = Cross(bq, dir);
                     if (Math.Abs(pseudoDistance) <= Math.Abs(distance.distance)) {
                         distance.distance = pseudoDistance;
                         distance.dot = 0;
