@@ -135,7 +135,7 @@ namespace MSDFGen {
             double qCubed = q * q * q;
 
             if (rSquared < qCubed) {
-                double t = Math.Sqrt(qCubed);
+                double t = r / Math.Sqrt(qCubed);
                 if (t < -1) t = -1;
                 if (t > 1) t = 1;
                 t = Math.Acos(t);
@@ -161,7 +161,7 @@ namespace MSDFGen {
                 roots.x2 = 0.5 * Math.Sqrt(3) * (A - B);
 
                 if (Math.Abs(roots.x2) < 1e-14) return 2;
-                return 3;
+                return 1;
             }
         }
 
