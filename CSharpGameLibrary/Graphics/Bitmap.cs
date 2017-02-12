@@ -15,7 +15,7 @@ namespace CSGL.Graphics {
         }
 
         public int GetIndex(int x, int y) {
-            return x + y * Height;
+            return x + y * Width;
         }
 
         public T this[int x, int y] {
