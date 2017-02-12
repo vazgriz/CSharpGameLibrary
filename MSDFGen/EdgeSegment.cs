@@ -75,7 +75,7 @@ namespace MSDFGen {
             if (p.Y > top) top = p.Y;
         }
 
-        protected double Cross(Vector2 a, Vector2 b) {
+        public static double Cross(Vector2 a, Vector2 b) {
             return a.X * b.Y - a.Y * b.X;
         }
 
