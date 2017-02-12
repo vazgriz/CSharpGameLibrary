@@ -59,7 +59,7 @@ namespace MSDFGen {
 
             for (int i = 0; i < solutions; i++) {
                 if (roots[i] > 0 && roots[i] < 1) {
-                    Vector2 endPoint = p0 + ((float)(2 * roots[i]) * ab) * ((float)(roots[i] * roots[i]) * br);
+                    Vector2 endPoint = p0 + ((float)(2 * roots[i]) * ab) + ((float)(roots[i] * roots[i]) * br);
                     double distance = NonZeroSign(Cross(p2 - p0, endPoint - origin)) * (endPoint - origin).Length();
 
                     if (Math.Abs(distance) <= Math.Abs(minDistance)) {
