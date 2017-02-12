@@ -102,6 +102,10 @@ namespace MSDFGen {
             return Math.Max(Math.Min(a, b), Math.Min(Math.Max(a, b), c));
         }
 
+        public static void GenerateSDF(Bitmap<float> output, Shape shape, double range, Vector2 scale) {
+            GenerateSDF(output, shape, new Rectangle(0, 0, output.Width, output.Height), range, scale);
+        }
+
         public static void GenerateSDF(Bitmap<float> output, Shape shape, Rectangle region, double range, Vector2 scale) {
             int contourCount = shape.Contours.Count;
             int[] windings = new int[contourCount];
@@ -183,6 +187,10 @@ namespace MSDFGen {
             public SignedDistance minDistance;
             public EdgeSegment nearEdge;
             public double nearParam;
+        }
+
+        public static void GenerateMSDF(Bitmap<Color3> output, Shape shape, double range, Vector2 scale, double edgeThreshold) {
+            GenerateMSDF(output, shape, new Rectangle(0, 0, output.Width, output.Height), range, scale, edgeThreshold);
         }
 
         public static void GenerateMSDF(Bitmap<Color3> output, Shape shape, Rectangle region, double range, Vector2 scale, double edgeThreshold) {
