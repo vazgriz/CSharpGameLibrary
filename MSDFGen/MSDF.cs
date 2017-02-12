@@ -104,79 +104,77 @@ namespace MSDFGen {
 
         public static void GenerateSDF(Bitmap<float> output, Shape shape, Rectangle region, double range, Vector2 scale) {
             int contourCount = shape.Contours.Count;
-            List<int> windings = new List<int>(contourCount);
+            int[] windings = new int[contourCount];
 
-            for (int i = 0; i < contourCount; i++) {
-                windings.Add(shape.Contours[i].Winding);
+            for (int i = 0; i < shape.Contours.Count; i++) {
+                windings[i] = shape.Contours[i].Winding;
             }
 
             int xStart = Math.Min(Math.Min(0, (int)region.Left), output.Width);
             int yStart = Math.Min(Math.Max(0, (int)region.Top), output.Height);
             int xEnd = Math.Min(Math.Max(0, (int)region.Right), output.Width);
             int yEnd = Math.Min(Math.Max(0, (int)region.Bottom), output.Height);
+            
+            double[] contourSD = new double[contourCount];
 
-            {
-                double[] contourSD = new double[contourCount];
+            for (int y = yStart; y < yEnd; y++) {
+                int row = shape.InverseYAxis ? output.Height - y - 1 : y;
+                for (int x = xStart; x < xEnd; x++) {
+                    double dummy;
+                    Vector2 p = new Vector2(x + 0.5f, y + 0.5f) / scale;
+                    double negDist = -SignedDistance.Infinite.distance;
+                    double posDist = SignedDistance.Infinite.distance;
+                    int winding = 0;
 
-                for (int y = yStart; y < yEnd; y++) {
-                    int row = shape.InverseYAxis ? output.Height - y - 1 : y;
-                    for (int x = xStart; x < xEnd; x++) {
-                        double dummy;
-                        Vector2 p = new Vector2(x + 0.5f, y + 0.5f) / scale;
-                        double negDist = -SignedDistance.Infinite.distance;
-                        double posDist = SignedDistance.Infinite.distance;
-                        int winding = 0;
+                    for (int i = 0; i < contourCount; i++) {
+                        Contour contour = shape.Contours[i];
+                        SignedDistance minDistance = new SignedDistance(-1e240, 1);
 
-                        for (int i = 0; i < contourCount; i++) {
-                            Contour contour = shape.Contours[i];
-                            SignedDistance minDistance = new SignedDistance(-1e240, 1);
-
-                            for (int j = 0; j < contour.Edges.Count; j++) {
-                                EdgeSegment edge = contour.Edges[j];
-                                SignedDistance distance = edge.GetSignedDistance(p, out dummy);
-                                if (distance < minDistance) {
-                                    minDistance = distance;
-                                }
-                            }
-
-                            contourSD[i] = minDistance.distance;
-                            if (windings[i] > 0 && minDistance.distance >= 0 && Math.Abs(minDistance.distance) < Math.Abs(posDist)) {
-                                posDist = minDistance.distance;
-                            }
-
-                            if (windings[i] < 0 && minDistance.distance <= 0 && Math.Abs(minDistance.distance) < Math.Abs(negDist)) {
-                                negDist = minDistance.distance;
+                        for (int j = 0; j < contour.Edges.Count; j++) {
+                            EdgeSegment edge = contour.Edges[j];
+                            SignedDistance distance = edge.GetSignedDistance(p, out dummy);
+                            if (distance < minDistance) {
+                                minDistance = distance;
                             }
                         }
 
-                        double sd = SignedDistance.Infinite.distance;
-
-                        if (posDist >= 0 && Math.Abs(posDist) <= Math.Abs(negDist)) {
-                            sd = posDist;
-                            winding = 1;
-                            for (int i = 0; i < contourCount; i++) {
-                                if (windings[i] > 0 && contourSD[i] > sd && Math.Abs(contourSD[i]) < Math.Abs(negDist)) {
-                                    sd = contourSD[i];
-                                }
-                            }
-                        } else if (negDist <= 0 && Math.Abs(negDist) <= Math.Abs(posDist)) {
-                            sd = negDist;
-                            winding = -1;
-                            for (int i = 0; i < contourCount; i++) {
-                                if (windings[i] < 0 && contourSD[i] < sd && Math.Abs(contourSD[i]) < Math.Abs(posDist)) {
-                                    sd = contourSD[i];
-                                }
-                            }
+                        contourSD[i] = minDistance.distance;
+                        if (windings[i] > 0 && minDistance.distance >= 0 && Math.Abs(minDistance.distance) < Math.Abs(posDist)) {
+                            posDist = minDistance.distance;
                         }
 
+                        if (windings[i] < 0 && minDistance.distance <= 0 && Math.Abs(minDistance.distance) < Math.Abs(negDist)) {
+                            negDist = minDistance.distance;
+                        }
+                    }
+
+                    double sd = SignedDistance.Infinite.distance;
+
+                    if (posDist >= 0 && Math.Abs(posDist) <= Math.Abs(negDist)) {
+                        sd = posDist;
+                        winding = 1;
                         for (int i = 0; i < contourCount; i++) {
-                            if (windings[i] != winding && Math.Abs(contourSD[i]) < Math.Abs(sd)) {
+                            if (windings[i] > 0 && contourSD[i] > sd && Math.Abs(contourSD[i]) < Math.Abs(negDist)) {
                                 sd = contourSD[i];
                             }
                         }
-
-                        output[x, row] = (float)(sd / range) + 0.5f;
+                    } else if (negDist <= 0 && Math.Abs(negDist) <= Math.Abs(posDist)) {
+                        sd = negDist;
+                        winding = -1;
+                        for (int i = 0; i < contourCount; i++) {
+                            if (windings[i] < 0 && contourSD[i] < sd && Math.Abs(contourSD[i]) < Math.Abs(posDist)) {
+                                sd = contourSD[i];
+                            }
+                        }
                     }
+
+                    for (int i = 0; i < contourCount; i++) {
+                        if (windings[i] != winding && Math.Abs(contourSD[i]) < Math.Abs(sd)) {
+                            sd = contourSD[i];
+                        }
+                    }
+
+                    output[x, row] = (float)(sd / range) + 0.5f;
                 }
             }
         }
@@ -189,9 +187,10 @@ namespace MSDFGen {
 
         public static void GenerateMSDF(Bitmap<Color3> output, Shape shape, Rectangle region, double range, Vector2 scale, double edgeThreshold) {
             int contourCount = shape.Contours.Count;
-            List<int> windings = new List<int>(contourCount);
+            int[] windings = new int[contourCount];
+
             for (int i = 0; i < shape.Contours.Count; i++) {
-                windings.Add(shape.Contours[i].Winding);
+                windings[i] = shape.Contours[i].Winding;
             }
 
             int xStart = Math.Min(Math.Min(0, (int)region.Left), output.Width);
