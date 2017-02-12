@@ -14,7 +14,7 @@ namespace MSDFGen {
         }
 
         static Vector2 ToVector2(FTVector vector) {
-            return new Vector2(vector.X.Value / 64, vector.Y.Value / 64);
+            return new Vector2(vector.X.Value / 64f, vector.Y.Value / 64f);
         }
 
         static int MoveTo(ref FTVector to, IntPtr user) {
