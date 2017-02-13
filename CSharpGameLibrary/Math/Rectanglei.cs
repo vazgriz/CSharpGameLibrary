@@ -3,10 +3,10 @@ using System.Numerics;
 
 namespace CSGL.Math {
     public struct Rectanglei {
-        public int X { get; set; }
-        public int Y { get; set; }
-        public int Width { get; set; }
-        public int Height { get; set; }
+        public int X;
+        public int Y;
+        public int Width;
+        public int Height;
 
         public Rectanglei(int x, int y, int width, int height) {
             X = x;
