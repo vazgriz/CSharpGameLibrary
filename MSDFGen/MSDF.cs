@@ -114,7 +114,7 @@ namespace MSDFGen {
                 windings[i] = shape.Contours[i].Winding;
             }
 
-            int xStart = Math.Min(Math.Min(0, (int)region.Left), output.Width);
+            int xStart = Math.Min(Math.Max(0, (int)region.Left), output.Width);
             int yStart = Math.Min(Math.Max(0, (int)region.Top), output.Height);
             int xEnd = Math.Min(Math.Max(0, (int)region.Right), output.Width);
             int yEnd = Math.Min(Math.Max(0, (int)region.Bottom), output.Height);
@@ -201,7 +201,7 @@ namespace MSDFGen {
                 windings[i] = shape.Contours[i].Winding;
             }
 
-            int xStart = Math.Min(Math.Min(0, (int)region.Left), output.Width);
+            int xStart = Math.Min(Math.Max(0, (int)region.Left), output.Width);
             int yStart = Math.Min(Math.Max(0, (int)region.Top), output.Height);
             int xEnd = Math.Min(Math.Max(0, (int)region.Right), output.Width);
             int yEnd = Math.Min(Math.Max(0, (int)region.Bottom), output.Height);
