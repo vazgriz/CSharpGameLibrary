@@ -42,25 +42,25 @@ namespace CSGL.Math {
             }
         }
 
-        public float Top {
+        public int Top {
             get {
                 return Y;
             }
         }
 
-        public float Bottom {
+        public int Bottom {
             get {
                 return Y + Height;
             }
         }
 
-        public float Left {
+        public int Left {
             get {
                 return X;
             }
         }
 
-        public float Right {
+        public int Right {
             get {
                 return X + Width;
             }
