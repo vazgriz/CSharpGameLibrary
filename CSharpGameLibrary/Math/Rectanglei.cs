@@ -22,7 +22,25 @@ namespace CSGL.Math {
             Height = (int)rect.Height;
         }
 
-        //public Vector2i
+        public Vector2i Position {
+            get {
+                return new Vector2i(X, Y);
+            }
+            set {
+                X = value.X;
+                Y = value.Y;
+            }
+        }
+
+        public Vector2i Size {
+            get {
+                return new Vector2i(Width, Height);
+            }
+            set {
+                Width = value.X;
+                Height = value.Y;
+            }
+        }
 
         public float Top {
             get {
