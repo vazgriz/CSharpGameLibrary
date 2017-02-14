@@ -21,6 +21,10 @@ namespace CSGL.Vulkan {
         }
 
         public Device Device { get; private set; }
+        public RenderPass RenderPass { get; private set; }
+        public uint Width { get; private set; }
+        public uint Height { get; private set; }
+        public uint Layers { get; private set; }
 
         public Framebuffer(Device device, FramebufferCreateInfo info) {
             if (device == null) throw new ArgumentNullException(nameof(device));
@@ -53,6 +57,11 @@ namespace CSGL.Vulkan {
                 var result = Device.Commands.createFramebuffer(Device.Native, ref info, Device.Instance.AllocationCallbacks, out framebuffer);
                 if (result != VkResult.Success) throw new FramebufferException(string.Format("Error creating framebuffer: {0}", result));
             }
+
+            RenderPass = mInfo.renderPass;
+            Width = mInfo.width;
+            Height = mInfo.height;
+            Layers = mInfo.layers;
         }
 
         public void Dispose() {
