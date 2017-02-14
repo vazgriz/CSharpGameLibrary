@@ -76,7 +76,7 @@ namespace CSGL.Vulkan {
             using (imagesNative) {
                 for (int i = 0; i < count; i++) {
                     var image = imagesNative[i];
-                    images.Add(new Image(Device, image));
+                    images.Add(new Image(Device, image, Format));
                 }
             }
 
