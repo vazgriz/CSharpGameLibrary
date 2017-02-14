@@ -122,7 +122,7 @@ namespace MSDFGen {
             double[] contourSD = new double[contourCount];
 
             for (int y = yStart; y < yEnd; y++) {
-                int row = shape.InverseYAxis ? output.Height - y - 1 : y;
+                int row = shape.InverseYAxis ? yEnd - (y - yStart) - 1 : y;
                 for (int x = xStart; x < xEnd; x++) {
                     double dummy;
                     Vector2 p = new Vector2(x + 0.5f, y + 0.5f) / scale - region.Position - translate;
@@ -209,7 +209,7 @@ namespace MSDFGen {
             MultiDistance[] contourSD = new MultiDistance[contourCount];
 
             for (int y = yStart; y < yEnd; y++) {
-                int row = shape.InverseYAxis ? output.Height - y - 1 : y;
+                int row = shape.InverseYAxis ? yEnd - (y - yStart) - 1 : y;
                 for (int x = xStart; x < xEnd; x++) {
                     Vector2 p = new Vector2(x + 0.5f, y + 0.5f) / scale - region.Position - translate;
 
