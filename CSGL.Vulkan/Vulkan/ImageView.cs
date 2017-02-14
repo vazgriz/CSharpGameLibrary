@@ -24,6 +24,11 @@ namespace CSGL.Vulkan {
         }
 
         public Device Device { get; private set; }
+        public Image Image { get; private set; }
+        public VkImageViewType ViewType { get; private set; }
+        public VkFormat Format { get; private set; }
+        public VkComponentMapping Components { get; private set; }
+        public VkImageSubresourceRange SubresourceRange { get; private set; }
 
         public ImageView(Device device, ImageViewCreateInfo info) {
             if (device == null) throw new ArgumentNullException(nameof(device));
@@ -46,6 +51,12 @@ namespace CSGL.Vulkan {
             
             var result = Device.Commands.createImageView(Device.Native, ref info, Device.Instance.AllocationCallbacks, out imageView);
             if (result != VkResult.Success) throw new ImageViewException(string.Format("Error creating image view: {0}", result));
+
+            Image = mInfo.image;
+            ViewType = mInfo.viewType;
+            Format = mInfo.format;
+            Components = mInfo.components;
+            SubresourceRange = mInfo.subresourceRange;
         }
 
         public void Dispose() {
