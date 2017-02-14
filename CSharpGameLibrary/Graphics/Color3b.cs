@@ -14,9 +14,9 @@ namespace CSGL.Graphics {
         public Color3b(int r, int g, int b) : this((byte)r, (byte)g, (byte)b) { }
 
         public Color3b(Color3 color) {
-            r = (byte)(color.r * 255);
-            g = (byte)(color.g * 255);
-            b = (byte)(color.b * 255);
+            r = (byte)System.Math.Min(System.Math.Max(color.r * 255, 0), 255);
+            g = (byte)System.Math.Min(System.Math.Max(color.g * 255, 0), 255);
+            b = (byte)System.Math.Min(System.Math.Max(color.b * 255, 0), 255);
         }
 
         public uint ToUint() {
