@@ -38,6 +38,7 @@ namespace CSGL.Vulkan {
             }
         }
 
+        public VkBufferCreateFlags Flags { get; private set; }
         public VkBufferUsageFlags Usage { get; private set; }
         public ulong Offset { get; private set; }
         public bool Bound { get; private set; }
@@ -70,6 +71,7 @@ namespace CSGL.Vulkan {
                 if (result != VkResult.Success) throw new BufferException(string.Format("Error creating Buffer: {0}", result));
             }
 
+            Flags = mInfo.flags;
             Usage = mInfo.usage;
         }
 
