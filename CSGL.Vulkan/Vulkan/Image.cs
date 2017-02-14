@@ -37,9 +37,12 @@ namespace CSGL.Vulkan {
             }
         }
 
-        internal Image(Device device, VkImage image) { //for images that are implicitly created, eg a swapchains's images
+        public VkFormat Format { get; private set; }
+
+        internal Image(Device device, VkImage image, VkFormat format) { //for images that are implicitly created, eg a swapchains's images
             Device = device;
             this.image = image;
+            Format = format;
         }
 
         public Image(Device device, ImageCreateInfo info) {
@@ -74,6 +77,8 @@ namespace CSGL.Vulkan {
                 var result = Device.Commands.createImage(Device.Native, ref info, Device.Instance.AllocationCallbacks, out image);
                 if (result != VkResult.Success) throw new ImageException(string.Format("Error creating image: {0}", result));
             }
+
+            Format = mInfo.format;
         }
 
         public void Bind(DeviceMemory memory, ulong offset) {
