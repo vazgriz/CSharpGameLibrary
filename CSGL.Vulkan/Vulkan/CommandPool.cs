@@ -18,6 +18,7 @@ namespace CSGL.Vulkan {
         }
 
         public Device Device { get; private set; }
+        public VkCommandPoolCreateFlags Flags { get; private set; }
 
         public CommandPool(Device device, CommandPoolCreateInfo info) {
             if (device == null) throw new ArgumentNullException(nameof(device));
@@ -36,6 +37,8 @@ namespace CSGL.Vulkan {
             
             var result = Device.Commands.createCommandPool(Device.Native, ref info, Device.Instance.AllocationCallbacks, out commandPool);
             if (result != VkResult.Success) throw new CommandPoolException(string.Format("Error creating command pool: {0}", result));
+
+            Flags = mInfo.flags;
         }
 
         public CommandBuffer[] Allocate(CommandBufferAllocateInfo info) {
