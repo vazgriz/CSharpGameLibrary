@@ -37,7 +37,15 @@ namespace CSGL.Vulkan {
             }
         }
 
+        public VkImageCreateFlags Flags { get; private set; }
+        public VkImageType ImageType { get; private set; }
         public VkFormat Format { get; private set; }
+        public VkExtent3D Extent { get; private set; }
+        public uint MipLevels { get; private set; }
+        public uint ArrayLayers { get; private set; }
+        public VkSampleCountFlags Samples { get; private set; }
+        public VkImageTiling Tiling { get; private set; }
+        public VkImageUsageFlags Usage { get; private set; }
 
         internal Image(Device device, VkImage image, VkFormat format) { //for images that are implicitly created, eg a swapchains's images
             Device = device;
@@ -78,7 +86,15 @@ namespace CSGL.Vulkan {
                 if (result != VkResult.Success) throw new ImageException(string.Format("Error creating image: {0}", result));
             }
 
+            Flags = mInfo.flags;
+            ImageType = mInfo.imageType;
             Format = mInfo.format;
+            Extent = mInfo.extent;
+            MipLevels = mInfo.mipLevels;
+            ArrayLayers = mInfo.arrayLayers;
+            Samples = mInfo.samples;
+            Tiling = mInfo.tiling;
+            Usage = mInfo.usage;
         }
 
         public void Bind(DeviceMemory memory, ulong offset) {
