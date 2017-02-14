@@ -53,7 +53,7 @@ namespace CSGL.Vulkan {
                 var result = Device.Commands.allocateCommandBuffers(Device.Native, ref info, commandBufferMarshalled.Address);
                 if (result != VkResult.Success) throw new CommandPoolException(string.Format("Error allocating command buffer: {0}", result));
 
-                CommandBuffer commandBuffer = new CommandBuffer(Device, this, commandBufferMarshalled.Value);
+                CommandBuffer commandBuffer = new CommandBuffer(Device, this, commandBufferMarshalled.Value, level);
 
                 return commandBuffer;
             }
@@ -72,7 +72,7 @@ namespace CSGL.Vulkan {
                 if (result != VkResult.Success) throw new CommandPoolException(string.Format("Error allocating command buffers: {0}", result));
 
                 for (int i = 0; i < count; i++) {
-                    commandBuffers[i] = new CommandBuffer(Device, this, commandBuffersMarshalled[i]);
+                    commandBuffers[i] = new CommandBuffer(Device, this, commandBuffersMarshalled[i], level);
                 }
 
                 return commandBuffers;

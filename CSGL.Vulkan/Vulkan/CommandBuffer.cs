@@ -20,11 +20,13 @@ namespace CSGL.Vulkan {
 
         public Device Device { get; private set; }
         public CommandPool Pool { get; private set; }
+        public VkCommandBufferLevel Level { get; private set; }
 
-        internal CommandBuffer(Device device, CommandPool pool, VkCommandBuffer commandBuffer) {
+        internal CommandBuffer(Device device, CommandPool pool, VkCommandBuffer commandBuffer, VkCommandBufferLevel level) {
             Device = device;
             Pool = pool;
             this.commandBuffer = commandBuffer;
+            Level = level;
         }
 
         public void Begin(CommandBufferBeginInfo info) {
