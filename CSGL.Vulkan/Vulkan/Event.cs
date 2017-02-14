@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+
 namespace CSGL.Vulkan {
     public class Event : IDisposable, INative<VkEvent> {
         VkEvent _event;
