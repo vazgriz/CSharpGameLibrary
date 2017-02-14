@@ -8,6 +8,8 @@ namespace CSGL.Vulkan {
         public VkComponentMapping components;
         public VkImageSubresourceRange subresourceRange;
 
+        public ImageViewCreateInfo() { }
+
         public ImageViewCreateInfo(Image image) {
             this.image = image;
         }
