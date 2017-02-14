@@ -253,6 +253,16 @@ namespace CSGL.Vulkan {
             }
         }
 
+        public void CopyImage(Image srcImage, VkImageLayout srcImageLayout, Image dstImage, VkImageLayout dstImageLayout, VkImageCopy regions) {
+            unsafe
+            {
+                Device.Commands.cmdCopyImage(commandBuffer,
+                    srcImage.Native, srcImageLayout,
+                    dstImage.Native, dstImageLayout,
+                    1, (IntPtr)(&regions));
+            }
+        }
+
         public void PipelineBarrier(VkPipelineStageFlags srcStageMask, VkPipelineStageFlags dstStageMask, VkDependencyFlags flags,
             List<MemoryBarrier> memoryBarriers, List<BufferMemoryBarrier> bufferMemoryBarriers, List<ImageMemoryBarrier> imageMemoryBarriers) {
 
