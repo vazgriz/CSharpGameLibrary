@@ -49,7 +49,7 @@ namespace CSGL {
 
         public static unsafe void Copy(void* source, void* dest, long size) {
             //if source and dest are not congruent modulo
-            if ((ulong)source % 8 != (ulong)dest % 8) {
+            if ((long)source % 8 != (long)dest % 8) {
                 byte* _source = (byte*)source;
                 byte* _dest = (byte*)dest;
 
@@ -137,7 +137,7 @@ namespace CSGL {
         public static void Copy<T>(List<T> source, IntPtr dest) where T : struct {
             unsafe
             {
-                int size = SizeOf<T>();
+                int size = (int)SizeOf<T>();
                 for (int i = 0; i < source.Count; i++) {
                     Unsafe.Write((void*)dest, source[i]);
                     dest += size;
@@ -145,15 +145,15 @@ namespace CSGL {
             }
         }
 
-        public static int SizeOf<T>() where T : struct {
+        public static long SizeOf<T>() where T : struct {
             return Unsafe.SizeOf<T>();
         }
 
-        public static int SizeOf<T>(T[] array) where T : struct {
+        public static long SizeOf<T>(T[] array) where T : struct {
             return Unsafe.SizeOf<T>() * array.Length;
         }
 
-        public static int SizeOf<T>(List<T> list) where T : struct {
+        public static long SizeOf<T>(List<T> list) where T : struct {
             return Unsafe.SizeOf<T>() * list.Count;
         }
 
@@ -169,7 +169,7 @@ namespace CSGL {
         public static unsafe void Marshal<T>(INative<T>[] array, void* dest, int count) where T : struct {
             if (array == null || array.Length == 0) return;
 
-            int size = SizeOf<T>();
+            int size = (int)SizeOf<T>();
             byte* curDest = (byte*)dest;
 
             for (int i = 0; i < count; i++) {
@@ -186,7 +186,7 @@ namespace CSGL {
         public static unsafe void Marshal<T, U>(List<U> list, void* dest, int count) where T : struct where U : INative<T> {
             if (list == null || list.Count == 0) return;
 
-            int size = SizeOf<T>();
+            int size = (int)SizeOf<T>();
             byte* curDest = (byte*)dest;
 
             for (int i = 0; i < count; i++) {
