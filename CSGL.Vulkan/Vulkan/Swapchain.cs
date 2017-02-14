@@ -34,15 +34,16 @@ namespace CSGL.Vulkan {
         
         vkGetSwapchainImagesKHRDelegate getImages;
         
-        public Surface Surface { get; private set; }
         public Device Device { get; private set; }
+        public Surface Surface { get; private set; }
         public IList<Image> Images { get; private set; }
-        public VkExtent2D Extent { get; private set; }
         public VkFormat Format { get; private set; }
-        public VkPresentModeKHR PresentMode { get; private set; }
         public VkColorSpaceKHR ColorSpace { get; private set; }
+        public VkExtent2D Extent { get; private set; }
+        public uint ArrayLayers { get; private set; }
         public VkImageUsageFlags Usage { get; private set; }
         public VkSharingMode SharingMode { get; private set; }
+        public VkPresentModeKHR PresentMode { get; private set; }
 
         public VkSwapchainKHR Native {
             get {
@@ -114,9 +115,10 @@ namespace CSGL.Vulkan {
             }
 
             Format = info.imageFormat;
-            Extent = info.imageExtent;
-            PresentMode = info.presentMode;
             ColorSpace = info.imageColorSpace;
+            Extent = info.imageExtent;
+            ArrayLayers = info.imageArrayLayers;
+            PresentMode = info.presentMode;
             Usage = info.imageUsage;
             SharingMode = info.imageSharingMode;
         }
