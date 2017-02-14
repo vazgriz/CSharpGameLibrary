@@ -106,6 +106,10 @@ namespace MSDFGen {
             GenerateSDF(output, shape, new Rectangle(0, 0, output.Width, output.Height), range, scale, translate);
         }
 
+        public static void GenerateSDF(Bitmap<byte> output, Shape shape, double range, Vector2 scale, Vector2 translate) {
+            GenerateSDF(output, shape, new Rectangle(0, 0, output.Width, output.Height), range, scale, translate);
+        }
+
         public static void GenerateSDF(Bitmap<float> output, Shape shape, Rectangle region, double range, Vector2 scale, Vector2 translate) {
             int contourCount = shape.Contours.Count;
             int[] windings = new int[contourCount];
@@ -125,6 +129,29 @@ namespace MSDFGen {
                 int row = shape.InverseYAxis ? yEnd - (y - yStart) - 1 : y;
                 for (int x = xStart; x < xEnd; x++) {
                     output[x, row] = EvaluateSDF(shape, windings, contourSD, x, y, range, scale, region.Position + translate);
+                }
+            }
+        }
+
+        public static void GenerateSDF(Bitmap<byte> output, Shape shape, Rectangle region, double range, Vector2 scale, Vector2 translate) {
+            int contourCount = shape.Contours.Count;
+            int[] windings = new int[contourCount];
+
+            for (int i = 0; i < shape.Contours.Count; i++) {
+                windings[i] = shape.Contours[i].Winding;
+            }
+
+            int xStart = Math.Min(Math.Max(0, (int)region.Left), output.Width);
+            int yStart = Math.Min(Math.Max(0, (int)region.Top), output.Height);
+            int xEnd = Math.Min(Math.Max(0, (int)region.Right), output.Width);
+            int yEnd = Math.Min(Math.Max(0, (int)region.Bottom), output.Height);
+
+            double[] contourSD = new double[contourCount];
+
+            for (int y = yStart; y < yEnd; y++) {
+                int row = shape.InverseYAxis ? yEnd - (y - yStart) - 1 : y;
+                for (int x = xStart; x < xEnd; x++) {
+                    output[x, row] = (byte)Math.Min(Math.Min((int)(EvaluateSDF(shape, windings, contourSD, x, y, range, scale, region.Position + translate) * 255), 0), 255);
                 }
             }
         }
