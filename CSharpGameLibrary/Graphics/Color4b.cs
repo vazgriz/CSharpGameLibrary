@@ -15,19 +15,19 @@ namespace CSGL.Graphics {
         public Color4b(int r, int g, int b, int a) : this((byte)r, (byte)g, (byte)b, (byte)a) { }
 
         public Color4b(Color4 color) {
-            r = (byte)(color.r * 255);
-            g = (byte)(color.g * 255);
-            b = (byte)(color.b * 255);
-            a = (byte)(color.a * 255);
+            r = (byte)(System.Math.Min(System.Math.Max(color.r * 255, 0), 255));
+            g = (byte)(System.Math.Min(System.Math.Max(color.g * 255, 0), 255));
+            b = (byte)(System.Math.Min(System.Math.Max(color.b * 255, 0), 255));
+            a = (byte)(System.Math.Min(System.Math.Max(color.a * 255, 0), 255));
         }
 
         public Color4b(Color3b color, byte a) : this(color.r, color.g, color.b, a) { }
         public Color4b(Color3b color, int a) : this(color, (byte)a) { }
 
         public Color4b(Color3 color, byte a) {
-            r = (byte)(color.r * 255);
-            g = (byte)(color.g * 255);
-            b = (byte)(color.b * 255);
+            r = (byte)(System.Math.Min(System.Math.Max(color.r * 255, 0), 255));
+            g = (byte)(System.Math.Min(System.Math.Max(color.g * 255, 0), 255));
+            b = (byte)(System.Math.Min(System.Math.Max(color.b * 255, 0), 255));
             this.a = a;
         }
 
