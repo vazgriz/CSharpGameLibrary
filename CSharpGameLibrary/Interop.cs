@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Runtime.CompilerServices;
 using SMarshal = System.Runtime.InteropServices.Marshal;
+using System.Reflection;
+using System.Reflection.Emit;
 
 namespace CSGL {
     public static class Interop {
@@ -45,6 +47,26 @@ namespace CSGL {
             byte[] result = new byte[length + 1];   //need room for null terminator
             utf8.GetBytes(s, 0, s.Length, result, 0);
             return result;
+        }
+
+        class ListAccessor<T> {
+            //http://stackoverflow.com/a/17308019
+            public static Func<List<T>, T[]> accessor;
+
+            static ListAccessor() {
+                var dm = new DynamicMethod("get", MethodAttributes.Static | MethodAttributes.Public,CallingConventions.Standard,
+                    typeof(T[]), new Type[] { typeof(List<T>) }, typeof(ListAccessor<T>), true);
+                var il = dm.GetILGenerator();
+                il.Emit(OpCodes.Ldarg_0); // Load List<T> argument
+                il.Emit(OpCodes.Ldfld, typeof(List<T>).GetField("_items", BindingFlags.NonPublic | BindingFlags.Instance)); // Replace argument by field
+                il.Emit(OpCodes.Ret); // Return field
+                accessor = (Func<List<T>, T[]>)dm.CreateDelegate(typeof(Func<List<T>, T[]>));
+            }
+        }
+
+        public static T[] GetInternalArray<T>(List<T> list) {
+            //returns the internal backing array
+            return ListAccessor<T>.accessor(list);
         }
 
         public static unsafe void Copy(void* source, void* dest, long size) {
