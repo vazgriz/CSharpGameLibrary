@@ -31,7 +31,7 @@ namespace CSGL.Vulkan {
             }
         }
 
-        public VkMemoryRequirements MemoryRequirements {
+        public VkMemoryRequirements Requirements {
             get {
                 return requirements;
             }
