@@ -301,7 +301,7 @@ namespace MSDFGen {
 
         static Color3 EvaluateMSDF(Shape shape, int[] windings, MultiDistance[] contourSD, int x, int y, double range, Vector2 scale, Vector2 translate) {
             int contourCount = contourSD.Length;
-            Vector2 p = new Vector2(x + 0.5f, y + 0.5f) / scale - translate;
+            Vector2 p = ((new Vector2(x, y)  - translate) / scale) + new Vector2(0.5f, 0.5f);
 
             EdgePoint sr = new EdgePoint {
                 minDistance = new SignedDistance(-1e240, 1)
