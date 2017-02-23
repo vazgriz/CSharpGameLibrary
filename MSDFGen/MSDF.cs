@@ -248,7 +248,8 @@ namespace MSDFGen {
             for (int y = yStart; y < yEnd; y++) {
                 int row = shape.InverseYAxis ? yEnd - (y - yStart) - 1 : y;
                 for (int x = xStart; x < xEnd; x++) {
-                    output[x, row] = EvaluateMSDF(shape, windings, contourSD, x, y, range, scale, region.Position + translate);
+                    Vector2 p = (new Vector2(x, y) - region.Position - translate) / scale;
+                    output[x, row] = EvaluateMSDF(shape, windings, contourSD, p, range);
                 }
             }
         }
@@ -271,7 +272,8 @@ namespace MSDFGen {
             for (int y = yStart; y < yEnd; y++) {
                 int row = shape.InverseYAxis ? yEnd - (y - yStart) - 1 : y;
                 for (int x = xStart; x < xEnd; x++) {
-                    output[x, row] = new Color3b(EvaluateMSDF(shape, windings, contourSD, x, y, range, scale, region.Position + translate));
+                    Vector2 p = (new Vector2(x, y) - region.Position - translate) / scale;
+                    output[x, row] = new Color3b(EvaluateMSDF(shape, windings, contourSD, p, range));
                 }
             }
         }
@@ -294,14 +296,15 @@ namespace MSDFGen {
             for (int y = yStart; y < yEnd; y++) {
                 int row = shape.InverseYAxis ? yEnd - (y - yStart) - 1 : y;
                 for (int x = xStart; x < xEnd; x++) {
-                    output[x, row] = new Color4b(EvaluateMSDF(shape, windings, contourSD, x, y, range, scale, region.Position + translate), 255);
+                    Vector2 p = (new Vector2(x, y) - region.Position - translate) / scale;
+                    output[x, row] = new Color4b(EvaluateMSDF(shape, windings, contourSD, p, range), 255);
                 }
             }
         }
 
-        static Color3 EvaluateMSDF(Shape shape, int[] windings, MultiDistance[] contourSD, int x, int y, double range, Vector2 scale, Vector2 translate) {
+        static Color3 EvaluateMSDF(Shape shape, int[] windings, MultiDistance[] contourSD, Vector2 p, double range) {
             int contourCount = contourSD.Length;
-            Vector2 p = ((new Vector2(x, y)  - translate) / scale) + new Vector2(0.5f, 0.5f);
+            p += new Vector2(0.5f, 0.5f);
 
             EdgePoint sr = new EdgePoint {
                 minDistance = new SignedDistance(-1e240, 1)
