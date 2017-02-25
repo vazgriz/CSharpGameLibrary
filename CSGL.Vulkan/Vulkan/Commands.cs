@@ -25,6 +25,7 @@ namespace CSGL.Vulkan {
             public vkDestroyImageDelegate destroyImage;
             public vkGetImageMemoryRequirementsDelegate getImageMemoryRequirements;
             public vkBindImageMemoryDelegate bindImageMemory;
+            public vkGetImageSparseMemoryRequirementsDelegate getImageSparseRequirements;
 
             public vkCreateShaderModuleDelegate createShaderModule;
             public vkDestroyShaderModuleDelegate destroyShaderModule;

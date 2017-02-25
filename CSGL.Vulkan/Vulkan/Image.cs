@@ -22,6 +22,7 @@ namespace CSGL.Vulkan {
         bool disposed = false;
 
         VkMemoryRequirements requirements;
+        List<VkSparseImageMemoryRequirements> sparseRequirements;
 
         public Device Device { get; private set; }
 
@@ -36,6 +37,8 @@ namespace CSGL.Vulkan {
                 return requirements;
             }
         }
+
+        public IList<VkSparseImageMemoryRequirements> SparseRequirements { get; private set; }
 
         public VkImageCreateFlags Flags { get; private set; }
         public VkImageType ImageType { get; private set; }
@@ -95,6 +98,24 @@ namespace CSGL.Vulkan {
             Samples = mInfo.samples;
             Tiling = mInfo.tiling;
             Usage = mInfo.usage;
+        }
+
+        void GetSparseRequirements() {
+            sparseRequirements = new List<VkSparseImageMemoryRequirements>();
+
+            uint count = 0;
+            Device.Commands.getImageSparseRequirements(Device.Native, image, ref count, IntPtr.Zero);
+            var sparseRequirementsNative = new MarshalledArray<VkSparseImageMemoryRequirements>((int)count);
+            Device.Commands.getImageSparseRequirements(Device.Native, image, ref count, sparseRequirementsNative.Address);
+
+            using (sparseRequirementsNative) {
+                for (int i = 0; i < count; i++) {
+                    var requirement = sparseRequirementsNative[i];
+                    sparseRequirements.Add(requirement);
+                }
+            }
+
+            SparseRequirements = sparseRequirements.AsReadOnly();
         }
 
         public void Bind(DeviceMemory memory, ulong offset) {
