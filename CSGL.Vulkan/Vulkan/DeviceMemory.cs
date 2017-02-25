@@ -27,6 +27,14 @@ namespace CSGL.Vulkan {
 
         public ulong Size { get; private set; }
 
+        public ulong Commitment {
+            get {
+                ulong result = 0;
+                Device.Commands.getCommitedMemory(Device.Native, deviceMemory, ref result);
+                return result;
+            }
+        }
+
         public DeviceMemory(Device device, MemoryAllocateInfo info) {
             if (device == null) throw new ArgumentNullException(nameof(device));
             if (info == null) throw new ArgumentNullException(nameof(info));

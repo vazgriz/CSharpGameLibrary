@@ -102,6 +102,7 @@ namespace CSGL.Vulkan {
             public vkUnmapMemoryDelegate unmapMemory;
             public vkFlushMappedMemoryRangesDelegate flushMemory;
             public vkInvalidateMappedMemoryRangesDelegate invalidateMemory;
+            public vkGetDeviceMemoryCommitmentDelegate getCommitedMemory;
 
             public vkCreateDescriptorSetLayoutDelegate createDescriptorSetLayout;
             public vkDestroyDescriptorSetLayoutDelegate destroyDescriptorSetLayout;
