@@ -6,6 +6,12 @@ namespace CSGL.Vulkan {
         public uint memoryTypeIndex;
     }
 
+    public class MappedMemoryRange {
+        public DeviceMemory memory;
+        public ulong offset;
+        public ulong size;
+    }
+
     public class DeviceMemory : IDisposable, INative<VkDeviceMemory> {
         VkDeviceMemory deviceMemory;
         bool disposed = false;
@@ -58,6 +64,67 @@ namespace CSGL.Vulkan {
 
         public void Unmap() {
             Device.Commands.unmapMemory(Device.Native, deviceMemory);
+        }
+
+        public static void Flush(Device device, MappedMemoryRange[] ranges) {
+            unsafe {
+                VkMappedMemoryRange* rangesNative = stackalloc VkMappedMemoryRange[ranges.Length];
+
+                for (int i = 0; i < ranges.Length; i++) {
+                    rangesNative[i].sType = VkStructureType.MappedMemoryRange;
+                    rangesNative[i].memory = ranges[i].memory.Native;
+                    rangesNative[i].offset = ranges[i].offset;
+                    rangesNative[i].size = ranges[i].size;
+                }
+
+                var result = device.Commands.flushMemory(device.Native, (uint)ranges.Length, (IntPtr)rangesNative);
+                if (result != VkResult.Success) throw new DeviceMemoryException(string.Format("Error flushing memory: {0}", result));
+            }
+        }
+
+        public static void Flush(Device device, MappedMemoryRange ranges) {
+            VkMappedMemoryRange rangeNative = new VkMappedMemoryRange();
+            rangeNative.sType = VkStructureType.MappedMemoryRange;
+            rangeNative.memory = ranges.memory.Native;
+            rangeNative.offset = ranges.offset;
+            rangeNative.size = ranges.size;
+
+            unsafe
+            {
+                var result = device.Commands.flushMemory(device.Native, 1, (IntPtr)(&rangeNative));
+                if (result != VkResult.Success) throw new DeviceMemoryException(string.Format("Error flushing memory: {0}", result));
+            }
+        }
+
+        public void Flush(MappedMemoryRange[] ranges) {
+            unsafe
+            {
+                VkMappedMemoryRange* rangesNative = stackalloc VkMappedMemoryRange[ranges.Length];
+
+                for (int i = 0; i < ranges.Length; i++) {
+                    rangesNative[i].sType = VkStructureType.MappedMemoryRange;
+                    rangesNative[i].memory = deviceMemory;
+                    rangesNative[i].offset = ranges[i].offset;
+                    rangesNative[i].size = ranges[i].size;
+                }
+
+                var result = Device.Commands.flushMemory(Device.Native, (uint)ranges.Length, (IntPtr)rangesNative);
+                if (result != VkResult.Success) throw new DeviceMemoryException(string.Format("Error flushing memory: {0}", result));
+            }
+        }
+
+        public void Flush(ulong offset, ulong size) {
+            VkMappedMemoryRange rangeNative = new VkMappedMemoryRange();
+            rangeNative.sType = VkStructureType.MappedMemoryRange;
+            rangeNative.memory = deviceMemory;
+            rangeNative.offset = offset;
+            rangeNative.size = size;
+
+            unsafe
+            {
+                var result = Device.Commands.flushMemory(Device.Native, 1, (IntPtr)(&rangeNative));
+                if (result != VkResult.Success) throw new DeviceMemoryException(string.Format("Error flushing memory: {0}", result));
+            }
         }
 
         public void Dispose() {
