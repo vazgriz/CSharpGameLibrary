@@ -67,6 +67,16 @@ namespace CSGL.Vulkan {
             Device.Commands.unmapMemory(Device.Native, deviceMemory);
         }
 
+        static VkMappedMemoryRange Marshal(MappedMemoryRange range, DeviceMemory memory) {
+            var result = new VkMappedMemoryRange();
+            result.sType = VkStructureType.MappedMemoryRange;
+            result.memory = memory.Native;
+            result.offset = range.offset;
+            result.size = range.size;
+
+            return result;
+        }
+
         static unsafe void Flush(Device device, uint count, VkMappedMemoryRange* ranges) {
             var result = device.Commands.flushMemory(device.Native, count, (IntPtr)ranges);
             if (result != VkResult.Success) throw new DeviceMemoryException(string.Format("Error flushing memory: {0}", result));
@@ -77,10 +87,7 @@ namespace CSGL.Vulkan {
                 VkMappedMemoryRange* rangesNative = stackalloc VkMappedMemoryRange[ranges.Length];
 
                 for (int i = 0; i < ranges.Length; i++) {
-                    rangesNative[i].sType = VkStructureType.MappedMemoryRange;
-                    rangesNative[i].memory = ranges[i].memory.Native;
-                    rangesNative[i].offset = ranges[i].offset;
-                    rangesNative[i].size = ranges[i].size;
+                    rangesNative[i] = Marshal(ranges[i], ranges[i].memory);
                 }
 
                 Flush(device, (uint)ranges.Length, rangesNative);
@@ -92,11 +99,7 @@ namespace CSGL.Vulkan {
         }
 
         public static void Flush(Device device, MappedMemoryRange ranges) {
-            VkMappedMemoryRange rangeNative = new VkMappedMemoryRange();
-            rangeNative.sType = VkStructureType.MappedMemoryRange;
-            rangeNative.memory = ranges.memory.Native;
-            rangeNative.offset = ranges.offset;
-            rangeNative.size = ranges.size;
+            VkMappedMemoryRange rangeNative = Marshal(ranges, ranges.memory);
 
             unsafe
             {
@@ -110,10 +113,7 @@ namespace CSGL.Vulkan {
                 VkMappedMemoryRange* rangesNative = stackalloc VkMappedMemoryRange[ranges.Length];
 
                 for (int i = 0; i < ranges.Length; i++) {
-                    rangesNative[i].sType = VkStructureType.MappedMemoryRange;
-                    rangesNative[i].memory = deviceMemory;
-                    rangesNative[i].offset = ranges[i].offset;
-                    rangesNative[i].size = ranges[i].size;
+                    rangesNative[i] = Marshal(ranges[i], this);
                 }
 
                 Flush(Device, (uint)ranges.Length, rangesNative);
@@ -125,11 +125,7 @@ namespace CSGL.Vulkan {
         }
 
         public void Flush(MappedMemoryRange ranges) {
-            VkMappedMemoryRange rangeNative = new VkMappedMemoryRange();
-            rangeNative.sType = VkStructureType.MappedMemoryRange;
-            rangeNative.memory = deviceMemory;
-            rangeNative.offset = ranges.offset;
-            rangeNative.size = ranges.size;
+            VkMappedMemoryRange rangeNative = Marshal(ranges, this);
 
             unsafe
             {
