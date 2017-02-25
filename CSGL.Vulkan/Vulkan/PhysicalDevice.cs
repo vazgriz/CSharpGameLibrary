@@ -33,9 +33,9 @@ namespace CSGL.Vulkan {
             }
         }
 
-        internal PhysicalDevice(Instance instance, VkPhysicalDevice device) {
+        internal PhysicalDevice(Instance instance, VkPhysicalDevice physicalDevice) {
             Instance = instance;
-            this.physicalDevice = device;
+            this.physicalDevice = physicalDevice;
 
             GetDeviceProperties();
             GetQueueProperties();
