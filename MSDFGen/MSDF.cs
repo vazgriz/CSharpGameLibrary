@@ -14,7 +14,7 @@ namespace MSDFGen {
     }
 
     public static partial class MSDF {
-        static bool PixelClash(Color3 a, Color3 b, double threshold) {
+        public static bool PixelClash(Color4 a, Color4 b, double threshold) {
             bool aIn = ((a.r > .5f) ? 1 : 0) + ((a.g > .5f) ? 1 : 0) + ((a.b > .5f) ? 1 : 0) >= 2;
             bool bIn = ((b.r > .5f) ? 1 : 0) + ((b.g > .5f) ? 1 : 0) + ((b.b > .5f) ? 1 : 0) >= 2;
             if (aIn != bIn) return false;
@@ -62,12 +62,18 @@ namespace MSDFGen {
                 Math.Abs(ac - .5f) >= Math.Abs(bc - .5f);
         }
 
+        public static bool PixelClash(Color4b a, Color4b b, double threshold) {
+            Color4 af = new Color4(a);
+            Color4 bf = new Color4(b);
+            return PixelClash(af, bf, threshold);
+        }
+
         struct Clash {
             public int x;
             public int y;
         }
 
-        static void ErrorCorrection(Bitmap<Color3> output, Vector2 threshold) {
+        public static void CorrectErrors(Bitmap<Color4> output, Vector2 threshold) {
             List<Clash> clashes = new List<Clash>();
             int w = output.Width;
             int h = output.Height;
@@ -85,11 +91,38 @@ namespace MSDFGen {
             }
 
             for (int i = 0; i < clashes.Count; i++) {
-                Color3 pixel = output[clashes[i].x, clashes[i].y];
+                Color4 pixel = output[clashes[i].x, clashes[i].y];
                 float med = Median(pixel.r, pixel.g, pixel.b);
                 pixel.r = med;
                 pixel.g = med;
                 pixel.b = med;
+                output[clashes[i].x, clashes[i].y] = pixel;
+            }
+        }
+
+        public static void CorrectErrors(Bitmap<Color4b> output, Vector2 threshold) {
+            List<Clash> clashes = new List<Clash>();
+            int w = output.Width;
+            int h = output.Height;
+
+            for (int y = 0; y < h; y++) {
+                for (int x = 0; x < w; x++) {
+                    if ((x > 0 && PixelClash(output[x, y], output[x - 1, y], threshold.X)) ||
+                        (x < w - 1 && PixelClash(output[x, y], output[x + 1, y], threshold.X)) ||
+                        (y > 0 && PixelClash(output[x, y], output[x, y - 1], threshold.Y)) ||
+                        (y < h - 1 && PixelClash(output[x, y], output[x, y + 1], threshold.Y))) {
+
+                        clashes.Add(new Clash { x = x, y = y });
+                    }
+                }
+            }
+
+            for (int i = 0; i < clashes.Count; i++) {
+                Color4b pixel = output[clashes[i].x, clashes[i].y];
+                int med = Median(pixel.r, pixel.g, pixel.b);
+                pixel.r = (byte)med;
+                pixel.g = (byte)med;
+                pixel.b = (byte)med;
                 output[clashes[i].x, clashes[i].y] = pixel;
             }
         }
@@ -99,6 +132,10 @@ namespace MSDFGen {
         }
 
         static double Median(double a, double b, double c) {
+            return Math.Max(Math.Min(a, b), Math.Min(Math.Max(a, b), c));
+        }
+
+        static int Median(int a, int b, int c) {
             return Math.Max(Math.Min(a, b), Math.Min(Math.Max(a, b), c));
         }
 
@@ -248,7 +285,8 @@ namespace MSDFGen {
             for (int y = yStart; y < yEnd; y++) {
                 int row = shape.InverseYAxis ? yEnd - (y - yStart) - 1 : y;
                 for (int x = xStart; x < xEnd; x++) {
-                    output[x, row] = EvaluateMSDF(shape, windings, contourSD, x, y, range, scale, region.Position + translate);
+                    Vector2 p = (new Vector2(x, y) - region.Position - translate) / scale;
+                    output[x, row] = EvaluateMSDF(shape, windings, contourSD, p, range);
                 }
             }
         }
@@ -271,14 +309,39 @@ namespace MSDFGen {
             for (int y = yStart; y < yEnd; y++) {
                 int row = shape.InverseYAxis ? yEnd - (y - yStart) - 1 : y;
                 for (int x = xStart; x < xEnd; x++) {
-                    output[x, row] = new Color3b(EvaluateMSDF(shape, windings, contourSD, x, y, range, scale, region.Position + translate));
+                    Vector2 p = (new Vector2(x, y) - region.Position - translate) / scale;
+                    output[x, row] = new Color3b(EvaluateMSDF(shape, windings, contourSD, p, range));
                 }
             }
         }
 
-        static Color3 EvaluateMSDF(Shape shape, int[] windings, MultiDistance[] contourSD, int x, int y, double range, Vector2 scale, Vector2 translate) {
+        public static void GenerateMSDF(Bitmap<Color4b> output, Shape shape, Rectangle region, double range, Vector2 scale, Vector2 translate, double edgeThreshold) {
+            int contourCount = shape.Contours.Count;
+            int[] windings = new int[contourCount];
+
+            for (int i = 0; i < shape.Contours.Count; i++) {
+                windings[i] = shape.Contours[i].Winding;
+            }
+
+            int xStart = Math.Min(Math.Max(0, (int)region.Left), output.Width);
+            int yStart = Math.Min(Math.Max(0, (int)region.Top), output.Height);
+            int xEnd = Math.Min(Math.Max(0, (int)region.Right), output.Width);
+            int yEnd = Math.Min(Math.Max(0, (int)region.Bottom), output.Height);
+
+            MultiDistance[] contourSD = new MultiDistance[contourCount];
+
+            for (int y = yStart; y < yEnd; y++) {
+                int row = shape.InverseYAxis ? yEnd - (y - yStart) - 1 : y;
+                for (int x = xStart; x < xEnd; x++) {
+                    Vector2 p = (new Vector2(x, y) - region.Position - translate) / scale;
+                    output[x, row] = new Color4b(EvaluateMSDF(shape, windings, contourSD, p, range), 255);
+                }
+            }
+        }
+
+        static Color3 EvaluateMSDF(Shape shape, int[] windings, MultiDistance[] contourSD, Vector2 p, double range) {
             int contourCount = contourSD.Length;
-            Vector2 p = new Vector2(x + 0.5f, y + 0.5f) / scale - translate;
+            p += new Vector2(0.5f, 0.5f);
 
             EdgePoint sr = new EdgePoint {
                 minDistance = new SignedDistance(-1e240, 1)

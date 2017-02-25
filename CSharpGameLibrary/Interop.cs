@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Runtime.CompilerServices;
 using SMarshal = System.Runtime.InteropServices.Marshal;
+using System.Reflection;
+using System.Reflection.Emit;
 
 namespace CSGL {
     public static class Interop {
@@ -47,9 +49,29 @@ namespace CSGL {
             return result;
         }
 
+        class ListAccessor<T> {
+            //http://stackoverflow.com/a/17308019
+            public static Func<List<T>, T[]> accessor;
+
+            static ListAccessor() {
+                var dm = new DynamicMethod("get", MethodAttributes.Static | MethodAttributes.Public,CallingConventions.Standard,
+                    typeof(T[]), new Type[] { typeof(List<T>) }, typeof(ListAccessor<T>), true);
+                var il = dm.GetILGenerator();
+                il.Emit(OpCodes.Ldarg_0); // Load List<T> argument
+                il.Emit(OpCodes.Ldfld, typeof(List<T>).GetField("_items", BindingFlags.NonPublic | BindingFlags.Instance)); // Replace argument by field
+                il.Emit(OpCodes.Ret); // Return field
+                accessor = (Func<List<T>, T[]>)dm.CreateDelegate(typeof(Func<List<T>, T[]>));
+            }
+        }
+
+        public static T[] GetInternalArray<T>(List<T> list) {
+            //returns the internal backing array
+            return ListAccessor<T>.accessor(list);
+        }
+
         public static unsafe void Copy(void* source, void* dest, long size) {
             //if source and dest are not congruent modulo
-            if ((ulong)source % 8 != (ulong)dest % 8) {
+            if ((long)source % 8 != (long)dest % 8) {
                 byte* _source = (byte*)source;
                 byte* _dest = (byte*)dest;
 
@@ -137,7 +159,7 @@ namespace CSGL {
         public static void Copy<T>(List<T> source, IntPtr dest) where T : struct {
             unsafe
             {
-                int size = SizeOf<T>();
+                int size = (int)SizeOf<T>();
                 for (int i = 0; i < source.Count; i++) {
                     Unsafe.Write((void*)dest, source[i]);
                     dest += size;
@@ -145,15 +167,15 @@ namespace CSGL {
             }
         }
 
-        public static int SizeOf<T>() where T : struct {
+        public static long SizeOf<T>() where T : struct {
             return Unsafe.SizeOf<T>();
         }
 
-        public static int SizeOf<T>(T[] array) where T : struct {
+        public static long SizeOf<T>(T[] array) where T : struct {
             return Unsafe.SizeOf<T>() * array.Length;
         }
 
-        public static int SizeOf<T>(List<T> list) where T : struct {
+        public static long SizeOf<T>(List<T> list) where T : struct {
             return Unsafe.SizeOf<T>() * list.Count;
         }
 
@@ -169,7 +191,7 @@ namespace CSGL {
         public static unsafe void Marshal<T>(INative<T>[] array, void* dest, int count) where T : struct {
             if (array == null || array.Length == 0) return;
 
-            int size = SizeOf<T>();
+            int size = (int)SizeOf<T>();
             byte* curDest = (byte*)dest;
 
             for (int i = 0; i < count; i++) {
@@ -186,7 +208,7 @@ namespace CSGL {
         public static unsafe void Marshal<T, U>(List<U> list, void* dest, int count) where T : struct where U : INative<T> {
             if (list == null || list.Count == 0) return;
 
-            int size = SizeOf<T>();
+            int size = (int)SizeOf<T>();
             byte* curDest = (byte*)dest;
 
             for (int i = 0; i < count; i++) {

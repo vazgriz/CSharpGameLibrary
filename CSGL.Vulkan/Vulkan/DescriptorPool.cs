@@ -21,6 +21,8 @@ namespace CSGL.Vulkan {
             }
         }
 
+        public VkDescriptorPoolCreateFlags Flags { get; private set; }
+
         public DescriptorPool(Device device, DescriptorPoolCreateInfo info) {
             if (device == null) throw new ArgumentNullException(nameof(device));
             if (info == null) throw new ArgumentNullException(nameof(info));
@@ -44,6 +46,8 @@ namespace CSGL.Vulkan {
                 var result = Device.Commands.createDescriptorPool(Device.Native, ref info, Device.Instance.AllocationCallbacks, out descriptorPool);
                 if (result != VkResult.Success) throw new DescriptorPoolException(string.Format("Error creating descriptor pool: {0}", result));
             }
+
+            Flags = mInfo.flags;
         }
 
         public DescriptorSet[] Allocate(DescriptorSetAllocateInfo info) {

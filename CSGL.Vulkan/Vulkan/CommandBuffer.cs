@@ -20,11 +20,13 @@ namespace CSGL.Vulkan {
 
         public Device Device { get; private set; }
         public CommandPool Pool { get; private set; }
+        public VkCommandBufferLevel Level { get; private set; }
 
-        internal CommandBuffer(Device device, CommandPool pool, VkCommandBuffer commandBuffer) {
+        internal CommandBuffer(Device device, CommandPool pool, VkCommandBuffer commandBuffer, VkCommandBufferLevel level) {
             Device = device;
             Pool = pool;
             this.commandBuffer = commandBuffer;
+            Level = level;
         }
 
         public void Begin(CommandBufferBeginInfo info) {
@@ -251,6 +253,16 @@ namespace CSGL.Vulkan {
             }
         }
 
+        public void CopyImage(Image srcImage, VkImageLayout srcImageLayout, Image dstImage, VkImageLayout dstImageLayout, VkImageCopy regions) {
+            unsafe
+            {
+                Device.Commands.cmdCopyImage(commandBuffer,
+                    srcImage.Native, srcImageLayout,
+                    dstImage.Native, dstImageLayout,
+                    1, (IntPtr)(&regions));
+            }
+        }
+
         public void PipelineBarrier(VkPipelineStageFlags srcStageMask, VkPipelineStageFlags dstStageMask, VkDependencyFlags flags,
             List<MemoryBarrier> memoryBarriers, List<BufferMemoryBarrier> bufferMemoryBarriers, List<ImageMemoryBarrier> imageMemoryBarriers) {
 
@@ -348,7 +360,7 @@ namespace CSGL.Vulkan {
         public void PushConstants<T>(PipelineLayout layout, VkShaderStageFlags stageFlags, uint offset, List<T> data) where T : struct {
             unsafe
             {
-                int size = Interop.SizeOf<T>();
+                int size = (int)Interop.SizeOf<T>();
                 byte* native = stackalloc byte[size * data.Count];
                 Interop.Copy(data, (IntPtr)native);
                 Device.Commands.cmdPushConstants(commandBuffer, layout.Native, stageFlags, offset, (uint)(size * data.Count), (IntPtr)native);
