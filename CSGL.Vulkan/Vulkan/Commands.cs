@@ -54,6 +54,7 @@ namespace CSGL.Vulkan {
             public vkDestroyFenceDelegate destroyFence;
             public vkResetFencesDelegate resetFences;
             public vkWaitForFencesDelegate waitFences;
+            public vkGetFenceStatusDelegate getFenceStatus;
 
             public vkCreateEventDelegate createEvent;
             public vkDestroyEventDelegate destroyEvent;
