@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace CSGL.Vulkan {
     public class MemoryAllocateInfo {
@@ -86,6 +87,10 @@ namespace CSGL.Vulkan {
             }
         }
 
+        public static void Flush(Device device, List<MappedMemoryRange> ranges) {
+            Flush(device, Interop.GetInternalArray(ranges));
+        }
+
         public static void Flush(Device device, MappedMemoryRange ranges) {
             VkMappedMemoryRange rangeNative = new VkMappedMemoryRange();
             rangeNative.sType = VkStructureType.MappedMemoryRange;
@@ -113,6 +118,10 @@ namespace CSGL.Vulkan {
 
                 Flush(Device, (uint)ranges.Length, rangesNative);
             }
+        }
+
+        public void Flush(List<MappedMemoryRange> ranges) {
+            Flush(Interop.GetInternalArray(ranges));
         }
 
         public void Flush(MappedMemoryRange ranges) {
