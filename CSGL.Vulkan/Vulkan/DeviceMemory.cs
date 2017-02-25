@@ -142,6 +142,72 @@ namespace CSGL.Vulkan {
             }
         }
 
+        static unsafe void Invalidate(Device device, uint count, VkMappedMemoryRange* ranges) {
+            var result = device.Commands.invalidateMemory(device.Native, count, (IntPtr)ranges);
+            if (result != VkResult.Success) throw new DeviceMemoryException(string.Format("Error invalidating memory: {0}", result));
+        }
+
+        public static void Invalidate(Device device, MappedMemoryRange[] ranges) {
+            unsafe
+            {
+                VkMappedMemoryRange* rangesNative = stackalloc VkMappedMemoryRange[ranges.Length];
+
+                for (int i = 0; i < ranges.Length; i++) {
+                    rangesNative[i] = Marshal(ranges[i]);
+                }
+
+                Invalidate(device, (uint)ranges.Length, rangesNative);
+            }
+        }
+
+        public static void Invalidate(Device device, List<MappedMemoryRange> ranges) {
+            Invalidate(device, Interop.GetInternalArray(ranges));
+        }
+
+        public static void Invalidate(Device device, MappedMemoryRange ranges) {
+            VkMappedMemoryRange rangeNative = Marshal(ranges);
+
+            unsafe
+            {
+                Invalidate(device, 1, &rangeNative);
+            }
+        }
+
+        public void Invalidate(MappedMemoryRange[] ranges) {
+            for (int i = 0; i < ranges.Length; i++) {
+                ranges[i].memory = this;
+            }
+
+            Invalidate(Device, ranges);
+        }
+
+        public void Invalidate(List<MappedMemoryRange> ranges) {
+            Invalidate(Interop.GetInternalArray(ranges));
+        }
+
+        public void Invalidate(MappedMemoryRange ranges) {
+            ranges.memory = this;
+            VkMappedMemoryRange rangeNative = Marshal(ranges);
+
+            unsafe
+            {
+                Invalidate(Device, 1, &rangeNative);
+            }
+        }
+
+        public void Invalidate(ulong offset, ulong size) {
+            VkMappedMemoryRange rangeNative = new VkMappedMemoryRange();
+            rangeNative.sType = VkStructureType.MappedMemoryRange;
+            rangeNative.memory = deviceMemory;
+            rangeNative.offset = offset;
+            rangeNative.size = size;
+
+            unsafe
+            {
+                Invalidate(Device, 1, &rangeNative);
+            }
+        }
+
         public void Dispose() {
             if (disposed) return;
 
