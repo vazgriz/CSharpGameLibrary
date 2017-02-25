@@ -66,6 +66,11 @@ namespace CSGL.Vulkan {
             Device.Commands.unmapMemory(Device.Native, deviceMemory);
         }
 
+        static unsafe void Flush(Device device, uint count, VkMappedMemoryRange* ranges) {
+            var result = device.Commands.flushMemory(device.Native, count, (IntPtr)ranges);
+            if (result != VkResult.Success) throw new DeviceMemoryException(string.Format("Error flushing memory: {0}", result));
+        }
+
         public static void Flush(Device device, MappedMemoryRange[] ranges) {
             unsafe {
                 VkMappedMemoryRange* rangesNative = stackalloc VkMappedMemoryRange[ranges.Length];
@@ -77,8 +82,7 @@ namespace CSGL.Vulkan {
                     rangesNative[i].size = ranges[i].size;
                 }
 
-                var result = device.Commands.flushMemory(device.Native, (uint)ranges.Length, (IntPtr)rangesNative);
-                if (result != VkResult.Success) throw new DeviceMemoryException(string.Format("Error flushing memory: {0}", result));
+                Flush(device, (uint)ranges.Length, rangesNative);
             }
         }
 
@@ -91,8 +95,7 @@ namespace CSGL.Vulkan {
 
             unsafe
             {
-                var result = device.Commands.flushMemory(device.Native, 1, (IntPtr)(&rangeNative));
-                if (result != VkResult.Success) throw new DeviceMemoryException(string.Format("Error flushing memory: {0}", result));
+                Flush(device, 1, &rangeNative);
             }
         }
 
@@ -108,8 +111,20 @@ namespace CSGL.Vulkan {
                     rangesNative[i].size = ranges[i].size;
                 }
 
-                var result = Device.Commands.flushMemory(Device.Native, (uint)ranges.Length, (IntPtr)rangesNative);
-                if (result != VkResult.Success) throw new DeviceMemoryException(string.Format("Error flushing memory: {0}", result));
+                Flush(Device, (uint)ranges.Length, rangesNative);
+            }
+        }
+
+        public void Flush(MappedMemoryRange ranges) {
+            VkMappedMemoryRange rangeNative = new VkMappedMemoryRange();
+            rangeNative.sType = VkStructureType.MappedMemoryRange;
+            rangeNative.memory = deviceMemory;
+            rangeNative.offset = ranges.offset;
+            rangeNative.size = ranges.size;
+
+            unsafe
+            {
+                Flush(Device, 1, &rangeNative);
             }
         }
 
@@ -122,8 +137,7 @@ namespace CSGL.Vulkan {
 
             unsafe
             {
-                var result = Device.Commands.flushMemory(Device.Native, 1, (IntPtr)(&rangeNative));
-                if (result != VkResult.Success) throw new DeviceMemoryException(string.Format("Error flushing memory: {0}", result));
+                Flush(Device, 1, &rangeNative);
             }
         }
 
