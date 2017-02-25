@@ -67,10 +67,10 @@ namespace CSGL.Vulkan {
             Device.Commands.unmapMemory(Device.Native, deviceMemory);
         }
 
-        static VkMappedMemoryRange Marshal(MappedMemoryRange range, DeviceMemory memory) {
+        static VkMappedMemoryRange Marshal(MappedMemoryRange range) {
             var result = new VkMappedMemoryRange();
             result.sType = VkStructureType.MappedMemoryRange;
-            result.memory = memory.Native;
+            result.memory = range.memory.Native;
             result.offset = range.offset;
             result.size = range.size;
 
@@ -87,7 +87,7 @@ namespace CSGL.Vulkan {
                 VkMappedMemoryRange* rangesNative = stackalloc VkMappedMemoryRange[ranges.Length];
 
                 for (int i = 0; i < ranges.Length; i++) {
-                    rangesNative[i] = Marshal(ranges[i], ranges[i].memory);
+                    rangesNative[i] = Marshal(ranges[i]);
                 }
 
                 Flush(device, (uint)ranges.Length, rangesNative);
@@ -99,7 +99,7 @@ namespace CSGL.Vulkan {
         }
 
         public static void Flush(Device device, MappedMemoryRange ranges) {
-            VkMappedMemoryRange rangeNative = Marshal(ranges, ranges.memory);
+            VkMappedMemoryRange rangeNative = Marshal(ranges);
 
             unsafe
             {
@@ -108,16 +108,11 @@ namespace CSGL.Vulkan {
         }
 
         public void Flush(MappedMemoryRange[] ranges) {
-            unsafe
-            {
-                VkMappedMemoryRange* rangesNative = stackalloc VkMappedMemoryRange[ranges.Length];
-
-                for (int i = 0; i < ranges.Length; i++) {
-                    rangesNative[i] = Marshal(ranges[i], this);
-                }
-
-                Flush(Device, (uint)ranges.Length, rangesNative);
+            for (int i = 0; i < ranges.Length; i++) {
+                ranges[i].memory = this;
             }
+
+            Flush(Device, ranges);
         }
 
         public void Flush(List<MappedMemoryRange> ranges) {
@@ -125,7 +120,8 @@ namespace CSGL.Vulkan {
         }
 
         public void Flush(MappedMemoryRange ranges) {
-            VkMappedMemoryRange rangeNative = Marshal(ranges, this);
+            ranges.memory = this;
+            VkMappedMemoryRange rangeNative = Marshal(ranges);
 
             unsafe
             {
