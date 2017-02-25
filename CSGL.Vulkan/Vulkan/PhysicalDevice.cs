@@ -115,6 +115,24 @@ namespace CSGL.Vulkan {
                 return prop.Value;
             }
         }
+
+        public List<VkSparseImageFormatProperties> GetSparseImageFormatProperties(VkFormat format, VkImageType type, VkSampleCountFlags samples, VkImageUsageFlags usage, VkImageTiling tiling) {
+            var result = new List<VkSparseImageFormatProperties>();
+
+            uint count = 0;
+            Instance.Commands.getPhysicalDeviceSparseImageFormatProperties(physicalDevice, format, type, samples, usage, tiling, ref count, IntPtr.Zero);
+            var resultNative = new MarshalledArray<VkSparseImageFormatProperties>((int)count);
+            Instance.Commands.getPhysicalDeviceSparseImageFormatProperties(physicalDevice, format, type, samples, usage, tiling, ref count, resultNative.Address);
+
+            using (resultNative) {
+                for (int i = 0; i < count; i++) {
+                    var prop = resultNative[i];
+                    result.Add(prop);
+                }
+            }
+
+            return result;
+        }
     }
 
     public class QueueFamily {
