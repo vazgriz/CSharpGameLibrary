@@ -108,6 +108,13 @@ namespace CSGL.Vulkan {
                 return prop.Value;
             }
         }
+
+        public VkImageFormatProperties GetImageFormatProperties(VkFormat format, VkImageType type, VkImageTiling tiling, VkImageUsageFlags usage, VkImageCreateFlags flags) {
+            using (var prop = new Marshalled<VkImageFormatProperties>()) {
+                Instance.Commands.getPhysicalDeviceImageFormatProperties(physicalDevice, format, type, tiling, usage, flags, prop.Address);
+                return prop.Value;
+            }
+        }
     }
 
     public class QueueFamily {

@@ -141,6 +141,7 @@ namespace CSGL.Vulkan {
             public vkEnumeratePhysicalDevicesDelegate enumeratePhysicalDevices;
             public vkGetPhysicalDevicePropertiesDelegate getPhysicalDeviceProperties;
             public vkGetPhysicalDeviceFormatPropertiesDelegate getPhysicalDeviceFormatProperties;
+            public vkGetPhysicalDeviceImageFormatPropertiesDelegate getPhysicalDeviceImageFormatProperties;
 
             public vkDestroySurfaceKHRDelegate destroySurface;
             public vkGetPhysicalDeviceSurfaceCapabilitiesKHRDelegate getCapabilities;
