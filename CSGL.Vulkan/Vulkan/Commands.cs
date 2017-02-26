@@ -39,7 +39,9 @@ namespace CSGL.Vulkan {
             public vkDestroyPipelineLayoutDelegate destroyPipelineLayout;
 
             public vkCreatePipelineCacheDelegate createPipelineCache;
-            public vkDestroyPipelineCacheDelegate destroyPipelineDestroy;
+            public vkDestroyPipelineCacheDelegate destroyPipelineCache;
+            public vkMergePipelineCachesDelegate mergePipelineCache;
+            public vkGetPipelineCacheDataDelegate getPipelineCacheData;
 
             public vkCreateRenderPassDelegate createRenderPass;
             public vkDestroyRenderPassDelegate destroyRenderPass;
