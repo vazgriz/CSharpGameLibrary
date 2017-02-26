@@ -3,8 +3,8 @@ using System.Collections.Generic;
 
 namespace CSGL.Vulkan {
     public class SpecializationInfo {
-        VkSpecializationMapEntry[] mapEntries;
-        byte[] data;
+        public VkSpecializationMapEntry[] mapEntries;
+        public byte[] data;
 
         internal IntPtr GetNative(DisposableList<IDisposable> marshalled) {
             var entriesMarshalled = new PinnedArray<VkSpecializationMapEntry>(mapEntries);
