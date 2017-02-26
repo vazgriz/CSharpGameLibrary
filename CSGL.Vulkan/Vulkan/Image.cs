@@ -122,6 +122,14 @@ namespace CSGL.Vulkan {
             Device.Commands.bindImageMemory(Device.Native, image, memory.Native, offset);
         }
 
+        public VkSubresourceLayout GetSubresourceLayout(VkImageSubresource subresource) {
+            var result = new VkSubresourceLayout();
+
+            Device.Commands.getSubresourceLayout(Device.Native, image, ref subresource, out result);
+
+            return result;
+        }
+
         public void Dispose() {
             if (disposed) return;
 
