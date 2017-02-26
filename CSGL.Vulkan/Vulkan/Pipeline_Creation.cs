@@ -2,22 +2,48 @@
 using System.Collections.Generic;
 
 namespace CSGL.Vulkan {
+    public class SpecializationInfo {
+        VkSpecializationMapEntry[] mapEntries;
+        byte[] data;
+
+        internal IntPtr GetNative(DisposableList<IDisposable> marshalled) {
+            var entriesMarshalled = new PinnedArray<VkSpecializationMapEntry>(mapEntries);
+            var dataMarshalled = new PinnedArray<byte>(data);
+            marshalled.Add(entriesMarshalled);
+            marshalled.Add(dataMarshalled);
+
+            var info = new VkSpecializationInfo();
+            info.mapEntryCount = (uint)entriesMarshalled.Count;
+            info.pMapEntries = entriesMarshalled.Address;
+            info.dataSize = (uint)dataMarshalled.Count;
+            info.pData = dataMarshalled.Address;
+
+            var infoMarshalled = new Marshalled<VkSpecializationInfo>(info);
+            marshalled.Add(infoMarshalled);
+
+            return infoMarshalled.Address;
+        }
+    }
+
     public class PipelineShaderStageCreateInfo {
         public VkShaderStageFlags stage;
         public ShaderModule module;
         public string name;
-        public IntPtr specializationInfo;
+        public SpecializationInfo specializationInfo;
 
         internal VkPipelineShaderStageCreateInfo GetNative(DisposableList<IDisposable> marshalled) {
             var result = new VkPipelineShaderStageCreateInfo();
             result.sType = VkStructureType.PipelineShaderStageCreateInfo;
             result.stage = stage;
             result.module = module.Native;
+
             var strInterop = new InteropString(name);
             result.pName = strInterop.Address;
-            result.pSpecializationInfo = specializationInfo;
-
             marshalled.Add(strInterop);
+
+            if (specializationInfo != null) {
+                result.pSpecializationInfo = specializationInfo.GetNative(marshalled);
+            }
 
             return result;
         }
