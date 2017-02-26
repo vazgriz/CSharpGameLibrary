@@ -113,6 +113,7 @@ namespace CSGL.Vulkan {
 
             public vkCreateDescriptorPoolDelegate createDescriptorPool;
             public vkDestroyDescriptorPoolDelegate destroyDescriptorPool;
+            public vkResetDescriptorPoolDelegate resetDescriptorPool;
             public vkAllocateDescriptorSetsDelegate allocateDescriptorSets;
             public vkFreeDescriptorSetsDelegate freeDescriptorSets;
             public vkUpdateDescriptorSetsDelegate updateDescriptorSets;
