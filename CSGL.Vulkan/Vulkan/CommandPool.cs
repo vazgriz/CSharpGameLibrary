@@ -97,6 +97,10 @@ namespace CSGL.Vulkan {
             }
         }
 
+        public void Reset(VkCommandPoolResetFlags flags) {
+            Device.Commands.resetCommandPool(Device.Native, commandPool, flags);
+        }
+
         public void Dispose() {
             if (disposed) return;
 
