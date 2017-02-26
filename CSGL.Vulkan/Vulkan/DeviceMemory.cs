@@ -85,25 +85,30 @@ namespace CSGL.Vulkan {
             return result;
         }
 
-        static unsafe void Flush(Device device, uint count, VkMappedMemoryRange* ranges) {
-            var result = device.Commands.flushMemory(device.Native, count, (IntPtr)ranges);
+        static unsafe void FlushInternal(Device device, int count, VkMappedMemoryRange* ranges) {
+            var result = device.Commands.flushMemory(device.Native, (uint)count, (IntPtr)ranges);
             if (result != VkResult.Success) throw new DeviceMemoryException(string.Format("Error flushing memory: {0}", result));
         }
 
-        public static void Flush(Device device, MappedMemoryRange[] ranges) {
-            unsafe {
-                VkMappedMemoryRange* rangesNative = stackalloc VkMappedMemoryRange[ranges.Length];
+        static void FlushInternal(Device device, int count, MappedMemoryRange[] ranges) {
+            unsafe
+            {
+                VkMappedMemoryRange* rangesNative = stackalloc VkMappedMemoryRange[count];
 
-                for (int i = 0; i < ranges.Length; i++) {
+                for (int i = 0; i < count; i++) {
                     rangesNative[i] = Marshal(ranges[i]);
                 }
 
-                Flush(device, (uint)ranges.Length, rangesNative);
+                FlushInternal(device, count, rangesNative);
             }
         }
 
+        public static void Flush(Device device, MappedMemoryRange[] ranges) {
+            FlushInternal(device, ranges.Length, ranges);
+        }
+
         public static void Flush(Device device, List<MappedMemoryRange> ranges) {
-            Flush(device, Interop.GetInternalArray(ranges));
+            FlushInternal(device, ranges.Count, Interop.GetInternalArray(ranges));
         }
 
         public static void Flush(Device device, MappedMemoryRange ranges) {
@@ -111,7 +116,7 @@ namespace CSGL.Vulkan {
 
             unsafe
             {
-                Flush(device, 1, &rangeNative);
+                FlushInternal(device, 1, &rangeNative);
             }
         }
 
@@ -124,7 +129,11 @@ namespace CSGL.Vulkan {
         }
 
         public void Flush(List<MappedMemoryRange> ranges) {
-            Flush(Interop.GetInternalArray(ranges));
+            for (int i = 0; i < ranges.Count; i++) {
+                ranges[i].memory = this;
+            }
+
+            FlushInternal(Device, ranges.Count, Interop.GetInternalArray(ranges));
         }
 
         public void Flush(MappedMemoryRange ranges) {
@@ -133,7 +142,7 @@ namespace CSGL.Vulkan {
 
             unsafe
             {
-                Flush(Device, 1, &rangeNative);
+                FlushInternal(Device, 1, &rangeNative);
             }
         }
 
@@ -146,30 +155,34 @@ namespace CSGL.Vulkan {
 
             unsafe
             {
-                Flush(Device, 1, &rangeNative);
+                FlushInternal(Device, 1, &rangeNative);
             }
         }
 
-        static unsafe void Invalidate(Device device, uint count, VkMappedMemoryRange* ranges) {
-            var result = device.Commands.invalidateMemory(device.Native, count, (IntPtr)ranges);
+        static unsafe void InvalidateInternal(Device device, int count, VkMappedMemoryRange* ranges) {
+            var result = device.Commands.invalidateMemory(device.Native, (uint)count, (IntPtr)ranges);
             if (result != VkResult.Success) throw new DeviceMemoryException(string.Format("Error invalidating memory: {0}", result));
         }
 
-        public static void Invalidate(Device device, MappedMemoryRange[] ranges) {
+        static void InvalidateInternal(Device device, int count, MappedMemoryRange[] ranges) {
             unsafe
             {
-                VkMappedMemoryRange* rangesNative = stackalloc VkMappedMemoryRange[ranges.Length];
+                VkMappedMemoryRange* rangesNative = stackalloc VkMappedMemoryRange[count];
 
-                for (int i = 0; i < ranges.Length; i++) {
+                for (int i = 0; i < count; i++) {
                     rangesNative[i] = Marshal(ranges[i]);
                 }
 
-                Invalidate(device, (uint)ranges.Length, rangesNative);
+                InvalidateInternal(device, count, rangesNative);
             }
         }
 
+        public static void Invalidate(Device device, MappedMemoryRange[] ranges) {
+            InvalidateInternal(device, ranges.Length, ranges);
+        }
+
         public static void Invalidate(Device device, List<MappedMemoryRange> ranges) {
-            Invalidate(device, Interop.GetInternalArray(ranges));
+            InvalidateInternal(device, ranges.Count, Interop.GetInternalArray(ranges));
         }
 
         public static void Invalidate(Device device, MappedMemoryRange ranges) {
@@ -177,7 +190,7 @@ namespace CSGL.Vulkan {
 
             unsafe
             {
-                Invalidate(device, 1, &rangeNative);
+                InvalidateInternal(device, 1, &rangeNative);
             }
         }
 
@@ -190,7 +203,11 @@ namespace CSGL.Vulkan {
         }
 
         public void Invalidate(List<MappedMemoryRange> ranges) {
-            Invalidate(Interop.GetInternalArray(ranges));
+            for (int i = 0; i < ranges.Count; i++) {
+                ranges[i].memory = this;
+            }
+
+            InvalidateInternal(Device, ranges.Count, Interop.GetInternalArray(ranges));
         }
 
         public void Invalidate(MappedMemoryRange ranges) {
@@ -199,7 +216,7 @@ namespace CSGL.Vulkan {
 
             unsafe
             {
-                Invalidate(Device, 1, &rangeNative);
+                InvalidateInternal(Device, 1, &rangeNative);
             }
         }
 
@@ -212,7 +229,7 @@ namespace CSGL.Vulkan {
 
             unsafe
             {
-                Invalidate(Device, 1, &rangeNative);
+                InvalidateInternal(Device, 1, &rangeNative);
             }
         }
 
