@@ -167,6 +167,12 @@ namespace CSGL {
             }
         }
 
+        public static void Copy<T>(T data, byte[] dest, int offset) where T : struct {
+            GCHandle handle = GCHandle.Alloc(dest, GCHandleType.Pinned);
+            Copy(data, handle.AddrOfPinnedObject() + offset);
+            handle.Free();
+        }
+
         public static long SizeOf<T>() where T : struct {
             return Unsafe.SizeOf<T>();
         }
