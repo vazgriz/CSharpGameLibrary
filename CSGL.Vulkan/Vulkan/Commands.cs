@@ -45,6 +45,7 @@ namespace CSGL.Vulkan {
 
             public vkCreateRenderPassDelegate createRenderPass;
             public vkDestroyRenderPassDelegate destroyRenderPass;
+            public vkGetRenderAreaGranularityDelegate getRenderAreaGranularity;
 
             public vkCreateFramebufferDelegate createFramebuffer;
             public vkDestroyFramebufferDelegate destroyFramebuffer;
