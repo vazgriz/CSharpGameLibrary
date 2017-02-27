@@ -497,6 +497,10 @@ namespace CSGL.Vulkan {
             }
         }
 
+        public void SetLineWidth(float lineWidth) {
+            Device.Commands.cmdSetLineWidth(commandBuffer, lineWidth);
+        }
+
         public void EndRenderPass() {
             Device.Commands.cmdEndRenderPass(commandBuffer);
         }

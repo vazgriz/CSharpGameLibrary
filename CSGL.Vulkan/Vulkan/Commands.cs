@@ -94,6 +94,7 @@ namespace CSGL.Vulkan {
             public vkCmdWaitEventsDelegate cmdWaitEvents;
             public vkCmdSetViewportDelegate cmdSetViewports;
             public vkCmdSetScissorDelegate cmdSetScissor;
+            public vkCmdSetLineWidthDelegate cmdSetLineWidth;
 
             public vkCreateBufferDelegate createBuffer;
             public vkDestroyBufferDelegate destroyBuffer;
