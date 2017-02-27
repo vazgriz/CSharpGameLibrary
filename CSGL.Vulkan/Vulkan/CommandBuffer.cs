@@ -543,6 +543,10 @@ namespace CSGL.Vulkan {
             Device.Commands.cmdSetStencilReference(commandBuffer, faceMask, reference);
         }
 
+        public void DrawIndirect(Buffer buffer, ulong offset, uint drawCount, uint stride) {
+            Device.Commands.cmdDrawIndirect(commandBuffer, buffer.Native, offset, drawCount, stride);
+        }
+
         public void EndRenderPass() {
             Device.Commands.cmdEndRenderPass(commandBuffer);
         }

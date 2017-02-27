@@ -101,6 +101,7 @@ namespace CSGL.Vulkan {
             public vkCmdSetStencilCompareMaskDelegate cmdSetStencilCompareMask;
             public vkCmdSetStencilWriteMaskDelegate cmdSetStencilWriteMask;
             public vkCmdSetStencilReferenceDelegate cmdSetStencilReference;
+            public vkCmdDrawIndirectDelegate cmdDrawIndirect;
 
             public vkCreateBufferDelegate createBuffer;
             public vkDestroyBufferDelegate destroyBuffer;
