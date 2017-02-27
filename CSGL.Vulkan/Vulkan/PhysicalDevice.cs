@@ -33,9 +33,9 @@ namespace CSGL.Vulkan {
             }
         }
 
-        internal PhysicalDevice(Instance instance, VkPhysicalDevice device) {
+        internal PhysicalDevice(Instance instance, VkPhysicalDevice physicalDevice) {
             Instance = instance;
-            this.physicalDevice = device;
+            this.physicalDevice = physicalDevice;
 
             GetDeviceProperties();
             GetQueueProperties();
@@ -107,6 +107,31 @@ namespace CSGL.Vulkan {
                 Instance.Commands.getPhysicalDeviceFormatProperties(physicalDevice, format, prop.Address);
                 return prop.Value;
             }
+        }
+
+        public VkImageFormatProperties GetImageFormatProperties(VkFormat format, VkImageType type, VkImageTiling tiling, VkImageUsageFlags usage, VkImageCreateFlags flags) {
+            using (var prop = new Marshalled<VkImageFormatProperties>()) {
+                Instance.Commands.getPhysicalDeviceImageFormatProperties(physicalDevice, format, type, tiling, usage, flags, prop.Address);
+                return prop.Value;
+            }
+        }
+
+        public List<VkSparseImageFormatProperties> GetSparseImageFormatProperties(VkFormat format, VkImageType type, VkSampleCountFlags samples, VkImageUsageFlags usage, VkImageTiling tiling) {
+            var result = new List<VkSparseImageFormatProperties>();
+
+            uint count = 0;
+            Instance.Commands.getPhysicalDeviceSparseImageFormatProperties(physicalDevice, format, type, samples, usage, tiling, ref count, IntPtr.Zero);
+            var resultNative = new MarshalledArray<VkSparseImageFormatProperties>((int)count);
+            Instance.Commands.getPhysicalDeviceSparseImageFormatProperties(physicalDevice, format, type, samples, usage, tiling, ref count, resultNative.Address);
+
+            using (resultNative) {
+                for (int i = 0; i < count; i++) {
+                    var prop = resultNative[i];
+                    result.Add(prop);
+                }
+            }
+
+            return result;
         }
     }
 

@@ -16,6 +16,12 @@ namespace CSGL.Vulkan {
             }
         }
 
+        public VkResult Status {
+            get {
+                return Device.Commands.getFenceStatus(Device.Native, fence);
+            }
+        }
+
 		public Device Device { get; private set; }
 
 		public static VkResult Reset(Device device, Fence[] fences) {

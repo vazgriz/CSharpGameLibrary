@@ -98,13 +98,12 @@ namespace CSGL.Vulkan {
 
                 int dynamicOffsetCount = 0;
                 if (dynamicOffsets != null) dynamicOffsetCount = dynamicOffsets.Length;
-                GCHandle handle = GCHandle.Alloc(dynamicOffsets, GCHandleType.Pinned);
 
-                Device.Commands.cmdBindDescriptorSets(commandBuffer, pipelineBindPoint, layout.Native,
-                    firstSet, (uint)descriptorSets.Length, (IntPtr)sets,
-                    (uint)dynamicOffsetCount, handle.AddrOfPinnedObject());
-
-                handle.Free();
+                fixed (uint* ptr = dynamicOffsets) {
+                    Device.Commands.cmdBindDescriptorSets(commandBuffer, pipelineBindPoint, layout.Native,
+                        firstSet, (uint)descriptorSets.Length, (IntPtr)sets,
+                        (uint)dynamicOffsetCount, (IntPtr)ptr);
+                }
             }
         }
 
@@ -326,8 +325,12 @@ namespace CSGL.Vulkan {
         }
 
         public void ClearColorImage(Image image, VkImageLayout imageLayout, ref VkClearColorValue clearColor, VkImageSubresourceRange[] ranges) {
-            GCHandle handle = GCHandle.Alloc(ranges, GCHandleType.Pinned);
-            Device.Commands.cmdClearColorImage(commandBuffer, image.Native, imageLayout, ref clearColor, (uint)ranges.Length, handle.AddrOfPinnedObject());
+            unsafe
+            {
+                fixed (VkImageSubresourceRange* ptr = ranges) {
+                    Device.Commands.cmdClearColorImage(commandBuffer, image.Native, imageLayout, ref clearColor, (uint)ranges.Length, (IntPtr)ptr);
+                }
+            }
         }
 
         public void ClearColorImage(Image image, VkImageLayout imageLayout, ref VkClearColorValue clearColor, List<VkImageSubresourceRange> ranges) {
@@ -349,6 +352,15 @@ namespace CSGL.Vulkan {
 
         public void PushConstants(PipelineLayout layout, VkShaderStageFlags stageFlags, uint offset, uint size, IntPtr data) {
             Device.Commands.cmdPushConstants(commandBuffer, layout.Native, stageFlags, offset, size, data);
+        }
+
+        public void PushConstants(PipelineLayout layout, VkShaderStageFlags stageFlags, uint offset, byte[] data) {
+            unsafe
+            {
+                fixed (byte* ptr = data) {
+                    Device.Commands.cmdPushConstants(commandBuffer, layout.Native, stageFlags, offset, (uint)data.Length, (IntPtr)ptr);
+                }
+            }
         }
 
         public void PushConstants<T>(PipelineLayout layout, VkShaderStageFlags stageFlags, uint offset, T[] data) where T : struct {
@@ -460,6 +472,117 @@ namespace CSGL.Vulkan {
                     0, IntPtr.Zero,
                     0, IntPtr.Zero);
             }
+        }
+
+        public void SetViewports(uint firstViewport, VkViewport[] viewports) {
+            unsafe
+            {
+                fixed (VkViewport* ptr = viewports) {
+                    Device.Commands.cmdSetViewports(commandBuffer, firstViewport, (uint)viewports.Length, (IntPtr)ptr);
+                }
+            }
+        }
+
+        public void SetViewports(uint firstViewport, VkViewport viewports) {
+            unsafe
+            {
+                Device.Commands.cmdSetViewports(commandBuffer, firstViewport, 1, (IntPtr)(&viewports));
+            }
+        }
+
+        public void SetScissor(uint firstScissor, VkRect2D[] scissors) {
+            unsafe
+            {
+                fixed (VkRect2D* ptr = scissors) {
+                    Device.Commands.cmdSetScissor(commandBuffer, firstScissor, (uint)scissors.Length, (IntPtr)(ptr));
+                }
+            }
+        }
+
+        public void SetScissor(uint firstScissor, VkRect2D scissors) {
+            unsafe
+            {
+                Device.Commands.cmdSetScissor(commandBuffer, firstScissor, 1, (IntPtr)(&scissors));
+            }
+        }
+
+        public void SetLineWidth(float lineWidth) {
+            Device.Commands.cmdSetLineWidth(commandBuffer, lineWidth);
+        }
+
+        public void SetDepthBias(float constantFactor, float clamp, float slopeFactor) {
+            Device.Commands.cmdSetDepthBias(commandBuffer, constantFactor, clamp, slopeFactor);
+        }
+
+        public void SetBlendConstants(float[] blendConstants) {
+            unsafe
+            {
+                fixed (float* ptr = blendConstants) {
+                    Device.Commands.cmdSetBlendConstants(commandBuffer, (IntPtr)ptr);
+                }
+            }
+        }
+
+        public void SetBlendConstants(float constant0, float constant1, float constant2, float constant3) {
+            unsafe
+            {
+                float* constants = stackalloc float[4];
+                constants[0] = constant0;
+                constants[1] = constant1;
+                constants[2] = constant2;
+                constants[3] = constant3;
+
+                Device.Commands.cmdSetBlendConstants(commandBuffer, (IntPtr)constants);
+            }
+        }
+
+        public void SetDepthBounds(float minDepthBounds, float maxDepthBounds) {
+            Device.Commands.cmdSetDepthBounds(commandBuffer, minDepthBounds, maxDepthBounds);
+        }
+
+        public void SetStencilCompareMask(VkStencilFaceFlags faceMask, uint compareMask) {
+            Device.Commands.cmdSetStencilCompareMask(commandBuffer, faceMask, compareMask);
+        }
+
+        public void SetStencilWriteMask(VkStencilFaceFlags faceMask, uint writeMask) {
+            Device.Commands.cmdSetStencilWriteMask(commandBuffer, faceMask, writeMask);
+        }
+
+        public void SetStencilReference(VkStencilFaceFlags faceMask, uint reference) {
+            Device.Commands.cmdSetStencilReference(commandBuffer, faceMask, reference);
+        }
+
+        public void DrawIndirect(Buffer buffer, ulong offset, uint drawCount, uint stride) {
+            Device.Commands.cmdDrawIndirect(commandBuffer, buffer.Native, offset, drawCount, stride);
+        }
+
+        public void DrawIndexedIndirect(Buffer buffer, ulong offset, uint drawCount, uint stride) {
+            Device.Commands.cmdDrawIndexedIndirect(commandBuffer, buffer.Native, offset, drawCount, stride);
+        }
+
+        public void UpdateBuffer(Buffer dstBuffer, ulong dstOffset, ulong dataSize, IntPtr data) {
+            Device.Commands.cmdUpdateBuffer(commandBuffer, dstBuffer.Native, dstOffset, dataSize, data);
+        }
+
+        public void UpdateBuffer(Buffer dstBuffer, ulong dstOffset, byte[] data) {
+            unsafe
+            {
+                fixed (byte* ptr = data) {
+                    Device.Commands.cmdUpdateBuffer(commandBuffer, dstBuffer.Native, dstOffset, (ulong)data.Length, (IntPtr)ptr);
+                }
+            }
+        }
+
+        public void UpdateBuffer<T>(Buffer dstBuffer, ulong dstOffset, T[] data) where T : struct {
+            ulong size = (ulong)(data.Length * Interop.SizeOf<T>());
+
+            GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
+            Device.Commands.cmdUpdateBuffer(commandBuffer, dstBuffer.Native, dstOffset, size, handle.AddrOfPinnedObject());
+            handle.Free();
+        }
+
+        public void FillBuffer(Buffer dstBuffer, ulong dstOffset, ulong size, uint data) {
+            Device.Commands.cmdFillBuffer(commandBuffer, dstBuffer.Native, dstOffset, size, data);
         }
 
         public void EndRenderPass() {

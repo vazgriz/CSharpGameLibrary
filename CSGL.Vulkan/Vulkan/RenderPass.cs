@@ -47,12 +47,19 @@ namespace CSGL.Vulkan {
     public class RenderPass : IDisposable, INative<VkRenderPass> {
         VkRenderPass renderPass;
         bool disposed = false;
+        VkExtent2D granularity;
 
         public Device Device { get; private set; }
 
         public VkRenderPass Native {
             get {
                 return renderPass;
+            }
+        }
+
+        public VkExtent2D Granularity {
+            get {
+                return granularity;
             }
         }
 
@@ -207,7 +214,13 @@ namespace CSGL.Vulkan {
 
                 var result = Device.Commands.createRenderPass(Device.Native, ref info, Device.Instance.AllocationCallbacks, out renderPass);
                 if (result != VkResult.Success) throw new RenderPassException(string.Format("Error creating render pass: {0}"));
+
+                GetGranularity();
             }
+        }
+
+        void GetGranularity() {
+            Device.Commands.getRenderAreaGranularity(Device.Native, renderPass, out granularity);
         }
 
         public void Dispose() {

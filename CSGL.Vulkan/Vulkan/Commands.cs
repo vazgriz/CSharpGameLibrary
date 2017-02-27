@@ -25,6 +25,8 @@ namespace CSGL.Vulkan {
             public vkDestroyImageDelegate destroyImage;
             public vkGetImageMemoryRequirementsDelegate getImageMemoryRequirements;
             public vkBindImageMemoryDelegate bindImageMemory;
+            public vkGetImageSparseMemoryRequirementsDelegate getImageSparseRequirements;
+            public vkGetImageSubresourceLayoutDelegate getSubresourceLayout;
 
             public vkCreateShaderModuleDelegate createShaderModule;
             public vkDestroyShaderModuleDelegate destroyShaderModule;
@@ -37,10 +39,13 @@ namespace CSGL.Vulkan {
             public vkDestroyPipelineLayoutDelegate destroyPipelineLayout;
 
             public vkCreatePipelineCacheDelegate createPipelineCache;
-            public vkDestroyPipelineCacheDelegate destroyPipelineDestroy;
+            public vkDestroyPipelineCacheDelegate destroyPipelineCache;
+            public vkMergePipelineCachesDelegate mergePipelineCache;
+            public vkGetPipelineCacheDataDelegate getPipelineCacheData;
 
             public vkCreateRenderPassDelegate createRenderPass;
             public vkDestroyRenderPassDelegate destroyRenderPass;
+            public vkGetRenderAreaGranularityDelegate getRenderAreaGranularity;
 
             public vkCreateFramebufferDelegate createFramebuffer;
             public vkDestroyFramebufferDelegate destroyFramebuffer;
@@ -53,6 +58,7 @@ namespace CSGL.Vulkan {
             public vkDestroyFenceDelegate destroyFence;
             public vkResetFencesDelegate resetFences;
             public vkWaitForFencesDelegate waitFences;
+            public vkGetFenceStatusDelegate getFenceStatus;
 
             public vkCreateEventDelegate createEvent;
             public vkDestroyEventDelegate destroyEvent;
@@ -62,6 +68,7 @@ namespace CSGL.Vulkan {
 
             public vkCreateCommandPoolDelegate createCommandPool;
             public vkDestroyCommandPoolDelegate destroyCommandPool;
+            public vkResetCommandPoolDelegate resetCommandPool;
             public vkAllocateCommandBuffersDelegate allocateCommandBuffers;
             public vkFreeCommandBuffersDelegate freeCommandBuffers;
             public vkResetCommandBufferDelegate resetCommandBuffers;
@@ -86,6 +93,19 @@ namespace CSGL.Vulkan {
             public vkCmdSetEventDelegate cmdSetEvent;
             public vkCmdResetEventDelegate cmdResetEvent;
             public vkCmdWaitEventsDelegate cmdWaitEvents;
+            public vkCmdSetViewportDelegate cmdSetViewports;
+            public vkCmdSetScissorDelegate cmdSetScissor;
+            public vkCmdSetLineWidthDelegate cmdSetLineWidth;
+            public vkCmdSetDepthBiasDelegate cmdSetDepthBias;
+            public vkCmdSetBlendConstantsDelegate cmdSetBlendConstants;
+            public vkCmdSetDepthBoundsDelegate cmdSetDepthBounds;
+            public vkCmdSetStencilCompareMaskDelegate cmdSetStencilCompareMask;
+            public vkCmdSetStencilWriteMaskDelegate cmdSetStencilWriteMask;
+            public vkCmdSetStencilReferenceDelegate cmdSetStencilReference;
+            public vkCmdDrawIndirectDelegate cmdDrawIndirect;
+            public vkCmdDrawIndexedIndirectDelegate cmdDrawIndexedIndirect;
+            public vkCmdUpdateBufferDelegate cmdUpdateBuffer;
+            public vkCmdFillBufferDelegate cmdFillBuffer;
 
             public vkCreateBufferDelegate createBuffer;
             public vkDestroyBufferDelegate destroyBuffer;
@@ -100,12 +120,16 @@ namespace CSGL.Vulkan {
             public vkFreeMemoryDelegate freeMemory;
             public vkMapMemoryDelegate mapMemory;
             public vkUnmapMemoryDelegate unmapMemory;
+            public vkFlushMappedMemoryRangesDelegate flushMemory;
+            public vkInvalidateMappedMemoryRangesDelegate invalidateMemory;
+            public vkGetDeviceMemoryCommitmentDelegate getCommitedMemory;
 
             public vkCreateDescriptorSetLayoutDelegate createDescriptorSetLayout;
             public vkDestroyDescriptorSetLayoutDelegate destroyDescriptorSetLayout;
 
             public vkCreateDescriptorPoolDelegate createDescriptorPool;
             public vkDestroyDescriptorPoolDelegate destroyDescriptorPool;
+            public vkResetDescriptorPoolDelegate resetDescriptorPool;
             public vkAllocateDescriptorSetsDelegate allocateDescriptorSets;
             public vkFreeDescriptorSetsDelegate freeDescriptorSets;
             public vkUpdateDescriptorSetsDelegate updateDescriptorSets;
@@ -141,6 +165,8 @@ namespace CSGL.Vulkan {
             public vkEnumeratePhysicalDevicesDelegate enumeratePhysicalDevices;
             public vkGetPhysicalDevicePropertiesDelegate getPhysicalDeviceProperties;
             public vkGetPhysicalDeviceFormatPropertiesDelegate getPhysicalDeviceFormatProperties;
+            public vkGetPhysicalDeviceImageFormatPropertiesDelegate getPhysicalDeviceImageFormatProperties;
+            public vkGetPhysicalDeviceSparseImageFormatPropertiesDelegate getPhysicalDeviceSparseImageFormatProperties;
 
             public vkDestroySurfaceKHRDelegate destroySurface;
             public vkGetPhysicalDeviceSurfaceCapabilitiesKHRDelegate getCapabilities;

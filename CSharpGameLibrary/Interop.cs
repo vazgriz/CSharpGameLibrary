@@ -167,6 +167,15 @@ namespace CSGL {
             }
         }
 
+        public static void Copy<T>(T data, byte[] dest, int offset) where T : struct {
+            unsafe
+            {
+                fixed (byte* ptr = dest) {
+                    Copy(data, (IntPtr)(ptr + offset));
+                }
+            }
+        }
+
         public static long SizeOf<T>() where T : struct {
             return Unsafe.SizeOf<T>();
         }
