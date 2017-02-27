@@ -99,6 +99,7 @@ namespace CSGL.Vulkan {
             public vkCmdSetBlendConstantsDelegate cmdSetBlendConstants;
             public vkCmdSetDepthBoundsDelegate cmdSetDepthBounds;
             public vkCmdSetStencilCompareMaskDelegate cmdSetStencilCompareMask;
+            public vkCmdSetStencilWriteMaskDelegate cmdSetStencilWriteMask;
 
             public vkCreateBufferDelegate createBuffer;
             public vkDestroyBufferDelegate destroyBuffer;
