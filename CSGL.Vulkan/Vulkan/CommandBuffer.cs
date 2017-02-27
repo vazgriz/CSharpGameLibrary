@@ -539,6 +539,10 @@ namespace CSGL.Vulkan {
             Device.Commands.cmdSetStencilWriteMask(commandBuffer, faceMask, writeMask);
         }
 
+        public void SetStencilReference(VkStencilFaceFlags faceMask, uint reference) {
+            Device.Commands.cmdSetStencilReference(commandBuffer, faceMask, reference);
+        }
+
         public void EndRenderPass() {
             Device.Commands.cmdEndRenderPass(commandBuffer);
         }
