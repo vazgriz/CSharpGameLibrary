@@ -547,6 +547,10 @@ namespace CSGL.Vulkan {
             Device.Commands.cmdDrawIndirect(commandBuffer, buffer.Native, offset, drawCount, stride);
         }
 
+        public void DrawIndexedIndirect(Buffer buffer, ulong offset, uint drawCount, uint stride) {
+            Device.Commands.cmdDrawIndexedIndirect(commandBuffer, buffer.Native, offset, drawCount, stride);
+        }
+
         public void EndRenderPass() {
             Device.Commands.cmdEndRenderPass(commandBuffer);
         }
