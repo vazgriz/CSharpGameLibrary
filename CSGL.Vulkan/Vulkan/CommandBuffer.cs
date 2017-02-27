@@ -501,6 +501,10 @@ namespace CSGL.Vulkan {
             Device.Commands.cmdSetLineWidth(commandBuffer, lineWidth);
         }
 
+        public void SetDepthBias(float constantFactor, float clamp, float slopeFactor) {
+            Device.Commands.cmdSetDepthBias(commandBuffer, constantFactor, clamp, slopeFactor);
+        }
+
         public void EndRenderPass() {
             Device.Commands.cmdEndRenderPass(commandBuffer);
         }
