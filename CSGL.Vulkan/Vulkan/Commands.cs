@@ -97,6 +97,7 @@ namespace CSGL.Vulkan {
             public vkCmdSetLineWidthDelegate cmdSetLineWidth;
             public vkCmdSetDepthBiasDelegate cmdSetDepthBias;
             public vkCmdSetBlendConstantsDelegate cmdSetBlendConstants;
+            public vkCmdSetDepthBoundsDelegate cmdSetDepthBounds;
 
             public vkCreateBufferDelegate createBuffer;
             public vkDestroyBufferDelegate destroyBuffer;

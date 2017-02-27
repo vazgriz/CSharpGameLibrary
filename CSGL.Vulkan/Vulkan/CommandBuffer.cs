@@ -527,6 +527,10 @@ namespace CSGL.Vulkan {
             }
         }
 
+        public void SetDepthBounds(float minDepthBounds, float maxDepthBounds) {
+            Device.Commands.cmdSetDepthBounds(commandBuffer, minDepthBounds, maxDepthBounds);
+        }
+
         public void EndRenderPass() {
             Device.Commands.cmdEndRenderPass(commandBuffer);
         }
