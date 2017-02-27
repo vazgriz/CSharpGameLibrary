@@ -354,6 +354,15 @@ namespace CSGL.Vulkan {
             Device.Commands.cmdPushConstants(commandBuffer, layout.Native, stageFlags, offset, size, data);
         }
 
+        public void PushConstants(PipelineLayout layout, VkShaderStageFlags stageFlags, uint offset, byte[] data) {
+            unsafe
+            {
+                fixed (byte* ptr = data) {
+                    Device.Commands.cmdPushConstants(commandBuffer, layout.Native, stageFlags, offset, (uint)data.Length, (IntPtr)ptr);
+                }
+            }
+        }
+
         public void PushConstants<T>(PipelineLayout layout, VkShaderStageFlags stageFlags, uint offset, T[] data) where T : struct {
             GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
             Device.Commands.cmdPushConstants(commandBuffer, layout.Native, stageFlags, offset, (uint)(data.Length * Interop.SizeOf<T>()), handle.AddrOfPinnedObject());
