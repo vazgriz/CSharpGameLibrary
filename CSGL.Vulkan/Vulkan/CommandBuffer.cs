@@ -98,13 +98,12 @@ namespace CSGL.Vulkan {
 
                 int dynamicOffsetCount = 0;
                 if (dynamicOffsets != null) dynamicOffsetCount = dynamicOffsets.Length;
-                GCHandle handle = GCHandle.Alloc(dynamicOffsets, GCHandleType.Pinned);
 
-                Device.Commands.cmdBindDescriptorSets(commandBuffer, pipelineBindPoint, layout.Native,
-                    firstSet, (uint)descriptorSets.Length, (IntPtr)sets,
-                    (uint)dynamicOffsetCount, handle.AddrOfPinnedObject());
-
-                handle.Free();
+                fixed (uint* ptr = dynamicOffsets) {
+                    Device.Commands.cmdBindDescriptorSets(commandBuffer, pipelineBindPoint, layout.Native,
+                        firstSet, (uint)descriptorSets.Length, (IntPtr)sets,
+                        (uint)dynamicOffsetCount, (IntPtr)ptr);
+                }
             }
         }
 
