@@ -581,6 +581,10 @@ namespace CSGL.Vulkan {
             handle.Free();
         }
 
+        public void FillBuffer(Buffer dstBuffer, ulong dstOffset, ulong size, uint data) {
+            Device.Commands.cmdFillBuffer(commandBuffer, dstBuffer.Native, dstOffset, size, data);
+        }
+
         public void EndRenderPass() {
             Device.Commands.cmdEndRenderPass(commandBuffer);
         }
