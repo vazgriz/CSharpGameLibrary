@@ -326,8 +326,12 @@ namespace CSGL.Vulkan {
         }
 
         public void ClearColorImage(Image image, VkImageLayout imageLayout, ref VkClearColorValue clearColor, VkImageSubresourceRange[] ranges) {
-            GCHandle handle = GCHandle.Alloc(ranges, GCHandleType.Pinned);
-            Device.Commands.cmdClearColorImage(commandBuffer, image.Native, imageLayout, ref clearColor, (uint)ranges.Length, handle.AddrOfPinnedObject());
+            unsafe
+            {
+                fixed (VkImageSubresourceRange* ptr = ranges) {
+                    Device.Commands.cmdClearColorImage(commandBuffer, image.Native, imageLayout, ref clearColor, (uint)ranges.Length, (IntPtr)ptr);
+                }
+            }
         }
 
         public void ClearColorImage(Image image, VkImageLayout imageLayout, ref VkClearColorValue clearColor, List<VkImageSubresourceRange> ranges) {
