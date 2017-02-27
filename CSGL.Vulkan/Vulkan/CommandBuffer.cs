@@ -474,6 +474,13 @@ namespace CSGL.Vulkan {
             }
         }
 
+        public void SetViewports(uint firstViewport, VkViewport viewports) {
+            unsafe
+            {
+                Device.Commands.cmdSetViewports(commandBuffer, firstViewport, 1, (IntPtr)(&viewports));
+            }
+        }
+
         public void EndRenderPass() {
             Device.Commands.cmdEndRenderPass(commandBuffer);
         }
