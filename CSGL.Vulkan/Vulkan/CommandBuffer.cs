@@ -481,6 +481,22 @@ namespace CSGL.Vulkan {
             }
         }
 
+        public void SetScissor(uint firstScissor, VkRect2D[] scissors) {
+            unsafe
+            {
+                fixed (VkRect2D* ptr = scissors) {
+                    Device.Commands.cmdSetScissor(commandBuffer, firstScissor, (uint)scissors.Length, (IntPtr)(ptr));
+                }
+            }
+        }
+
+        public void SetScissor(uint firstScissor, VkRect2D scissors) {
+            unsafe
+            {
+                Device.Commands.cmdSetScissor(commandBuffer, firstScissor, 1, (IntPtr)(&scissors));
+            }
+        }
+
         public void EndRenderPass() {
             Device.Commands.cmdEndRenderPass(commandBuffer);
         }
