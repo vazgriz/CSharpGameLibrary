@@ -531,6 +531,10 @@ namespace CSGL.Vulkan {
             Device.Commands.cmdSetDepthBounds(commandBuffer, minDepthBounds, maxDepthBounds);
         }
 
+        public void SetStencilCompareMask(VkStencilFaceFlags faceMask, uint compareMask) {
+            Device.Commands.cmdSetStencilCompareMask(commandBuffer, faceMask, compareMask);
+        }
+
         public void EndRenderPass() {
             Device.Commands.cmdEndRenderPass(commandBuffer);
         }
