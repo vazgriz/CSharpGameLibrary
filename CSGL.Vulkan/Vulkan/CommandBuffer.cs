@@ -505,6 +505,28 @@ namespace CSGL.Vulkan {
             Device.Commands.cmdSetDepthBias(commandBuffer, constantFactor, clamp, slopeFactor);
         }
 
+        public void SetBlendConstants(float[] blendConstants) {
+            unsafe
+            {
+                fixed (float* ptr = blendConstants) {
+                    Device.Commands.cmdSetBlendConstants(commandBuffer, (IntPtr)ptr);
+                }
+            }
+        }
+
+        public void SetBlendConstants(float constant0, float constant1, float constant2, float constant3) {
+            unsafe
+            {
+                float* constants = stackalloc float[4];
+                constants[0] = constant0;
+                constants[1] = constant1;
+                constants[2] = constant2;
+                constants[3] = constant3;
+
+                Device.Commands.cmdSetBlendConstants(commandBuffer, (IntPtr)constants);
+            }
+        }
+
         public void EndRenderPass() {
             Device.Commands.cmdEndRenderPass(commandBuffer);
         }
