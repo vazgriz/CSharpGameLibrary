@@ -560,6 +560,27 @@ namespace CSGL.Vulkan {
             Device.Commands.cmdDrawIndexedIndirect(commandBuffer, buffer.Native, offset, drawCount, stride);
         }
 
+        public void UpdateBuffer(Buffer dstBuffer, ulong dstOffset, ulong dataSize, IntPtr data) {
+            Device.Commands.cmdUpdateBuffer(commandBuffer, dstBuffer.Native, dstOffset, dataSize, data);
+        }
+
+        public void UpdateBuffer(Buffer dstBuffer, ulong dstOffset, byte[] data) {
+            unsafe
+            {
+                fixed (byte* ptr = data) {
+                    Device.Commands.cmdUpdateBuffer(commandBuffer, dstBuffer.Native, dstOffset, (ulong)data.Length, (IntPtr)ptr);
+                }
+            }
+        }
+
+        public void UpdateBuffer<T>(Buffer dstBuffer, ulong dstOffset, T[] data) where T : struct {
+            ulong size = (ulong)(data.Length * Interop.SizeOf<T>());
+
+            GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
+            Device.Commands.cmdUpdateBuffer(commandBuffer, dstBuffer.Native, dstOffset, size, handle.AddrOfPinnedObject());
+            handle.Free();
+        }
+
         public void EndRenderPass() {
             Device.Commands.cmdEndRenderPass(commandBuffer);
         }
