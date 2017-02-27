@@ -97,9 +97,11 @@ namespace CSGL.Vulkan {
             var modesMarshalled = new PinnedArray<int>(modes);
             getModes(physicalDevice.Native, surface, ref count, modesMarshalled.Address);
 
-            for (int i = 0; i < count; i++) {
-                var mode = (VkPresentModeKHR)modes[i];
-                presentModes.Add(mode);
+            using (modesMarshalled) {
+                for (int i = 0; i < count; i++) {
+                    var mode = (VkPresentModeKHR)modes[i];
+                    presentModes.Add(mode);
+                }
             }
 
             PresentModes = presentModes.AsReadOnly();
