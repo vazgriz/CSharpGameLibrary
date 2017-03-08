@@ -41,7 +41,7 @@ namespace CSGL.Vulkan {
         public VkBufferCreateFlags Flags { get; private set; }
         public VkBufferUsageFlags Usage { get; private set; }
         public ulong Offset { get; private set; }
-        public bool Bound { get; private set; }
+        public DeviceMemory Memory { get; private set; }
 
         public Buffer(Device device, BufferCreateInfo info) {
             if (device == null) throw new ArgumentNullException(nameof(device));
@@ -82,7 +82,7 @@ namespace CSGL.Vulkan {
             if (result != VkResult.Success) throw new BufferException(string.Format("Error binding buffer: {0}", result));
 
             Offset = offset;
-            Bound = true;
+            Memory = deviceMemory;
         }
 
         public void Dispose() {
