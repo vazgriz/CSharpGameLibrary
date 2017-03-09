@@ -38,6 +38,12 @@ namespace CSGL.Vulkan {
             }
         }
 
+        public ulong Size {
+            get {
+                return requirements.size;
+            }
+        }
+
         public IList<VkSparseImageMemoryRequirements> SparseRequirements { get; private set; }
 
         public VkImageCreateFlags Flags { get; private set; }
@@ -50,6 +56,7 @@ namespace CSGL.Vulkan {
         public VkImageTiling Tiling { get; private set; }
         public VkImageUsageFlags Usage { get; private set; }
 
+        public ulong Offset { get; private set; }
         public DeviceMemory Memory { get; private set; }
 
         internal Image(Device device, VkImage image, VkFormat format) { //for images that are implicitly created, eg a swapchains's images
@@ -123,6 +130,7 @@ namespace CSGL.Vulkan {
         public void Bind(DeviceMemory memory, ulong offset) {
             Device.Commands.bindImageMemory(Device.Native, image, memory.Native, offset);
             Memory = memory;
+            Offset = offset;
         }
 
         public VkSubresourceLayout GetSubresourceLayout(VkImageSubresource subresource) {
