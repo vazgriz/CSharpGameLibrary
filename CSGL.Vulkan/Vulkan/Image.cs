@@ -50,6 +50,8 @@ namespace CSGL.Vulkan {
         public VkImageTiling Tiling { get; private set; }
         public VkImageUsageFlags Usage { get; private set; }
 
+        public DeviceMemory Memory { get; private set; }
+
         internal Image(Device device, VkImage image, VkFormat format) { //for images that are implicitly created, eg a swapchains's images
             Device = device;
             this.image = image;
@@ -120,6 +122,7 @@ namespace CSGL.Vulkan {
 
         public void Bind(DeviceMemory memory, ulong offset) {
             Device.Commands.bindImageMemory(Device.Native, image, memory.Native, offset);
+            Memory = memory;
         }
 
         public VkSubresourceLayout GetSubresourceLayout(VkImageSubresource subresource) {
