@@ -106,6 +106,7 @@ namespace CSGL.Vulkan {
             public vkCmdDrawIndexedIndirectDelegate cmdDrawIndexedIndirect;
             public vkCmdUpdateBufferDelegate cmdUpdateBuffer;
             public vkCmdFillBufferDelegate cmdFillBuffer;
+            public vkCmdBlitImageDelegate cmdBlitImage;
 
             public vkCreateBufferDelegate createBuffer;
             public vkDestroyBufferDelegate destroyBuffer;

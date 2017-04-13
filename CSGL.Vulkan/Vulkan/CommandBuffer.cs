@@ -585,6 +585,14 @@ namespace CSGL.Vulkan {
             Device.Commands.cmdFillBuffer(commandBuffer, dstBuffer.Native, dstOffset, size, data);
         }
 
+        public void BlitImage(Image srcImage, VkImageLayout srcImageLayout, Image dstImage, VkImageLayout dstImageLayout, VkImageBlit[] regions, VkFilter filter) {
+            unsafe
+            {
+                fixed (VkImageBlit* ptr = regions) {
+                    Device.Commands.cmdBlitImage(commandBuffer, srcImage.Native, srcImageLayout, dstImage.Native, dstImageLayout, (uint)regions.Length, (IntPtr)ptr, filter);
+                }
+            }
+        }
         public void EndRenderPass() {
             Device.Commands.cmdEndRenderPass(commandBuffer);
         }
