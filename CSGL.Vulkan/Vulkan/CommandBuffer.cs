@@ -602,6 +602,15 @@ namespace CSGL.Vulkan {
                 }
             }
         }
+
+        public void CopyImageToBuffer(Image srcImage, VkImageLayout srcImageLayout, Buffer dstBuffer, VkBufferImageCopy[] regions) {
+            unsafe
+            {
+                fixed (VkBufferImageCopy* ptr = regions) {
+                    Device.Commands.cmdCopyImageToBuffer(commandBuffer, srcImage.Native, srcImageLayout, dstBuffer.Native, (uint)regions.Length, (IntPtr)ptr);
+                }
+            }
+        }
         public void EndRenderPass() {
             Device.Commands.cmdEndRenderPass(commandBuffer);
         }
