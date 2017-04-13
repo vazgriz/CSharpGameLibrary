@@ -621,6 +621,16 @@ namespace CSGL.Vulkan {
                 }
             }
         }
+
+        public void ResolveImage(Image srcImage, VkImageLayout srcImageLayout, Image dstImage, VkImageLayout dstImageLayout, VkImageResolve[] regions) {
+            unsafe
+            {
+                fixed (VkImageResolve* ptr = regions) {
+                    Device.Commands.cmdResolveImage(commandBuffer, srcImage.Native, srcImageLayout, dstImage.Native, dstImageLayout, (uint)regions.Length, (IntPtr)ptr);
+                }
+            }
+        }
+
         public void EndRenderPass() {
             Device.Commands.cmdEndRenderPass(commandBuffer);
         }

@@ -110,6 +110,7 @@ namespace CSGL.Vulkan {
             public vkCmdCopyBufferToImageDelegate cmdCopyBufferToImage;
             public vkCmdCopyImageToBufferDelegate cmdCopyImageToBuffer;
             public vkCmdClearAttachmentsDelegate cmdClearAttachments;
+            public vkCmdResolveImageDelegate cmdResolveImage;
 
             public vkCreateBufferDelegate createBuffer;
             public vkDestroyBufferDelegate destroyBuffer;
