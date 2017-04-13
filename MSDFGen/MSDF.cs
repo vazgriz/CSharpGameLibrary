@@ -73,13 +73,18 @@ namespace MSDFGen {
             public int y;
         }
 
-        public static void CorrectErrors(Bitmap<Color4> output, Vector2 threshold) {
+        public static void CorrectErrors(Bitmap<Color4> output, Rectanglei region, Vector2 threshold) {
             List<Clash> clashes = new List<Clash>();
             int w = output.Width;
             int h = output.Height;
 
-            for (int y = 0; y < h; y++) {
-                for (int x = 0; x < w; x++) {
+            int xStart = Math.Min(Math.Max(0, region.Left), output.Width);
+            int yStart = Math.Min(Math.Max(0, region.Top), output.Height);
+            int xEnd = Math.Min(Math.Max(0, region.Right), output.Width);
+            int yEnd = Math.Min(Math.Max(0, region.Bottom), output.Height);
+
+            for (int y = yStart; y < yEnd; y++) {
+                for (int x = xStart; x < xEnd; x++) {
                     if ((x > 0 && PixelClash(output[x, y], output[x-1, y], threshold.X)) ||
                         (x < w - 1 && PixelClash(output[x, y], output[x + 1, y], threshold.X)) ||
                         (y > 0 && PixelClash(output[x, y], output[x, y - 1], threshold.Y)) ||
@@ -100,13 +105,18 @@ namespace MSDFGen {
             }
         }
 
-        public static void CorrectErrors(Bitmap<Color4b> output, Vector2 threshold) {
+        public static void CorrectErrors(Bitmap<Color4b> output, Rectanglei region, Vector2 threshold) {
             List<Clash> clashes = new List<Clash>();
             int w = output.Width;
             int h = output.Height;
 
-            for (int y = 0; y < h; y++) {
-                for (int x = 0; x < w; x++) {
+            int xStart = Math.Min(Math.Max(0, region.Left), output.Width);
+            int yStart = Math.Min(Math.Max(0, region.Top), output.Height);
+            int xEnd = Math.Min(Math.Max(0, region.Right), output.Width);
+            int yEnd = Math.Min(Math.Max(0, region.Bottom), output.Height);
+
+            for (int y = yStart; y < yEnd; y++) {
+                for (int x = xStart; x < xEnd; x++) {
                     if ((x > 0 && PixelClash(output[x, y], output[x - 1, y], threshold.X)) ||
                         (x < w - 1 && PixelClash(output[x, y], output[x + 1, y], threshold.X)) ||
                         (y > 0 && PixelClash(output[x, y], output[x, y - 1], threshold.Y)) ||

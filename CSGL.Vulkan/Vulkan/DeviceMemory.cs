@@ -26,6 +26,7 @@ namespace CSGL.Vulkan {
         }
 
         public ulong Size { get; private set; }
+        public uint MemoryTypeIndex { get; private set; }
 
         public ulong Commitment {
             get {
@@ -60,7 +61,8 @@ namespace CSGL.Vulkan {
 
             Device.Commands.allocateMemory(Device.Native, ref info, Device.Instance.AllocationCallbacks, out deviceMemory);
 
-            Size = info.allocationSize;
+            Size = allocationSize;
+            MemoryTypeIndex = memoryTypeIndex;
         }
 
         public IntPtr Map(ulong offset, ulong size) {

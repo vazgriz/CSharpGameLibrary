@@ -20,6 +20,7 @@ namespace CSGL.Vulkan {
 
             var infoMarshalled = new Marshalled<VkSpecializationInfo>(info);
             marshalled.Add(infoMarshalled);
+            marshalled.Add(dataMarshalled);
 
             return infoMarshalled.Address;
         }

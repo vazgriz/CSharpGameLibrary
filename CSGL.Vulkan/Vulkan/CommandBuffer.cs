@@ -585,6 +585,52 @@ namespace CSGL.Vulkan {
             Device.Commands.cmdFillBuffer(commandBuffer, dstBuffer.Native, dstOffset, size, data);
         }
 
+        public void BlitImage(Image srcImage, VkImageLayout srcImageLayout, Image dstImage, VkImageLayout dstImageLayout, VkImageBlit[] regions, VkFilter filter) {
+            unsafe
+            {
+                fixed (VkImageBlit* ptr = regions) {
+                    Device.Commands.cmdBlitImage(commandBuffer, srcImage.Native, srcImageLayout, dstImage.Native, dstImageLayout, (uint)regions.Length, (IntPtr)ptr, filter);
+                }
+            }
+        }
+
+        public void CopyBufferToImage(Buffer srcBuffer, Image dstImage, VkImageLayout dstImageLayout, VkBufferImageCopy[] regions) {
+            unsafe
+            {
+                fixed (VkBufferImageCopy* ptr = regions) {
+                    Device.Commands.cmdCopyBufferToImage(commandBuffer, srcBuffer.Native, dstImage.Native, dstImageLayout, (uint)regions.Length, (IntPtr)ptr);
+                }
+            }
+        }
+
+        public void CopyImageToBuffer(Image srcImage, VkImageLayout srcImageLayout, Buffer dstBuffer, VkBufferImageCopy[] regions) {
+            unsafe
+            {
+                fixed (VkBufferImageCopy* ptr = regions) {
+                    Device.Commands.cmdCopyImageToBuffer(commandBuffer, srcImage.Native, srcImageLayout, dstBuffer.Native, (uint)regions.Length, (IntPtr)ptr);
+                }
+            }
+        }
+
+        public void ClearAttachments(VkClearAttachment[] attachments, VkClearRect[] rects) {
+            unsafe
+            {
+                fixed (VkClearAttachment* attachmentPtr = attachments)
+                fixed (VkClearRect* rectPtr = rects) {
+                    Device.Commands.cmdClearAttachments(commandBuffer, (uint)attachments.Length, (IntPtr)attachmentPtr, (uint)rects.Length, (IntPtr)rectPtr);
+                }
+            }
+        }
+
+        public void ResolveImage(Image srcImage, VkImageLayout srcImageLayout, Image dstImage, VkImageLayout dstImageLayout, VkImageResolve[] regions) {
+            unsafe
+            {
+                fixed (VkImageResolve* ptr = regions) {
+                    Device.Commands.cmdResolveImage(commandBuffer, srcImage.Native, srcImageLayout, dstImage.Native, dstImageLayout, (uint)regions.Length, (IntPtr)ptr);
+                }
+            }
+        }
+
         public void EndRenderPass() {
             Device.Commands.cmdEndRenderPass(commandBuffer);
         }
