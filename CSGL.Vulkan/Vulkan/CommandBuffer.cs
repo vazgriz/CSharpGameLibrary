@@ -611,6 +611,16 @@ namespace CSGL.Vulkan {
                 }
             }
         }
+
+        public void ClearAttachments(VkClearAttachment[] attachments, VkClearRect[] rects) {
+            unsafe
+            {
+                fixed (VkClearAttachment* attachmentPtr = attachments)
+                fixed (VkClearRect* rectPtr = rects) {
+                    Device.Commands.cmdClearAttachments(commandBuffer, (uint)attachments.Length, (IntPtr)attachmentPtr, (uint)rects.Length, (IntPtr)rectPtr);
+                }
+            }
+        }
         public void EndRenderPass() {
             Device.Commands.cmdEndRenderPass(commandBuffer);
         }
