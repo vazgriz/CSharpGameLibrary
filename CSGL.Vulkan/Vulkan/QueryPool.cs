@@ -8,7 +8,7 @@ namespace CSGL.Vulkan {
         public VkQueryPipelineStatisticFlags pipelineStatistics;
     }
 
-    public class QueryPool : IDisposable {
+    public class QueryPool : IDisposable, INative<VkQueryPool> {
         bool disposed;
 
         VkQueryPool queryPool;
