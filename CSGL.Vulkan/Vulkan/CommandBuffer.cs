@@ -631,6 +631,26 @@ namespace CSGL.Vulkan {
             }
         }
 
+        public void ResetQueryPool(QueryPool queryPool, uint firstQuery, uint queryCount) {
+            Device.Commands.cmdResetQueryPool(commandBuffer, queryPool.Native, firstQuery, queryCount);
+        }
+
+        public void BeginQuery(QueryPool queryPool, uint query, VkQueryControlFlags flags) {
+            Device.Commands.cmdBeginQuery(commandBuffer, queryPool.Native, query, flags);
+        }
+
+        public void EndQuery(QueryPool queryPool, uint query) {
+            Device.Commands.cmdEndQuery(commandBuffer, queryPool.Native, query);
+        }
+
+        public void CopyQueryPoolResults(QueryPool queryPool, uint firstQuery, uint queryCount, Buffer dstBuffer, ulong dstOffset, ulong stride, VkQueryResultFlags flags) {
+            Device.Commands.cmdCopyQueryPoolResults(commandBuffer, queryPool.Native, firstQuery, queryCount, dstBuffer.Native, dstOffset, stride, flags);
+        }
+
+        public void WriteTimestamp(VkPipelineStageFlags pipelineStage, QueryPool queryPool, uint query) {
+            Device.Commands.cmdWriteTimestamp(commandBuffer, pipelineStage, queryPool.Native, query);
+        }
+
         public void EndRenderPass() {
             Device.Commands.cmdEndRenderPass(commandBuffer);
         }

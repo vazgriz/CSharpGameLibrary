@@ -111,6 +111,11 @@ namespace CSGL.Vulkan {
             public vkCmdCopyImageToBufferDelegate cmdCopyImageToBuffer;
             public vkCmdClearAttachmentsDelegate cmdClearAttachments;
             public vkCmdResolveImageDelegate cmdResolveImage;
+            public vkCmdResetQueryPoolDelegate cmdResetQueryPool;
+            public vkCmdBeginQueryDelegate cmdBeginQuery;
+            public vkCmdEndQueryDelegate cmdEndQuery;
+            public vkCmdCopyQueryPoolResultsDelegate cmdCopyQueryPoolResults;
+            public vkCmdWriteTimestampDelegate cmdWriteTimestamp;
 
             public vkCreateBufferDelegate createBuffer;
             public vkDestroyBufferDelegate destroyBuffer;
