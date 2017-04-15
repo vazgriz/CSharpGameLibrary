@@ -73,6 +73,7 @@
     <Compile Include="Vulkan\PipelineCache.cs" />
     <Compile Include="Vulkan\PipelineLayout.cs" />
     <Compile Include="Vulkan\Pipeline_Creation.cs" />
+    <Compile Include="Vulkan\QueryPool.cs" />
     <Compile Include="Vulkan\Queue.cs" />
     <Compile Include="Vulkan\RenderPass.cs" />
     <Compile Include="Vulkan\Sampler.cs" />

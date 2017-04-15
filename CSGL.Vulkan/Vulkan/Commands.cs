@@ -142,6 +142,10 @@ namespace CSGL.Vulkan {
             public vkCreateSamplerDelegate createSampler;
             public vkDestroySamplerDelegate destroySampler;
 
+            public vkCreateQueryPoolDelegate createQueryPool;
+            public vkDestroyQueryPoolDelegate destroyQueryPool;
+            public vkGetQueryPoolResultsDelegate getQueryPoolResults;
+
             internal DeviceCommands(Device device) {
                 Type t = typeof(DeviceCommands);
                 FieldInfo[] fields = t.GetFields();
