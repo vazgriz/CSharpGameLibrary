@@ -175,7 +175,6 @@ namespace CSGL.Vulkan {
             VK.DestroyInstance(instance, alloc);
 
             if (alloc != IntPtr.Zero) {
-                Marshal.DestroyStructure<VkAllocationCallbacks>(alloc);
                 Marshal.FreeHGlobal(alloc);
             }
 
