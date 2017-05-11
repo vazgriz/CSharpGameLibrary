@@ -125,9 +125,9 @@ namespace CSGL.Vulkan {
             info.enabledLayerCount = (uint)layersMarshalled.Count;
             info.ppEnabledLayerNames = layersMarshalled.Address;
 
-            var appInfo = new VkApplicationInfo();
-            appInfo.sType = VkStructureType.ApplicationInfo;
             if (mInfo.applicationInfo != null) {
+                var appInfo = new VkApplicationInfo();
+                appInfo.sType = VkStructureType.ApplicationInfo;
                 appInfo.apiVersion = mInfo.applicationInfo.apiVersion;
                 appInfo.engineVersion = mInfo.applicationInfo.engineVersion;
                 appInfo.applicationVersion = mInfo.applicationInfo.applicationVersion;
@@ -142,7 +142,7 @@ namespace CSGL.Vulkan {
                 info.pApplicationInfo = appInfoMarshalled.Address;
             }
 
-            using (appName)
+            using (appName) //appName, engineName, and appInfoMarshalled may be null
             using (engineName)
             using (appInfoMarshalled)
             using (extensionsMarshalled)
