@@ -86,10 +86,19 @@ namespace CSGL.Vulkan {
         }
 
         public void Dispose() {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        void Dispose(bool disposing) {
             if (disposed) return;
 
             Device.Commands.destroyBuffer(Device.Native, buffer, Device.Instance.AllocationCallbacks);
             disposed = true;
+        }
+
+        ~Buffer() {
+            Dispose(false);
         }
     }
 
