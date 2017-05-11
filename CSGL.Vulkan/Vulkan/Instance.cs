@@ -12,6 +12,8 @@ namespace CSGL.Vulkan {
         public string engineName;
         public string applicationName;
 
+        public ApplicationInfo() { }
+
         public ApplicationInfo(VkVersion apiVersion, VkVersion applicationVersion, VkVersion engineVersion, string applicationName, string engineName) {
             this.apiVersion = apiVersion;
             this.applicationName = applicationName;
