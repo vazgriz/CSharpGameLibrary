@@ -60,8 +60,7 @@ namespace CSGL.Vulkan {
                 return instance;
             }
         }
-
-
+        
         public IntPtr AllocationCallbacks {
             get {
                 return alloc;
