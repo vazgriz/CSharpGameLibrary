@@ -45,11 +45,20 @@ namespace CSGL.Vulkan {
         }
 
         public void Dispose() {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        void Dispose(bool disposing) {
             if (disposed) return;
 
             Device.Commands.destroyEvent(Device.Native, _event, Device.Instance.AllocationCallbacks);
 
             disposed = true;
+        }
+
+        ~Event() {
+            Dispose(false);
         }
     }
 
