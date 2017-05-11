@@ -20,7 +20,6 @@ namespace CSGL.Vulkan {
     public class Image : IDisposable, INative<VkImage> {
         VkImage image;
         bool disposed = false;
-        bool _implicit;
 
         VkMemoryRequirements requirements;
         List<VkSparseImageMemoryRequirements> sparseRequirements;
@@ -64,7 +63,6 @@ namespace CSGL.Vulkan {
             Device = device;
             this.image = image;
             Format = format;
-            _implicit = true;
         }
 
         public Image(Device device, ImageCreateInfo info) {
@@ -150,10 +148,8 @@ namespace CSGL.Vulkan {
 
         void Dispose(bool disposing) {
             if (disposed) return;
-
-            if (!_implicit) {
-                Device.Commands.destroyImage(Device.Native, image, Device.Instance.AllocationCallbacks);
-            }
+            
+            Device.Commands.destroyImage(Device.Native, image, Device.Instance.AllocationCallbacks);
 
             disposed = true;
         }

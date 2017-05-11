@@ -164,7 +164,7 @@ namespace CSGL.Vulkan {
             Device.Commands.destroySwapchain(Device.Native, swapchain, Device.Instance.AllocationCallbacks);
 
             foreach (var image in Images) {
-                image.Dispose();    //suppresses finalizer
+                GC.SuppressFinalize(image);
             }
 
             disposed = true;
