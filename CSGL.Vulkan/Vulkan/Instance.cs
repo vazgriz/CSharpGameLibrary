@@ -28,6 +28,11 @@ namespace CSGL.Vulkan {
         public List<string> extensions;
         public List<string> layers;
 
+        public InstanceCreateInfo() {
+            extensions = new List<string>();
+            layers = new List<string>();
+        }
+
         public InstanceCreateInfo(ApplicationInfo applicationInfo, List<string> extensions, List<string> layers) {
             this.applicationInfo = applicationInfo;
             this.extensions = extensions;
