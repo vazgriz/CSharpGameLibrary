@@ -64,11 +64,20 @@ namespace CSGL.Vulkan {
         }
 
         public void Dispose() {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        void Dispose(bool disposing) {
             if (disposed) return;
 
             Device.Commands.destroySampler(Device.Native, sampler, Device.Instance.AllocationCallbacks);
 
             disposed = true;
+        }
+
+        ~Sampler() {
+            Dispose(false);
         }
     }
 
