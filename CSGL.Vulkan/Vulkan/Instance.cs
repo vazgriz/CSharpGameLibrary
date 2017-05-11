@@ -170,15 +170,21 @@ namespace CSGL.Vulkan {
         }
 
         public void Dispose() {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        void Dispose(bool disposing) {
             if (disposed) return;
 
             VK.DestroyInstance(instance, alloc);
-
-            if (alloc != IntPtr.Zero) {
-                Marshal.FreeHGlobal(alloc);
-            }
+            Marshal.FreeHGlobal(alloc);
 
             disposed = true;
+        }
+
+        ~Instance() {
+            Dispose(false);
         }
     }
 
