@@ -154,13 +154,24 @@ namespace CSGL.Vulkan {
         }
 
         public void Dispose() {
-            if (disposed) return;
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
 
-            unsafe {
-                Device.Commands.destroySwapchain(Device.Native, swapchain, Device.Instance.AllocationCallbacks);
+        void Dispose(bool disposing) {
+            if (disposed) return;
+            
+            Device.Commands.destroySwapchain(Device.Native, swapchain, Device.Instance.AllocationCallbacks);
+
+            foreach (var image in Images) {
+                image.Dispose();    //suppresses finalizer
             }
 
             disposed = true;
+        }
+
+        ~Swapchain() {
+            Dispose(false);
         }
     }
 
