@@ -25,7 +25,7 @@ namespace CSGL.Vulkan {
 
     public class InstanceCreateInfo {
         public ApplicationInfo applicationInfo;
-        public List<String> extensions;
+        public List<string> extensions;
         public List<string> layers;
 
         public InstanceCreateInfo(ApplicationInfo applicationInfo, List<string> extensions, List<string> layers) {
