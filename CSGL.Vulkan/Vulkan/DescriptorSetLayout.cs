@@ -43,11 +43,20 @@ namespace CSGL.Vulkan {
         }
 
         public void Dispose() {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        void Dispose(bool disposing) {
             if (disposed) return;
 
             Device.Commands.destroyDescriptorSetLayout(Device.Native, descriptorSetLayout, Device.Instance.AllocationCallbacks);
 
             disposed = true;
+        }
+
+        ~DescriptorSetLayout() {
+            Dispose(false);
         }
     }
 
