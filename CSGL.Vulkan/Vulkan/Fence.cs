@@ -116,12 +116,21 @@ namespace CSGL.Vulkan {
             return Wait(ulong.MaxValue);
         }
 
-		public void Dispose() {
+        public void Dispose() {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        void Dispose(bool disposing) {
             if (disposed) return;
 
             Device.Commands.destroyFence(Device.Native, fence, Device.Instance.AllocationCallbacks);
 
             disposed = true;
+        }
+
+        ~Fence() {
+            Dispose(false);
         }
     }
 

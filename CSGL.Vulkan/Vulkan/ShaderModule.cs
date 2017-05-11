@@ -63,11 +63,20 @@ namespace CSGL.Vulkan {
         }
 
         public void Dispose() {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        void Dispose(bool disposing) {
             if (disposed) return;
 
             destroyShaderModule(device.Native, shaderModule, device.Instance.AllocationCallbacks);
 
             disposed = true;
+        }
+
+        ~ShaderModule() {
+            Dispose(false);
         }
     }
 

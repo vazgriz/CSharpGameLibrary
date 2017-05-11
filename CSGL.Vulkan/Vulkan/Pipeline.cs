@@ -182,10 +182,19 @@ namespace CSGL.Vulkan {
         }
 
         public void Dispose() {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        void Dispose(bool disposing) {
             if (disposed) return;
 
             Device.Commands.destroyPipeline(Device.Native, pipeline, Device.Instance.AllocationCallbacks);
             disposed = true;
+        }
+
+        ~Pipeline() {
+            Dispose(false);
         }
     }
 

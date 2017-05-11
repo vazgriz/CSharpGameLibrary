@@ -236,10 +236,19 @@ namespace CSGL.Vulkan {
         }
 
         public void Dispose() {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        void Dispose(bool disposing) {
             if (disposed) return;
 
             Device.Commands.freeMemory(Device.Native, deviceMemory, Device.Instance.AllocationCallbacks);
             disposed = true;
+        }
+
+        ~DeviceMemory() {
+            Dispose(false);
         }
     }
 

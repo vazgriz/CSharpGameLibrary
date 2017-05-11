@@ -12,6 +12,8 @@ namespace CSGL.Vulkan {
         public string engineName;
         public string applicationName;
 
+        public ApplicationInfo() { }
+
         public ApplicationInfo(VkVersion apiVersion, VkVersion applicationVersion, VkVersion engineVersion, string applicationName, string engineName) {
             this.apiVersion = apiVersion;
             this.applicationName = applicationName;
@@ -23,8 +25,13 @@ namespace CSGL.Vulkan {
 
     public class InstanceCreateInfo {
         public ApplicationInfo applicationInfo;
-        public List<String> extensions;
+        public List<string> extensions;
         public List<string> layers;
+
+        public InstanceCreateInfo() {
+            extensions = new List<string>();
+            layers = new List<string>();
+        }
 
         public InstanceCreateInfo(ApplicationInfo applicationInfo, List<string> extensions, List<string> layers) {
             this.applicationInfo = applicationInfo;
@@ -53,8 +60,7 @@ namespace CSGL.Vulkan {
                 return instance;
             }
         }
-
-
+        
         public IntPtr AllocationCallbacks {
             get {
                 return alloc;
@@ -118,9 +124,9 @@ namespace CSGL.Vulkan {
             info.enabledLayerCount = (uint)layersMarshalled.Count;
             info.ppEnabledLayerNames = layersMarshalled.Address;
 
-            var appInfo = new VkApplicationInfo();
-            appInfo.sType = VkStructureType.ApplicationInfo;
             if (mInfo.applicationInfo != null) {
+                var appInfo = new VkApplicationInfo();
+                appInfo.sType = VkStructureType.ApplicationInfo;
                 appInfo.apiVersion = mInfo.applicationInfo.apiVersion;
                 appInfo.engineVersion = mInfo.applicationInfo.engineVersion;
                 appInfo.applicationVersion = mInfo.applicationInfo.applicationVersion;
@@ -135,7 +141,7 @@ namespace CSGL.Vulkan {
                 info.pApplicationInfo = appInfoMarshalled.Address;
             }
 
-            using (appName)
+            using (appName) //appName, engineName, and appInfoMarshalled may be null
             using (engineName)
             using (appInfoMarshalled)
             using (extensionsMarshalled)
@@ -164,16 +170,21 @@ namespace CSGL.Vulkan {
         }
 
         public void Dispose() {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        void Dispose(bool disposing) {
             if (disposed) return;
 
             VK.DestroyInstance(instance, alloc);
-
-            if (alloc != IntPtr.Zero) {
-                Marshal.DestroyStructure<VkAllocationCallbacks>(alloc);
-                Marshal.FreeHGlobal(alloc);
-            }
+            Marshal.FreeHGlobal(alloc);
 
             disposed = true;
+        }
+
+        ~Instance() {
+            Dispose(false);
         }
     }
 

@@ -62,11 +62,20 @@ namespace CSGL.Vulkan {
         }
 
         public void Dispose() {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        void Dispose(bool disposing) {
             if (disposed) return;
             
             Device.Commands.destroyImageView(Device.Native, imageView, Device.Instance.AllocationCallbacks);
 
             disposed = true;
+        }
+
+        ~ImageView() {
+            Dispose(true);
         }
     }
 

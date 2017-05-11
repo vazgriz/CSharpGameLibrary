@@ -30,11 +30,20 @@ namespace CSGL.Vulkan {
         }
 
         public void Dispose() {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        void Dispose(bool disposing) {
             if (disposed) return;
 
             Device.Commands.destroySemaphore(Device.Native, semaphore, Device.Instance.AllocationCallbacks);
 
             disposed = true;
+        }
+
+        ~Semaphore() {
+            Dispose(false);
         }
     }
 

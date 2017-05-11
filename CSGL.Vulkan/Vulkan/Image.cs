@@ -142,11 +142,20 @@ namespace CSGL.Vulkan {
         }
 
         public void Dispose() {
-            if (disposed) return;
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
 
+        void Dispose(bool disposing) {
+            if (disposed) return;
+            
             Device.Commands.destroyImage(Device.Native, image, Device.Instance.AllocationCallbacks);
 
             disposed = true;
+        }
+
+        ~Image() {
+            Dispose(false);
         }
     }
 
