@@ -116,6 +116,8 @@ namespace CSGL.Vulkan {
             public vkCmdEndQueryDelegate cmdEndQuery;
             public vkCmdCopyQueryPoolResultsDelegate cmdCopyQueryPoolResults;
             public vkCmdWriteTimestampDelegate cmdWriteTimestamp;
+            public vkCmdDispatchDelegate cmdDispatch;
+            public vkCmdDispatchIndirectDelegate cmdDispatchIndirect;
 
             public vkCreateBufferDelegate createBuffer;
             public vkDestroyBufferDelegate destroyBuffer;
