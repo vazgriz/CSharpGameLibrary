@@ -651,6 +651,14 @@ namespace CSGL.Vulkan {
             Device.Commands.cmdWriteTimestamp(commandBuffer, pipelineStage, queryPool.Native, query);
         }
 
+        public void Dispatch(uint x, uint y, uint z) {
+            Device.Commands.cmdDispatch(commandBuffer, x, y, z);
+        }
+
+        public void DispatchIndirect(Buffer buffer, ulong offset) {
+            Device.Commands.cmdDispatchIndirect(commandBuffer, buffer.Native, offset);
+        }
+
         public void EndRenderPass() {
             Device.Commands.cmdEndRenderPass(commandBuffer);
         }
