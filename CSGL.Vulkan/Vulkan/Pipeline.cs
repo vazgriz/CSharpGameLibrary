@@ -19,7 +19,7 @@ namespace CSGL.Vulkan {
         public PipelineLayout layout;
         public RenderPass renderPass;
         public uint subpass;
-        public Pipeline basePipeline;
+        public Pipeline basePipelineHandle;
         public int basePipelineIndex;
     }
 
@@ -169,8 +169,8 @@ namespace CSGL.Vulkan {
                 }
 
                 info.subpass = mInfo.subpass;
-                if (mInfo.basePipeline != null) {
-                    info.basePipelineHandle = mInfo.basePipeline.Native;
+                if (mInfo.basePipelineHandle != null) {
+                    info.basePipelineHandle = mInfo.basePipelineHandle.Native;
                 }
                 info.basePipelineIndex = mInfo.basePipelineIndex;
 
