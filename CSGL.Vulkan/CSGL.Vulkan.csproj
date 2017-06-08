@@ -54,6 +54,7 @@
     <Compile Include="Vulkan\CommandPool.cs" />
     <Compile Include="Vulkan\Commands.cs" />
     <Compile Include="Vulkan\Command_Recording.cs" />
+    <Compile Include="Vulkan\ComputePipeline.cs" />
     <Compile Include="Vulkan\DescriptorPool.cs" />
     <Compile Include="Vulkan\DescriptorSet.cs" />
     <Compile Include="Vulkan\DescriptorSetLayout.cs" />
@@ -64,6 +65,7 @@
     <Compile Include="Vulkan\Extension.cs" />
     <Compile Include="Vulkan\Fence.cs" />
     <Compile Include="Vulkan\Framebuffer.cs" />
+    <Compile Include="Vulkan\GraphicsPipeline.cs" />
     <Compile Include="Vulkan\Image.cs" />
     <Compile Include="Vulkan\ImageView.cs" />
     <Compile Include="Vulkan\Instance.cs" />
