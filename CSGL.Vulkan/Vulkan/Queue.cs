@@ -31,6 +31,37 @@ namespace CSGL.Vulkan {
         public List<VkResult> results;
     }
 
+    public class SparseMemoryBind {
+        public ulong resourceOffset;
+        public ulong size;
+        public DeviceMemory memory;
+        public ulong memoryOffset;
+        public VkSparseMemoryBindFlags flags;
+    }
+
+    public partial class SparseBufferMemoryBindInfo {
+        public Buffer buffer;
+        public List<SparseMemoryBind> binds;
+    }
+
+    public partial class SparseImageOpaqueMemoryBindInfo {
+        public Image image;
+        public List<SparseMemoryBind> binds;
+    }
+
+    public partial class SparseImageMemoryBindInfo {
+        public Image image;
+        public List<SparseMemoryBind> binds;
+    }
+
+    public class BindSparseInfo {
+        public List<Semaphore> waitSemaphores;
+        public List<SparseBufferMemoryBindInfo> bufferBinds;
+        public List<SparseImageOpaqueMemoryBindInfo> imageOpaqueBinds;
+        public List<SparseImageMemoryBindInfo> imageBinds;
+        public List<Semaphore> signalSemaphores;
+    }
+
     public class Queue {
         VkQueue queue;
 
@@ -172,6 +203,126 @@ namespace CSGL.Vulkan {
                 }
                 
                 return result;
+            }
+        }
+
+        VkSparseMemoryBind Marshal(SparseMemoryBind bind) {
+            var result = new VkSparseMemoryBind();
+            result.resourceOffset = bind.resourceOffset;
+            result.size = bind.size;
+            result.memory = bind.memory.Native;
+            result.memoryOffset = bind.memoryOffset;
+            result.flags = bind.flags;
+
+            return result;
+    }
+
+        public VkResult BindSparse(List<BindSparseInfo> bindInfo, Fence fence) {
+            VkFence fenceNative = VkFence.Null;
+            if (fence != null) {
+                fenceNative = fence.Native;
+            }
+
+            if (bindInfo == null || bindInfo.Count == 0) {
+                return Device.Commands.queueBindSparse(queue, 0, IntPtr.Zero, fenceNative);
+            }
+
+            unsafe
+            {
+                int totalWaitSemaphores = 0;
+                int totalSignalSemaphores = 0;
+                int totalMemoryBinds = 0;
+
+                for (int i = 0; i < bindInfo.Count; i++) {
+                    var info = bindInfo[i];
+                    if (info.waitSemaphores != null) totalWaitSemaphores += info.waitSemaphores.Count;
+                    if (info.signalSemaphores != null) totalSignalSemaphores += info.signalSemaphores.Count;
+
+                    for (int j = 0; j < info.bufferBinds.Count; j++) {
+                        totalMemoryBinds += info.bufferBinds[j].binds.Count;
+                    }
+
+                    for (int j = 0; j < info.imageOpaqueBinds.Count; j++) {
+                        totalMemoryBinds += info.imageOpaqueBinds[j].binds.Count;
+                    }
+
+                    for (int j = 0; j < info.imageBinds.Count; j++) {
+                        totalMemoryBinds += info.imageBinds[j].binds.Count;
+                    }
+                }
+
+                var waitSemaphoresNative = stackalloc VkSemaphore[totalWaitSemaphores];
+                var signalSemaphoresNative = stackalloc VkSemaphore[totalSignalSemaphores];
+                var memoryBindsNative = stackalloc VkSparseMemoryBind[totalMemoryBinds];
+
+                int waitSemaphoresIndex = 0;
+                int signalSemaphoresIndex = 0;
+                int memoryBindsIndex = 0;
+
+                var infosNative = stackalloc VkBindSparseInfo[bindInfo.Count];
+
+                for (int i = 0; i < bindInfo.Count; i++) {
+                    var info = infosNative[i];
+                    info.sType = VkStructureType.BindSparseInfo;
+
+                    if (bindInfo[i].waitSemaphores != null) {
+                        int waitCount = bindInfo[i].waitSemaphores.Count;
+                        Interop.Marshal<VkSemaphore, Semaphore>(bindInfo[i].waitSemaphores, &waitSemaphoresNative[waitSemaphoresIndex]);
+                        
+                        info.waitSemaphoreCount = (uint)waitCount;
+                        info.pWaitSemaphores = (IntPtr)(&waitSemaphoresNative[waitSemaphoresIndex]);    //get address from index
+                        waitSemaphoresIndex += waitCount;  //increment index
+                    }
+
+                    if (bindInfo[i].signalSemaphores != null) {
+                        int signalCount = bindInfo[i].signalSemaphores.Count;
+                        Interop.Marshal<VkSemaphore, Semaphore>(bindInfo[i].signalSemaphores, &signalSemaphoresNative[signalSemaphoresIndex]);
+
+                        info.signalSemaphoreCount = (uint)bindInfo[i].signalSemaphores.Count;
+                        info.pSignalSemaphores = (IntPtr)(&signalSemaphoresNative[signalSemaphoresIndex]);  //get address from index
+                        signalSemaphoresIndex += bindInfo[i].signalSemaphores.Count;  //increment index
+                    }
+
+                    if (bindInfo[i].bufferBinds != null) {
+                        for (int j = 0; j < bindInfo[i].bufferBinds.Count; j++) {
+                            var bufferBind = bindInfo[i].bufferBinds[j];
+
+                            for (int k = 0; k < bufferBind.binds.Count; k++) {
+                                var bind = bufferBind.binds[k];
+                                memoryBindsNative[memoryBindsIndex] = Marshal(bind);
+                                memoryBindsIndex++;
+                            }
+                        }
+                    }
+
+                    if (bindInfo[i].imageOpaqueBinds != null) {
+                        for (int j = 0; j < bindInfo[i].imageOpaqueBinds.Count; j++) {
+                            var imageOpaqueBind = bindInfo[i].imageOpaqueBinds[j];
+
+                            for (int k = 0; k < imageOpaqueBind.binds.Count; k++) {
+                                var bind = imageOpaqueBind.binds[k];
+                                memoryBindsNative[memoryBindsIndex] = Marshal(bind);
+                                memoryBindsIndex++;
+                            }
+                        }
+                    }
+
+                    if (bindInfo[i].imageBinds != null) {
+                        for (int j = 0; j < bindInfo[i].imageBinds.Count; j++) {
+                            var imageBind = bindInfo[i].imageBinds[j];
+
+                            for (int k = 0; k < imageBind.binds.Count; k++) {
+                                var bind = imageBind.binds[k];
+                                memoryBindsNative[memoryBindsIndex] = Marshal(bind);
+                                memoryBindsIndex++;
+                            }
+                        }
+                    }
+
+                    infosNative[i] = info;
+                }
+
+                return Device.Commands.queueBindSparse(queue, (uint)bindInfo.Count, (IntPtr)infosNative, fenceNative);
             }
         }
     }
