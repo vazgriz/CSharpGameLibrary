@@ -161,9 +161,7 @@ namespace CSGL.Vulkan {
                     infosNative[i] = info;
                 }
 
-                var result = Device.Commands.queueSubmit(queue, (uint)infos.Count, (IntPtr)infosNative, fenceNative);
-
-                return result;
+                return Device.Commands.queueSubmit(queue, (uint)infos.Count, (IntPtr)infosNative, fenceNative);
             }
         }
 
