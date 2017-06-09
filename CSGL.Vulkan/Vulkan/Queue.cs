@@ -142,21 +142,18 @@ namespace CSGL.Vulkan {
                 var waitSemaphoresNative = stackalloc VkSemaphore[info.waitSemaphores.Count];
                 Interop.Marshal<VkSemaphore, Semaphore>(info.waitSemaphores, waitSemaphoresNative);
 
-                var swapchainsNative = stackalloc VkSwapchainKHR[info.swapchains.Count];
+                //swapchains, indices, and results must have the same length
+                int swapchainCount = info.swapchains.Count;
+
+                var swapchainsNative = stackalloc VkSwapchainKHR[swapchainCount];
                 Interop.Marshal<VkSwapchainKHR, Swapchain>(info.swapchains, swapchainsNative);
-                
-                int indicesCount = 0;
-                if (info.imageIndices != null) {
-                    indicesCount = info.imageIndices.Count;
-                }
-                uint* imageIndices = stackalloc uint[info.imageIndices.Count];
-                for (int i = 0; i < info.imageIndices.Count; i++) {
-                    imageIndices[i] = info.imageIndices[i];
-                }
+
+                uint* imageIndices = stackalloc uint[swapchainCount];
+                Interop.Copy(info.imageIndices, (IntPtr)imageIndices);
 
                 int resultsLength = 0;
-                if (info.results != null) {
-                    resultsLength = info.results.Count;
+                if (info.results != null) { //user may not request results
+                    resultsLength = swapchainCount;
                 }
                 var results = stackalloc int[resultsLength];
 
@@ -164,17 +161,16 @@ namespace CSGL.Vulkan {
                 infoNative.sType = VkStructureType.PresentInfoKhr;
                 infoNative.waitSemaphoreCount = (uint)info.waitSemaphores.Count;
                 infoNative.pWaitSemaphores = (IntPtr)waitSemaphoresNative;
-                infoNative.swapchainCount = (uint)info.swapchains.Count;
+                infoNative.swapchainCount = (uint)swapchainCount;
                 infoNative.pSwapchains = (IntPtr)swapchainsNative;
                 infoNative.pImageIndices = (IntPtr)imageIndices;
 
                 var result = Device.Commands.queuePresent(queue, ref infoNative);
                 
-                for (int i = 0; i < resultsLength; i++) {   //already determined if null
+                for (int i = 0; i < resultsLength; i++) {   //default resultsLength is 0, safe to iterate
                     info.results[i] = (VkResult)results[i];
                 }
                 
-
                 return result;
             }
         }
