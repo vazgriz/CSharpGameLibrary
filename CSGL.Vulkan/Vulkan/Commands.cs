@@ -13,6 +13,7 @@ namespace CSGL.Vulkan {
             public vkQueueSubmitDelegate queueSubmit;
             public vkQueuePresentKHRDelegate queuePresent;
             public vkQueueWaitIdleDelegate queueWaitIdle;
+            public vkQueueBindSparseDelegate queueBindSparse;
 
             public vkCreateSwapchainKHRDelegate createSwapchain;
             public vkDestroySwapchainKHRDelegate destroySwapchain;
