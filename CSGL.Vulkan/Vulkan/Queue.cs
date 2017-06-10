@@ -230,32 +230,53 @@ namespace CSGL.Vulkan {
                 int totalWaitSemaphores = 0;
                 int totalSignalSemaphores = 0;
                 int totalMemoryBinds = 0;
+                int totalBufferBinds = 0;
+                int totalImageOpaqueBinds = 0;
+                int totalImageBinds = 0;
 
                 for (int i = 0; i < bindInfo.Count; i++) {
                     var info = bindInfo[i];
                     if (info.waitSemaphores != null) totalWaitSemaphores += info.waitSemaphores.Count;
                     if (info.signalSemaphores != null) totalSignalSemaphores += info.signalSemaphores.Count;
 
-                    for (int j = 0; j < info.bufferBinds.Count; j++) {
-                        totalMemoryBinds += info.bufferBinds[j].binds.Count;
+                    if (info.bufferBinds != null) {
+                        totalBufferBinds += info.bufferBinds.Count;
+
+                        for (int j = 0; j < info.bufferBinds.Count; j++) {
+                            totalMemoryBinds += info.bufferBinds[j].binds.Count;
+                        }
                     }
 
-                    for (int j = 0; j < info.imageOpaqueBinds.Count; j++) {
-                        totalMemoryBinds += info.imageOpaqueBinds[j].binds.Count;
+                    if (info.imageOpaqueBinds != null) {
+                        totalImageOpaqueBinds += info.imageOpaqueBinds.Count;
+
+                        for (int j = 0; j < info.imageOpaqueBinds.Count; j++) {
+                            totalMemoryBinds += info.imageOpaqueBinds[j].binds.Count;
+                        }
                     }
 
-                    for (int j = 0; j < info.imageBinds.Count; j++) {
-                        totalMemoryBinds += info.imageBinds[j].binds.Count;
+                    if (info.imageBinds != null) {
+                        totalImageBinds += info.imageBinds.Count;
+
+                        for (int j = 0; j < info.imageBinds.Count; j++) {
+                            totalMemoryBinds += info.imageBinds[j].binds.Count;
+                        }
                     }
                 }
 
                 var waitSemaphoresNative = stackalloc VkSemaphore[totalWaitSemaphores];
                 var signalSemaphoresNative = stackalloc VkSemaphore[totalSignalSemaphores];
                 var memoryBindsNative = stackalloc VkSparseMemoryBind[totalMemoryBinds];
+                var bufferBindsNative = stackalloc VkSparseBufferMemoryBindInfo[totalBufferBinds];
+                var imageOpaqueBindsNative = stackalloc VkSparseImageOpaqueMemoryBindInfo[totalImageOpaqueBinds];
+                var imageBindsNative = stackalloc VkSparseImageMemoryBindInfo[totalImageBinds];
 
                 int waitSemaphoresIndex = 0;
                 int signalSemaphoresIndex = 0;
                 int memoryBindsIndex = 0;
+                int bufferBindIndex = 0;
+                int imageOpaqueBindIndex = 0;
+                int imageBindIndex = 0;
 
                 var infosNative = stackalloc VkBindSparseInfo[bindInfo.Count];
 
@@ -282,38 +303,68 @@ namespace CSGL.Vulkan {
                     }
 
                     if (bindInfo[i].bufferBinds != null) {
+                        info.bufferBindCount = (uint)bindInfo[i].bufferBinds.Count;
+                        info.pBufferBinds = (IntPtr)(&bufferBindsNative[bufferBindIndex]);
+
                         for (int j = 0; j < bindInfo[i].bufferBinds.Count; j++) {
                             var bufferBind = bindInfo[i].bufferBinds[j];
+                            var bufferBindNative = bufferBindsNative[bufferBindIndex];
+
+                            bufferBindNative.buffer = bufferBind.buffer.Native;
+                            bufferBindNative.bindCount = (uint)bufferBind.binds.Count;
+                            bufferBindNative.pBinds = (IntPtr)(&memoryBindsNative[memoryBindsIndex]);
 
                             for (int k = 0; k < bufferBind.binds.Count; k++) {
                                 var bind = bufferBind.binds[k];
                                 memoryBindsNative[memoryBindsIndex] = Marshal(bind);
                                 memoryBindsIndex++;
                             }
+
+                            bufferBindIndex++;
                         }
                     }
 
                     if (bindInfo[i].imageOpaqueBinds != null) {
+                        info.imageOpaqueBindCount = (uint)bindInfo[i].imageOpaqueBinds.Count;
+                        info.pImageOpaqueBinds = (IntPtr)(&imageOpaqueBindsNative[imageOpaqueBindIndex]);
+
                         for (int j = 0; j < bindInfo[i].imageOpaqueBinds.Count; j++) {
                             var imageOpaqueBind = bindInfo[i].imageOpaqueBinds[j];
+                            var imageOpaqueBindNative = imageOpaqueBindsNative[imageOpaqueBindIndex];
+
+                            imageOpaqueBindNative.image = imageOpaqueBind.image.Native;
+                            imageOpaqueBindNative.bindCount = (uint)imageOpaqueBind.binds.Count;
+                            imageOpaqueBindNative.pBinds = (IntPtr)(&memoryBindsNative[memoryBindsIndex]);
 
                             for (int k = 0; k < imageOpaqueBind.binds.Count; k++) {
                                 var bind = imageOpaqueBind.binds[k];
                                 memoryBindsNative[memoryBindsIndex] = Marshal(bind);
                                 memoryBindsIndex++;
                             }
+
+                            imageOpaqueBindIndex++;
                         }
                     }
 
                     if (bindInfo[i].imageBinds != null) {
+                        info.imageBindCount = (uint)bindInfo[i].imageBinds.Count;
+                        info.pImageBinds = (IntPtr)(&imageBindsNative[imageBindIndex]);
+
                         for (int j = 0; j < bindInfo[i].imageBinds.Count; j++) {
                             var imageBind = bindInfo[i].imageBinds[j];
+                            var imageBindNative = imageBindsNative[imageBindIndex];
+
+                            imageBindNative.image = imageBind.image.Native;
+                            imageBindNative.bindCount = (uint)imageBind.binds.Count;
+                            imageBindNative.pBinds = (IntPtr)(&memoryBindsNative[memoryBindsIndex]);
 
                             for (int k = 0; k < imageBind.binds.Count; k++) {
                                 var bind = imageBind.binds[k];
                                 memoryBindsNative[memoryBindsIndex] = Marshal(bind);
                                 memoryBindsIndex++;
                             }
+
+                            imageBindIndex++;
                         }
                     }
 
