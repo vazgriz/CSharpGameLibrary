@@ -39,6 +39,15 @@ namespace CSGL.Vulkan {
         public VkSparseMemoryBindFlags flags;
     }
 
+    public partial class SparseImageMemoryBind {
+        public VkImageSubresource subresource;
+        public VkOffset3D offset;
+        public VkExtent3D extent;
+        public DeviceMemory memory;
+        public ulong memoryOffset;
+        public VkSparseMemoryBindFlags flags;
+    }
+
     public partial class SparseBufferMemoryBindInfo {
         public Buffer buffer;
         public List<SparseMemoryBind> binds;
@@ -51,7 +60,7 @@ namespace CSGL.Vulkan {
 
     public partial class SparseImageMemoryBindInfo {
         public Image image;
-        public List<SparseMemoryBind> binds;
+        public List<SparseImageMemoryBind> binds;
     }
 
     public class BindSparseInfo {
@@ -213,7 +222,19 @@ namespace CSGL.Vulkan {
             result.flags = bind.flags;
 
             return result;
-    }
+        }
+
+        VkSparseImageMemoryBind MarshalImage(SparseImageMemoryBind bind) {
+            var result = new VkSparseImageMemoryBind();
+            result.subresource = bind.subresource;
+            result.offset = bind.offset;
+            result.extent = bind.extent;
+            result.memory = bind.memory.Native;
+            result.memoryOffset = bind.memoryOffset;
+            result.flags = bind.flags;
+
+            return result;
+        }
 
         public VkResult BindSparse(List<BindSparseInfo> bindInfo, Fence fence) {
             VkFence fenceNative = VkFence.Null;
@@ -229,10 +250,11 @@ namespace CSGL.Vulkan {
             {
                 int totalWaitSemaphores = 0;
                 int totalSignalSemaphores = 0;
-                int totalMemoryBinds = 0;
                 int totalBufferBinds = 0;
                 int totalImageOpaqueBinds = 0;
                 int totalImageBinds = 0;
+                int totalMemoryBinds = 0;
+                int totalImageMemoryBinds = 0;
 
                 for (int i = 0; i < bindInfo.Count; i++) {
                     var info = bindInfo[i];
@@ -259,24 +281,26 @@ namespace CSGL.Vulkan {
                         totalImageBinds += info.imageBinds.Count;
 
                         for (int j = 0; j < info.imageBinds.Count; j++) {
-                            totalMemoryBinds += info.imageBinds[j].binds.Count;
+                            totalImageMemoryBinds += info.imageBinds[j].binds.Count;
                         }
                     }
                 }
 
                 var waitSemaphoresNative = stackalloc VkSemaphore[totalWaitSemaphores];
                 var signalSemaphoresNative = stackalloc VkSemaphore[totalSignalSemaphores];
-                var memoryBindsNative = stackalloc VkSparseMemoryBind[totalMemoryBinds];
                 var bufferBindsNative = stackalloc VkSparseBufferMemoryBindInfo[totalBufferBinds];
                 var imageOpaqueBindsNative = stackalloc VkSparseImageOpaqueMemoryBindInfo[totalImageOpaqueBinds];
                 var imageBindsNative = stackalloc VkSparseImageMemoryBindInfo[totalImageBinds];
+                var memoryBindsNative = stackalloc VkSparseMemoryBind[totalMemoryBinds];
+                var imageMemoryBindsNative = stackalloc VkSparseImageMemoryBind[totalImageMemoryBinds];
 
                 int waitSemaphoresIndex = 0;
                 int signalSemaphoresIndex = 0;
-                int memoryBindsIndex = 0;
                 int bufferBindIndex = 0;
                 int imageOpaqueBindIndex = 0;
                 int imageBindIndex = 0;
+                int memoryBindIndex = 0;
+                int imageMemoryBindIndex = 0;
 
                 var infosNative = stackalloc VkBindSparseInfo[bindInfo.Count];
 
@@ -308,18 +332,19 @@ namespace CSGL.Vulkan {
 
                         for (int j = 0; j < bindInfo[i].bufferBinds.Count; j++) {
                             var bufferBind = bindInfo[i].bufferBinds[j];
-                            var bufferBindNative = bufferBindsNative[bufferBindIndex];
+                            var bufferBindNative = new VkSparseBufferMemoryBindInfo();
 
                             bufferBindNative.buffer = bufferBind.buffer.Native;
                             bufferBindNative.bindCount = (uint)bufferBind.binds.Count;
-                            bufferBindNative.pBinds = (IntPtr)(&memoryBindsNative[memoryBindsIndex]);
+                            bufferBindNative.pBinds = (IntPtr)(&memoryBindsNative[memoryBindIndex]);
 
                             for (int k = 0; k < bufferBind.binds.Count; k++) {
                                 var bind = bufferBind.binds[k];
-                                memoryBindsNative[memoryBindsIndex] = Marshal(bind);
-                                memoryBindsIndex++;
+                                memoryBindsNative[memoryBindIndex] = Marshal(bind);
+                                memoryBindIndex++;
                             }
 
+                            bufferBindsNative[bufferBindIndex] = bufferBindNative;
                             bufferBindIndex++;
                         }
                     }
@@ -330,18 +355,19 @@ namespace CSGL.Vulkan {
 
                         for (int j = 0; j < bindInfo[i].imageOpaqueBinds.Count; j++) {
                             var imageOpaqueBind = bindInfo[i].imageOpaqueBinds[j];
-                            var imageOpaqueBindNative = imageOpaqueBindsNative[imageOpaqueBindIndex];
+                            var imageOpaqueBindNative = new VkSparseImageOpaqueMemoryBindInfo();
 
                             imageOpaqueBindNative.image = imageOpaqueBind.image.Native;
                             imageOpaqueBindNative.bindCount = (uint)imageOpaqueBind.binds.Count;
-                            imageOpaqueBindNative.pBinds = (IntPtr)(&memoryBindsNative[memoryBindsIndex]);
+                            imageOpaqueBindNative.pBinds = (IntPtr)(&memoryBindsNative[memoryBindIndex]);
 
                             for (int k = 0; k < imageOpaqueBind.binds.Count; k++) {
                                 var bind = imageOpaqueBind.binds[k];
-                                memoryBindsNative[memoryBindsIndex] = Marshal(bind);
-                                memoryBindsIndex++;
+                                memoryBindsNative[memoryBindIndex] = Marshal(bind);
+                                memoryBindIndex++;
                             }
 
+                            imageOpaqueBindsNative[bufferBindIndex] = imageOpaqueBindNative;
                             imageOpaqueBindIndex++;
                         }
                     }
@@ -352,18 +378,19 @@ namespace CSGL.Vulkan {
 
                         for (int j = 0; j < bindInfo[i].imageBinds.Count; j++) {
                             var imageBind = bindInfo[i].imageBinds[j];
-                            var imageBindNative = imageBindsNative[imageBindIndex];
+                            var imageBindNative = new VkSparseImageMemoryBindInfo();
 
                             imageBindNative.image = imageBind.image.Native;
                             imageBindNative.bindCount = (uint)imageBind.binds.Count;
-                            imageBindNative.pBinds = (IntPtr)(&memoryBindsNative[memoryBindsIndex]);
+                            imageBindNative.pBinds = (IntPtr)(&imageMemoryBindsNative[imageMemoryBindIndex]);
 
                             for (int k = 0; k < imageBind.binds.Count; k++) {
                                 var bind = imageBind.binds[k];
-                                memoryBindsNative[memoryBindsIndex] = Marshal(bind);
-                                memoryBindsIndex++;
+                                imageMemoryBindsNative[memoryBindIndex] = MarshalImage(bind);
+                                imageMemoryBindIndex++;
                             }
 
+                            imageBindsNative[bufferBindIndex] = imageBindNative;
                             imageBindIndex++;
                         }
                     }
