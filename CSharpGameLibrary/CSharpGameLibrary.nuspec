@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>CSharpGameLibrary</id>
+    <version>0.1.0</version>
+    <title>C# Game Library</title>
+    <authors>Ryan Vazquez</authors>
+    <owners>vazgriz</owners>
+    <licenseUrl>https://github.com/vazgriz/CSharpGameLibrary/blob/master/license.txt</licenseUrl>
+    <projectUrl>https://github.com/vazgriz/CSharpGameLibrary</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>C# bindings for GLFW</description>
+    <releaseNotes>Initial alpha release</releaseNotes>
+    <copyright>Copyright 2017</copyright>
+    <tags>GLFW</tags>
+  </metadata>
+</package>
