@@ -180,7 +180,15 @@ namespace CSGL.GLFW {
 
         public event Action<string[]> OnPathDrop = delegate { };
 
+        protected Window() {
+            //empty constructor so derived classes can manually call CreateWindow
+        }
+
         public Window(int width, int height, string title, Monitor monitor = null, Window share = null) {
+            CreateWindow(width, height, title, monitor, share);
+        }
+
+        protected void CreateWindow(int width, int height, string title, Monitor monitor, Window share) {
             var monitorNative = MonitorPtr.Null;
             if (monitor != null) monitorNative = monitor.Native;
 
