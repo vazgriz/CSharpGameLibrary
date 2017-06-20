@@ -3,3 +3,6 @@ Bindings for OpenGL, Vulkan, [GLFW](https://github.com/glfw/glfw), and some of S
 
 # Samples
 Samples for this library are available at https://github.com/vazgriz/CSGL_Samples
+
+# Installation
+This package is [available on NuGet](https://www.nuget.org/packages/CSharpGameLibrary/).
