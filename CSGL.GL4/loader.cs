@@ -3,10 +3,10 @@ using System;
 using System.Reflection;
 using System.Runtime.InteropServices;
 
-namespace CSGL.OpenGL.GL4_5_core {
+namespace CSGL.GL4 {
     public static partial class GL {
         public static void Load() {
-            Type type = typeof(CSGL.OpenGL.Unmanaged.GL);
+            Type type = typeof(CSGL.GL4.Unmanaged.GL);
             foreach (var name in names) {
                 FieldInfo field = type.GetField(name);
                 IntPtr ptr = GLFW.GLFW.GetProcAddress(name);

@@ -44,7 +44,6 @@
     <Compile Include="GLsync.cs" />
     <Compile Include="loader.cs" />
     <Compile Include="managed.cs" />
-    <Compile Include="Managed\MappedBuffer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="wrapper.cs" />
   </ItemGroup>
