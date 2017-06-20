@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace CSGL.Vulkan {
+namespace CSGL.Vulkan1 {
     public class Event : IDisposable, INative<VkEvent> {
         VkEvent _event;
         bool disposed;

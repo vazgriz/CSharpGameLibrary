@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
-using CSGL.Vulkan.Unmanaged;
+using CSGL.Vulkan1.Unmanaged;
 
-namespace CSGL.Vulkan {
+namespace CSGL.Vulkan1 {
     public class ApplicationInfo {
         public VkVersion apiVersion;
         public VkVersion engineVersion;

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace CSGL.Vulkan {
+namespace CSGL.Vulkan1 {
     public class PipelineLayoutCreateInfo {
         public List<DescriptorSetLayout> setLayouts;
         public List<VkPushConstantRange> pushConstantRanges;

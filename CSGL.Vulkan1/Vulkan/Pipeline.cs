@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 
-using CSGL.Vulkan.Unmanaged;
+using CSGL.Vulkan1.Unmanaged;
 
-namespace CSGL.Vulkan {
+namespace CSGL.Vulkan1 {
     public abstract class Pipeline : IDisposable, INative<VkPipeline> {
         protected VkPipeline pipeline;
         bool disposed = false;

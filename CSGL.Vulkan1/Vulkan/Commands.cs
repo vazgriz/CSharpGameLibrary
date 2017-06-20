@@ -2,9 +2,9 @@
 using System.Reflection;
 using System.Runtime.InteropServices;
 
-using CSGL.Vulkan.Unmanaged;
+using CSGL.Vulkan1.Unmanaged;
 
-namespace CSGL.Vulkan {
+namespace CSGL.Vulkan1 {
     public partial class Device {
         public class DeviceCommands {
             public vkDeviceWaitIdleDelegate waitDeviceIdle;

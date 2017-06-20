@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.IO;
 
-using CSGL.Vulkan.Unmanaged;
+using CSGL.Vulkan1.Unmanaged;
 
-namespace CSGL.Vulkan {
+namespace CSGL.Vulkan1 {
     public class ShaderModuleCreateInfo {
         public byte[] Data { get; set; }
 

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Text;
 
-namespace CSGL.Vulkan {
+namespace CSGL.Vulkan1 {
     public struct VkVersion {
         uint version;
 

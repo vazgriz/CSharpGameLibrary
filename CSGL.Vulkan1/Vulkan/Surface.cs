@@ -3,9 +3,9 @@ using System.Collections.Generic;
 
 using CSGL.GLFW;
 using CSGL.GLFW.Unmanaged;
-using CSGL.Vulkan.Unmanaged;
+using CSGL.Vulkan1.Unmanaged;
 
-namespace CSGL.Vulkan {
+namespace CSGL.Vulkan1 {
     public class Surface : IDisposable, INative<VkSurfaceKHR> {
         VkSurfaceKHR surface;
         bool disposed = false;

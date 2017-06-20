@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CSGL.Vulkan {
+namespace CSGL.Vulkan1 {
     public class Layer {
         public string Name { get; private set; }
         public string Description { get; private set; }

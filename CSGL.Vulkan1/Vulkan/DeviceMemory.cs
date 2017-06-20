@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace CSGL.Vulkan {
+namespace CSGL.Vulkan1 {
     public class MemoryAllocateInfo {
         public ulong allocationSize;
         public uint memoryTypeIndex;

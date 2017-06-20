@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace CSGL.Vulkan {
+namespace CSGL.Vulkan1 {
     public class RenderPassCreateInfo {
         public List<AttachmentDescription> attachments;
         public List<SubpassDescription> subpasses;

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace CSGL.Vulkan {
+namespace CSGL.Vulkan1 {
     public class DescriptorSetLayoutCreateInfo {
         public List<VkDescriptorSetLayoutBinding> bindings;
     }

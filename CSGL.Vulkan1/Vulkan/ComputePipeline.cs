@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CSGL.Vulkan {
+namespace CSGL.Vulkan1 {
     public class ComputePipelineCreateInfo {
         public VkPipelineCreateFlags flags;
         public PipelineShaderStageCreateInfo stage;

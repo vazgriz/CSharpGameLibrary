@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 
 using CSGL;
-using CSGL.Vulkan;
-using CSGL.Vulkan.Unmanaged;
+using CSGL.Vulkan1;
+using CSGL.Vulkan1.Unmanaged;
 
-namespace CSGL.Vulkan {
+namespace CSGL.Vulkan1 {
     public class SwapchainCreateInfo {
         public Surface surface;
         public uint minImageCount;
