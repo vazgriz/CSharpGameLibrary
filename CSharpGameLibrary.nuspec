@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
+  <metadata>
+    <id>CSharpGameLibrary</id>
+    <version>0.1.0-alpha</version>
+    <title>C# Game Library</title>
+    <authors>Ryan Vazquez</authors>
+    <owners>vazgriz</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <licenseUrl>https://github.com/vazgriz/CSharpGameLibrary/blob/master/license.txt</licenseUrl>
+    <projectUrl>https://github.com/vazgriz/CSharpGameLibrary</projectUrl>
+    <description>C# bindings for GLFW, OpenGL, and Vulkan</description>
+    <releaseNotes>Initial alpha release</releaseNotes>
+    <copyright>Copyright 2017</copyright>
+    <tags>glfw opengl vulkan</tags>
+  </metadata>
+  <files>
+    <file src="../CSGL.Vulkan1/bin/release/CSGL.Vulkan1.dll" target="lib/net452" />
+    <file src="../CSGL.GL4/bin/release/CSGL.GL4.dll" target="lib/net452" />
+    <file src="../CSGL.STB/bin/release/CSGL.STB.dll" target="lib/net452" />
+  </files>
+</package>
