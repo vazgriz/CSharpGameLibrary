@@ -42,6 +42,7 @@
     <Compile Include="delegates.cs" />
     <Compile Include="enums.cs" />
     <Compile Include="GLsync.cs" />
+    <Compile Include="GLWindow.cs" />
     <Compile Include="loader.cs" />
     <Compile Include="managed.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
