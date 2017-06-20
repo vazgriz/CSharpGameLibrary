@@ -7,7 +7,7 @@
     <ProjectGuid>{F3E51928-2259-4AED-9581-E7D4C49EA957}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>CSGL</RootNamespace>
+    <RootNamespace>CSGL.Vulkan1</RootNamespace>
     <AssemblyName>CSGL.Vulkan1</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -48,46 +48,46 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Vulkan\Buffer.cs" />
-    <Compile Include="Vulkan\BufferView.cs" />
-    <Compile Include="Vulkan\CommandBuffer.cs" />
-    <Compile Include="Vulkan\CommandPool.cs" />
-    <Compile Include="Vulkan\Commands.cs" />
-    <Compile Include="Vulkan\Command_Recording.cs" />
-    <Compile Include="Vulkan\ComputePipeline.cs" />
-    <Compile Include="Vulkan\DescriptorPool.cs" />
-    <Compile Include="Vulkan\DescriptorSet.cs" />
-    <Compile Include="Vulkan\DescriptorSetLayout.cs" />
-    <Compile Include="Vulkan\Device.cs" />
-    <Compile Include="Vulkan\DeviceMemory.cs" />
-    <Compile Include="Vulkan\enums.cs" />
-    <Compile Include="Vulkan\Event.cs" />
-    <Compile Include="Vulkan\Extension.cs" />
-    <Compile Include="Vulkan\Fence.cs" />
-    <Compile Include="Vulkan\Framebuffer.cs" />
-    <Compile Include="Vulkan\GraphicsPipeline.cs" />
-    <Compile Include="Vulkan\Image.cs" />
-    <Compile Include="Vulkan\ImageView.cs" />
-    <Compile Include="Vulkan\Instance.cs" />
-    <Compile Include="Vulkan\Layer.cs" />
-    <Compile Include="Vulkan\PhysicalDevice.cs" />
-    <Compile Include="Vulkan\Pipeline.cs" />
-    <Compile Include="Vulkan\PipelineCache.cs" />
-    <Compile Include="Vulkan\PipelineLayout.cs" />
-    <Compile Include="Vulkan\Pipeline_Creation.cs" />
-    <Compile Include="Vulkan\QueryPool.cs" />
-    <Compile Include="Vulkan\Queue.cs" />
-    <Compile Include="Vulkan\RenderPass.cs" />
-    <Compile Include="Vulkan\Sampler.cs" />
-    <Compile Include="Vulkan\Semaphore.cs" />
-    <Compile Include="Vulkan\ShaderModule.cs" />
-    <Compile Include="Vulkan\structs.cs" />
-    <Compile Include="Vulkan\Surface.cs" />
-    <Compile Include="Vulkan\Swapchain.cs" />
-    <Compile Include="Vulkan\Unmanaged\commands.cs" />
-    <Compile Include="Vulkan\Unmanaged\delegates.cs" />
-    <Compile Include="Vulkan\VkVersion.cs" />
-    <Compile Include="Vulkan\Vulkan.cs" />
+    <Compile Include="Buffer.cs" />
+    <Compile Include="BufferView.cs" />
+    <Compile Include="CommandBuffer.cs" />
+    <Compile Include="CommandPool.cs" />
+    <Compile Include="Commands.cs" />
+    <Compile Include="Command_Recording.cs" />
+    <Compile Include="ComputePipeline.cs" />
+    <Compile Include="DescriptorPool.cs" />
+    <Compile Include="DescriptorSet.cs" />
+    <Compile Include="DescriptorSetLayout.cs" />
+    <Compile Include="Device.cs" />
+    <Compile Include="DeviceMemory.cs" />
+    <Compile Include="enums.cs" />
+    <Compile Include="Event.cs" />
+    <Compile Include="Extension.cs" />
+    <Compile Include="Fence.cs" />
+    <Compile Include="Framebuffer.cs" />
+    <Compile Include="GraphicsPipeline.cs" />
+    <Compile Include="Image.cs" />
+    <Compile Include="ImageView.cs" />
+    <Compile Include="Instance.cs" />
+    <Compile Include="Layer.cs" />
+    <Compile Include="PhysicalDevice.cs" />
+    <Compile Include="Pipeline.cs" />
+    <Compile Include="PipelineCache.cs" />
+    <Compile Include="PipelineLayout.cs" />
+    <Compile Include="Pipeline_Creation.cs" />
+    <Compile Include="QueryPool.cs" />
+    <Compile Include="Queue.cs" />
+    <Compile Include="RenderPass.cs" />
+    <Compile Include="Sampler.cs" />
+    <Compile Include="Semaphore.cs" />
+    <Compile Include="ShaderModule.cs" />
+    <Compile Include="structs.cs" />
+    <Compile Include="Surface.cs" />
+    <Compile Include="Swapchain.cs" />
+    <Compile Include="Unmanaged\commands.cs" />
+    <Compile Include="Unmanaged\delegates.cs" />
+    <Compile Include="VkVersion.cs" />
+    <Compile Include="Vulkan.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\CSharpGameLibrary\CSharpGameLibrary.csproj">
