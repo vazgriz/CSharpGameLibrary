@@ -37,6 +37,22 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="CSGL.GL4, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\CSharpGameLibrary.0.1.1-alpha\lib\net452\CSGL.GL4.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="CSGL.STB, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\CSharpGameLibrary.0.1.1-alpha\lib\net452\CSGL.STB.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="CSGL.Vulkan1, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\CSharpGameLibrary.0.1.1-alpha\lib\net452\CSGL.Vulkan1.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="CSharpGameLibrary, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\CSharpGameLibrary.0.1.1-alpha\lib\net452\CSharpGameLibrary.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="SharpFont, Version=4.0.1.200, Culture=neutral, PublicKeyToken=48add4c483071cdf, processorArchitecture=MSIL">
       <HintPath>..\packages\SharpFont.4.0.1\lib\net45\SharpFont.dll</HintPath>
       <Private>True</Private>
@@ -73,12 +89,6 @@
     <Compile Include="SignedDistance.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\CSharpGameLibrary\CSharpGameLibrary.csproj">
-      <Project>{d7103402-1c84-4921-af9c-38d9a6231e7a}</Project>
-      <Name>CSharpGameLibrary</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
@@ -88,7 +98,9 @@
     </PropertyGroup>
     <Error Condition="!Exists('..\packages\SharpFont.Dependencies.2.6\build\SharpFont.Dependencies.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\SharpFont.Dependencies.2.6\build\SharpFont.Dependencies.props'))" />
     <Error Condition="!Exists('..\packages\SharpFont.4.0.1\build\SharpFont.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\SharpFont.4.0.1\build\SharpFont.props'))" />
+    <Error Condition="!Exists('..\packages\CSharpGameLibrary.0.1.1-alpha\build\CSharpGameLibrary.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\CSharpGameLibrary.0.1.1-alpha\build\CSharpGameLibrary.targets'))" />
   </Target>
+  <Import Project="..\packages\CSharpGameLibrary.0.1.1-alpha\build\CSharpGameLibrary.targets" Condition="Exists('..\packages\CSharpGameLibrary.0.1.1-alpha\build\CSharpGameLibrary.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
