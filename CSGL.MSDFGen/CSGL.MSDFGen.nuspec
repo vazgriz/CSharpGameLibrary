@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>CSGL.MSDFGen</id>
+    <version>0.1.0-alpha</version>
+    <title>MSDF Generator</title>
+    <authors>Ryan Vazquez, Viktor Chlumský</authors>
+    <owners>vazgriz</owners>
+    <licenseUrl>https://github.com/vazgriz/CSharpGameLibrary/blob/master/CSGL.MSDFGen/LICENSE.txt</licenseUrl>
+    <projectUrl>https://github.com/vazgriz/CSharpGameLibrary/tree/master/CSGL.MSDFGen</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Multi-channel signed distance field generator. This package is a port of the original MSDFGen by Viktor Chlumský.</description>
+    <releaseNotes>Initial alpha release</releaseNotes>
+    <copyright>Copyright 2017</copyright>
+    <tags>CSGL SDF MSDF</tags>
+  </metadata>
+</package>
