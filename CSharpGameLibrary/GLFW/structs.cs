@@ -2,7 +2,6 @@
 using System.Runtime.InteropServices;
 
 namespace CSGL.GLFW {
-    [StructLayout(LayoutKind.Sequential)]
     public struct VideoMode {
         public readonly int width;
         public readonly int height;
@@ -11,8 +10,7 @@ namespace CSGL.GLFW {
         public readonly int blueBits;
         public readonly int refreshRate;
     }
-
-    [StructLayout(LayoutKind.Sequential)]
+    
     public unsafe struct NativeGammaRamp {
         public ushort* red;
         public ushort* green;
@@ -56,8 +54,7 @@ namespace CSGL.GLFW {
             }
         }
     }
-
-    [StructLayout(LayoutKind.Sequential)]
+    
     public unsafe struct NativeImage {
         public int width;
         public int height;
