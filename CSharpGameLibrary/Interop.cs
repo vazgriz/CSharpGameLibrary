@@ -158,14 +158,7 @@ namespace CSGL {
         }
 
         public static void Copy<T>(List<T> source, IntPtr dest) where T : struct {
-            unsafe
-            {
-                int size = (int)SizeOf<T>();
-                for (int i = 0; i < source.Count; i++) {
-                    Unsafe.Write((void*)dest, source[i]);
-                    dest += size;
-                }
-            }
+            Copy(GetInternalArray(source), dest, source.Count);
         }
 
         public static void Copy<T>(T data, byte[] dest, int offset) where T : struct {
