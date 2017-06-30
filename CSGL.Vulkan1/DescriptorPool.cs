@@ -38,7 +38,7 @@ namespace CSGL.Vulkan1 {
             info.flags = mInfo.flags;
             info.maxSets = mInfo.maxSets;
 
-            var poolSizesMarshalled = new NativeArray<VkDescriptorPoolSize>(mInfo.poolSizes);
+            var poolSizesMarshalled = new MarshalledArray<VkDescriptorPoolSize>(mInfo.poolSizes);
             info.poolSizeCount = (uint)poolSizesMarshalled.Count;
             info.pPoolSizes = poolSizesMarshalled.Address;
 
