@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 using CSGL.Input;
 using CSGL.GLFW.Unmanaged;
+using CSGL.Graphics;
 using static CSGL.GLFW.Unmanaged.GLFW_native;
 
 namespace CSGL.GLFW {
@@ -219,7 +220,7 @@ namespace CSGL.GLFW {
             CheckError();
         }
 
-        public static void SetWindowIcon(WindowPtr window, Image[] images) {
+        public static void SetWindowIcon(WindowPtr window, Bitmap<Color4b>[] images) {
             unsafe
             {
                 if (images == null || images.Length == 0) {
@@ -228,10 +229,12 @@ namespace CSGL.GLFW {
                 }
 
                 NativeImage[] nimgs = new NativeImage[images.Length];
-                fixed (NativeImage* ptr = &nimgs[0]) {
+                fixed (NativeImage* ptr = nimgs) {
                     for (int i = 0; i < images.Length; i++) {
-                        fixed (byte* data = &images[i].data[0]) {
-                            nimgs[i] = new NativeImage(images[i].width, images[i].height, data);
+                        if (images[i] == null) throw new ArgumentNullException(string.Format("Index {0} of {1}", i, nameof(images)));
+
+                        fixed (Color4b* data = images[i].Data) {
+                            nimgs[i] = new NativeImage(images[i].Width, images[i].Height, (byte*)data);
                         }
                     }
                     glfwSetWindowIcon(window, images.Length, ptr);
@@ -444,11 +447,13 @@ namespace CSGL.GLFW {
             CheckError();
         }
 
-        public static Cursor CreateCursor(Image image, int xHotspot, int yHotspot) {
+        public static Cursor CreateCursor(Bitmap<Color4b> image, int xHotspot, int yHotspot) {
+            if (image == null) throw new ArgumentNullException(nameof(image));
+
             unsafe
             {
-                fixed (byte* data = image.data) {
-                    NativeImage nimg = new NativeImage(image.width, image.height, data);
+                fixed (Color4b* data = image.Data) {
+                    NativeImage nimg = new NativeImage(image.Width, image.Height, (byte*)data);
                     NativeImage* ptr = &nimg;
                     var result = glfwCreateCursor(ptr, xHotspot, yHotspot);
                     CheckError();

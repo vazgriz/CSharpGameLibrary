@@ -69,16 +69,4 @@ namespace CSGL.GLFW {
             this.data = data;
         }
     }
-
-    public struct Image {
-        public int width;
-        public int height;
-        public byte[] data;
-
-        public Image(int width, int height, byte[] data) {
-            this.width = width;
-            this.height = height;
-            this.data = data;
-        }
-    }
 }
