@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.InteropServices;
+using System.Collections.Generic;
 
 namespace CSGL {
     public class PinnedArray<T> : IDisposable where T : struct {
@@ -20,6 +21,14 @@ namespace CSGL {
             if (count < 0) throw new ArgumentOutOfRangeException(nameof(count), "Count must be positive");
             array = new T[count];
             this.count = count;
+            Init();
+        }
+
+        public PinnedArray(List<T> list) {
+            array = Interop.GetInternalArray(list);
+            if (array != null) {
+                count = list.Count;
+            }
             Init();
         }
 

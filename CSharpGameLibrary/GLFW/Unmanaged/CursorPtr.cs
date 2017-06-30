@@ -2,26 +2,26 @@
 using System.Runtime.InteropServices;
 
 namespace CSGL.GLFW.Unmanaged {
-    public struct MonitorPtr : IEquatable<MonitorPtr> {
+    public struct CursorPtr : IEquatable<CursorPtr> {
         internal IntPtr ptr;
 
-        public bool Equals(MonitorPtr other) {
+        public bool Equals(CursorPtr other) {
             return ptr == other.ptr;
         }
 
-        public static MonitorPtr Null { get; } = new MonitorPtr();
+        public static CursorPtr Null { get; } = new CursorPtr();
 
-        public static bool operator == (MonitorPtr a, MonitorPtr b) {
+        public static bool operator ==(CursorPtr a, CursorPtr b) {
             return a.Equals(b);
         }
 
-        public static bool operator !=(MonitorPtr a, MonitorPtr b) {
+        public static bool operator !=(CursorPtr a, CursorPtr b) {
             return !a.Equals(b);
         }
 
         public override bool Equals(object o) {
-            if (o is MonitorPtr) {
-                return (MonitorPtr)o == this;
+            if (o is CursorPtr) {
+                return (CursorPtr)o == this;
             }
             return false;
         }

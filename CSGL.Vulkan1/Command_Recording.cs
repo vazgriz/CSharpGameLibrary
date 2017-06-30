@@ -60,7 +60,7 @@ namespace CSGL.Vulkan1 {
             info.framebuffer = framebuffer.Native;
             info.renderArea = renderArea;
 
-            var clearValuesMarshalled = new NativeArray<VkClearValue>(clearValues);
+            var clearValuesMarshalled = new MarshalledArray<VkClearValue>(clearValues);
             info.clearValueCount = (uint)clearValuesMarshalled.Count;
             info.pClearValues = clearValuesMarshalled.Address;
 

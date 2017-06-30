@@ -1,8 +1,9 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 
 namespace CSGL {
-    public class DisposableList<T> : IDisposable where T : IDisposable {
+    public class DisposableList<T> : IDisposable, IList<T> where T : IDisposable {
         List<T> items;
         bool disposed;
 
@@ -18,6 +19,12 @@ namespace CSGL {
         public int Count {
             get {
                 return items.Count;
+            }
+        }
+
+        public bool IsReadOnly {
+            get {
+                return ((IList<T>)items).IsReadOnly;
             }
         }
 
@@ -52,6 +59,42 @@ namespace CSGL {
         public void Dispose() {
             Dispose(true);
             GC.SuppressFinalize(this);
+        }
+
+        public int IndexOf(T item) {
+            return items.IndexOf(item);
+        }
+
+        public void Insert(int index, T item) {
+            items.Insert(index, item);
+        }
+
+        public void RemoveAt(int index) {
+            items.RemoveAt(index);
+        }
+
+        public void Clear() {
+            items.Clear();
+        }
+
+        public bool Contains(T item) {
+            return items.Contains(item);
+        }
+
+        public void CopyTo(T[] array, int arrayIndex) {
+            items.CopyTo(array, arrayIndex);
+        }
+
+        public bool Remove(T item) {
+            return items.Remove(item);
+        }
+
+        public IEnumerator<T> GetEnumerator() {
+            return items.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator() {
+            return items.GetEnumerator();
         }
 
         void Dispose(bool disposing) {

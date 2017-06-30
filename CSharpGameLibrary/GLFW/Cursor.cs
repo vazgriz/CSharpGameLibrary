@@ -1,19 +1,42 @@
 ﻿using System;
-using System.Runtime.InteropServices;
+
+using CSGL.Graphics;
+using CSGL.GLFW.Unmanaged;
 
 namespace CSGL.GLFW {
-    [StructLayout(LayoutKind.Sequential)]
-    public struct Cursor : IEquatable<Cursor> {
-        internal IntPtr ptr;
+    public class Cursor : IDisposable, INative<CursorPtr> {
+        CursorPtr cursor;
+        bool disposed;
 
-        internal Cursor(IntPtr ptr) {
-            this.ptr = ptr;
+        public CursorPtr Native {
+            get {
+                return cursor;
+            }
         }
 
-        public bool Equals(Cursor other) {
-            return ptr == other.ptr;
+        public Cursor(Bitmap<Color4b> image, int xHotspot, int yHotspot) {
+            cursor = GLFW.CreateCursor(image, xHotspot, yHotspot);
         }
 
-        public bool IsNull { get { return ptr == IntPtr.Zero; } }
+        public Cursor(CursorShape shape) {
+            cursor = GLFW.CreateStandardCursor(shape);
+        }
+
+        public void Dispose() {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        void Dispose(bool disposing) {
+            if (disposed) return;
+
+            GLFW.DestroyCursor(cursor);
+
+            disposed = true;
+        }
+
+        ~Cursor() {
+            Dispose(false);
+        }
     }
 }

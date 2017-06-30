@@ -49,8 +49,9 @@ namespace CSGL {
             return result;
         }
 
-        class ListAccessor<T> {
+        static class ListAccessor<T> {
             //http://stackoverflow.com/a/17308019
+            //stores a dynamically created delegate to access the List's internal array, for each T
             public static Func<List<T>, T[]> accessor;
 
             static ListAccessor() {
@@ -157,14 +158,7 @@ namespace CSGL {
         }
 
         public static void Copy<T>(List<T> source, IntPtr dest) where T : struct {
-            unsafe
-            {
-                int size = (int)SizeOf<T>();
-                for (int i = 0; i < source.Count; i++) {
-                    Unsafe.Write((void*)dest, source[i]);
-                    dest += size;
-                }
-            }
+            Copy(GetInternalArray(source), dest, source.Count);
         }
 
         public static void Copy<T>(T data, byte[] dest, int offset) where T : struct {
