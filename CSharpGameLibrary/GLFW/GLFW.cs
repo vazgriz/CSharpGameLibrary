@@ -462,7 +462,7 @@ namespace CSGL.GLFW {
             }
         }
 
-        public static CursorPtr CreateCursor(CursorShape shape) {
+        public static CursorPtr CreateStandardCursor(CursorShape shape) {
             var result = glfwCreateStandardCursor(shape);
             CheckError();
             return result;
