@@ -14,6 +14,14 @@ namespace CSGL.Graphics {
             Data = new T[width * height];
         }
 
+        public Bitmap(int width, int height, T[] data) {
+            if (data.Length != width * height) throw new ArgumentException("data.Length must equal (width * height)");
+
+            Width = width;
+            Height = height;
+            Data = data;
+        }
+
         public int GetIndex(int x, int y) {
             return x + y * Width;
         }
