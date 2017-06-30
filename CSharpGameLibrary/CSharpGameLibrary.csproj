@@ -50,6 +50,7 @@
   <ItemGroup>
     <Compile Include="DisposableList.cs" />
     <Compile Include="GLFW\Cursor.cs" />
+    <Compile Include="GLFW\Unmanaged\CursorPtr.cs" />
     <Compile Include="GLFW\enums.cs" />
     <Compile Include="GLFW\GammaRamp.cs" />
     <Compile Include="GLFW\GLFWException.cs" />

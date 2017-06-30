@@ -447,7 +447,7 @@ namespace CSGL.GLFW {
             CheckError();
         }
 
-        public static Cursor CreateCursor(Bitmap<Color4b> image, int xHotspot, int yHotspot) {
+        public static CursorPtr CreateCursor(Bitmap<Color4b> image, int xHotspot, int yHotspot) {
             if (image == null) throw new ArgumentNullException(nameof(image));
 
             unsafe
@@ -462,18 +462,18 @@ namespace CSGL.GLFW {
             }
         }
 
-        public static Cursor CreateCursor(CursorShape shape) {
+        public static CursorPtr CreateCursor(CursorShape shape) {
             var result = glfwCreateStandardCursor(shape);
             CheckError();
             return result;
         }
 
-        public static void DestroyCursor(Cursor cursor) {
+        public static void DestroyCursor(CursorPtr cursor) {
             glfwDestroyCursor(cursor);
             CheckError();
         }
 
-        public static void SetCursor(WindowPtr window, Cursor cursor) {
+        public static void SetCursor(WindowPtr window, CursorPtr cursor) {
             glfwSetCursor(window, cursor);
             CheckError();
         }

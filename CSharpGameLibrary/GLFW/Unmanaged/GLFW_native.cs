@@ -207,16 +207,16 @@ namespace CSGL.GLFW.Unmanaged {
         public static extern void glfwSetCursorPos(WindowPtr window, double x, double y);
 
         [DllImport(lib)]
-        public static extern Cursor glfwCreateCursor(NativeImage* image, int xHotspot, int yHotspot);
+        public static extern CursorPtr glfwCreateCursor(NativeImage* image, int xHotspot, int yHotspot);
 
         [DllImport(lib)]
-        public static extern Cursor glfwCreateStandardCursor(CursorShape shape);
+        public static extern CursorPtr glfwCreateStandardCursor(CursorShape shape);
 
         [DllImport(lib)]
-        public static extern void glfwDestroyCursor(Cursor cursor);
+        public static extern void glfwDestroyCursor(CursorPtr cursor);
 
         [DllImport(lib)]
-        public static extern void glfwSetCursor(WindowPtr window, Cursor cursor);
+        public static extern void glfwSetCursor(WindowPtr window, CursorPtr cursor);
 
         [DllImport(lib)]
         public static extern IntPtr glfwSetKeyCallback(WindowPtr window, KeyCallback callback);
