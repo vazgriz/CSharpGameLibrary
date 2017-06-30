@@ -5,10 +5,6 @@ namespace CSGL.GLFW.Unmanaged {
     public struct MonitorPtr : IEquatable<MonitorPtr> {
         internal IntPtr ptr;
 
-        internal MonitorPtr(IntPtr ptr) {
-            this.ptr = ptr;
-        }
-
         public bool Equals(MonitorPtr other) {
             return ptr == other.ptr;
         }

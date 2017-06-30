@@ -5,10 +5,6 @@ namespace CSGL.GLFW.Unmanaged {
     public struct CursorPtr : IEquatable<CursorPtr> {
         internal IntPtr ptr;
 
-        internal CursorPtr(IntPtr ptr) {
-            this.ptr = ptr;
-        }
-
         public bool Equals(CursorPtr other) {
             return ptr == other.ptr;
         }
