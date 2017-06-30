@@ -28,6 +28,7 @@ namespace CSGL.GLFW {
 
         bool stickyKeys;
         CursorMode cursorMode;
+        Cursor cursor;
 
         public WindowPtr Native {
             get {
@@ -159,6 +160,20 @@ namespace CSGL.GLFW {
             set {
                 cursorMode = value;
                 GLFW.SetInputMode(window, InputMode.Cursor, (int)value);
+            }
+        }
+
+        public Cursor Cursor {
+            get {
+                return cursor;
+            }
+            set {
+                if (value != null) {
+                    GLFW.SetCursor(window, value.Native);
+                } else {
+                    GLFW.SetCursor(window, CursorPtr.Null);
+                }
+                cursor = value;
             }
         }
 
