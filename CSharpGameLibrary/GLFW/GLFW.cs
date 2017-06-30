@@ -173,7 +173,7 @@ namespace CSGL.GLFW {
                 fixed (ushort* r = &ramp.red[0])
                 fixed (ushort* g = &ramp.green[0])
                 fixed (ushort* b = &ramp.blue[0]) {
-                    NativeGammaRamp ngr = new NativeGammaRamp(r, g, b, ramp.size);
+                    NativeGammaRamp ngr = new NativeGammaRamp(r, g, b, (uint)ramp.red.Length);
                     NativeGammaRamp* ptr = &ngr;
                     glfwSetGammaRamp(monitor, ptr);
                     CheckError();
