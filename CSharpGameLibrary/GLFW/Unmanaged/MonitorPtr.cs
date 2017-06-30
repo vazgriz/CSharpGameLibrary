@@ -2,7 +2,6 @@
 using System.Runtime.InteropServices;
 
 namespace CSGL.GLFW.Unmanaged {
-    [StructLayout(LayoutKind.Sequential)]
     public struct MonitorPtr : IEquatable<MonitorPtr> {
         internal IntPtr ptr;
 
@@ -14,9 +13,7 @@ namespace CSGL.GLFW.Unmanaged {
             return ptr == other.ptr;
         }
 
-        public bool IsNull { get { return ptr == IntPtr.Zero; } }
-
-        public static readonly MonitorPtr Null = new MonitorPtr();
+        public static MonitorPtr Null { get; } = new MonitorPtr();
 
         public static bool operator == (MonitorPtr a, MonitorPtr b) {
             return a.Equals(b);
