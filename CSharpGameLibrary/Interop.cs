@@ -49,8 +49,9 @@ namespace CSGL {
             return result;
         }
 
-        class ListAccessor<T> {
+        static class ListAccessor<T> {
             //http://stackoverflow.com/a/17308019
+            //stores a dynamically created delegate to access the List's internal array, for each T
             public static Func<List<T>, T[]> accessor;
 
             static ListAccessor() {
