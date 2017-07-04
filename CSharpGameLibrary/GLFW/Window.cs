@@ -239,6 +239,10 @@ namespace CSGL.GLFW {
             GLFW.MaximizeWindow(window);
         }
 
+        public void Restore() {
+            GLFW.RestoreWindow(window);
+        }
+
         void Pos(WindowPtr window, int x, int y) {
             this.x = x;
             this.y = y;
