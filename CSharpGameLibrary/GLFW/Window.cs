@@ -249,6 +249,12 @@ namespace CSGL.GLFW {
             GLFW.SetWindowAspectRatio(window, numerator, denominator);
         }
 
+        public void SetSize(int width, int height) {
+            Width = width;
+            Height = height;
+            GLFW.SetWindowSize(window, width, height);
+        }
+
         void Pos(WindowPtr window, int x, int y) {
             X = x;
             Y = y;
