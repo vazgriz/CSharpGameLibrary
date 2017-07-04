@@ -9,6 +9,8 @@ namespace CSGL.GLFW {
         bool disposed;
         WindowPtr window;
 
+        Monitor monitor;
+
         string title;
         int x;
         int y;
@@ -186,7 +188,10 @@ namespace CSGL.GLFW {
 
         protected void CreateWindow(int width, int height, string title, Monitor monitor, Window share) {
             var monitorNative = MonitorPtr.Null;
-            if (monitor != null) monitorNative = monitor.Native;
+            if (monitor != null) {
+                monitorNative = monitor.Native;
+                this.monitor = monitor;
+            }
 
             var windowNative = WindowPtr.Null;
             if (share != null) windowNative = share.Native;
@@ -239,6 +244,16 @@ namespace CSGL.GLFW {
 
         public void Restore() {
             GLFW.RestoreWindow(window);
+        }
+
+        public void SetMonitor(Monitor monitor, int x, int y, int width, int height, int refreshRate) {
+            MonitorPtr monitorNative = MonitorPtr.Null;
+            if (monitor != null) {
+                monitorNative = monitor.Native;
+                this.monitor = monitor;
+            }
+
+            GLFW.SetWindowMonitor(window, monitorNative, x, y, width, height, refreshRate);
         }
 
         void Pos(WindowPtr window, int x, int y) {
