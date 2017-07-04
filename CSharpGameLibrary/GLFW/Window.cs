@@ -45,6 +45,11 @@ namespace CSGL.GLFW {
         public int AspectNumerator { get; private set; }
         public int AspectDenominator { get; private set; }
 
+        public int FrameLeft { get; private set; }
+        public int FrameTop { get; private set; }
+        public int FrameRight { get; private set; }
+        public int FrameBottom { get; private set; }
+
         public Monitor Monitor {
             get {
                 return Monitor.GetMonitor(GLFW.GetWindowMonitor(window));
@@ -183,6 +188,9 @@ namespace CSGL.GLFW {
             Height = _height;
             FramebufferWidth = framebufferWidth;
             FramebufferHeight = framebufferHeight;
+
+            int frameLeft, frameTop, frameRight, frameBottom;
+            GLFW.GetWindowFrameSize(window, out frameLeft, out frameTop, out frameRight, out frameBottom);
 
             GLFW.SetWindowPosCallback(window, Pos);
             GLFW.SetWindowSizeCallback(window, Size);
