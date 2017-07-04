@@ -178,6 +178,11 @@ namespace CSGL.GLFW {
             }
         }
 
+        public int MinWidth { get; private set; }
+        public int MinHeight { get; private set; }
+        public int MaxWidth { get; private set; }
+        public int MaxHeight { get; private set; }
+
         public event Action<int, int> OnPositionChanged = delegate { };
         public event Action<int, int> OnSizeChanged = delegate { };
         public event Action OnClose = delegate { };
@@ -272,6 +277,14 @@ namespace CSGL.GLFW {
             }
 
             GLFW.SetWindowMonitor(window, monitorNative, x, y, width, height, refreshRate);
+        }
+
+        public void SetSizeLimits(int minWidth, int minHeight, int maxWidth, int maxHeight) {
+            MinWidth = minWidth;
+            MinHeight = minHeight;
+            MaxWidth = maxWidth;
+            MaxHeight = maxHeight;
+            GLFW.SetWindowSizeLimits(window, minWidth, minHeight, maxWidth, maxHeight);
         }
 
         void Pos(WindowPtr window, int x, int y) {
