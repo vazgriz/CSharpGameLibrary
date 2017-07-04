@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 
 using CSGL.Input;
 using CSGL.GLFW.Unmanaged;
@@ -229,16 +230,22 @@ namespace CSGL.GLFW {
                 }
 
                 NativeImage[] nimgs = new NativeImage[images.Length];
+                GCHandle[] handles = new GCHandle[images.Length];
+
                 fixed (NativeImage* ptr = nimgs) {
                     for (int i = 0; i < images.Length; i++) {
                         if (images[i] == null) throw new ArgumentNullException(string.Format("Index {0} of {1}", i, nameof(images)));
 
-                        fixed (Color4b* data = images[i].Data) {
-                            nimgs[i] = new NativeImage(images[i].Width, images[i].Height, (byte*)data);
-                        }
+                        handles[i] = GCHandle.Alloc(images[i].Data, GCHandleType.Pinned);
+                        nimgs[i] = new NativeImage(images[i].Width, images[i].Height, (byte*)handles[i].AddrOfPinnedObject());
                     }
+
                     glfwSetWindowIcon(window, images.Length, ptr);
                     CheckError();
+
+                    for (int i = 0; i < images.Length; i++) {
+                        handles[i].Free();
+                    }
                 }
             }
         }
