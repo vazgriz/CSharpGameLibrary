@@ -14,16 +14,6 @@ namespace CSGL.GLFW {
         Bitmap<Color4b>[] icons;
 
         string title;
-        int x;
-        int y;
-        int width;
-        int height;
-        int framebufferWidth;
-        int framebufferHeight;
-
-        bool resizeable;
-        bool decorated;
-        bool floating;
 
         bool shouldClose;
 
@@ -36,6 +26,17 @@ namespace CSGL.GLFW {
                 return window;
             }
         }
+
+        public bool UserResizable { get; private set; }
+        public bool Decorated { get; private set; }
+        public bool Floating { get; private set; }
+
+        public int X { get; private set; }
+        public int Y { get; private set; }
+        public int Width { get; private set; }
+        public int Height { get; private set; }
+        public int FramebufferWidth { get; private set; }
+        public int FramebufferHeight { get; private set; }
 
         public Monitor Monitor {
             get {
@@ -71,24 +72,6 @@ namespace CSGL.GLFW {
             }
         }
 
-        public bool UserResizable {
-            get {
-                return resizeable;
-            }
-        }
-
-        public bool Decorated {
-            get {
-                return decorated;
-            }
-        }
-
-        public bool Floating {
-            get {
-                return floating;
-            }
-        }
-
         public bool ShouldClose {
             get {
                 return shouldClose;
@@ -105,42 +88,6 @@ namespace CSGL.GLFW {
             }
             set {
                 GLFW.SetWindowTitle(window, value);
-            }
-        }
-
-        public int X {
-            get {
-                return x;
-            }
-        }
-
-        public int Y {
-            get {
-                return y;
-            }
-        }
-
-        public int Width {
-            get {
-                return width;
-            }
-        }
-
-        public int Height {
-            get {
-                return height;
-            }
-        }
-
-        public int FramebufferWidth {
-            get {
-                return framebufferWidth;
-            }
-        }
-
-        public int FramebufferHeight {
-            get {
-                return framebufferHeight;
             }
         }
 
@@ -225,9 +172,16 @@ namespace CSGL.GLFW {
 
             this.title = title;
 
+            int x, y, _width, _height, framebufferWidth, framebufferHeight;
             GLFW.GetWindowPos(window, out x, out y);
-            GLFW.GetWindowSize(window, out width, out height);
+            GLFW.GetWindowSize(window, out _width, out _height);
             GLFW.GetFramebufferSize(window, out framebufferWidth, out framebufferHeight);
+            X = x;
+            Y = y;
+            Width = _width;
+            Height = _height;
+            FramebufferWidth = framebufferWidth;
+            FramebufferHeight = framebufferHeight;
 
             GLFW.SetWindowPosCallback(window, Pos);
             GLFW.SetWindowSizeCallback(window, Size);
@@ -236,10 +190,10 @@ namespace CSGL.GLFW {
             GLFW.SetWindowFocusCallback(window, Focus);
             GLFW.SetWindowIconifyCallback(window, Iconify);
             GLFW.SetFramebufferSizeCallback(window, Framebuffer);
-            
-            resizeable = GLFW.GetWindowAttribute(window, WindowAttribute.Resizable) != 0;
-            decorated = GLFW.GetWindowAttribute(window, WindowAttribute.Decorated) != 0;
-            floating = GLFW.GetWindowAttribute(window, WindowAttribute.Floating) != 0;
+
+            UserResizable = GLFW.GetWindowAttribute(window, WindowAttribute.Resizable) != 0;
+            Decorated = GLFW.GetWindowAttribute(window, WindowAttribute.Decorated) != 0;
+            Floating = GLFW.GetWindowAttribute(window, WindowAttribute.Floating) != 0;
 
             GLFW.SetKeyCallback(window, Key);
             GLFW.SetCharModsCallback(window, Text);
@@ -296,14 +250,14 @@ namespace CSGL.GLFW {
         }
 
         void Pos(WindowPtr window, int x, int y) {
-            this.x = x;
-            this.y = y;
+            X = x;
+            Y = y;
             OnPositionChanged(x, y);
         }
 
         void Size(WindowPtr window, int width, int height) {
-            this.width = width;
-            this.height = height;
+            Width = width;
+            Height = height;
             OnSizeChanged(width, height);
         }
 
@@ -325,8 +279,8 @@ namespace CSGL.GLFW {
         }
 
         void Framebuffer(WindowPtr window, int width, int height) {
-            framebufferWidth = width;
-            framebufferHeight = height;
+            FramebufferWidth = width;
+            FramebufferHeight = height;
             OnFramebufferChanged(width, height);
         }
 
