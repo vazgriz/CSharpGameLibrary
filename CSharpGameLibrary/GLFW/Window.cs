@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 
 using CSGL.Input;
+using CSGL.Graphics;
 using CSGL.GLFW.Unmanaged;
 
 namespace CSGL.GLFW {
@@ -10,6 +11,7 @@ namespace CSGL.GLFW {
         WindowPtr window;
 
         Monitor monitor;
+        Bitmap<Color4b>[] icons;
 
         string title;
         int x;
@@ -38,6 +40,16 @@ namespace CSGL.GLFW {
         public Monitor Monitor {
             get {
                 return Monitor.GetMonitor(GLFW.GetWindowMonitor(window));
+            }
+        }
+
+        public Bitmap<Color4b>[] Icons {
+            get {
+                return icons;
+            }
+            set {
+                GLFW.SetWindowIcon(window, icons);
+                icons = value;
             }
         }
 
