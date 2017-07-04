@@ -16,7 +16,7 @@ namespace CSGL.GLFW {
         string title;
 
         bool shouldClose;
-
+        bool visible;
         bool stickyKeys;
         CursorMode cursorMode;
         Cursor cursor;
@@ -138,6 +138,20 @@ namespace CSGL.GLFW {
             }
         }
 
+        public bool Visible {
+            get {
+                return visible;
+            }
+            set {
+                if (value) {
+                    GLFW.ShowWindow(window);
+                } else {
+                    GLFW.HideWindow(window);
+                }
+                visible = value;
+            }
+        }
+
         public event Action<int, int> OnPositionChanged = delegate { };
         public event Action<int, int> OnSizeChanged = delegate { };
         public event Action OnClose = delegate { };
@@ -203,6 +217,7 @@ namespace CSGL.GLFW {
             UserResizable = GLFW.GetWindowAttribute(window, WindowAttribute.Resizable) != 0;
             Decorated = GLFW.GetWindowAttribute(window, WindowAttribute.Decorated) != 0;
             Floating = GLFW.GetWindowAttribute(window, WindowAttribute.Floating) != 0;
+            visible = GLFW.GetWindowAttribute(window, WindowAttribute.Visible) != 0;
 
             GLFW.SetKeyCallback(window, Key);
             GLFW.SetCharModsCallback(window, Text);
