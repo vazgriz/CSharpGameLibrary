@@ -206,8 +206,7 @@ namespace CSGL.GLFW {
             GLFW.SetWindowFocusCallback(window, Focus);
             GLFW.SetWindowIconifyCallback(window, Iconify);
             GLFW.SetFramebufferSizeCallback(window, Framebuffer);
-
-            focused = GLFW.GetWindowAttribute(window, WindowAttribute.Focused) != 0;
+            
             resizeable = GLFW.GetWindowAttribute(window, WindowAttribute.Resizable) != 0;
             decorated = GLFW.GetWindowAttribute(window, WindowAttribute.Decorated) != 0;
             floating = GLFW.GetWindowAttribute(window, WindowAttribute.Floating) != 0;
