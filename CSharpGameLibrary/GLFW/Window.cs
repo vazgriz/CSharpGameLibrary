@@ -35,6 +35,12 @@ namespace CSGL.GLFW {
             }
         }
 
+        public Monitor Monitor {
+            get {
+                return Monitor.GetMonitor(GLFW.GetWindowMonitor(window));
+            }
+        }
+
         public bool Focused {
             get {
                 return GLFW.GetWindowAttribute(window, WindowAttribute.Focused) != 0;

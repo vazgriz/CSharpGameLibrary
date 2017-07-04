@@ -17,6 +17,11 @@ namespace CSGL.GLFW {
             monitorMap = new Dictionary<MonitorPtr, Monitor>();
             Monitors = monitors.AsReadOnly();
         }
+
+        internal Monitor GetMonitor(MonitorPtr ptr) {
+            if (ptr == MonitorPtr.Null) return null;
+            return monitorMap[ptr];
+        }
         
         static void GetMonitors() {
             monitors.Clear();
