@@ -18,8 +18,6 @@ namespace CSGL.GLFW {
         int framebufferHeight;
 
         bool focused;
-        bool iconified;
-        bool maximized;
         bool resizeable;
         bool decorated;
         bool floating;
@@ -44,29 +42,13 @@ namespace CSGL.GLFW {
 
         public bool Iconified {
             get {
-                return iconified;
-            }
-            set {
-                if (value) {
-                    GLFW.IconifyWindow(window);
-                } else {
-                    if (iconified) GLFW.RestoreWindow(window);
-                }
-                iconified = value;
+                return GLFW.GetWindowAttribute(window, WindowAttribute.Iconified) != 0;
             }
         }
 
         public bool Maximized {
             get {
-                return maximized;
-            }
-            set {
-                if (value) {
-                    GLFW.MaximizeWindow(window);
-                } else {
-                    if (maximized) GLFW.RestoreWindow(window);
-                }
-                maximized = value;
+                return GLFW.GetWindowAttribute(window, WindowAttribute.Maximized) != 0;
             }
         }
 
@@ -227,8 +209,6 @@ namespace CSGL.GLFW {
             GLFW.SetFramebufferSizeCallback(window, Framebuffer);
 
             focused = GLFW.GetWindowAttribute(window, WindowAttribute.Focused) != 0;
-            iconified = GLFW.GetWindowAttribute(window, WindowAttribute.Iconified) != 0;
-            maximized = GLFW.GetWindowAttribute(window, WindowAttribute.Maximized) != 0;
             resizeable = GLFW.GetWindowAttribute(window, WindowAttribute.Resizable) != 0;
             decorated = GLFW.GetWindowAttribute(window, WindowAttribute.Decorated) != 0;
             floating = GLFW.GetWindowAttribute(window, WindowAttribute.Floating) != 0;
@@ -249,6 +229,14 @@ namespace CSGL.GLFW {
 
         public void Focus() {
             GLFW.FocusWindow(window);
+        }
+
+        public void Iconify() {
+            GLFW.IconifyWindow(window);
+        }
+
+        public void Maximize() {
+            GLFW.MaximizeWindow(window);
         }
 
         void Pos(WindowPtr window, int x, int y) {
@@ -278,7 +266,6 @@ namespace CSGL.GLFW {
         }
 
         void Iconify(WindowPtr window, bool iconified) {
-            this.iconified = iconified;
             OnIconify(iconified);
         }
 
