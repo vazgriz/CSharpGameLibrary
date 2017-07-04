@@ -17,7 +17,6 @@ namespace CSGL.GLFW {
         int framebufferWidth;
         int framebufferHeight;
 
-        bool focused;
         bool resizeable;
         bool decorated;
         bool floating;
@@ -36,7 +35,7 @@ namespace CSGL.GLFW {
 
         public bool Focused {
             get {
-                return focused;
+                return GLFW.GetWindowAttribute(window, WindowAttribute.Focused) != 0;
             }
         }
 
@@ -265,7 +264,6 @@ namespace CSGL.GLFW {
         }
 
         void Focus(WindowPtr window, bool focused) {
-            this.focused = focused;
             OnFocus(focused);
         }
 
