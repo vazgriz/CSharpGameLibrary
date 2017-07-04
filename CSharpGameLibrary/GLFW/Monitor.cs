@@ -37,7 +37,7 @@ namespace CSGL.GLFW {
 
         static void MonitorConnection(MonitorPtr monitor, ConnectionStatus status) {
             if (status == ConnectionStatus.Disconnected) {
-                monitorMap[monitor].Status = false;
+                monitorMap[monitor].Connected = false;
                 monitorMap.Remove(monitor);
             }
 
@@ -54,7 +54,7 @@ namespace CSGL.GLFW {
         }
 
         public string Name { get; private set; }
-        public bool Status { get; private set; }
+        public bool Connected { get; private set; }
         public IList<VideoMode> VideoModes { get; private set; }
         public int Width { get; private set; }
         public int Height { get; private set; }
