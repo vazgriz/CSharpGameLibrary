@@ -13,7 +13,7 @@ namespace CSGL.GLFW {
         }
 
         public GammaRamp(ushort[] red, ushort[] green, ushort[] blue) {
-            if (!(red.Length != green.Length && red.Length != blue.Length)) throw new ArgumentException("Red, green, and blue arrays must be the same length");
+            if (red.Length != green.Length || red.Length != blue.Length) throw new ArgumentException("Red, green, and blue arrays must be the same length");
             this.red = red;
             this.green = green;
             this.blue = blue;
