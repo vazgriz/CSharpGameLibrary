@@ -58,8 +58,8 @@ namespace CSGL.GLFW {
         public IList<VideoMode> VideoModes { get; private set; }
         public int Width { get; private set; }
         public int Height { get; private set; }
-        public int PositionX { get; private set; }
-        public int PositionY { get; private set; }
+        public int X { get; private set; }
+        public int Y { get; private set; }
 
         public GammaRamp GammaRamp {
             get {
@@ -84,8 +84,8 @@ namespace CSGL.GLFW {
 
             Width = w;
             Height = h;
-            PositionX = x;
-            PositionY = y;
+            X = x;
+            Y = y;
 
             gammaRamp = GLFW.GetGammaRamp(monitor);
         }
