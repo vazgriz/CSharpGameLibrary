@@ -38,6 +38,13 @@ namespace CSGL.GLFW {
         public int FramebufferWidth { get; private set; }
         public int FramebufferHeight { get; private set; }
 
+        public int MinWidth { get; private set; }
+        public int MinHeight { get; private set; }
+        public int MaxWidth { get; private set; }
+        public int MaxHeight { get; private set; }
+        public int AspectNumerator { get; private set; }
+        public int AspectDenominator { get; private set; }
+
         public Monitor Monitor {
             get {
                 return Monitor.GetMonitor(GLFW.GetWindowMonitor(window));
@@ -125,13 +132,6 @@ namespace CSGL.GLFW {
                 cursor = value;
             }
         }
-
-        public int MinWidth { get; private set; }
-        public int MinHeight { get; private set; }
-        public int MaxWidth { get; private set; }
-        public int MaxHeight { get; private set; }
-        public int AspectNumerator { get; private set; }
-        public int AspectDenominator { get; private set; }
 
         public event Action<int, int> OnPositionChanged = delegate { };
         public event Action<int, int> OnSizeChanged = delegate { };
