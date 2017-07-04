@@ -88,6 +88,7 @@ namespace CSGL.GLFW {
             }
             set {
                 GLFW.SetWindowTitle(window, value);
+                title = value;
             }
         }
 
