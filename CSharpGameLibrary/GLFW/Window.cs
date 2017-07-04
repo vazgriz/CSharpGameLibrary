@@ -182,6 +182,8 @@ namespace CSGL.GLFW {
         public int MinHeight { get; private set; }
         public int MaxWidth { get; private set; }
         public int MaxHeight { get; private set; }
+        public int AspectNumerator { get; private set; }
+        public int AspectDenominator { get; private set; }
 
         public event Action<int, int> OnPositionChanged = delegate { };
         public event Action<int, int> OnSizeChanged = delegate { };
@@ -285,6 +287,12 @@ namespace CSGL.GLFW {
             MaxWidth = maxWidth;
             MaxHeight = maxHeight;
             GLFW.SetWindowSizeLimits(window, minWidth, minHeight, maxWidth, maxHeight);
+        }
+
+        public void SetAspectRatio(int numerator, int denominator) {
+            AspectNumerator = numerator;
+            AspectDenominator = denominator;
+            GLFW.SetWindowAspectRatio(window, numerator, denominator);
         }
 
         void Pos(WindowPtr window, int x, int y) {
