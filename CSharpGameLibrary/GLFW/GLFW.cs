@@ -13,6 +13,7 @@ namespace CSGL.GLFW {
         
         static MonitorConnectionCallback monitorConnection;
         static JoystickConnectionCallback joystickConnection;
+        static Dictionary<WindowHint, int> windowHints; //tracks hint values on the managed side
 
         class WindowCallbacks {
             public WindowPositionCallback windowPosition;   //need to store these delegates
@@ -37,6 +38,48 @@ namespace CSGL.GLFW {
         static GLFW() {
             glfwSetErrorCallback(InternalError);    //has to be set here, so that errors made before glfwInit() are caught
             callbackMap = new Dictionary<WindowPtr, WindowCallbacks>();
+            SetDefaultWindowHints();
+        }
+
+        static void SetDefaultWindowHints() { //resets the managed hint values to their default
+            windowHints = new Dictionary<WindowHint, int>() {
+                { CSGL.GLFW.WindowHint.Resizable, 1 },
+                { CSGL.GLFW.WindowHint.Visible, 1 },
+                { CSGL.GLFW.WindowHint.Decorated, 1 },
+                { CSGL.GLFW.WindowHint.Focused, 1 },
+                { CSGL.GLFW.WindowHint.AutoIconify, 1 },
+                { CSGL.GLFW.WindowHint.Floating, 0 },
+                { CSGL.GLFW.WindowHint.Maximized, 0 },
+                { CSGL.GLFW.WindowHint.RedBits, 8 },
+                { CSGL.GLFW.WindowHint.GreenBits, 8 },
+                { CSGL.GLFW.WindowHint.BlueBits, 8 },
+                { CSGL.GLFW.WindowHint.AlphaBits, 8 },
+                { CSGL.GLFW.WindowHint.DepthBits, 24 },
+                { CSGL.GLFW.WindowHint.StencilBits, 8 },
+                { CSGL.GLFW.WindowHint.AccumRedBits, 0 },
+                { CSGL.GLFW.WindowHint.AccumGreenBits, 0 },
+                { CSGL.GLFW.WindowHint.AccumBlueBits, 0 },
+                { CSGL.GLFW.WindowHint.AccumAlphaBits, 0 },
+                { CSGL.GLFW.WindowHint.AuxBuffers, 0 },
+                { CSGL.GLFW.WindowHint.Samples, 0 },
+                { CSGL.GLFW.WindowHint.RefreshRate, -1 },
+                { CSGL.GLFW.WindowHint.Stereo, 0 },
+                { CSGL.GLFW.WindowHint.sRGBCapable, 0 },
+                { CSGL.GLFW.WindowHint.DoubleBuffer, 1 },
+                { CSGL.GLFW.WindowHint.ClientAPI, (int)ClientAPI.OpenGLAPI },
+                { CSGL.GLFW.WindowHint.ContextCreationAPI, (int)ContextCreationAPI.NativeContextAPI },
+                { CSGL.GLFW.WindowHint.ContextVersionMajor, 1 },
+                { CSGL.GLFW.WindowHint.ContextVersionMinor, 0 },
+                { CSGL.GLFW.WindowHint.ContextRobustness, (int)ContextRobustness.NoRobustness },
+                { CSGL.GLFW.WindowHint.ContextReleaseBehavior, (int)ReleaseBehavior.Any },
+                { CSGL.GLFW.WindowHint.OpenGLForwardCompat, 0 },
+                { CSGL.GLFW.WindowHint.OpenGLDebugContext, 0 },
+                { CSGL.GLFW.WindowHint.OpenGLProfile, (int)OpenGLProfile.AnyProfile },
+            };
+        }
+
+        internal static int GetHint(WindowHint hint) {
+            return windowHints[hint];
         }
 
         static WindowCallbacks GetCallbacks(WindowPtr window) {
@@ -183,11 +226,13 @@ namespace CSGL.GLFW {
 
         public static void DefaultWindowHints() {
             glfwDefaultWindowHints();
+            SetDefaultWindowHints();
             CheckError();
         }
 
         public static void WindowHint(WindowHint hint, int value) {
             glfwWindowHint((int)hint, value);
+            windowHints[hint] = value;
             CheckError();
         }
 
