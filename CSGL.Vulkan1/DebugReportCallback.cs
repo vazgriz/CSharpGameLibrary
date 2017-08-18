@@ -7,6 +7,7 @@ namespace CSGL.Vulkan1 {
         VkDebugReportObjectTypeEXT objectType,
         ulong _object,
         ulong location,
+        int messageCode,
         string layerPrefix,
         string message
     );
@@ -36,6 +37,7 @@ namespace CSGL.Vulkan1 {
             VkDebugReportObjectTypeEXT objectType,
             ulong _object,
             IntPtr location,
+            int messageCode,
             IntPtr layerPrefix,
             IntPtr message,
             IntPtr userData
@@ -67,6 +69,7 @@ namespace CSGL.Vulkan1 {
             VkDebugReportObjectTypeEXT objectType,
             ulong _object,
             IntPtr location,    //size_t in native code
+            int messageCode,
             IntPtr layerPrefix,
             IntPtr message,
             IntPtr userData)    //ignored
@@ -75,7 +78,7 @@ namespace CSGL.Vulkan1 {
             string _layerPrefix = Interop.GetString(layerPrefix);
             string _message = Interop.GetString(message);
 
-            Callback(flags, objectType, _object, _location, _layerPrefix, _message);
+            Callback(flags, objectType, _object, _location, messageCode, _layerPrefix, _message);
 
             //specification allows the callback to set this value
             //however C# delegates are multicast, so potentially there is no single value to return.
