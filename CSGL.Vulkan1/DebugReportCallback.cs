@@ -7,6 +7,7 @@ namespace CSGL.Vulkan1 {
         VkDebugReportObjectTypeEXT objectType,
         ulong _object,
         ulong location,
+        int messageCode,
         string layerPrefix,
         string message
     );
@@ -36,6 +37,7 @@ namespace CSGL.Vulkan1 {
             VkDebugReportObjectTypeEXT objectType,
             ulong _object,
             IntPtr location,
+            int messageCode,
             IntPtr layerPrefix,
             IntPtr message,
             IntPtr userData
@@ -67,6 +69,7 @@ namespace CSGL.Vulkan1 {
             VkDebugReportObjectTypeEXT objectType,
             ulong _object,
             IntPtr location,    //size_t in native code
+            int messageCode,
             IntPtr layerPrefix,
             IntPtr message,
             IntPtr userData)    //ignored
@@ -75,12 +78,31 @@ namespace CSGL.Vulkan1 {
             string _layerPrefix = Interop.GetString(layerPrefix);
             string _message = Interop.GetString(message);
 
-            Callback(flags, objectType, _object, _location, _layerPrefix, _message);
+            Callback(flags, objectType, _object, _location, messageCode, _layerPrefix, _message);
 
             //specification allows the callback to set this value
             //however C# delegates are multicast, so potentially there is no single value to return.
             //specification also says application *should* return false, so just do that instead
             return false;
+        }
+
+        public static void ReportMessage(
+            Instance instance,
+            VkDebugReportFlagsEXT flags,
+            VkDebugReportObjectTypeEXT objectType,
+            ulong _object,
+            ulong location,
+            int messageCode,
+            string layerPrefix,
+            string message)
+        {
+            if (instance == null) throw new ArgumentNullException(nameof(instance));
+
+            IntPtr _location = (IntPtr)location;
+            byte[] _layerPrefix = Interop.GetUTF8(layerPrefix);
+            byte[] _message = Interop.GetUTF8(message);
+
+            instance.Commands.debugReportMessage(instance.Native, flags, objectType, _object, _location, messageCode, _layerPrefix, _message);
         }
 
         public void Dispose() {

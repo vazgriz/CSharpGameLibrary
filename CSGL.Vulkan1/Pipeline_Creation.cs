@@ -15,7 +15,7 @@ namespace CSGL.Vulkan1 {
             var info = new VkSpecializationInfo();
             info.mapEntryCount = (uint)entriesMarshalled.Count;
             info.pMapEntries = entriesMarshalled.Address;
-            info.dataSize = (uint)dataMarshalled.Count;
+            info.dataSize = (IntPtr)dataMarshalled.Count;
             info.pData = dataMarshalled.Address;
 
             var infoMarshalled = new Marshalled<VkSpecializationInfo>(info);
