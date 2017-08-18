@@ -190,6 +190,10 @@ namespace CSGL.Vulkan1 {
             public vkGetPhysicalDeviceSurfaceFormatsKHRDelegate getFormats;
             public vkGetPhysicalDeviceSurfacePresentModesKHRDelegate getModes;
 
+            public vkCreateDebugReportCallbackEXTDelegate createDebugReportCallback;
+            public vkDestroyDebugReportCallbackEXTDelegate destroyDebugReportCallback;
+            public vkDebugReportMessageEXTDelegate debugReportMessage;
+
             internal InstanceCommands(Instance instance) {
                 Type t = typeof(InstanceCommands);
                 FieldInfo[] fields = t.GetFields();

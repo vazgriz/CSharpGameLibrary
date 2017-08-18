@@ -17,6 +17,11 @@ namespace CSGL.GLFW {
             monitorMap = new Dictionary<MonitorPtr, Monitor>();
             Monitors = monitors.AsReadOnly();
         }
+
+        internal Monitor GetMonitor(MonitorPtr ptr) {
+            if (ptr == MonitorPtr.Null) return null;
+            return monitorMap[ptr];
+        }
         
         static void GetMonitors() {
             monitors.Clear();
@@ -37,7 +42,7 @@ namespace CSGL.GLFW {
 
         static void MonitorConnection(MonitorPtr monitor, ConnectionStatus status) {
             if (status == ConnectionStatus.Disconnected) {
-                monitorMap[monitor].Status = false;
+                monitorMap[monitor].Connected = false;
                 monitorMap.Remove(monitor);
             }
 
@@ -54,12 +59,12 @@ namespace CSGL.GLFW {
         }
 
         public string Name { get; private set; }
-        public bool Status { get; private set; }
+        public bool Connected { get; private set; }
         public IList<VideoMode> VideoModes { get; private set; }
         public int Width { get; private set; }
         public int Height { get; private set; }
-        public int PositionX { get; private set; }
-        public int PositionY { get; private set; }
+        public int X { get; private set; }
+        public int Y { get; private set; }
 
         public GammaRamp GammaRamp {
             get {
@@ -84,8 +89,8 @@ namespace CSGL.GLFW {
 
             Width = w;
             Height = h;
-            PositionX = x;
-            PositionY = y;
+            X = x;
+            Y = y;
 
             gammaRamp = GLFW.GetGammaRamp(monitor);
         }

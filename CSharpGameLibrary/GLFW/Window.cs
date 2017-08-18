@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 
 using CSGL.Input;
+using CSGL.Graphics;
 using CSGL.GLFW.Unmanaged;
 
 namespace CSGL.GLFW {
@@ -9,23 +10,13 @@ namespace CSGL.GLFW {
         bool disposed;
         WindowPtr window;
 
-        string title;
-        int x;
-        int y;
-        int width;
-        int height;
-        int framebufferWidth;
-        int framebufferHeight;
+        Monitor monitor;
+        Bitmap<Color4b>[] icons;
 
-        bool focused;
-        bool iconified;
-        bool maximized;
-        bool resizeable;
-        bool decorated;
-        bool floating;
+        string title;
 
         bool shouldClose;
-
+        bool visible;
         bool stickyKeys;
         CursorMode cursorMode;
         Cursor cursor;
@@ -36,55 +27,60 @@ namespace CSGL.GLFW {
             }
         }
 
+        public bool UserResizable { get; private set; }
+        public bool Decorated { get; private set; }
+        public bool Floating { get; private set; }
+
+        public int X { get; private set; }
+        public int Y { get; private set; }
+        public int Width { get; private set; }
+        public int Height { get; private set; }
+        public int FramebufferWidth { get; private set; }
+        public int FramebufferHeight { get; private set; }
+
+        public int MinWidth { get; private set; }
+        public int MinHeight { get; private set; }
+        public int MaxWidth { get; private set; }
+        public int MaxHeight { get; private set; }
+        public int AspectNumerator { get; private set; }
+        public int AspectDenominator { get; private set; }
+
+        public int FrameLeft { get; private set; }
+        public int FrameTop { get; private set; }
+        public int FrameRight { get; private set; }
+        public int FrameBottom { get; private set; }
+
+        public Monitor Monitor {
+            get {
+                return Monitor.GetMonitor(GLFW.GetWindowMonitor(window));
+            }
+        }
+
+        public Bitmap<Color4b>[] Icons {
+            get {
+                return icons;
+            }
+            set {
+                GLFW.SetWindowIcon(window, icons);
+                icons = value;
+            }
+        }
+
         public bool Focused {
             get {
-                return focused;
+                return GLFW.GetWindowAttribute(window, WindowAttribute.Focused) != 0;
             }
         }
 
         public bool Iconified {
             get {
-                return iconified;
-            }
-            set {
-                if (value) {
-                    GLFW.IconifyWindow(window);
-                } else {
-                    if (iconified) GLFW.RestoreWindow(window);
-                }
-                iconified = value;
+                return GLFW.GetWindowAttribute(window, WindowAttribute.Iconified) != 0;
             }
         }
 
         public bool Maximized {
             get {
-                return maximized;
-            }
-            set {
-                if (value) {
-                    GLFW.MaximizeWindow(window);
-                } else {
-                    if (maximized) GLFW.RestoreWindow(window);
-                }
-                maximized = value;
-            }
-        }
-
-        public bool UserResizable {
-            get {
-                return resizeable;
-            }
-        }
-
-        public bool Decorated {
-            get {
-                return decorated;
-            }
-        }
-
-        public bool Floating {
-            get {
-                return floating;
+                return GLFW.GetWindowAttribute(window, WindowAttribute.Maximized) != 0;
             }
         }
 
@@ -104,42 +100,7 @@ namespace CSGL.GLFW {
             }
             set {
                 GLFW.SetWindowTitle(window, value);
-            }
-        }
-
-        public int X {
-            get {
-                return x;
-            }
-        }
-
-        public int Y {
-            get {
-                return y;
-            }
-        }
-
-        public int Width {
-            get {
-                return width;
-            }
-        }
-
-        public int Height {
-            get {
-                return height;
-            }
-        }
-
-        public int FramebufferWidth {
-            get {
-                return framebufferWidth;
-            }
-        }
-
-        public int FramebufferHeight {
-            get {
-                return framebufferHeight;
+                title = value;
             }
         }
 
@@ -177,6 +138,20 @@ namespace CSGL.GLFW {
             }
         }
 
+        public bool Visible {
+            get {
+                return visible;
+            }
+            set {
+                if (value) {
+                    GLFW.ShowWindow(window);
+                } else {
+                    GLFW.HideWindow(window);
+                }
+                visible = value;
+            }
+        }
+
         public event Action<int, int> OnPositionChanged = delegate { };
         public event Action<int, int> OnSizeChanged = delegate { };
         public event Action OnClose = delegate { };
@@ -205,7 +180,10 @@ namespace CSGL.GLFW {
 
         protected void CreateWindow(int width, int height, string title, Monitor monitor, Window share) {
             var monitorNative = MonitorPtr.Null;
-            if (monitor != null) monitorNative = monitor.Native;
+            if (monitor != null) {
+                monitorNative = monitor.Native;
+                this.monitor = monitor;
+            }
 
             var windowNative = WindowPtr.Null;
             if (share != null) windowNative = share.Native;
@@ -214,9 +192,19 @@ namespace CSGL.GLFW {
 
             this.title = title;
 
+            int x, y, _width, _height, framebufferWidth, framebufferHeight;
             GLFW.GetWindowPos(window, out x, out y);
-            GLFW.GetWindowSize(window, out width, out height);
+            GLFW.GetWindowSize(window, out _width, out _height);
             GLFW.GetFramebufferSize(window, out framebufferWidth, out framebufferHeight);
+            X = x;
+            Y = y;
+            Width = _width;
+            Height = _height;
+            FramebufferWidth = framebufferWidth;
+            FramebufferHeight = framebufferHeight;
+
+            int frameLeft, frameTop, frameRight, frameBottom;
+            GLFW.GetWindowFrameSize(window, out frameLeft, out frameTop, out frameRight, out frameBottom);
 
             GLFW.SetWindowPosCallback(window, Pos);
             GLFW.SetWindowSizeCallback(window, Size);
@@ -226,12 +214,10 @@ namespace CSGL.GLFW {
             GLFW.SetWindowIconifyCallback(window, Iconify);
             GLFW.SetFramebufferSizeCallback(window, Framebuffer);
 
-            focused = GLFW.GetWindowAttribute(window, WindowAttribute.Focused) != 0;
-            iconified = GLFW.GetWindowAttribute(window, WindowAttribute.Iconified) != 0;
-            maximized = GLFW.GetWindowAttribute(window, WindowAttribute.Maximized) != 0;
-            resizeable = GLFW.GetWindowAttribute(window, WindowAttribute.Resizable) != 0;
-            decorated = GLFW.GetWindowAttribute(window, WindowAttribute.Decorated) != 0;
-            floating = GLFW.GetWindowAttribute(window, WindowAttribute.Floating) != 0;
+            UserResizable = GLFW.GetWindowAttribute(window, WindowAttribute.Resizable) != 0;
+            Decorated = GLFW.GetWindowAttribute(window, WindowAttribute.Decorated) != 0;
+            Floating = GLFW.GetWindowAttribute(window, WindowAttribute.Floating) != 0;
+            visible = GLFW.GetWindowAttribute(window, WindowAttribute.Visible) != 0;
 
             GLFW.SetKeyCallback(window, Key);
             GLFW.SetCharModsCallback(window, Text);
@@ -251,15 +237,57 @@ namespace CSGL.GLFW {
             GLFW.FocusWindow(window);
         }
 
+        public void Iconify() {
+            GLFW.IconifyWindow(window);
+        }
+
+        public void Maximize() {
+            GLFW.MaximizeWindow(window);
+        }
+
+        public void Restore() {
+            GLFW.RestoreWindow(window);
+        }
+
+        public void SetMonitor(Monitor monitor, int x, int y, int width, int height, int refreshRate) {
+            MonitorPtr monitorNative = MonitorPtr.Null;
+            if (monitor != null) {
+                monitorNative = monitor.Native;
+                this.monitor = monitor;
+            }
+
+            GLFW.SetWindowMonitor(window, monitorNative, x, y, width, height, refreshRate);
+        }
+
+        public void SetSizeLimits(int minWidth, int minHeight, int maxWidth, int maxHeight) {
+            MinWidth = minWidth;
+            MinHeight = minHeight;
+            MaxWidth = maxWidth;
+            MaxHeight = maxHeight;
+            GLFW.SetWindowSizeLimits(window, minWidth, minHeight, maxWidth, maxHeight);
+        }
+
+        public void SetAspectRatio(int numerator, int denominator) {
+            AspectNumerator = numerator;
+            AspectDenominator = denominator;
+            GLFW.SetWindowAspectRatio(window, numerator, denominator);
+        }
+
+        public void SetSize(int width, int height) {
+            Width = width;
+            Height = height;
+            GLFW.SetWindowSize(window, width, height);
+        }
+
         void Pos(WindowPtr window, int x, int y) {
-            this.x = x;
-            this.y = y;
+            X = x;
+            Y = y;
             OnPositionChanged(x, y);
         }
 
         void Size(WindowPtr window, int width, int height) {
-            this.width = width;
-            this.height = height;
+            Width = width;
+            Height = height;
             OnSizeChanged(width, height);
         }
 
@@ -273,18 +301,16 @@ namespace CSGL.GLFW {
         }
 
         void Focus(WindowPtr window, bool focused) {
-            this.focused = focused;
             OnFocus(focused);
         }
 
         void Iconify(WindowPtr window, bool iconified) {
-            this.iconified = iconified;
             OnIconify(iconified);
         }
 
         void Framebuffer(WindowPtr window, int width, int height) {
-            framebufferWidth = width;
-            framebufferHeight = height;
+            FramebufferWidth = width;
+            FramebufferHeight = height;
             OnFramebufferChanged(width, height);
         }
 
