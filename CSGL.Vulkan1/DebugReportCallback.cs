@@ -86,6 +86,25 @@ namespace CSGL.Vulkan1 {
             return false;
         }
 
+        public static void ReportMessage(
+            Instance instance,
+            VkDebugReportFlagsEXT flags,
+            VkDebugReportObjectTypeEXT objectType,
+            ulong _object,
+            ulong location,
+            int messageCode,
+            string layerPrefix,
+            string message)
+        {
+            if (instance == null) throw new ArgumentNullException(nameof(instance));
+
+            IntPtr _location = (IntPtr)location;
+            byte[] _layerPrefix = Interop.GetUTF8(layerPrefix);
+            byte[] _message = Interop.GetUTF8(message);
+
+            instance.Commands.debugReportMessage(instance.Native, flags, objectType, _object, _location, messageCode, _layerPrefix, _message);
+        }
+
         public void Dispose() {
             Dispose(true);
             GC.SuppressFinalize(this);
