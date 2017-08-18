@@ -22,7 +22,7 @@ namespace CSGL.Vulkan1 {
         void CreateCache(byte[] initialData) {
             var info = new VkPipelineCacheCreateInfo();
             info.sType = VkStructureType.PipelineCacheCreateInfo;
-            info.initialDataSize = (ulong)initialData.Length;
+            info.initialDataSize = (IntPtr)initialData.Length;
 
             var initialDataMarshalled = new PinnedArray<byte>(initialData);
             info.pInitialData = initialDataMarshalled.Address;

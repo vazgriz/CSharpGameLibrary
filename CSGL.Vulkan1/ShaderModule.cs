@@ -51,7 +51,7 @@ namespace CSGL.Vulkan1 {
         void CreateShader(ShaderModuleCreateInfo mInfo) {
             VkShaderModuleCreateInfo info = new VkShaderModuleCreateInfo();
             info.sType = VkStructureType.ShaderModuleCreateInfo;
-            info.codeSize = (ulong)mInfo.Data.LongLength;
+            info.codeSize = (IntPtr)mInfo.Data.LongLength;
 
             var dataPinned = new PinnedArray<byte>(mInfo.Data);
             info.pCode = dataPinned.Address;

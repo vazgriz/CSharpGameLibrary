@@ -44,7 +44,7 @@ namespace CSGL.Vulkan1 {
                 fixed (byte* ptr = data) {
                     return Device.Commands.getQueryPoolResults(Device.Native, queryPool,
                         firstQuery, queryCount,
-                        (ulong)data.Length, (IntPtr)ptr,
+                        (IntPtr)data.Length, (IntPtr)ptr,
                         stride, flags
                     );
                 }
