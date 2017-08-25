@@ -2,11 +2,11 @@
 using System.Text;
 using System.Runtime.InteropServices;
 
-using CSGL.GL4;
+using CSGL.OpenGL;
 using CSGL.Graphics;
-using static CSGL.GL4.Unmanaged.GL;
+using static CSGL.OpenGL.Unmanaged.GL;
 
-namespace CSGL.GL4 {
+namespace CSGL.OpenGL {
     public static partial class GL {
         public static void BufferData<T>(BufferTarget target, T[] data, BufferUsage usage)  where T : struct {
             GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);    //can't get * pointer of generic type

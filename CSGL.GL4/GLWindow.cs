@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using CSGL.GLFW;
 using CSGL.GLFW.Unmanaged;
 
-namespace CSGL.GL4 {
+namespace CSGL.OpenGL {
     public class GLWindow : Window {
         static Dictionary<WindowPtr, GLWindow> windowMap = new Dictionary<WindowPtr, GLWindow>();
 

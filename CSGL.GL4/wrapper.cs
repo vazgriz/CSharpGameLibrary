@@ -2,9 +2,9 @@
 using System;
 using System.Text;
 
-using static CSGL.GL4.Unmanaged.GL;
+using static CSGL.OpenGL.Unmanaged.GL;
 
-namespace CSGL.GL4 {
+namespace CSGL.OpenGL {
     public static partial class GL {
         public static void ActiveShaderProgram(uint pipeline, uint program) {
             glActiveShaderProgram(pipeline, program);

@@ -2,7 +2,7 @@
 using System;
 using System.Text;
 
-namespace CSGL.GL4.Unmanaged {
+namespace CSGL.OpenGL.Unmanaged {
     public static unsafe class GL {
         public delegate void glActiveShaderProgramDelegate(uint pipeline, uint program);
         public static glActiveShaderProgramDelegate glActiveShaderProgram;

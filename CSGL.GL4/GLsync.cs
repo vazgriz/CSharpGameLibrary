@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CSGL.GL4 {
+namespace CSGL.OpenGL {
     public struct GLsync : IEquatable<GLsync> {
         IntPtr ptr;
 
