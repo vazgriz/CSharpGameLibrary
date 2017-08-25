@@ -19,8 +19,8 @@
     <tags>glfw opengl vulkan</tags>
   </metadata>
   <files>
-    <file src="../CSGL.Vulkan1/bin/release/CSGL.Vulkan.dll" target="lib/net452" />
-    <file src="../CSGL.GL4/bin/release/CSGL.OpenGL.dll" target="lib/net452" />
+    <file src="../CSGL.Vulkan/bin/release/CSGL.Vulkan.dll" target="lib/net452" />
+    <file src="../CSGL.OpenGL/bin/release/CSGL.OpenGL.dll" target="lib/net452" />
     <file src="../CSGL.STB/bin/release/CSGL.STB.dll" target="lib/net452" />
   </files>
 </package>
