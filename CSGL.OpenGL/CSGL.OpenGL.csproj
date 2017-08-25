@@ -7,8 +7,8 @@
     <ProjectGuid>{FDEBFC1C-189D-4DB4-A056-0778B0DD7750}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>CSGL.GL4</RootNamespace>
-    <AssemblyName>CSGL.GL4</AssemblyName>
+    <RootNamespace>CSGL.OpenGL</RootNamespace>
+    <AssemblyName>CSGL.OpenGL</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />

@@ -7,8 +7,8 @@
     <ProjectGuid>{F3E51928-2259-4AED-9581-E7D4C49EA957}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>CSGL.Vulkan1</RootNamespace>
-    <AssemblyName>CSGL.Vulkan1</AssemblyName>
+    <RootNamespace>CSGL.Vulkan</RootNamespace>
+    <AssemblyName>CSGL.Vulkan</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
