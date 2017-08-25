@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 
-namespace CSGL.Vulkan1 {
+namespace CSGL.Vulkan {
     public delegate void DebugReportCallbackDelegate(
         VkDebugReportFlagsEXT flags,
         VkDebugReportObjectTypeEXT objectType,

@@ -2,7 +2,7 @@
 using System;
 using System.Runtime.InteropServices;
 
-namespace CSGL.Vulkan1.Unmanaged {
+namespace CSGL.Vulkan.Unmanaged {
     public static partial class VK {
         const string lib = "vulkan-1.dll";
         [DllImport(lib, EntryPoint = "vkCreateInstance")]

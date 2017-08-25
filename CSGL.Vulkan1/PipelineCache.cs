@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 
-namespace CSGL.Vulkan1 {
+namespace CSGL.Vulkan {
     public class PipelineCache : INative<VkPipelineCache>, IDisposable {
         bool disposed;
         VkPipelineCache pipelineCache;

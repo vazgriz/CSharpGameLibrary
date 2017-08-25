@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Runtime.CompilerServices;
 
-namespace CSGL.Vulkan1 {
+namespace CSGL.Vulkan {
     public class CommandBufferAllocateInfo {
         public VkCommandBufferLevel level;
         public uint commandBufferCount;

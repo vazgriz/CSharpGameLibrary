@@ -2,7 +2,7 @@
 using System;
 using System.Runtime.InteropServices;
 
-namespace CSGL.Vulkan1 {
+namespace CSGL.Vulkan {
     public struct VkInstance : IEquatable<VkInstance> {
         public IntPtr native;
 

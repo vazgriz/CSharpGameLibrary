@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
-using CSGL.Vulkan1.Unmanaged;
+using CSGL.Vulkan.Unmanaged;
 
-namespace CSGL.Vulkan1 {
+namespace CSGL.Vulkan {
     public class DeviceQueueCreateInfo {
         public uint queueFamilyIndex;
         public uint queueCount;

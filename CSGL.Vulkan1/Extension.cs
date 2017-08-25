@@ -1,8 +1,8 @@
 ﻿using System;
 
-using CSGL.Vulkan1;
+using CSGL.Vulkan;
 
-namespace CSGL.Vulkan1 {
+namespace CSGL.Vulkan {
     public class Extension {
         public string Name { get; private set; }
         public VkVersion Version { get; private set; }

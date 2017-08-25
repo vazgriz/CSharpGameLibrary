@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CSGL.Vulkan1 {
+namespace CSGL.Vulkan {
     public class ImageViewCreateInfo {
         public Image image;
         public VkImageViewType viewType;

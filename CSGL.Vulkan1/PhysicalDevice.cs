@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 
-using CSGL.Vulkan1.Unmanaged;
+using CSGL.Vulkan.Unmanaged;
 
-namespace CSGL.Vulkan1 {
+namespace CSGL.Vulkan {
     public class PhysicalDevice: INative<VkPhysicalDevice> {
         VkPhysicalDevice physicalDevice;
 

@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Runtime.InteropServices;
 
-using CSGL.Vulkan1.Unmanaged;
+using CSGL.Vulkan.Unmanaged;
 
-namespace CSGL.Vulkan1 {
+namespace CSGL.Vulkan {
     public static class Vulkan {
         public static string GetCommand<T>() {
             Type t = typeof(T);

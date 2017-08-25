@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace CSGL.Vulkan1 {
+namespace CSGL.Vulkan {
     public class BufferViewCreateInfo {
         public Buffer buffer;
         public VkFormat format;

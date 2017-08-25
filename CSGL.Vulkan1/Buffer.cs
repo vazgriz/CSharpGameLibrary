@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 using CSGL;
 
-namespace CSGL.Vulkan1 {
+namespace CSGL.Vulkan {
     public class BufferCreateInfo {
         public VkBufferCreateFlags flags;
         public ulong size;
