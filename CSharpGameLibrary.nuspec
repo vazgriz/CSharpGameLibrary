@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
   <metadata>
     <id>CSharpGameLibrary</id>
-    <version>0.1.1-alpha</version>
+    <version>0.1.2-alpha</version>
     <title>C# Game Library</title>
     <authors>Ryan Vazquez</authors>
     <owners>vazgriz</owners>
@@ -10,16 +10,20 @@
     <licenseUrl>https://github.com/vazgriz/CSharpGameLibrary/blob/master/license.txt</licenseUrl>
     <projectUrl>https://github.com/vazgriz/CSharpGameLibrary</projectUrl>
     <description>C# bindings for GLFW, OpenGL, and Vulkan</description>
-    <releaseNotes>Add .pdb files</releaseNotes>
+    <releaseNotes>- Add support for VK_EXT_debug_report extenstion
+- Add methods and properties to CSGL.GLFW.Window
+- Revert namespace changes
+  - CSGL.Vulkan1 renamed to CSGL.Vulkan
+  - CSGL.GL4 renamed to CSGL.OpenGL</releaseNotes>
     <copyright>Copyright 2017</copyright>
     <tags>glfw opengl vulkan</tags>
   </metadata>
   <files>
     <!-- Manually include the other projects -->
-    <file src="../CSGL.Vulkan1/bin/release/CSGL.Vulkan1.dll" target="lib/net452" />
-    <file src="../CSGL.Vulkan1/bin/release/CSGL.Vulkan1.pdb" target="lib/net452" />
-    <file src="../CSGL.GL4/bin/release/CSGL.GL4.dll" target="lib/net452" />
-    <file src="../CSGL.GL4/bin/release/CSGL.GL4.pdb" target="lib/net452" />
+    <file src="../CSGL.Vulkan/bin/release/CSGL.Vulkan.dll" target="lib/net452" />
+    <file src="../CSGL.Vulkan/bin/release/CSGL.Vulkan.pdb" target="lib/net452" />
+    <file src="../CSGL.OpenGL/bin/release/CSGL.OpenGL.dll" target="lib/net452" />
+    <file src="../CSGL.OpenGL/bin/release/CSGL.OpenGL.pdb" target="lib/net452" />
     <file src="../CSGL.STB/bin/release/CSGL.STB.dll" target="lib/net452" />
     <file src="../CSGL.STB/bin/release/CSGL.STB.pdb" target="lib/net452" />
   </files>
