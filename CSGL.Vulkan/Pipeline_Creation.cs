@@ -159,13 +159,19 @@ namespace CSGL.Vulkan {
         public bool alphaToCoverageEnable;
         public bool alphaToOneEnable;
 
-        internal VkPipelineMultisampleStateCreateInfo GetNative() {
+        internal VkPipelineMultisampleStateCreateInfo GetNative(DisposableList<IDisposable> marshalled) {
             var result = new VkPipelineMultisampleStateCreateInfo();
             result.sType = VkStructureType.PipelineMultisampleStateCreateInfo;
             result.rasterizationSamples = rasterizationSamples;
             result.sampleShadingEnable = sampleShadingEnable ? 1u : 0u;
             result.minSampleShading = minSampleShading;
-            //result.pSampleMask = SampleMask;
+
+            if (sampleMask != null) {
+                NativeArray<uint> masks = new NativeArray<uint>(sampleMask);
+                result.pSampleMask = masks.Address;
+                marshalled.Add(masks);
+            }
+
             result.alphaToCoverageEnable = alphaToCoverageEnable ? 1u : 0u;
             result.alphaToOneEnable = alphaToOneEnable ? 1u : 0u;
 

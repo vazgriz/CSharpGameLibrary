@@ -95,7 +95,7 @@ namespace CSGL.Vulkan {
                 }
 
                 if (mInfo.multisampleState != null) {
-                    var m = new Marshalled<VkPipelineMultisampleStateCreateInfo>(mInfo.multisampleState.GetNative());
+                    var m = new Marshalled<VkPipelineMultisampleStateCreateInfo>(mInfo.multisampleState.GetNative(marshalledArrays));
                     info.pMultisampleState = m.Address;
                     marshalledArrays.Add(m);
                 }
