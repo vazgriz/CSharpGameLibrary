@@ -10,26 +10,7 @@ namespace CSGL.Vulkan {
         VkSurfaceKHR surface;
         bool disposed = false;
 
-        PhysicalDevice physicalDevice;
-        
-        vkGetPhysicalDeviceSurfaceCapabilitiesKHRDelegate getCapabilities = null;
-        vkGetPhysicalDeviceSurfaceFormatsKHRDelegate getFormats = null;
-        vkGetPhysicalDeviceSurfacePresentModesKHRDelegate getModes = null;
-
         public Instance Instance { get; private set; }
-
-        public IList<VkSurfaceFormatKHR> Formats { get; private set; }
-        public IList<VkPresentModeKHR> PresentModes { get; private set; }
-        public VkSurfaceCapabilitiesKHR Capabilities {
-            get {
-                unsafe
-                {
-                    VkSurfaceCapabilitiesKHR cap;
-                    getCapabilities(physicalDevice.Native, surface, (IntPtr)(&cap));
-                    return cap;
-                }
-            }
-        }
 
         public VkSurfaceKHR Native {
             get {
@@ -37,32 +18,24 @@ namespace CSGL.Vulkan {
             }
         }
 
-        public Surface(PhysicalDevice device, Window window) {
-            if (device == null) throw new ArgumentNullException(nameof(device));
+        public Surface(Instance instance, Window window) {
+            if (instance == null) throw new ArgumentNullException(nameof(instance));
             if (window == null) throw new ArgumentNullException(nameof(window));
 
-            Init(device, window.Native);
+            Init(instance, window.Native);
         }
 
-        public Surface(PhysicalDevice device, WindowPtr window) {
-            if (device == null) throw new ArgumentNullException(nameof(device));
+        public Surface(Instance instance, WindowPtr window) {
+            if (instance == null) throw new ArgumentNullException(nameof(instance));
             if (window == WindowPtr.Null) throw new ArgumentNullException(nameof(window));
 
-            Init(device, window);
+            Init(instance, window);
         }
 
-        void Init(PhysicalDevice device, WindowPtr window) {
-            physicalDevice = device;
-            Instance = device.Instance;
-            
-            getCapabilities = Instance.Commands.getCapabilities;
-            getFormats = Instance.Commands.getFormats;
-            getModes = Instance.Commands.getModes;
+        void Init(Instance instance, WindowPtr window) {
+            Instance = instance;
 
             CreateSurface(window);
-
-            GetFormats();
-            GetModes();
         }
 
         void CreateSurface(WindowPtr window) {
@@ -70,13 +43,22 @@ namespace CSGL.Vulkan {
             if (result != VkResult.Success) throw new SurfaceException(string.Format("Error creating surface: {0}", result));
         }
 
-        void GetFormats() {
+        public VkSurfaceCapabilitiesKHR GetCapabilities(PhysicalDevice physicalDevice) {
+            unsafe
+            {
+                VkSurfaceCapabilitiesKHR cap;
+                Instance.Commands.getCapabilities(physicalDevice.Native, surface, (IntPtr)(&cap));
+                return cap;
+            }
+        }
+
+        public List<VkSurfaceFormatKHR> GetFormats(PhysicalDevice physicalDevice) {
             var formats = new List<VkSurfaceFormatKHR>();
 
             uint count = 0;
-            getFormats(physicalDevice.Native, surface, ref count, IntPtr.Zero);
+            Instance.Commands.getFormats(physicalDevice.Native, surface, ref count, IntPtr.Zero);
             var formatsNative = new NativeArray<VkSurfaceFormatKHR>((int)count);
-            getFormats(physicalDevice.Native, surface, ref count, formatsNative.Address);
+            Instance.Commands.getFormats(physicalDevice.Native, surface, ref count, formatsNative.Address);
 
             using (formatsNative) {
                 for (int i = 0; i < count; i++) {
@@ -85,17 +67,17 @@ namespace CSGL.Vulkan {
                 }
             }
 
-            Formats = formats.AsReadOnly();
+            return formats;
         }
 
-        void GetModes() {
+        public List<VkPresentModeKHR> GetModes(PhysicalDevice physicalDevice) {
             var presentModes = new List<VkPresentModeKHR>();
 
             uint count = 0;
-            getModes(physicalDevice.Native, surface, ref count, IntPtr.Zero);
+            Instance.Commands.getModes(physicalDevice.Native, surface, ref count, IntPtr.Zero);
             var modes = new int[(int)count];    //VkPresentModeKHR is an enum and can't be marshalled directly
             var modesMarshalled = new PinnedArray<int>(modes);
-            getModes(physicalDevice.Native, surface, ref count, modesMarshalled.Address);
+            Instance.Commands.getModes(physicalDevice.Native, surface, ref count, modesMarshalled.Address);
 
             using (modesMarshalled) {
                 for (int i = 0; i < count; i++) {
@@ -104,7 +86,7 @@ namespace CSGL.Vulkan {
                 }
             }
 
-            PresentModes = presentModes.AsReadOnly();
+            return presentModes;
         }
 
         public void Dispose() {
