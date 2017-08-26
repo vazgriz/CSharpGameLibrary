@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
   <metadata>
     <id>CSharpGameLibrary</id>
-    <version>0.1.2-alpha</version>
+    <version>0.1.3-alpha</version>
     <title>C# Game Library</title>
     <authors>Ryan Vazquez</authors>
     <owners>vazgriz</owners>
@@ -10,11 +10,9 @@
     <licenseUrl>https://github.com/vazgriz/CSharpGameLibrary/blob/master/license.txt</licenseUrl>
     <projectUrl>https://github.com/vazgriz/CSharpGameLibrary</projectUrl>
     <description>C# bindings for GLFW, OpenGL, and Vulkan</description>
-    <releaseNotes>- Add support for VK_EXT_debug_report extenstion
-- Add methods and properties to CSGL.GLFW.Window
-- Revert namespace changes
-  - CSGL.Vulkan1 renamed to CSGL.Vulkan
-  - CSGL.GL4 renamed to CSGL.OpenGL</releaseNotes>
+    <releaseNotes>- Refactor CSGL.Vulkan.Surface
+  - Surface now depends on Instance instead of PhysicalDevice. Properties of the surface are queried with a PhysicalDevice passed as a parameter.
+- Fixed a bug that prevented PipelineMultisampleStateCreateInfo::sampleMask from being passed to Vulkan</releaseNotes>
     <copyright>Copyright 2017</copyright>
     <tags>glfw opengl vulkan</tags>
   </metadata>
