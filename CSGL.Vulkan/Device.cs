@@ -8,12 +8,6 @@ namespace CSGL.Vulkan {
         public List<string> extensions;
         public List<DeviceQueueCreateInfo> queueCreateInfos;
         public VkPhysicalDeviceFeatures features;
-
-        public DeviceCreateInfo(List<String> extensions, List<DeviceQueueCreateInfo> queueCreateInfos, VkPhysicalDeviceFeatures features) {
-            this.extensions = extensions;
-            this.queueCreateInfos = queueCreateInfos;
-            this.features = features;
-        }
     }
 
     public partial class Device : IDisposable, INative<VkDevice> {

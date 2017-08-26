@@ -9,12 +9,6 @@ namespace CSGL.Vulkan {
         public uint queueFamilyIndex;
         public uint queueCount;
         public List<float> priorities;
-
-        public DeviceQueueCreateInfo(uint queueFamilyIndex, uint queueCount, List<float> priorities) {
-            this.queueFamilyIndex = queueFamilyIndex;
-            this.queueCount = queueCount;
-            this.priorities = priorities;
-        }
     }
 
     public class SubmitInfo {
