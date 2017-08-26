@@ -21,11 +21,6 @@ namespace CSGL.Vulkan {
         public VkPresentModeKHR presentMode;
         public bool clipped;
         public Swapchain oldSwapchain;
-
-        public SwapchainCreateInfo(Surface surface, Swapchain oldSwapchain) {
-            this.surface = surface;
-            this.oldSwapchain = oldSwapchain;
-        }
     }
 
     public class Swapchain : IDisposable, INative<VkSwapchainKHR> {
