@@ -75,7 +75,7 @@ namespace CSGL.Vulkan {
             }
         }
 
-        public void BindVertexBuffer(uint firstBinding, Buffer buffer, ulong offset) {
+        public void BindVertexBuffers(uint firstBinding, Buffer buffer, ulong offset) {
             unsafe
             {
                 VkBuffer bufferNative = buffer.Native;
