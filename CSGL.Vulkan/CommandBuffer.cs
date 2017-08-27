@@ -191,18 +191,6 @@ namespace CSGL.Vulkan {
             }
         }
 
-        public void CopyBuffer(Buffer srcBuffer, Buffer dstBuffer) {
-            unsafe
-            {
-                VkBufferCopy region = new VkBufferCopy();
-                region.srcOffset = 0;
-                region.dstOffset = 0;
-                region.size = System.Math.Min(srcBuffer.Size, dstBuffer.Size);
-
-                Device.Commands.cmdCopyBuffer(commandBuffer, srcBuffer.Native, dstBuffer.Native, 1, (IntPtr)(&region));
-            }
-        }
-
         public void CopyBuffer(Buffer srcBuffer, Buffer dstBuffer, VkBufferCopy region) {
             unsafe
             {
