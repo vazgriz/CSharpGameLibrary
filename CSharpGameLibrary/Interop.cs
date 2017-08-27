@@ -234,5 +234,11 @@ namespace CSGL {
             if (list == null || list.Count == 0) return;
             Marshal<T, U>(list, dest, list.Count);
         }
+
+        public static IntPtr AddressOf<T>(ref T data) where T : struct {
+            unsafe {
+                return (IntPtr)Unsafe.AsPointer(ref data);
+            }
+        }
     }
 }
