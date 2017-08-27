@@ -57,7 +57,9 @@ namespace CSGL.Vulkan {
 
                 Interop.Marshal<VkBuffer>(buffers, buffersNative);
 
-                Device.Commands.cmdBindVertexBuffers(commandBuffer, firstBinding, (uint)buffers.Length, (IntPtr)(buffersNative), ref offsets[0]);
+                fixed (ulong* ptr = offsets) {
+                    Device.Commands.cmdBindVertexBuffers(commandBuffer, firstBinding, (uint)buffers.Length, (IntPtr)(buffersNative), ref offsets[0]);
+                }
             }
         }
 
