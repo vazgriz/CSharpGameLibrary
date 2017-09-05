@@ -193,29 +193,17 @@ namespace CSGL.Vulkan {
 
         public void CopyImage(Image srcImage, VkImageLayout srcImageLayout, Image dstImage, VkImageLayout dstImageLayout, VkImageCopy[] regions) {
             unsafe {
-                var regionsNative = stackalloc VkImageCopy[regions.Length];
-
-                Interop.Copy(regions, (IntPtr)regionsNative);
-
-                Device.Commands.cmdCopyImage(commandBuffer,
-                    srcImage.Native, srcImageLayout,
-                    dstImage.Native, dstImageLayout,
-                    (uint)regions.Length, (IntPtr)regionsNative);
+                fixed (VkImageCopy* ptr = regions) {
+                    Device.Commands.cmdCopyImage(commandBuffer,
+                        srcImage.Native, srcImageLayout,
+                        dstImage.Native, dstImageLayout,
+                        (uint)regions.Length, (IntPtr)ptr);
+                }
             }
         }
 
         public void CopyImage(Image srcImage, VkImageLayout srcImageLayout, Image dstImage, VkImageLayout dstImageLayout, List<VkImageCopy> regions) {
-            unsafe
-            {
-                var regionsNative = stackalloc VkImageCopy[regions.Count];
-
-                Interop.Copy(regions, (IntPtr)regionsNative);
-
-                Device.Commands.cmdCopyImage(commandBuffer,
-                    srcImage.Native, srcImageLayout,
-                    dstImage.Native, dstImageLayout,
-                    (uint)regions.Count, (IntPtr)regionsNative);
-            }
+            CopyImage(srcImage, srcImageLayout, dstImage, dstImageLayout, Interop.GetInternalArray(regions));
         }
 
         public void CopyImage(Image srcImage, VkImageLayout srcImageLayout, Image dstImage, VkImageLayout dstImageLayout, VkImageCopy regions) {
