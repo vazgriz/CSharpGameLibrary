@@ -47,7 +47,7 @@ namespace CSGL.GLFW {
             return callbackMap[window];
         }
         
-        public static void CheckError() {      //only way to convert GLFW error to managed exception
+        public static void CheckError() {      //convert GLFW error to managed exception
             if (exception != null) {    //the error callback creates an exception without throwing it
                 var ex = exception;     //and stores it in a thread local variable
                 exception = null;       //if that variable is not null when this method is called, an exception is thrown
