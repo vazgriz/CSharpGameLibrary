@@ -162,7 +162,12 @@ namespace CSGL.Vulkan {
         }
 
         public void CopyBuffer(Buffer srcBuffer, Buffer dstBuffer, List<VkBufferCopy> regions) {
-            CopyBuffer(srcBuffer, dstBuffer, Interop.GetInternalArray(regions));
+            unsafe
+            {
+                fixed (VkBufferCopy* ptr = Interop.GetInternalArray(regions)) {
+                    Device.Commands.cmdCopyBuffer(commandBuffer, srcBuffer.Native, dstBuffer.Native, (uint)regions.Count, (IntPtr)ptr);
+                }
+            }
         }
 
         public void CopyBuffer(Buffer srcBuffer, Buffer dstBuffer, VkBufferCopy region) {
@@ -173,7 +178,8 @@ namespace CSGL.Vulkan {
         }
 
         public void CopyImage(Image srcImage, VkImageLayout srcImageLayout, Image dstImage, VkImageLayout dstImageLayout, VkImageCopy[] regions) {
-            unsafe {
+            unsafe
+            {
                 fixed (VkImageCopy* ptr = regions) {
                     Device.Commands.cmdCopyImage(commandBuffer,
                         srcImage.Native, srcImageLayout,
@@ -184,7 +190,15 @@ namespace CSGL.Vulkan {
         }
 
         public void CopyImage(Image srcImage, VkImageLayout srcImageLayout, Image dstImage, VkImageLayout dstImageLayout, List<VkImageCopy> regions) {
-            CopyImage(srcImage, srcImageLayout, dstImage, dstImageLayout, Interop.GetInternalArray(regions));
+            unsafe
+            {
+                fixed (VkImageCopy* ptr = Interop.GetInternalArray(regions)) {
+                    Device.Commands.cmdCopyImage(commandBuffer,
+                        srcImage.Native, srcImageLayout,
+                        dstImage.Native, dstImageLayout,
+                        (uint)regions.Count, (IntPtr)ptr);
+                }
+            }
         }
 
         public void CopyImage(Image srcImage, VkImageLayout srcImageLayout, Image dstImage, VkImageLayout dstImageLayout, VkImageCopy regions) {
@@ -278,7 +292,8 @@ namespace CSGL.Vulkan {
         }
 
         public void Execute(List<CommandBuffer> commandBuffers) {
-            unsafe {
+            unsafe
+            {
                 var commandBuffersNative = stackalloc VkCommandBuffer[commandBuffers.Count];
                 Interop.Marshal<VkCommandBuffer, CommandBuffer>(commandBuffers, commandBuffersNative);
                 Device.Commands.cmdExecuteCommands(commandBuffer, (uint)commandBuffers.Count, (IntPtr)commandBuffersNative);
@@ -534,12 +549,18 @@ namespace CSGL.Vulkan {
         }
 
         public void CopyBufferToImage(Buffer srcBuffer, Image dstImage, VkImageLayout dstImageLayout, List<VkBufferImageCopy> regions) {
-            CopyBufferToImage(srcBuffer, dstImage, dstImageLayout, Interop.GetInternalArray(regions));
+            unsafe
+            {
+                fixed (VkBufferImageCopy* ptr = Interop.GetInternalArray(regions)) {
+                    Device.Commands.cmdCopyBufferToImage(commandBuffer, srcBuffer.Native, dstImage.Native, dstImageLayout, (uint)regions.Count, (IntPtr)ptr);
+                }
+            }
         }
 
 
         public void CopyBufferToImage(Buffer srcBuffer, Image dstImage, VkImageLayout dstImageLayout, VkBufferImageCopy regions) {
-            unsafe {
+            unsafe
+            {
                 Device.Commands.cmdCopyBufferToImage(commandBuffer, srcBuffer.Native, dstImage.Native, dstImageLayout, 1, (IntPtr)(&regions));
             }
         }
@@ -554,11 +575,17 @@ namespace CSGL.Vulkan {
         }
 
         public void CopyImageToBuffer(Image srcImage, VkImageLayout srcImageLayout, Buffer dstBuffer, List<VkBufferImageCopy> regions) {
-            CopyImageToBuffer(srcImage, srcImageLayout, dstBuffer, Interop.GetInternalArray(regions));
+            unsafe
+            {
+                fixed (VkBufferImageCopy* ptr = Interop.GetInternalArray(regions)) {
+                    Device.Commands.cmdCopyImageToBuffer(commandBuffer, srcImage.Native, srcImageLayout, dstBuffer.Native, (uint)regions.Count, (IntPtr)ptr);
+                }
+            }
         }
 
         public void CopyImageToBuffer(Image srcImage, VkImageLayout srcImageLayout, Buffer dstBuffer, VkBufferImageCopy regions) {
-            unsafe {
+            unsafe
+            {
                 Device.Commands.cmdCopyImageToBuffer(commandBuffer, srcImage.Native, srcImageLayout, dstBuffer.Native, 1, (IntPtr)(&regions));
             }
         }
