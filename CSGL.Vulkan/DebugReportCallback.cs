@@ -65,7 +65,7 @@ namespace CSGL.Vulkan {
         }
 
         bool InternalCallback(
-            VkDebugReportFlagsEXT flags, 
+            VkDebugReportFlagsEXT flags,
             VkDebugReportObjectTypeEXT objectType,
             ulong _object,
             IntPtr location,    //size_t in native code
@@ -94,8 +94,7 @@ namespace CSGL.Vulkan {
             ulong location,
             int messageCode,
             string layerPrefix,
-            string message)
-        {
+            string message) {
             if (instance == null) throw new ArgumentNullException(nameof(instance));
 
             IntPtr _location = (IntPtr)location;

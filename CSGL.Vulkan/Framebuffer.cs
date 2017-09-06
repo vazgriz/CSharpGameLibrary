@@ -39,14 +39,14 @@ namespace CSGL.Vulkan {
             VkFramebufferCreateInfo info = new VkFramebufferCreateInfo();
             info.sType = VkStructureType.FramebufferCreateInfo;
             info.renderPass = mInfo.renderPass.Native;
-           
+
             var attachmentsMarshalled = new NativeArray<VkImageView>(mInfo.attachments.Count);
 
             for (int i = 0; i < mInfo.attachments.Count; i++) {
                 attachmentsMarshalled[i] = mInfo.attachments[i].Native;
             }
 
-            info.attachmentCount = (uint)mInfo.attachments.Count; 
+            info.attachmentCount = (uint)mInfo.attachments.Count;
             info.pAttachments = attachmentsMarshalled.Address;
 
             info.width = mInfo.width;

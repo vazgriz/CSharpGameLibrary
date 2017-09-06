@@ -53,7 +53,7 @@ namespace CSGL.Vulkan {
 
             return pipelines;
         }
-        
+
         public void Dispose() {
             Dispose(true);
             GC.SuppressFinalize(this);

@@ -17,7 +17,7 @@ namespace CSGL.Vulkan {
         bool disposed;
 
         VkMemoryRequirements requirements;
-        
+
         public Device Device { get; private set; }
 
         public VkBuffer Native {
@@ -50,7 +50,7 @@ namespace CSGL.Vulkan {
             Device = device;
 
             CreateBuffer(info);
-            
+
             Device.Commands.getMemoryRequirements(Device.Native, buffer, out requirements);
         }
 

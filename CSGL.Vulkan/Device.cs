@@ -142,7 +142,7 @@ namespace CSGL.Vulkan {
 
         void Dispose(bool disposing) {
             if (disposed) return;
-            
+
             Instance.Commands.destroyDevice(device, Instance.AllocationCallbacks);
 
             disposed = true;

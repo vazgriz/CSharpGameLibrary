@@ -50,7 +50,7 @@ namespace CSGL.Vulkan {
             info.format = mInfo.format;
             info.components = mInfo.components;
             info.subresourceRange = mInfo.subresourceRange;
-            
+
             var result = Device.Commands.createImageView(Device.Native, ref info, Device.Instance.AllocationCallbacks, out imageView);
             if (result != VkResult.Success) throw new ImageViewException(string.Format("Error creating image view: {0}", result));
 
@@ -68,7 +68,7 @@ namespace CSGL.Vulkan {
 
         void Dispose(bool disposing) {
             if (disposed) return;
-            
+
             Device.Commands.destroyImageView(Device.Native, imageView, Device.Instance.AllocationCallbacks);
 
             disposed = true;

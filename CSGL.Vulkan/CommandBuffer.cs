@@ -51,8 +51,7 @@ namespace CSGL.Vulkan {
         }
 
         public void BindVertexBuffers(uint firstBinding, Buffer[] buffers, ulong[] offsets) {
-            unsafe
-            {
+            unsafe {
                 var buffersNative = stackalloc VkBuffer[buffers.Length];
 
                 Interop.Marshal<VkBuffer>(buffers, buffersNative);
@@ -64,8 +63,7 @@ namespace CSGL.Vulkan {
         }
 
         public void BindVertexBuffers(uint firstBinding, List<Buffer> buffers, List<ulong> offsets) {
-            unsafe
-            {
+            unsafe {
                 var buffersNative = stackalloc VkBuffer[buffers.Count];
                 var offsetsNative = stackalloc ulong[offsets.Count];
 
@@ -77,8 +75,7 @@ namespace CSGL.Vulkan {
         }
 
         public void BindVertexBuffers(uint firstBinding, Buffer buffer, ulong offset) {
-            unsafe
-            {
+            unsafe {
                 VkBuffer bufferNative = buffer.Native;
                 Device.Commands.cmdBindVertexBuffers(commandBuffer, firstBinding, 1, (IntPtr)(&bufferNative), ref offset);
             }
@@ -89,8 +86,7 @@ namespace CSGL.Vulkan {
         }
 
         public void BindDescriptorSets(VkPipelineBindPoint pipelineBindPoint, PipelineLayout layout, uint firstSet, DescriptorSet[] descriptorSets, uint[] dynamicOffsets) {
-            unsafe
-            {
+            unsafe {
                 var sets = stackalloc VkDescriptorSet[descriptorSets.Length];
 
                 Interop.Marshal(descriptorSets, sets);
@@ -107,8 +103,7 @@ namespace CSGL.Vulkan {
         }
 
         public void BindDescriptorSets(VkPipelineBindPoint pipelineBindPoint, PipelineLayout layout, uint firstSet, List<DescriptorSet> descriptorSets, List<uint> dynamicOffsets) {
-            unsafe
-            {
+            unsafe {
                 int dynamicOffsetCount = 0;
                 if (dynamicOffsets != null) dynamicOffsetCount = dynamicOffsets.Count;
 
@@ -128,11 +123,10 @@ namespace CSGL.Vulkan {
         }
 
         public void BindDescriptorSets(VkPipelineBindPoint pipelineBindPoint, PipelineLayout layout, uint firstSet, DescriptorSet descriptorSet, List<uint> dynamicOffsets) {
-            unsafe
-            {
+            unsafe {
                 int dynamicOffsetCount = 0;
                 if (dynamicOffsets != null) dynamicOffsetCount = dynamicOffsets.Count;
-                
+
                 var offsets = stackalloc uint[dynamicOffsetCount];
 
                 VkDescriptorSet setNative = descriptorSet.Native;
@@ -153,8 +147,7 @@ namespace CSGL.Vulkan {
         }
 
         public void CopyBuffer(Buffer srcBuffer, Buffer dstBuffer, VkBufferCopy[] regions) {
-            unsafe
-            {
+            unsafe {
                 fixed (VkBufferCopy* ptr = regions) {
                     Device.Commands.cmdCopyBuffer(commandBuffer, srcBuffer.Native, dstBuffer.Native, (uint)regions.Length, (IntPtr)ptr);
                 }
@@ -162,8 +155,7 @@ namespace CSGL.Vulkan {
         }
 
         public void CopyBuffer(Buffer srcBuffer, Buffer dstBuffer, List<VkBufferCopy> regions) {
-            unsafe
-            {
+            unsafe {
                 fixed (VkBufferCopy* ptr = Interop.GetInternalArray(regions)) {
                     Device.Commands.cmdCopyBuffer(commandBuffer, srcBuffer.Native, dstBuffer.Native, (uint)regions.Count, (IntPtr)ptr);
                 }
@@ -171,15 +163,13 @@ namespace CSGL.Vulkan {
         }
 
         public void CopyBuffer(Buffer srcBuffer, Buffer dstBuffer, VkBufferCopy region) {
-            unsafe
-            {
+            unsafe {
                 Device.Commands.cmdCopyBuffer(commandBuffer, srcBuffer.Native, dstBuffer.Native, 1, (IntPtr)(&region));
             }
         }
 
         public void CopyImage(Image srcImage, VkImageLayout srcImageLayout, Image dstImage, VkImageLayout dstImageLayout, VkImageCopy[] regions) {
-            unsafe
-            {
+            unsafe {
                 fixed (VkImageCopy* ptr = regions) {
                     Device.Commands.cmdCopyImage(commandBuffer,
                         srcImage.Native, srcImageLayout,
@@ -190,8 +180,7 @@ namespace CSGL.Vulkan {
         }
 
         public void CopyImage(Image srcImage, VkImageLayout srcImageLayout, Image dstImage, VkImageLayout dstImageLayout, List<VkImageCopy> regions) {
-            unsafe
-            {
+            unsafe {
                 fixed (VkImageCopy* ptr = Interop.GetInternalArray(regions)) {
                     Device.Commands.cmdCopyImage(commandBuffer,
                         srcImage.Native, srcImageLayout,
@@ -202,8 +191,7 @@ namespace CSGL.Vulkan {
         }
 
         public void CopyImage(Image srcImage, VkImageLayout srcImageLayout, Image dstImage, VkImageLayout dstImageLayout, VkImageCopy regions) {
-            unsafe
-            {
+            unsafe {
                 Device.Commands.cmdCopyImage(commandBuffer,
                     srcImage.Native, srcImageLayout,
                     dstImage.Native, dstImageLayout,
@@ -222,8 +210,7 @@ namespace CSGL.Vulkan {
             if (bufferMemoryBarriers != null) bbCount = bufferMemoryBarriers.Count;
             if (imageMemoryBarriers != null) ibCount = imageMemoryBarriers.Count;
 
-            unsafe
-            {
+            unsafe {
                 var mbNative = stackalloc VkMemoryBarrier[mbCount];
 
                 for (int i = 0; i < mbCount; i++) {
@@ -274,8 +261,7 @@ namespace CSGL.Vulkan {
         }
 
         public void ClearColorImage(Image image, VkImageLayout imageLayout, ref VkClearColorValue clearColor, VkImageSubresourceRange[] ranges) {
-            unsafe
-            {
+            unsafe {
                 fixed (VkImageSubresourceRange* ptr = ranges) {
                     Device.Commands.cmdClearColorImage(commandBuffer, image.Native, imageLayout, ref clearColor, (uint)ranges.Length, (IntPtr)ptr);
                 }
@@ -283,8 +269,7 @@ namespace CSGL.Vulkan {
         }
 
         public void ClearColorImage(Image image, VkImageLayout imageLayout, ref VkClearColorValue clearColor, List<VkImageSubresourceRange> ranges) {
-            unsafe
-            {
+            unsafe {
                 fixed (VkImageSubresourceRange* ptr = Interop.GetInternalArray(ranges)) {
                     Device.Commands.cmdClearColorImage(commandBuffer, image.Native, imageLayout, ref clearColor, (uint)ranges.Count, (IntPtr)ptr);
                 }
@@ -292,15 +277,13 @@ namespace CSGL.Vulkan {
         }
 
         public void ClearColorImage(Image image, VkImageLayout imageLayout, ref VkClearColorValue clearColor, VkImageSubresourceRange ranges) {
-            unsafe
-            {
+            unsafe {
                 Device.Commands.cmdClearColorImage(commandBuffer, image.Native, imageLayout, ref clearColor, 1, (IntPtr)(&ranges));
             }
         }
 
         public void Execute(List<CommandBuffer> commandBuffers) {
-            unsafe
-            {
+            unsafe {
                 var commandBuffersNative = stackalloc VkCommandBuffer[commandBuffers.Count];
                 Interop.Marshal<VkCommandBuffer, CommandBuffer>(commandBuffers, commandBuffersNative);
                 Device.Commands.cmdExecuteCommands(commandBuffer, (uint)commandBuffers.Count, (IntPtr)commandBuffersNative);
@@ -312,8 +295,7 @@ namespace CSGL.Vulkan {
         }
 
         public void PushConstants(PipelineLayout layout, VkShaderStageFlags stageFlags, uint offset, byte[] data) {
-            unsafe
-            {
+            unsafe {
                 fixed (byte* ptr = data) {
                     Device.Commands.cmdPushConstants(commandBuffer, layout.Native, stageFlags, offset, (uint)data.Length, (IntPtr)ptr);
                 }
@@ -327,8 +309,7 @@ namespace CSGL.Vulkan {
         }
 
         public void PushConstants<T>(PipelineLayout layout, VkShaderStageFlags stageFlags, uint offset, List<T> data) where T : struct {
-            unsafe
-            {
+            unsafe {
                 int size = (int)Interop.SizeOf<T>();
                 byte* native = stackalloc byte[size * data.Count];
                 Interop.Copy(data, (IntPtr)native);
@@ -350,8 +331,7 @@ namespace CSGL.Vulkan {
 
         public void WaitEvents(List<Event> events, VkPipelineStageFlags srcStageMask, VkPipelineStageFlags dstStageMask,
             List<MemoryBarrier> memoryBarriers, List<BufferMemoryBarrier> bufferMemoryBarriers, List<ImageMemoryBarrier> imageMemoryBarriers) {
-            unsafe
-            {
+            unsafe {
                 var eventsNative = stackalloc VkEvent[events.Count];
                 Interop.Marshal<VkEvent, Event>(events, eventsNative);
 
@@ -412,8 +392,7 @@ namespace CSGL.Vulkan {
         }
 
         public void WaitEvents(List<Event> events, VkPipelineStageFlags srcStageMask, VkPipelineStageFlags dstStageMask) {
-            unsafe
-            {
+            unsafe {
                 var eventsNative = stackalloc VkEvent[events.Count];
                 Interop.Marshal<VkEvent, Event>(events, eventsNative);
 
@@ -427,8 +406,7 @@ namespace CSGL.Vulkan {
         }
 
         public void SetViewports(uint firstViewport, VkViewport[] viewports) {
-            unsafe
-            {
+            unsafe {
                 fixed (VkViewport* ptr = viewports) {
                     Device.Commands.cmdSetViewports(commandBuffer, firstViewport, (uint)viewports.Length, (IntPtr)ptr);
                 }
@@ -436,8 +414,7 @@ namespace CSGL.Vulkan {
         }
 
         public void SetViewports(uint firstViewport, List<VkViewport> viewports) {
-            unsafe
-            {
+            unsafe {
                 fixed (VkViewport* ptr = Interop.GetInternalArray(viewports)) {
                     Device.Commands.cmdSetViewports(commandBuffer, firstViewport, (uint)viewports.Count, (IntPtr)ptr);
                 }
@@ -445,15 +422,13 @@ namespace CSGL.Vulkan {
         }
 
         public void SetViewports(uint firstViewport, VkViewport viewports) {
-            unsafe
-            {
+            unsafe {
                 Device.Commands.cmdSetViewports(commandBuffer, firstViewport, 1, (IntPtr)(&viewports));
             }
         }
 
         public void SetScissor(uint firstScissor, VkRect2D[] scissors) {
-            unsafe
-            {
+            unsafe {
                 fixed (VkRect2D* ptr = scissors) {
                     Device.Commands.cmdSetScissor(commandBuffer, firstScissor, (uint)scissors.Length, (IntPtr)(ptr));
                 }
@@ -461,8 +436,7 @@ namespace CSGL.Vulkan {
         }
 
         public void SetScissor(uint firstScissor, List<VkRect2D> scissors) {
-            unsafe
-            {
+            unsafe {
                 fixed (VkRect2D* ptr = Interop.GetInternalArray(scissors)) {
                     Device.Commands.cmdSetScissor(commandBuffer, firstScissor, (uint)scissors.Count, (IntPtr)(ptr));
                 }
@@ -470,8 +444,7 @@ namespace CSGL.Vulkan {
         }
 
         public void SetScissor(uint firstScissor, VkRect2D scissors) {
-            unsafe
-            {
+            unsafe {
                 Device.Commands.cmdSetScissor(commandBuffer, firstScissor, 1, (IntPtr)(&scissors));
             }
         }
@@ -485,8 +458,7 @@ namespace CSGL.Vulkan {
         }
 
         public void SetBlendConstants(float[] blendConstants) {
-            unsafe
-            {
+            unsafe {
                 fixed (float* ptr = blendConstants) {
                     Device.Commands.cmdSetBlendConstants(commandBuffer, (IntPtr)ptr);
                 }
@@ -494,8 +466,7 @@ namespace CSGL.Vulkan {
         }
 
         public void SetBlendConstants(float constant0, float constant1, float constant2, float constant3) {
-            unsafe
-            {
+            unsafe {
                 float* constants = stackalloc float[4];
                 constants[0] = constant0;
                 constants[1] = constant1;
@@ -535,8 +506,7 @@ namespace CSGL.Vulkan {
         }
 
         public void UpdateBuffer(Buffer dstBuffer, ulong dstOffset, byte[] data) {
-            unsafe
-            {
+            unsafe {
                 fixed (byte* ptr = data) {
                     Device.Commands.cmdUpdateBuffer(commandBuffer, dstBuffer.Native, dstOffset, (ulong)data.Length, (IntPtr)ptr);
                 }
@@ -556,8 +526,7 @@ namespace CSGL.Vulkan {
         }
 
         public void BlitImage(Image srcImage, VkImageLayout srcImageLayout, Image dstImage, VkImageLayout dstImageLayout, VkImageBlit[] regions, VkFilter filter) {
-            unsafe
-            {
+            unsafe {
                 fixed (VkImageBlit* ptr = regions) {
                     Device.Commands.cmdBlitImage(commandBuffer, srcImage.Native, srcImageLayout, dstImage.Native, dstImageLayout, (uint)regions.Length, (IntPtr)ptr, filter);
                 }
@@ -565,8 +534,7 @@ namespace CSGL.Vulkan {
         }
 
         public void BlitImage(Image srcImage, VkImageLayout srcImageLayout, Image dstImage, VkImageLayout dstImageLayout, List<VkImageBlit> regions, VkFilter filter) {
-            unsafe
-            {
+            unsafe {
                 fixed (VkImageBlit* ptr = Interop.GetInternalArray(regions)) {
                     Device.Commands.cmdBlitImage(commandBuffer, srcImage.Native, srcImageLayout, dstImage.Native, dstImageLayout, (uint)regions.Count, (IntPtr)ptr, filter);
                 }
@@ -574,15 +542,13 @@ namespace CSGL.Vulkan {
         }
 
         public void BlitImage(Image srcImage, VkImageLayout srcImageLayout, Image dstImage, VkImageLayout dstImageLayout, VkImageBlit regions, VkFilter filter) {
-            unsafe
-            {
+            unsafe {
                 Device.Commands.cmdBlitImage(commandBuffer, srcImage.Native, srcImageLayout, dstImage.Native, dstImageLayout, 1, (IntPtr)(&regions), filter);
             }
         }
 
         public void CopyBufferToImage(Buffer srcBuffer, Image dstImage, VkImageLayout dstImageLayout, VkBufferImageCopy[] regions) {
-            unsafe
-            {
+            unsafe {
                 fixed (VkBufferImageCopy* ptr = regions) {
                     Device.Commands.cmdCopyBufferToImage(commandBuffer, srcBuffer.Native, dstImage.Native, dstImageLayout, (uint)regions.Length, (IntPtr)ptr);
                 }
@@ -590,8 +556,7 @@ namespace CSGL.Vulkan {
         }
 
         public void CopyBufferToImage(Buffer srcBuffer, Image dstImage, VkImageLayout dstImageLayout, List<VkBufferImageCopy> regions) {
-            unsafe
-            {
+            unsafe {
                 fixed (VkBufferImageCopy* ptr = Interop.GetInternalArray(regions)) {
                     Device.Commands.cmdCopyBufferToImage(commandBuffer, srcBuffer.Native, dstImage.Native, dstImageLayout, (uint)regions.Count, (IntPtr)ptr);
                 }
@@ -599,15 +564,13 @@ namespace CSGL.Vulkan {
         }
 
         public void CopyBufferToImage(Buffer srcBuffer, Image dstImage, VkImageLayout dstImageLayout, VkBufferImageCopy regions) {
-            unsafe
-            {
+            unsafe {
                 Device.Commands.cmdCopyBufferToImage(commandBuffer, srcBuffer.Native, dstImage.Native, dstImageLayout, 1, (IntPtr)(&regions));
             }
         }
 
         public void CopyImageToBuffer(Image srcImage, VkImageLayout srcImageLayout, Buffer dstBuffer, VkBufferImageCopy[] regions) {
-            unsafe
-            {
+            unsafe {
                 fixed (VkBufferImageCopy* ptr = regions) {
                     Device.Commands.cmdCopyImageToBuffer(commandBuffer, srcImage.Native, srcImageLayout, dstBuffer.Native, (uint)regions.Length, (IntPtr)ptr);
                 }
@@ -615,8 +578,7 @@ namespace CSGL.Vulkan {
         }
 
         public void CopyImageToBuffer(Image srcImage, VkImageLayout srcImageLayout, Buffer dstBuffer, List<VkBufferImageCopy> regions) {
-            unsafe
-            {
+            unsafe {
                 fixed (VkBufferImageCopy* ptr = Interop.GetInternalArray(regions)) {
                     Device.Commands.cmdCopyImageToBuffer(commandBuffer, srcImage.Native, srcImageLayout, dstBuffer.Native, (uint)regions.Count, (IntPtr)ptr);
                 }
@@ -624,15 +586,13 @@ namespace CSGL.Vulkan {
         }
 
         public void CopyImageToBuffer(Image srcImage, VkImageLayout srcImageLayout, Buffer dstBuffer, VkBufferImageCopy regions) {
-            unsafe
-            {
+            unsafe {
                 Device.Commands.cmdCopyImageToBuffer(commandBuffer, srcImage.Native, srcImageLayout, dstBuffer.Native, 1, (IntPtr)(&regions));
             }
         }
 
         public void ClearAttachments(VkClearAttachment[] attachments, VkClearRect[] rects) {
-            unsafe
-            {
+            unsafe {
                 fixed (VkClearAttachment* attachmentPtr = attachments)
                 fixed (VkClearRect* rectPtr = rects) {
                     Device.Commands.cmdClearAttachments(commandBuffer, (uint)attachments.Length, (IntPtr)attachmentPtr, (uint)rects.Length, (IntPtr)rectPtr);
@@ -641,8 +601,7 @@ namespace CSGL.Vulkan {
         }
 
         public void ClearAttachments(List<VkClearAttachment> attachments, List<VkClearRect> rects) {
-            unsafe
-            {
+            unsafe {
                 fixed (VkClearAttachment* attachmentPtr = Interop.GetInternalArray(attachments))
                 fixed (VkClearRect* rectPtr = Interop.GetInternalArray(rects)) {
                     Device.Commands.cmdClearAttachments(commandBuffer, (uint)attachments.Count, (IntPtr)attachmentPtr, (uint)rects.Count, (IntPtr)rectPtr);
@@ -651,15 +610,13 @@ namespace CSGL.Vulkan {
         }
 
         public void ClearAttachments(VkClearAttachment attachments, VkClearRect rects) {
-            unsafe
-            {
+            unsafe {
                 Device.Commands.cmdClearAttachments(commandBuffer, 1, (IntPtr)(&attachments), 1, (IntPtr)(&rects));
             }
         }
 
         public void ResolveImage(Image srcImage, VkImageLayout srcImageLayout, Image dstImage, VkImageLayout dstImageLayout, VkImageResolve[] regions) {
-            unsafe
-            {
+            unsafe {
                 fixed (VkImageResolve* ptr = regions) {
                     Device.Commands.cmdResolveImage(commandBuffer, srcImage.Native, srcImageLayout, dstImage.Native, dstImageLayout, (uint)regions.Length, (IntPtr)ptr);
                 }
@@ -667,8 +624,7 @@ namespace CSGL.Vulkan {
         }
 
         public void ResolveImage(Image srcImage, VkImageLayout srcImageLayout, Image dstImage, VkImageLayout dstImageLayout, List<VkImageResolve> regions) {
-            unsafe
-            {
+            unsafe {
                 fixed (VkImageResolve* ptr = Interop.GetInternalArray(regions)) {
                     Device.Commands.cmdResolveImage(commandBuffer, srcImage.Native, srcImageLayout, dstImage.Native, dstImageLayout, (uint)regions.Count, (IntPtr)ptr);
                 }
@@ -676,8 +632,7 @@ namespace CSGL.Vulkan {
         }
 
         public void ResolveImage(Image srcImage, VkImageLayout srcImageLayout, Image dstImage, VkImageLayout dstImageLayout, VkImageResolve regions) {
-            unsafe
-            {
+            unsafe {
                 Device.Commands.cmdResolveImage(commandBuffer, srcImage.Native, srcImageLayout, dstImage.Native, dstImageLayout, 1, (IntPtr)(&regions));
             }
         }

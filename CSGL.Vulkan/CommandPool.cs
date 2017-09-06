@@ -34,7 +34,7 @@ namespace CSGL.Vulkan {
             info.sType = VkStructureType.CommandPoolCreateInfo;
             info.flags = mInfo.flags;
             info.queueFamilyIndex = mInfo.queueFamilyIndex;
-            
+
             var result = Device.Commands.createCommandPool(Device.Native, ref info, Device.Instance.AllocationCallbacks, out commandPool);
             if (result != VkResult.Success) throw new CommandPoolException(string.Format("Error creating command pool: {0}", result));
 

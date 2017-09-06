@@ -26,9 +26,9 @@ namespace CSGL.Vulkan {
     public class Swapchain : IDisposable, INative<VkSwapchainKHR> {
         VkSwapchainKHR swapchain;
         bool disposed;
-        
+
         vkGetSwapchainImagesKHRDelegate getImages;
-        
+
         public Device Device { get; private set; }
         public Surface Surface { get; private set; }
         public IList<Image> Images { get; private set; }
@@ -53,7 +53,7 @@ namespace CSGL.Vulkan {
 
             Surface = info.surface;
             Device = device;
-            
+
             getImages = Device.Commands.getSwapchainImages;
 
             CreateSwapchain(info);
@@ -135,7 +135,7 @@ namespace CSGL.Vulkan {
 
         void Dispose(bool disposing) {
             if (disposed) return;
-            
+
             Device.Commands.destroySwapchain(Device.Native, swapchain, Device.Instance.AllocationCallbacks);
 
             foreach (var image in Images) {

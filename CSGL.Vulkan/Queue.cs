@@ -100,8 +100,7 @@ namespace CSGL.Vulkan {
                 return Device.Commands.queueSubmit(queue, 0, IntPtr.Zero, fenceNative);
             }
 
-            unsafe
-            {
+            unsafe {
                 int totalWaitSemaphores = 0;
                 int totalCommandBuffers = 0;
                 int totalSignalSemaphores = 0;
@@ -155,7 +154,7 @@ namespace CSGL.Vulkan {
                     if (infos[i].signalSemaphores != null) {
                         int signalCount = infos[i].signalSemaphores.Count;
                         Interop.Marshal<VkSemaphore, Semaphore>(infos[i].signalSemaphores, &signalSemaphoresNative[signalSemaphoresIndex]);
-                        
+
                         info.signalSemaphoreCount = (uint)infos[i].signalSemaphores.Count;
                         info.pSignalSemaphores = (IntPtr)(&signalSemaphoresNative[signalSemaphoresIndex]);  //get address from index
                         signalSemaphoresIndex += infos[i].signalSemaphores.Count;  //increment index
@@ -169,8 +168,7 @@ namespace CSGL.Vulkan {
         }
 
         public VkResult Present(PresentInfo info) {
-            unsafe
-            {
+            unsafe {
                 var waitSemaphoresNative = stackalloc VkSemaphore[info.waitSemaphores.Count];
                 Interop.Marshal<VkSemaphore, Semaphore>(info.waitSemaphores, waitSemaphoresNative);
 
@@ -198,11 +196,11 @@ namespace CSGL.Vulkan {
                 infoNative.pImageIndices = (IntPtr)imageIndices;
 
                 var result = Device.Commands.queuePresent(queue, ref infoNative);
-                
+
                 for (int i = 0; i < resultsLength; i++) {   //default resultsLength is 0, safe to iterate
                     info.results[i] = (VkResult)results[i];
                 }
-                
+
                 return result;
             }
         }
@@ -240,8 +238,7 @@ namespace CSGL.Vulkan {
                 return Device.Commands.queueBindSparse(queue, 0, IntPtr.Zero, fenceNative);
             }
 
-            unsafe
-            {
+            unsafe {
                 int totalWaitSemaphores = 0;
                 int totalSignalSemaphores = 0;
                 int totalBufferBinds = 0;
@@ -305,7 +302,7 @@ namespace CSGL.Vulkan {
                     if (bindInfo[i].waitSemaphores != null) {
                         int waitCount = bindInfo[i].waitSemaphores.Count;
                         Interop.Marshal<VkSemaphore, Semaphore>(bindInfo[i].waitSemaphores, &waitSemaphoresNative[waitSemaphoresIndex]);
-                        
+
                         info.waitSemaphoreCount = (uint)waitCount;
                         info.pWaitSemaphores = (IntPtr)(&waitSemaphoresNative[waitSemaphoresIndex]);    //get address from index
                         waitSemaphoresIndex += waitCount;  //increment index

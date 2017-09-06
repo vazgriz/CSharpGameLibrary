@@ -73,8 +73,7 @@ namespace CSGL.Vulkan {
         }
 
         void CreateRenderPass(RenderPassCreateInfo mInfo) {
-            unsafe
-            {
+            unsafe {
                 var info = new VkRenderPassCreateInfo();
                 info.sType = VkStructureType.RenderPassCreateInfo;
 
@@ -156,7 +155,7 @@ namespace CSGL.Vulkan {
                                 layout = subpass.colorAttachments[j].layout
                             };
                         }
-                        
+
                         subpasses[i].colorAttachmentCount = (uint)subpass.colorAttachments.Count;
                         subpasses[i].pColorAttachments = (IntPtr)(&colorAttachments[colorIndex]);
                         colorIndex += subpass.colorAttachments.Count;
@@ -168,7 +167,7 @@ namespace CSGL.Vulkan {
                                 layout = subpass.resolveAttachments[j].layout
                             };
                         }
-                        
+
                         subpasses[i].pResolveAttachments = (IntPtr)(&resolveAttachments[resolveIndex]);
                         resolveIndex += subpass.resolveAttachments.Count;
                     }
@@ -177,7 +176,7 @@ namespace CSGL.Vulkan {
                             attachment = subpass.depthStencilAttachment.attachment,
                             layout = subpass.depthStencilAttachment.layout
                         };
-                        
+
                         subpasses[i].pDepthStencilAttachment = (IntPtr)(&depthAttachments[depthIndex]);
                         depthIndex += 1;
                     }

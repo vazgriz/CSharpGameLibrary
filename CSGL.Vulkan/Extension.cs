@@ -8,8 +8,7 @@ namespace CSGL.Vulkan {
         public VkVersion Version { get; private set; }
 
         internal Extension(VkExtensionProperties prop) {
-            unsafe
-            {
+            unsafe {
                 Name = Interop.GetString(&prop.extensionName);
             }
             Version = prop.specVersion;

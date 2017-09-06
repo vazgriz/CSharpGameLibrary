@@ -74,7 +74,7 @@ namespace CSGL.Vulkan {
         public VkAccessFlags srcAccessMask;
         public VkAccessFlags dstAccessMask;
     }
-    
+
     public class BufferMemoryBarrier {
         public VkAccessFlags srcAccessMask;
         public VkAccessFlags dstAccessMask;

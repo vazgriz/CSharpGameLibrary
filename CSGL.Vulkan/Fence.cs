@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 
 namespace CSGL.Vulkan {
-	public class FenceCreateInfo {
+    public class FenceCreateInfo {
         public VkFenceCreateFlags Flags { get; set; }
     }
 
@@ -10,7 +10,7 @@ namespace CSGL.Vulkan {
         VkFence fence;
         bool disposed = false;
 
-		public VkFence Native {
+        public VkFence Native {
             get {
                 return fence;
             }
@@ -22,17 +22,16 @@ namespace CSGL.Vulkan {
             }
         }
 
-		public Device Device { get; private set; }
+        public Device Device { get; private set; }
 
-		public static VkResult Reset(Device device, Fence[] fences) {
+        public static VkResult Reset(Device device, Fence[] fences) {
             if (device == null) throw new ArgumentNullException(nameof(device));
             if (fences == null) throw new ArgumentNullException(nameof(fences));
 
-            unsafe
-            {
+            unsafe {
                 var fencesNative = stackalloc VkFence[fences.Length];
                 Interop.Marshal(fences, fencesNative);
-                
+
                 var result = device.Commands.resetFences(device.Native, (uint)fences.Length, (IntPtr)fencesNative);
                 if (result != VkResult.Success) throw new FenceException(string.Format("Error resetting fences: {0}", result));
                 return result;
@@ -43,8 +42,7 @@ namespace CSGL.Vulkan {
             if (device == null) throw new ArgumentNullException(nameof(device));
             if (fences == null) throw new ArgumentNullException(nameof(fences));
 
-            unsafe
-            {
+            unsafe {
                 var fencesNative = stackalloc VkFence[fences.Count];
                 Interop.Marshal<VkFence, Fence>(fences, fencesNative);
 
@@ -54,15 +52,14 @@ namespace CSGL.Vulkan {
             }
         }
 
-		public static VkResult Wait(Device device, Fence[] fences, bool waitAll, ulong timeout) {
+        public static VkResult Wait(Device device, Fence[] fences, bool waitAll, ulong timeout) {
             if (device == null) throw new ArgumentNullException(nameof(device));
             if (fences == null) throw new ArgumentNullException(nameof(fences));
 
-            unsafe
-            {
+            unsafe {
                 var fencesNative = stackalloc VkFence[fences.Length];
                 Interop.Marshal(fences, fencesNative);
-                
+
                 uint waitAllNative = waitAll ? 1u : 0u;
                 var result = device.Commands.waitFences(device.Native, (uint)fences.Length, (IntPtr)fencesNative, waitAllNative, timeout);
                 if (!(result == VkResult.Success || result == VkResult.Timeout)) throw new FenceException(string.Format("Error waiting on fences: {0}", result));
@@ -74,8 +71,7 @@ namespace CSGL.Vulkan {
             if (device == null) throw new ArgumentNullException(nameof(device));
             if (fences == null) throw new ArgumentNullException(nameof(fences));
 
-            unsafe
-            {
+            unsafe {
                 var fencesNative = stackalloc VkFence[fences.Count];
                 Interop.Marshal<VkFence, Fence>(fences, fencesNative);
 
@@ -86,7 +82,7 @@ namespace CSGL.Vulkan {
             }
         }
 
-		public Fence(Device device, FenceCreateInfo info) {
+        public Fence(Device device, FenceCreateInfo info) {
             if (device == null) throw new ArgumentNullException(nameof(device));
             if (info == null) throw new ArgumentNullException(nameof(info));
 
@@ -95,24 +91,24 @@ namespace CSGL.Vulkan {
             CreateFence(info);
         }
 
-		void CreateFence(FenceCreateInfo mInfo) {
+        void CreateFence(FenceCreateInfo mInfo) {
             VkFenceCreateInfo info = new VkFenceCreateInfo();
             info.sType = VkStructureType.FenceCreateInfo;
             info.flags = mInfo.Flags;
-            
+
             var result = Device.Commands.createFence(Device.Native, ref info, Device.Instance.AllocationCallbacks, out fence);
             if (result != VkResult.Success) throw new FenceException(string.Format("Error creating fence: {0}", result));
         }
 
-		public VkResult Reset() {
+        public VkResult Reset() {
             return Reset(Device, new Fence[] { this });
         }
 
-		public VkResult Wait(ulong timeout) {
+        public VkResult Wait(ulong timeout) {
             return Wait(Device, new Fence[] { this }, false, timeout);
         }
 
-		public VkResult Wait() {
+        public VkResult Wait() {
             return Wait(ulong.MaxValue);
         }
 
@@ -134,7 +130,7 @@ namespace CSGL.Vulkan {
         }
     }
 
-	public class FenceException : Exception {
-		public FenceException(string message) : base(message) { }
+    public class FenceException : Exception {
+        public FenceException(string message) : base(message) { }
     }
 }

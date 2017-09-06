@@ -60,7 +60,7 @@ namespace CSGL.Vulkan {
                 return instance;
             }
         }
-        
+
         public IntPtr AllocationCallbacks {
             get {
                 return alloc;
@@ -77,7 +77,7 @@ namespace CSGL.Vulkan {
 
             alloc = Marshal.AllocHGlobal(Marshal.SizeOf<VkAllocationCallbacks>());
             Marshal.StructureToPtr(callbacks, alloc, false);
-            
+
             Init(info);
         }
 
@@ -105,7 +105,7 @@ namespace CSGL.Vulkan {
             Vulkan.Load(ref getProcAddrDel, instance);
 
             Commands = new InstanceCommands(this);
-            
+
             GetPhysicalDevices();
         }
 

@@ -93,8 +93,7 @@ namespace CSGL.Vulkan {
         }
 
         static void FlushInternal(Device device, int count, MappedMemoryRange[] ranges) {
-            unsafe
-            {
+            unsafe {
                 VkMappedMemoryRange* rangesNative = stackalloc VkMappedMemoryRange[count];
 
                 for (int i = 0; i < count; i++) {
@@ -116,8 +115,7 @@ namespace CSGL.Vulkan {
         public static void Flush(Device device, MappedMemoryRange ranges) {
             VkMappedMemoryRange rangeNative = Marshal(ranges);
 
-            unsafe
-            {
+            unsafe {
                 FlushInternal(device, 1, &rangeNative);
             }
         }
@@ -142,8 +140,7 @@ namespace CSGL.Vulkan {
             ranges.memory = this;
             VkMappedMemoryRange rangeNative = Marshal(ranges);
 
-            unsafe
-            {
+            unsafe {
                 FlushInternal(Device, 1, &rangeNative);
             }
         }
@@ -155,8 +152,7 @@ namespace CSGL.Vulkan {
             rangeNative.offset = offset;
             rangeNative.size = size;
 
-            unsafe
-            {
+            unsafe {
                 FlushInternal(Device, 1, &rangeNative);
             }
         }
@@ -167,8 +163,7 @@ namespace CSGL.Vulkan {
         }
 
         static void InvalidateInternal(Device device, int count, MappedMemoryRange[] ranges) {
-            unsafe
-            {
+            unsafe {
                 VkMappedMemoryRange* rangesNative = stackalloc VkMappedMemoryRange[count];
 
                 for (int i = 0; i < count; i++) {
@@ -190,8 +185,7 @@ namespace CSGL.Vulkan {
         public static void Invalidate(Device device, MappedMemoryRange ranges) {
             VkMappedMemoryRange rangeNative = Marshal(ranges);
 
-            unsafe
-            {
+            unsafe {
                 InvalidateInternal(device, 1, &rangeNative);
             }
         }
@@ -216,8 +210,7 @@ namespace CSGL.Vulkan {
             ranges.memory = this;
             VkMappedMemoryRange rangeNative = Marshal(ranges);
 
-            unsafe
-            {
+            unsafe {
                 InvalidateInternal(Device, 1, &rangeNative);
             }
         }
@@ -229,8 +222,7 @@ namespace CSGL.Vulkan {
             rangeNative.offset = offset;
             rangeNative.size = size;
 
-            unsafe
-            {
+            unsafe {
                 InvalidateInternal(Device, 1, &rangeNative);
             }
         }

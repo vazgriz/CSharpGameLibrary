@@ -44,8 +44,7 @@ namespace CSGL.Vulkan {
         }
 
         public VkSurfaceCapabilitiesKHR GetCapabilities(PhysicalDevice physicalDevice) {
-            unsafe
-            {
+            unsafe {
                 VkSurfaceCapabilitiesKHR cap;
                 Instance.Commands.getCapabilities(physicalDevice.Native, surface, (IntPtr)(&cap));
                 return cap;
@@ -96,7 +95,7 @@ namespace CSGL.Vulkan {
 
         void Dispose(bool disposing) {
             if (disposed) return;
-            
+
             Instance.Commands.destroySurface(Instance.Native, surface, Instance.AllocationCallbacks);
 
             disposed = true;

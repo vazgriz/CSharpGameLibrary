@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using CSGL.Vulkan.Unmanaged;
 
 namespace CSGL.Vulkan {
-    public class PhysicalDevice: INative<VkPhysicalDevice> {
+    public class PhysicalDevice : INative<VkPhysicalDevice> {
         VkPhysicalDevice physicalDevice;
 
         public string Name { get; private set; }
@@ -173,8 +173,7 @@ namespace CSGL.Vulkan {
         public Guid PipelineCache { get; private set; }
 
         internal PhysicalDeviceProperties(VkPhysicalDeviceProperties prop) {
-            unsafe
-            {
+            unsafe {
                 Name = Interop.GetString(&prop.deviceName);
                 byte[] uuid = new byte[16];
                 for (int i = 0; i < 16; i++) {

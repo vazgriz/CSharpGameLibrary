@@ -62,8 +62,7 @@ namespace CSGL.Vulkan {
                 if (write.texelBufferView != null) totalBufferViews += write.texelBufferView.Count;
             }
 
-            unsafe
-            {
+            unsafe {
                 var bufferInfos = stackalloc VkDescriptorBufferInfo[totalBuffers];
                 var imageInfos = stackalloc VkDescriptorImageInfo[totalImages];
                 var bufferViews = stackalloc VkBufferView[totalBufferViews];

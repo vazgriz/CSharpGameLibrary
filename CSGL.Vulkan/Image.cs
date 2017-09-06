@@ -148,7 +148,7 @@ namespace CSGL.Vulkan {
 
         void Dispose(bool disposing) {
             if (disposed) return;
-            
+
             Device.Commands.destroyImage(Device.Native, image, Device.Instance.AllocationCallbacks);
 
             disposed = true;
