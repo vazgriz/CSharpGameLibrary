@@ -291,6 +291,13 @@ namespace CSGL.Vulkan {
             }
         }
 
+        public void ClearColorImage(Image image, VkImageLayout imageLayout, ref VkClearColorValue clearColor, VkImageSubresourceRange ranges) {
+            unsafe
+            {
+                Device.Commands.cmdClearColorImage(commandBuffer, image.Native, imageLayout, ref clearColor, 1, (IntPtr)(&ranges));
+            }
+        }
+
         public void Execute(List<CommandBuffer> commandBuffers) {
             unsafe
             {
@@ -428,6 +435,15 @@ namespace CSGL.Vulkan {
             }
         }
 
+        public void SetViewports(uint firstViewport, List<VkViewport> viewports) {
+            unsafe
+            {
+                fixed (VkViewport* ptr = Interop.GetInternalArray(viewports)) {
+                    Device.Commands.cmdSetViewports(commandBuffer, firstViewport, (uint)viewports.Count, (IntPtr)ptr);
+                }
+            }
+        }
+
         public void SetViewports(uint firstViewport, VkViewport viewports) {
             unsafe
             {
@@ -440,6 +456,15 @@ namespace CSGL.Vulkan {
             {
                 fixed (VkRect2D* ptr = scissors) {
                     Device.Commands.cmdSetScissor(commandBuffer, firstScissor, (uint)scissors.Length, (IntPtr)(ptr));
+                }
+            }
+        }
+
+        public void SetScissor(uint firstScissor, List<VkRect2D> scissors) {
+            unsafe
+            {
+                fixed (VkRect2D* ptr = Interop.GetInternalArray(scissors)) {
+                    Device.Commands.cmdSetScissor(commandBuffer, firstScissor, (uint)scissors.Count, (IntPtr)(ptr));
                 }
             }
         }
@@ -573,7 +598,6 @@ namespace CSGL.Vulkan {
             }
         }
 
-
         public void CopyBufferToImage(Buffer srcBuffer, Image dstImage, VkImageLayout dstImageLayout, VkBufferImageCopy regions) {
             unsafe
             {
@@ -616,12 +640,45 @@ namespace CSGL.Vulkan {
             }
         }
 
+        public void ClearAttachments(List<VkClearAttachment> attachments, List<VkClearRect> rects) {
+            unsafe
+            {
+                fixed (VkClearAttachment* attachmentPtr = Interop.GetInternalArray(attachments))
+                fixed (VkClearRect* rectPtr = Interop.GetInternalArray(rects)) {
+                    Device.Commands.cmdClearAttachments(commandBuffer, (uint)attachments.Count, (IntPtr)attachmentPtr, (uint)rects.Count, (IntPtr)rectPtr);
+                }
+            }
+        }
+
+        public void ClearAttachments(VkClearAttachment attachments, VkClearRect rects) {
+            unsafe
+            {
+                Device.Commands.cmdClearAttachments(commandBuffer, 1, (IntPtr)(&attachments), 1, (IntPtr)(&rects));
+            }
+        }
+
         public void ResolveImage(Image srcImage, VkImageLayout srcImageLayout, Image dstImage, VkImageLayout dstImageLayout, VkImageResolve[] regions) {
             unsafe
             {
                 fixed (VkImageResolve* ptr = regions) {
                     Device.Commands.cmdResolveImage(commandBuffer, srcImage.Native, srcImageLayout, dstImage.Native, dstImageLayout, (uint)regions.Length, (IntPtr)ptr);
                 }
+            }
+        }
+
+        public void ResolveImage(Image srcImage, VkImageLayout srcImageLayout, Image dstImage, VkImageLayout dstImageLayout, List<VkImageResolve> regions) {
+            unsafe
+            {
+                fixed (VkImageResolve* ptr = Interop.GetInternalArray(regions)) {
+                    Device.Commands.cmdResolveImage(commandBuffer, srcImage.Native, srcImageLayout, dstImage.Native, dstImageLayout, (uint)regions.Count, (IntPtr)ptr);
+                }
+            }
+        }
+
+        public void ResolveImage(Image srcImage, VkImageLayout srcImageLayout, Image dstImage, VkImageLayout dstImageLayout, VkImageResolve regions) {
+            unsafe
+            {
+                Device.Commands.cmdResolveImage(commandBuffer, srcImage.Native, srcImageLayout, dstImage.Native, dstImageLayout, 1, (IntPtr)(&regions));
             }
         }
 
