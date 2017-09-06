@@ -11,6 +11,7 @@ namespace CSGL.GLFW {
     public static class GLFW {
         [ThreadStatic]
         static Exception exception;
+        static ErrorCallback errorCallback; //store error callback so it doens't get collected
         
         static MonitorConnectionCallback monitorConnection;
         static JoystickConnectionCallback joystickConnection;
@@ -36,7 +37,8 @@ namespace CSGL.GLFW {
         static Dictionary<WindowPtr, WindowCallbacks> callbackMap;
 
         static GLFW() {
-            glfwSetErrorCallback(InternalError);    //has to be set here, so that errors made before glfwInit() are caught
+            errorCallback = InternalError;
+            glfwSetErrorCallback(errorCallback);    //has to be set here, so that errors made before glfwInit() are caught
             callbackMap = new Dictionary<WindowPtr, WindowCallbacks>();
         }
 
