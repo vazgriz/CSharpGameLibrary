@@ -108,10 +108,6 @@ namespace CSGL.Vulkan {
             }
         }
 
-        public void BindDescriptorSets(VkPipelineBindPoint pipelineBindPoint, PipelineLayout layout, uint firstSet, DescriptorSet[] descriptorSets) {
-            BindDescriptorSets(pipelineBindPoint, layout, firstSet, descriptorSets, null);
-        }
-
         public void BindDescriptorSets(VkPipelineBindPoint pipelineBindPoint, PipelineLayout layout, uint firstSet, List<DescriptorSet> descriptorSets, List<uint> dynamicOffsets) {
             unsafe
             {
@@ -132,17 +128,6 @@ namespace CSGL.Vulkan {
                 Device.Commands.cmdBindDescriptorSets(commandBuffer, pipelineBindPoint, layout.Native,
                     firstSet, (uint)descriptorSets.Count, (IntPtr)sets,
                     (uint)dynamicOffsetCount, (IntPtr)offsets);
-            }
-        }
-
-        public void BindDescriptorSets(VkPipelineBindPoint pipelineBindPoint, PipelineLayout layout, uint firstSet, List<DescriptorSet> descriptorSets) {
-            BindDescriptorSets(pipelineBindPoint, layout, firstSet, descriptorSets, null);
-        }
-
-        public void BindDescriptorSets(VkPipelineBindPoint pipelineBindPoint, PipelineLayout layout, uint firstSet, DescriptorSet descriptorSet) {
-            unsafe {
-                VkDescriptorSet set = descriptorSet.Native;
-                Device.Commands.cmdBindDescriptorSets(commandBuffer, pipelineBindPoint, layout.Native, firstSet, 1, (IntPtr)(&set), 0, IntPtr.Zero);
             }
         }
 
