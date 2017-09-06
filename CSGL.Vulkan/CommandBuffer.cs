@@ -285,9 +285,9 @@ namespace CSGL.Vulkan {
         public void ClearColorImage(Image image, VkImageLayout imageLayout, ref VkClearColorValue clearColor, List<VkImageSubresourceRange> ranges) {
             unsafe
             {
-                var rangesNative = stackalloc VkImageSubresourceRange[ranges.Count];
-                Interop.Copy(ranges, (IntPtr)rangesNative);
-                Device.Commands.cmdClearColorImage(commandBuffer, image.Native, imageLayout, ref clearColor, (uint)ranges.Count, (IntPtr)rangesNative);
+                fixed (VkImageSubresourceRange* ptr = Interop.GetInternalArray(ranges)) {
+                    Device.Commands.cmdClearColorImage(commandBuffer, image.Native, imageLayout, ref clearColor, (uint)ranges.Count, (IntPtr)ptr);
+                }
             }
         }
 
