@@ -93,9 +93,7 @@ namespace CSGL.Vulkan {
             {
                 var sets = stackalloc VkDescriptorSet[descriptorSets.Length];
 
-                for (int i = 0; i < descriptorSets.Length; i++) {
-                    sets[i] = descriptorSets[i].Native;
-                }
+                Interop.Marshal(descriptorSets, sets);
 
                 int dynamicOffsetCount = 0;
                 if (dynamicOffsets != null) dynamicOffsetCount = dynamicOffsets.Length;
@@ -117,9 +115,7 @@ namespace CSGL.Vulkan {
                 var sets = stackalloc VkDescriptorSet[descriptorSets.Count];
                 var offsets = stackalloc uint[dynamicOffsetCount];
 
-                for (int i = 0; i < descriptorSets.Count; i++) {
-                    sets[i] = descriptorSets[i].Native;
-                }
+                Interop.Marshal<VkDescriptorSet, DescriptorSet>(descriptorSets, sets);
 
                 for (int i = 0; i < dynamicOffsetCount; i++) {
                     offsets[i] = dynamicOffsets[i];
