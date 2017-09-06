@@ -539,6 +539,22 @@ namespace CSGL.Vulkan {
             }
         }
 
+        public void BlitImage(Image srcImage, VkImageLayout srcImageLayout, Image dstImage, VkImageLayout dstImageLayout, List<VkImageBlit> regions, VkFilter filter) {
+            unsafe
+            {
+                fixed (VkImageBlit* ptr = Interop.GetInternalArray(regions)) {
+                    Device.Commands.cmdBlitImage(commandBuffer, srcImage.Native, srcImageLayout, dstImage.Native, dstImageLayout, (uint)regions.Count, (IntPtr)ptr, filter);
+                }
+            }
+        }
+
+        public void BlitImage(Image srcImage, VkImageLayout srcImageLayout, Image dstImage, VkImageLayout dstImageLayout, VkImageBlit regions, VkFilter filter) {
+            unsafe
+            {
+                Device.Commands.cmdBlitImage(commandBuffer, srcImage.Native, srcImageLayout, dstImage.Native, dstImageLayout, 1, (IntPtr)(&regions), filter);
+            }
+        }
+
         public void CopyBufferToImage(Buffer srcBuffer, Image dstImage, VkImageLayout dstImageLayout, VkBufferImageCopy[] regions) {
             unsafe
             {
