@@ -6,18 +6,7 @@ using CSGL.Vulkan.Unmanaged;
 
 namespace CSGL.Vulkan {
     public class ShaderModuleCreateInfo {
-        public byte[] Data { get; set; }
-
-        public ShaderModuleCreateInfo(byte[] data) {
-            Data = data;
-        }
-
-        public ShaderModuleCreateInfo(Stream stream) {
-            int length = (int)(stream.Length - stream.Position);
-            byte[] data = new byte[length];
-            stream.Read(data, 0, length);
-            Data = data;
-        }
+        public byte[] data;
     }
 
     public class ShaderModule : IDisposable, INative<VkShaderModule> {
@@ -38,7 +27,7 @@ namespace CSGL.Vulkan {
         public ShaderModule(Device device, ShaderModuleCreateInfo info) {
             if (device == null) throw new ArgumentNullException(nameof(device));
             if (info == null) throw new ArgumentNullException(nameof(info));
-            if (info.Data == null) throw new ArgumentNullException(nameof(info.Data));
+            if (info.data == null) throw new ArgumentNullException(nameof(info.data));
 
             this.device = device;
 
@@ -51,9 +40,9 @@ namespace CSGL.Vulkan {
         void CreateShader(ShaderModuleCreateInfo mInfo) {
             VkShaderModuleCreateInfo info = new VkShaderModuleCreateInfo();
             info.sType = VkStructureType.ShaderModuleCreateInfo;
-            info.codeSize = (IntPtr)mInfo.Data.LongLength;
+            info.codeSize = (IntPtr)mInfo.data.LongLength;
 
-            var dataPinned = new PinnedArray<byte>(mInfo.Data);
+            var dataPinned = new PinnedArray<byte>(mInfo.data);
             info.pCode = dataPinned.Address;
 
             using (dataPinned) {
