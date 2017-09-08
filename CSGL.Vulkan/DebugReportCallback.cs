@@ -94,7 +94,8 @@ namespace CSGL.Vulkan {
             ulong location,
             int messageCode,
             string layerPrefix,
-            string message) {
+            string message)
+        {
             if (instance == null) throw new ArgumentNullException(nameof(instance));
 
             IntPtr _location = (IntPtr)location;
