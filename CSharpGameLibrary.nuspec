@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
   <metadata>
     <id>CSharpGameLibrary</id>
-    <version>0.1.4-alpha</version>
+    <version>0.1.5-alpha</version>
     <title>C# Game Library</title>
     <authors>Ryan Vazquez</authors>
     <owners>vazgriz</owners>
@@ -10,9 +10,24 @@
     <licenseUrl>https://github.com/vazgriz/CSharpGameLibrary/blob/master/license.txt</licenseUrl>
     <projectUrl>https://github.com/vazgriz/CSharpGameLibrary</projectUrl>
     <description>C# bindings for GLFW, OpenGL, and Vulkan</description>
-    <releaseNotes>- Refactor CSGL.Vulkan.Surface
-  - Surface now depends on Instance instead of PhysicalDevice. Properties of the surface are queried with a PhysicalDevice passed as a parameter.
-- Fixed a bug that prevented PipelineMultisampleStateCreateInfo::sampleMask from being passed to Vulkan</releaseNotes>
+    <releaseNotes>- Vulkan
+  - Fix bug in Instance creation
+  - Remove non default constructor from DeviceCreateInfo
+  - Remove non default constructor from DeviceQueueCreateInfo
+  - Remove non default constructor from SwapchainCreateInfo
+  - Remove non default constructors from ShaderModuleCreateInfo
+  - CommandBuffer
+    - Remove Draw overload
+    - Remove BindDescriptorSets overloads
+    - Remove CopyBuffer overload
+    - Rename BindVertexBuffer to BindVertexBuffers
+    - Add overloads to CopyBufferToImage, CopyImageToBuffer, BlitImage, ClearColorImage, SetViewports, SetScissor, ClearAttachments, and ResolveImage
+  - Add Interop.AddressOf method
+  - Fix structs in CSGL.Vulkan
+    - VkImageBlit
+    - VkPhysicalDeviceLimits
+- GLFW
+  - Fix bug that caused managed delegate to be garbage collected</releaseNotes>
     <copyright>Copyright 2017</copyright>
     <tags>glfw opengl vulkan</tags>
   </metadata>
