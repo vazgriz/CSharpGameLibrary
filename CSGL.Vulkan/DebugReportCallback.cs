@@ -32,7 +32,7 @@ namespace CSGL.Vulkan {
         public VkDebugReportFlagsEXT Flags { get; private set; }
         public DebugReportCallbackDelegate Callback { get; private set; }
 
-        delegate bool InternalCallbackDelegate(
+        delegate uint InternalCallbackDelegate(
             VkDebugReportFlagsEXT flags,
             VkDebugReportObjectTypeEXT objectType,
             ulong _object,
@@ -64,7 +64,7 @@ namespace CSGL.Vulkan {
             if (result != VkResult.Success) throw new DebugReportCallbackException(string.Format("Error creating debug report callback: {0}", result));
         }
 
-        bool InternalCallback(
+        uint InternalCallback(
             VkDebugReportFlagsEXT flags,
             VkDebugReportObjectTypeEXT objectType,
             ulong _object,
@@ -83,7 +83,7 @@ namespace CSGL.Vulkan {
             //specification allows the callback to set this value
             //however C# delegates are multicast, so potentially there is no single value to return.
             //specification also says application *should* return false, so just do that instead
-            return false;
+            return 0;
         }
 
         public static void ReportMessage(
