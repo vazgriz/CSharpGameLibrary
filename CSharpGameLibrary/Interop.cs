@@ -66,6 +66,7 @@ namespace CSGL {
         }
 
         public static T[] GetInternalArray<T>(List<T> list) {
+            if (list == null) return null;
             //returns the internal backing array
             return ListAccessor<T>.accessor(list);
         }
