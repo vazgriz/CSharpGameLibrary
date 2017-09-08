@@ -78,7 +78,7 @@ namespace CSGL.Vulkan {
             string _layerPrefix = Interop.GetString(layerPrefix);
             string _message = Interop.GetString(message);
 
-            Callback(flags, objectType, _object, _location, messageCode, _layerPrefix, _message);
+            Callback?.Invoke(flags, objectType, _object, _location, messageCode, _layerPrefix, _message);
 
             //specification allows the callback to set this value
             //however C# delegates are multicast, so potentially there is no single value to return.
