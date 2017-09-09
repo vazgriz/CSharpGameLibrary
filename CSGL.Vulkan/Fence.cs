@@ -24,7 +24,7 @@ namespace CSGL.Vulkan {
 
         public Device Device { get; private set; }
 
-        public static VkResult Reset(Device device, Fence[] fences) {
+        public static void Reset(Device device, Fence[] fences) {
             if (device == null) throw new ArgumentNullException(nameof(device));
             if (fences == null) throw new ArgumentNullException(nameof(fences));
 
@@ -34,11 +34,10 @@ namespace CSGL.Vulkan {
 
                 var result = device.Commands.resetFences(device.Native, (uint)fences.Length, (IntPtr)fencesNative);
                 if (result != VkResult.Success) throw new FenceException(result, string.Format("Error resetting fences: {0}", result));
-                return result;
             }
         }
 
-        public static VkResult Reset(Device device, List<Fence> fences) {
+        public static void Reset(Device device, List<Fence> fences) {
             if (device == null) throw new ArgumentNullException(nameof(device));
             if (fences == null) throw new ArgumentNullException(nameof(fences));
 
@@ -48,7 +47,6 @@ namespace CSGL.Vulkan {
 
                 var result = device.Commands.resetFences(device.Native, (uint)fences.Count, (IntPtr)fencesNative);
                 if (result != VkResult.Success) throw new FenceException(result, string.Format("Error resetting fences: {0}", result));
-                return result;
             }
         }
 
@@ -100,8 +98,8 @@ namespace CSGL.Vulkan {
             if (result != VkResult.Success) throw new FenceException(result, string.Format("Error creating fence: {0}", result));
         }
 
-        public VkResult Reset() {
-            return Reset(Device, new Fence[] { this });
+        public void Reset() {
+            Reset(Device, new Fence[] { this });
         }
 
         public VkResult Wait(ulong timeout) {
