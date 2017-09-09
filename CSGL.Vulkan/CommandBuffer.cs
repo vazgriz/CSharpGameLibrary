@@ -31,7 +31,9 @@ namespace CSGL.Vulkan {
         public void Begin(CommandBufferBeginInfo info) {
             using (var marshalled = new DisposableList<IDisposable>()) {
                 var infoNative = info.GetNative(marshalled);
-                Device.Commands.beginCommandBuffer(commandBuffer, ref infoNative);
+
+                var result = Device.Commands.beginCommandBuffer(commandBuffer, ref infoNative);
+                if (result != VkResult.Success) throw new CommandBufferException(result, string.Format("Error beginning command buffer: {0}", result));
             }
         }
 
@@ -667,12 +669,18 @@ namespace CSGL.Vulkan {
             Device.Commands.cmdEndRenderPass(commandBuffer);
         }
 
-        public VkResult End() {
-            return Device.Commands.endCommandBuffer(commandBuffer);
+        public void End() {
+            var result = Device.Commands.endCommandBuffer(commandBuffer);
+            if (result != VkResult.Success) throw new CommandBufferException(result, string.Format("Error ending command buffer: {0}", result));
         }
 
-        public VkResult Reset(VkCommandBufferResetFlags flags) {
-            return Device.Commands.resetCommandBuffers(commandBuffer, flags);
+        public void Reset(VkCommandBufferResetFlags flags) {
+            var result = Device.Commands.resetCommandBuffers(commandBuffer, flags);
+            if (result != VkResult.Success) throw new CommandBufferException(result, string.Format("Error resetting command buffer: {0}"));
         }
+    }
+
+    public class CommandBufferException : VulkanException {
+        public CommandBufferException(VkResult result, string message) : base(result, message) { }
     }
 }
