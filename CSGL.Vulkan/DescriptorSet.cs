@@ -29,6 +29,16 @@ namespace CSGL.Vulkan {
         public List<BufferView> texelBufferView;
     }
 
+    public class CopyDescriptorSet {
+        public DescriptorSet srcSet;
+        public uint srcBinding;
+        public uint srcArrayElement;
+        public DescriptorSet dstSet;
+        public uint dstBinding;
+        public uint dstArrayElement;
+        public uint descriptorCount;
+    }
+
     public class DescriptorSet : INative<VkDescriptorSet> {
         VkDescriptorSet descriptorSet;
 
@@ -47,19 +57,29 @@ namespace CSGL.Vulkan {
             this.descriptorSet = descriptorSet;
         }
 
-        public static void Update(Device device, List<WriteDescriptorSet> writes) {
+        public static void Update(Device device, List<WriteDescriptorSet> writes, List<CopyDescriptorSet> copies) {
             if (device == null) throw new ArgumentNullException(nameof(device));
+
+            int copyCount = 0;
+            int writeCount = 0;
 
             int totalBuffers = 0;
             int totalImages = 0;
             int totalBufferViews = 0;
 
-            for (int i = 0; i < writes.Count; i++) {
-                var write = writes[i];
+            if (writes != null) {
+                writeCount = writes.Count;
+                for (int i = 0; i < writeCount; i++) {
+                    var write = writes[i];
 
-                if (write.bufferInfo != null) totalBuffers += write.bufferInfo.Count;
-                if (write.imageInfo != null) totalImages += write.imageInfo.Count;
-                if (write.texelBufferView != null) totalBufferViews += write.texelBufferView.Count;
+                    if (write.bufferInfo != null) totalBuffers += write.bufferInfo.Count;
+                    if (write.imageInfo != null) totalImages += write.imageInfo.Count;
+                    if (write.texelBufferView != null) totalBufferViews += write.texelBufferView.Count;
+                }
+            }
+
+            if (copies != null) {
+                copyCount = copies.Count;
             }
 
             unsafe {
@@ -71,9 +91,10 @@ namespace CSGL.Vulkan {
                 int imageIndex = 0;
                 int bufferViewIndex = 0;
 
-                var writesNative = stackalloc VkWriteDescriptorSet[writes.Count];
+                var writesNative = stackalloc VkWriteDescriptorSet[writeCount];
+                var copiesNative = stackalloc VkCopyDescriptorSet[copyCount];
 
-                for (int i = 0; i < writes.Count; i++) {
+                for (int i = 0; i < writeCount; i++) {
                     var mWrite = writes[i];
 
                     writesNative[i].sType = VkStructureType.WriteDescriptorSet;
@@ -128,12 +149,25 @@ namespace CSGL.Vulkan {
                     }
                 }
 
-                device.Commands.updateDescriptorSets(device.Native, (uint)writes.Count, (IntPtr)writesNative, 0, IntPtr.Zero);
+                for (int i = 0; i < copyCount; i++) {
+                    var mCopy = copies[i];
+
+                    copiesNative[i].sType = VkStructureType.CopyDescriptorSet;
+                    copiesNative[i].srcSet = mCopy.srcSet.Native;
+                    copiesNative[i].srcBinding = mCopy.srcBinding;
+                    copiesNative[i].srcArrayElement = mCopy.srcArrayElement;
+                    copiesNative[i].dstSet = mCopy.dstSet.Native;
+                    copiesNative[i].dstBinding = mCopy.dstBinding;
+                    copiesNative[i].dstArrayElement = mCopy.dstArrayElement;
+                    copiesNative[i].descriptorCount = mCopy.descriptorCount;
+                }
+
+                device.Commands.updateDescriptorSets(device.Native, (uint)writeCount, (IntPtr)writesNative, (uint)copyCount, (IntPtr)copiesNative);
             }
         }
 
-        public void Update(List<WriteDescriptorSet> writes) {
-            Update(Device, writes);
+        public void Update(List<WriteDescriptorSet> writes, List<CopyDescriptorSet> copies) {
+            Update(Device, writes, copies);
         }
     }
 }
