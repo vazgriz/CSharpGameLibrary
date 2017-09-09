@@ -102,7 +102,12 @@ namespace CSGL.Vulkan {
             byte[] _layerPrefix = Interop.GetUTF8(layerPrefix);
             byte[] _message = Interop.GetUTF8(message);
 
-            instance.Commands.debugReportMessage(instance.Native, flags, objectType, _object, _location, messageCode, _layerPrefix, _message);
+            unsafe {
+                fixed (byte* layerPtr = _layerPrefix)
+                fixed (byte* messagePtr = _message) {
+                    instance.Commands.debugReportMessage(instance.Native, flags, objectType, _object, _location, messageCode, (IntPtr)layerPtr, (IntPtr)messagePtr);
+                }
+            }
         }
 
         public void Dispose() {
