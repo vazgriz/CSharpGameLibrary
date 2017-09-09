@@ -89,6 +89,7 @@
     <Compile Include="Unmanaged\delegates.cs" />
     <Compile Include="VkVersion.cs" />
     <Compile Include="Vulkan.cs" />
+    <Compile Include="VulkanException.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\CSharpGameLibrary\CSharpGameLibrary.csproj">
