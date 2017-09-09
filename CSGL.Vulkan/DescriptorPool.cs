@@ -80,7 +80,8 @@ namespace CSGL.Vulkan {
         }
 
         public void Reset(VkDescriptorPoolResetFlags flags) {
-            Device.Commands.resetDescriptorPool(Device.Native, descriptorPool, flags);
+            var result = Device.Commands.resetDescriptorPool(Device.Native, descriptorPool, flags);
+            if (result != VkResult.Success) throw new DescriptorPoolException(result, string.Format("Error resetting descriptor pool: {0}", result));
         }
 
         public void Dispose() {
