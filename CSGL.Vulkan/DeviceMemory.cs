@@ -68,7 +68,7 @@ namespace CSGL.Vulkan {
         public IntPtr Map(ulong offset, ulong size) {
             IntPtr data;
             var result = Device.Commands.mapMemory(Device.Native, deviceMemory, offset, size, VkMemoryMapFlags.None, out data);
-            if (result != VkResult.Success) throw new DeviceMemoryException(string.Format("Error mapping memory: {0}", result));
+            if (result != VkResult.Success) throw new DeviceMemoryException(result, string.Format("Error mapping memory: {0}", result));
 
             return data;
         }
@@ -89,7 +89,7 @@ namespace CSGL.Vulkan {
 
         static unsafe void FlushInternal(Device device, int count, VkMappedMemoryRange* ranges) {
             var result = device.Commands.flushMemory(device.Native, (uint)count, (IntPtr)ranges);
-            if (result != VkResult.Success) throw new DeviceMemoryException(string.Format("Error flushing memory: {0}", result));
+            if (result != VkResult.Success) throw new DeviceMemoryException(result, string.Format("Error flushing memory: {0}", result));
         }
 
         static void FlushInternal(Device device, int count, MappedMemoryRange[] ranges) {
@@ -159,7 +159,7 @@ namespace CSGL.Vulkan {
 
         static unsafe void InvalidateInternal(Device device, int count, VkMappedMemoryRange* ranges) {
             var result = device.Commands.invalidateMemory(device.Native, (uint)count, (IntPtr)ranges);
-            if (result != VkResult.Success) throw new DeviceMemoryException(string.Format("Error invalidating memory: {0}", result));
+            if (result != VkResult.Success) throw new DeviceMemoryException(result, string.Format("Error invalidating memory: {0}", result));
         }
 
         static void InvalidateInternal(Device device, int count, MappedMemoryRange[] ranges) {
@@ -244,7 +244,7 @@ namespace CSGL.Vulkan {
         }
     }
 
-    public class DeviceMemoryException : Exception {
-        public DeviceMemoryException(string message) : base(message) { }
+    public class DeviceMemoryException : VulkanException {
+        public DeviceMemoryException(VkResult result, string message) : base(result, message) { }
     }
 }

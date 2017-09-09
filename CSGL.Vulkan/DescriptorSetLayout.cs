@@ -38,7 +38,7 @@ namespace CSGL.Vulkan {
 
             using (bindingsMarshalled) {
                 var result = Device.Commands.createDescriptorSetLayout(Device.Native, ref info, Device.Instance.AllocationCallbacks, out descriptorSetLayout);
-                if (result != VkResult.Success) throw new DescriptorSetLayoutException(string.Format("Error creating description set layout: {0}", result));
+                if (result != VkResult.Success) throw new DescriptorSetLayoutException(result, string.Format("Error creating description set layout: {0}", result));
             }
         }
 
@@ -60,7 +60,7 @@ namespace CSGL.Vulkan {
         }
     }
 
-    public class DescriptorSetLayoutException : Exception {
-        public DescriptorSetLayoutException(string message) : base(message) { }
+    public class DescriptorSetLayoutException : VulkanException {
+        public DescriptorSetLayoutException(VkResult result, string message) : base(result, message) { }
     }
 }

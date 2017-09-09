@@ -47,7 +47,7 @@ namespace CSGL.Vulkan {
 
             using (dataPinned) {
                 var result = createShaderModule(device.Native, ref info, device.Instance.AllocationCallbacks, out shaderModule);
-                if (result != VkResult.Success) throw new ShaderModuleException(string.Format("Error creating shader module: {0}"));
+                if (result != VkResult.Success) throw new ShaderModuleException(result, string.Format("Error creating shader module: {0}"));
             }
         }
 
@@ -69,7 +69,7 @@ namespace CSGL.Vulkan {
         }
     }
 
-    public class ShaderModuleException : Exception {
-        public ShaderModuleException(string message) : base(message) { }
+    public class ShaderModuleException : VulkanException {
+        public ShaderModuleException(VkResult result, string message) : base(result, message) { }
     }
 }

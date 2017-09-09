@@ -44,7 +44,7 @@ namespace CSGL.Vulkan {
 
             using (poolSizesMarshalled) {
                 var result = Device.Commands.createDescriptorPool(Device.Native, ref info, Device.Instance.AllocationCallbacks, out descriptorPool);
-                if (result != VkResult.Success) throw new DescriptorPoolException(string.Format("Error creating descriptor pool: {0}", result));
+                if (result != VkResult.Success) throw new DescriptorPoolException(result, string.Format("Error creating descriptor pool: {0}", result));
             }
 
             Flags = mInfo.flags;
@@ -67,7 +67,7 @@ namespace CSGL.Vulkan {
             using (layoutsMarshalled)
             using (descriptorSetsMarshalled) {
                 var result = Device.Commands.allocateDescriptorSets(Device.Native, ref infoNative, descriptorSetsMarshalled.Address);
-                if (result != VkResult.Success) throw new DescriptorPoolException(string.Format("Error allocating descriptor sets: {0}", result));
+                if (result != VkResult.Success) throw new DescriptorPoolException(result, string.Format("Error allocating descriptor sets: {0}", result));
 
                 var results = new DescriptorSet[(int)info.descriptorSetCount];
 
@@ -101,7 +101,7 @@ namespace CSGL.Vulkan {
         }
     }
 
-    public class DescriptorPoolException : Exception {
-        public DescriptorPoolException(string message) : base(message) { }
+    public class DescriptorPoolException : VulkanException {
+        public DescriptorPoolException(VkResult result, string message) : base(result, message) { }
     }
 }

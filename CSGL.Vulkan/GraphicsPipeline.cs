@@ -141,7 +141,7 @@ namespace CSGL.Vulkan {
                     (uint)count, infosMarshalled.Address,
                     device.Instance.AllocationCallbacks, pipelinesMarshalled.Address);
 
-                if (result != VkResult.Success) throw new PipelineException(string.Format("Error creating pipeline: {0}", result));
+                if (result != VkResult.Success) throw new PipelineException(result, string.Format("Error creating pipeline: {0}", result));
                 return pipelineResults;
             }
         }

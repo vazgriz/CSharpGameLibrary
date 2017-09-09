@@ -40,7 +40,7 @@ namespace CSGL.Vulkan {
 
         void CreateSurface(WindowPtr window) {
             var result = (VkResult)GLFW.GLFW.CreateWindowSurface(Instance.Native.native, window, Instance.AllocationCallbacks, out surface.native);
-            if (result != VkResult.Success) throw new SurfaceException(string.Format("Error creating surface: {0}", result));
+            if (result != VkResult.Success) throw new SurfaceException(result, string.Format("Error creating surface: {0}", result));
         }
 
         public VkSurfaceCapabilitiesKHR GetCapabilities(PhysicalDevice physicalDevice) {
@@ -106,7 +106,7 @@ namespace CSGL.Vulkan {
         }
     }
 
-    public class SurfaceException : Exception {
-        public SurfaceException(string message) : base(message) { }
+    public class SurfaceException : VulkanException {
+        public SurfaceException(VkResult result, string message) : base(result, message) { }
     }
 }

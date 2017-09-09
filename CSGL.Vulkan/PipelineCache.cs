@@ -29,7 +29,7 @@ namespace CSGL.Vulkan {
 
             using (initialDataMarshalled) {
                 var result = Device.Commands.createPipelineCache(Device.Native, ref info, Device.Instance.AllocationCallbacks, out pipelineCache);
-                if (result != VkResult.Success) throw new PipelineCacheException(string.Format("Error creating pipeline cache: {0}", result));
+                if (result != VkResult.Success) throw new PipelineCacheException(result, string.Format("Error creating pipeline cache: {0}", result));
             }
         }
 
@@ -72,7 +72,7 @@ namespace CSGL.Vulkan {
         }
     }
 
-    public class PipelineCacheException : Exception {
-        public PipelineCacheException(string message) : base(message) { }
+    public class PipelineCacheException : VulkanException {
+        public PipelineCacheException(VkResult result, string message) : base(result, message) { }
     }
 }

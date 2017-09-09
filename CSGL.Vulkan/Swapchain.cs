@@ -106,7 +106,7 @@ namespace CSGL.Vulkan {
 
             using (indicesMarshalled) {
                 var result = Device.Commands.createSwapchain(Device.Native, ref info, Device.Instance.AllocationCallbacks, out swapchain);
-                if (result != VkResult.Success) throw new SwapchainException(string.Format("Error creating swapchain: {0}", result));
+                if (result != VkResult.Success) throw new SwapchainException(result, string.Format("Error creating swapchain: {0}", result));
             }
 
             Format = info.imageFormat;
@@ -150,7 +150,7 @@ namespace CSGL.Vulkan {
         }
     }
 
-    public class SwapchainException : Exception {
-        public SwapchainException(string message) : base(message) { }
+    public class SwapchainException : VulkanException {
+        public SwapchainException(VkResult result, string message) : base(result, message) { }
     }
 }

@@ -36,7 +36,7 @@ namespace CSGL.Vulkan {
             info.queueFamilyIndex = mInfo.queueFamilyIndex;
 
             var result = Device.Commands.createCommandPool(Device.Native, ref info, Device.Instance.AllocationCallbacks, out commandPool);
-            if (result != VkResult.Success) throw new CommandPoolException(string.Format("Error creating command pool: {0}", result));
+            if (result != VkResult.Success) throw new CommandPoolException(result, string.Format("Error creating command pool: {0}", result));
 
             Flags = mInfo.flags;
         }
@@ -54,7 +54,7 @@ namespace CSGL.Vulkan {
 
             using (var commandBufferMarshalled = new Native<VkCommandBuffer>()) {
                 var result = Device.Commands.allocateCommandBuffers(Device.Native, ref info, commandBufferMarshalled.Address);
-                if (result != VkResult.Success) throw new CommandPoolException(string.Format("Error allocating command buffer: {0}", result));
+                if (result != VkResult.Success) throw new CommandPoolException(result, string.Format("Error allocating command buffer: {0}", result));
 
                 CommandBuffer commandBuffer = new CommandBuffer(Device, this, commandBufferMarshalled.Value, level);
 
@@ -72,7 +72,7 @@ namespace CSGL.Vulkan {
             using (var commandBuffersMarshalled = new NativeArray<VkCommandBuffer>(count)) {
                 CommandBuffer[] commandBuffers = new CommandBuffer[count];
                 var result = Device.Commands.allocateCommandBuffers(Device.Native, ref info, commandBuffersMarshalled.Address);
-                if (result != VkResult.Success) throw new CommandPoolException(string.Format("Error allocating command buffers: {0}", result));
+                if (result != VkResult.Success) throw new CommandPoolException(result, string.Format("Error allocating command buffers: {0}", result));
 
                 for (int i = 0; i < count; i++) {
                     commandBuffers[i] = new CommandBuffer(Device, this, commandBuffersMarshalled[i], level);
@@ -119,7 +119,7 @@ namespace CSGL.Vulkan {
         }
     }
 
-    public class CommandPoolException : Exception {
-        public CommandPoolException(string message) : base(message) { }
+    public class CommandPoolException : VulkanException {
+        public CommandPoolException(VkResult result, string message) : base(result, message) { }
     }
 }

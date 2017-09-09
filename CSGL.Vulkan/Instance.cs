@@ -147,7 +147,7 @@ namespace CSGL.Vulkan {
             using (extensionsMarshalled)
             using (layersMarshalled) {
                 var result = createInstance(ref info, alloc, out instance);
-                if (result != VkResult.Success) throw new InstanceException(string.Format("Error creating instance: {0}", result));
+                if (result != VkResult.Success) throw new InstanceException(result, string.Format("Error creating instance: {0}", result));
             }
         }
 
@@ -188,7 +188,8 @@ namespace CSGL.Vulkan {
         }
     }
 
-    public class InstanceException : Exception {
+    public class InstanceException : VulkanException {
         public InstanceException(string message) : base(message) { }
+        public InstanceException(VkResult result, string message) : base(result, message) { }
     }
 }

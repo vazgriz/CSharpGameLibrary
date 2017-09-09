@@ -61,7 +61,7 @@ namespace CSGL.Vulkan {
             info.pfnCallback = Marshal.GetFunctionPointerForDelegate(internalCallback);
 
             var result = Instance.Commands.createDebugReportCallback(Instance.Native, ref info, Instance.AllocationCallbacks, out callback);
-            if (result != VkResult.Success) throw new DebugReportCallbackException(string.Format("Error creating debug report callback: {0}", result));
+            if (result != VkResult.Success) throw new DebugReportCallbackException(result, string.Format("Error creating debug report callback: {0}", result));
         }
 
         uint InternalCallback(
@@ -127,7 +127,7 @@ namespace CSGL.Vulkan {
         }
     }
 
-    public class DebugReportCallbackException : Exception {
-        public DebugReportCallbackException(string message) : base(message) { }
+    public class DebugReportCallbackException : VulkanException {
+        public DebugReportCallbackException(VkResult result, string message) : base(result, message) { }
     }
 }

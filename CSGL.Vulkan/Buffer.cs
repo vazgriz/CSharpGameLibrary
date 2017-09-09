@@ -68,7 +68,7 @@ namespace CSGL.Vulkan {
 
             using (indicesMarshalled) {
                 var result = Device.Commands.createBuffer(Device.Native, ref info, Device.Instance.AllocationCallbacks, out buffer);
-                if (result != VkResult.Success) throw new BufferException(string.Format("Error creating Buffer: {0}", result));
+                if (result != VkResult.Success) throw new BufferException(result, string.Format("Error creating Buffer: {0}", result));
             }
 
             Flags = mInfo.flags;
@@ -79,7 +79,7 @@ namespace CSGL.Vulkan {
             if (deviceMemory == null) throw new ArgumentNullException(nameof(deviceMemory));
 
             var result = Device.Commands.bindBuffer(Device.Native, buffer, deviceMemory.Native, offset);
-            if (result != VkResult.Success) throw new BufferException(string.Format("Error binding buffer: {0}", result));
+            if (result != VkResult.Success) throw new BufferException(result, string.Format("Error binding buffer: {0}", result));
 
             Offset = offset;
             Memory = deviceMemory;
@@ -102,7 +102,7 @@ namespace CSGL.Vulkan {
         }
     }
 
-    public class BufferException : Exception {
-        public BufferException(string message) : base(message) { }
+    public class BufferException : VulkanException {
+        public BufferException(VkResult result, string message) : base(result, message) { }
     }
 }

@@ -39,7 +39,7 @@ namespace CSGL.Vulkan {
             info.range = mInfo.range;
 
             var result = Device.Commands.createBufferView(Device.Native, ref info, Device.Instance.AllocationCallbacks, out bufferView);
-            if (result != VkResult.Success) throw new BufferViewException(string.Format("Error creating buffer view: {0}", result));
+            if (result != VkResult.Success) throw new BufferViewException(result, string.Format("Error creating buffer view: {0}", result));
 
             Offset = mInfo.offset;
             Range = mInfo.range;
@@ -63,7 +63,7 @@ namespace CSGL.Vulkan {
         }
     }
 
-    public class BufferViewException : Exception {
-        public BufferViewException(string message) : base(message) { }
+    public class BufferViewException : VulkanException {
+        public BufferViewException(VkResult result, string message) : base(result, message) { }
     }
 }

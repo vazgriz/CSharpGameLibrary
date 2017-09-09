@@ -27,7 +27,7 @@ namespace CSGL.Vulkan {
             info.sType = VkStructureType.EventCreateInfo;
 
             var result = Device.Commands.createEvent(Device.Native, ref info, Device.Instance.AllocationCallbacks, out _event);
-            if (result != VkResult.Success) throw new EventException(string.Format("Error creating event: {0}", result));
+            if (result != VkResult.Success) throw new EventException(result, string.Format("Error creating event: {0}", result));
         }
 
         public VkResult GetStatus() {
@@ -36,12 +36,12 @@ namespace CSGL.Vulkan {
 
         public void Set() {
             var result = Device.Commands.setEvent(Device.Native, _event);
-            if (result != VkResult.Success) throw new EventException(string.Format("Error setting event: {0}", result));
+            if (result != VkResult.Success) throw new EventException(result, string.Format("Error setting event: {0}", result));
         }
 
         public void Reset() {
             var result = Device.Commands.resetEvent(Device.Native, _event);
-            if (result != VkResult.Success) throw new EventException(string.Format("Error resetting event: {0}", result));
+            if (result != VkResult.Success) throw new EventException(result, string.Format("Error resetting event: {0}", result));
         }
 
         public void Dispose() {
@@ -62,7 +62,7 @@ namespace CSGL.Vulkan {
         }
     }
 
-    public class EventException : Exception {
-        public EventException(string message) : base(message) { }
+    public class EventException : VulkanException {
+        public EventException(VkResult result, string message) : base(result, message) { }
     }
 }

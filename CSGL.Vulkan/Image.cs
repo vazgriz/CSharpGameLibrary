@@ -95,7 +95,7 @@ namespace CSGL.Vulkan {
 
             using (indicesMarshalled) {
                 var result = Device.Commands.createImage(Device.Native, ref info, Device.Instance.AllocationCallbacks, out image);
-                if (result != VkResult.Success) throw new ImageException(string.Format("Error creating image: {0}", result));
+                if (result != VkResult.Success) throw new ImageException(result, string.Format("Error creating image: {0}", result));
             }
 
             Flags = mInfo.flags;
@@ -159,7 +159,7 @@ namespace CSGL.Vulkan {
         }
     }
 
-    public class ImageException : Exception {
-        public ImageException(string message) : base(message) { }
+    public class ImageException : VulkanException {
+        public ImageException(VkResult result, string message) : base(result, message) { }
     }
 }

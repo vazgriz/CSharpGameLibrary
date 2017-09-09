@@ -55,7 +55,7 @@ namespace CSGL.Vulkan {
 
             using (attachmentsMarshalled) {
                 var result = Device.Commands.createFramebuffer(Device.Native, ref info, Device.Instance.AllocationCallbacks, out framebuffer);
-                if (result != VkResult.Success) throw new FramebufferException(string.Format("Error creating framebuffer: {0}", result));
+                if (result != VkResult.Success) throw new FramebufferException(result, string.Format("Error creating framebuffer: {0}", result));
             }
 
             RenderPass = mInfo.renderPass;
@@ -82,7 +82,7 @@ namespace CSGL.Vulkan {
         }
     }
 
-    public class FramebufferException : Exception {
-        public FramebufferException(string message) : base(message) { }
+    public class FramebufferException : VulkanException {
+        public FramebufferException(VkResult result, string message) : base(result, message) { }
     }
 }

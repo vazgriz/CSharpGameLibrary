@@ -52,7 +52,7 @@ namespace CSGL.Vulkan {
             info.subresourceRange = mInfo.subresourceRange;
 
             var result = Device.Commands.createImageView(Device.Native, ref info, Device.Instance.AllocationCallbacks, out imageView);
-            if (result != VkResult.Success) throw new ImageViewException(string.Format("Error creating image view: {0}", result));
+            if (result != VkResult.Success) throw new ImageViewException(result, string.Format("Error creating image view: {0}", result));
 
             Image = mInfo.image;
             ViewType = mInfo.viewType;
@@ -79,7 +79,7 @@ namespace CSGL.Vulkan {
         }
     }
 
-    public class ImageViewException : Exception {
-        public ImageViewException(string message) : base(message) { }
+    public class ImageViewException : VulkanException {
+        public ImageViewException(VkResult result, string message) : base(result, message) { }
     }
 }

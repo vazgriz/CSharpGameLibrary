@@ -33,7 +33,7 @@ namespace CSGL.Vulkan {
                 Interop.Marshal(fences, fencesNative);
 
                 var result = device.Commands.resetFences(device.Native, (uint)fences.Length, (IntPtr)fencesNative);
-                if (result != VkResult.Success) throw new FenceException(string.Format("Error resetting fences: {0}", result));
+                if (result != VkResult.Success) throw new FenceException(result, string.Format("Error resetting fences: {0}", result));
                 return result;
             }
         }
@@ -47,7 +47,7 @@ namespace CSGL.Vulkan {
                 Interop.Marshal<VkFence, Fence>(fences, fencesNative);
 
                 var result = device.Commands.resetFences(device.Native, (uint)fences.Count, (IntPtr)fencesNative);
-                if (result != VkResult.Success) throw new FenceException(string.Format("Error resetting fences: {0}", result));
+                if (result != VkResult.Success) throw new FenceException(result, string.Format("Error resetting fences: {0}", result));
                 return result;
             }
         }
@@ -62,7 +62,7 @@ namespace CSGL.Vulkan {
 
                 uint waitAllNative = waitAll ? 1u : 0u;
                 var result = device.Commands.waitFences(device.Native, (uint)fences.Length, (IntPtr)fencesNative, waitAllNative, timeout);
-                if (!(result == VkResult.Success || result == VkResult.Timeout)) throw new FenceException(string.Format("Error waiting on fences: {0}", result));
+                if (!(result == VkResult.Success || result == VkResult.Timeout)) throw new FenceException(result, string.Format("Error waiting on fences: {0}", result));
                 return result;
             }
         }
@@ -77,7 +77,7 @@ namespace CSGL.Vulkan {
 
                 uint waitAllNative = waitAll ? 1u : 0u;
                 var result = device.Commands.waitFences(device.Native, (uint)fences.Count, (IntPtr)fencesNative, waitAllNative, timeout);
-                if (!(result == VkResult.Success || result == VkResult.Timeout)) throw new FenceException(string.Format("Error waiting on fences: {0}", result));
+                if (!(result == VkResult.Success || result == VkResult.Timeout)) throw new FenceException(result, string.Format("Error waiting on fences: {0}", result));
                 return result;
             }
         }
@@ -97,7 +97,7 @@ namespace CSGL.Vulkan {
             info.flags = mInfo.Flags;
 
             var result = Device.Commands.createFence(Device.Native, ref info, Device.Instance.AllocationCallbacks, out fence);
-            if (result != VkResult.Success) throw new FenceException(string.Format("Error creating fence: {0}", result));
+            if (result != VkResult.Success) throw new FenceException(result, string.Format("Error creating fence: {0}", result));
         }
 
         public VkResult Reset() {
@@ -130,7 +130,7 @@ namespace CSGL.Vulkan {
         }
     }
 
-    public class FenceException : Exception {
-        public FenceException(string message) : base(message) { }
+    public class FenceException : VulkanException {
+        public FenceException(VkResult result, string message) : base(result, message) { }
     }
 }

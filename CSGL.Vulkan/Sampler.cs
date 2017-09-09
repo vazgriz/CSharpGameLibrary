@@ -60,7 +60,7 @@ namespace CSGL.Vulkan {
             info.unnormalizedCoordinates = mInfo.unnormalizedCoordinates ? 1u : 0u;
 
             var result = Device.Commands.createSampler(Device.Native, ref info, Device.Instance.AllocationCallbacks, out sampler);
-            if (result != VkResult.Success) throw new SamplerException(string.Format("Error creating sampler: {0}", result));
+            if (result != VkResult.Success) throw new SamplerException(result, string.Format("Error creating sampler: {0}", result));
         }
 
         public void Dispose() {
@@ -81,7 +81,7 @@ namespace CSGL.Vulkan {
         }
     }
 
-    public class SamplerException : Exception {
-        public SamplerException(string message) : base(message) { }
+    public class SamplerException : VulkanException {
+        public SamplerException(VkResult result, string message) : base(result, message) { }
     }
 }

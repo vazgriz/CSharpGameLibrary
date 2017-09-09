@@ -93,7 +93,7 @@ namespace CSGL.Vulkan {
             using (features)
             using (prioritiesMarshalled) {
                 var result = Instance.Commands.createDevice(PhysicalDevice.Native, ref info, Instance.AllocationCallbacks, out device);
-                if (result != VkResult.Success) throw new DeviceException(string.Format("Error creating device: {0}", result));
+                if (result != VkResult.Success) throw new DeviceException(result, string.Format("Error creating device: {0}", result));
             }
         }
 
@@ -167,7 +167,8 @@ namespace CSGL.Vulkan {
         }
     }
 
-    public class DeviceException : Exception {
+    public class DeviceException : VulkanException {
         public DeviceException(string message) : base(message) { }
+        public DeviceException(VkResult result, string message) : base(result, message) { }
     }
 }

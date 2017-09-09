@@ -48,7 +48,7 @@ namespace CSGL.Vulkan {
             using (layoutsMarshalled)
             using (pushConstantsMarshalled) {
                 var result = Device.Commands.createPipelineLayout(Device.Native, ref info, Device.Instance.AllocationCallbacks, out pipelineLayout);
-                if (result != VkResult.Success) throw new PipelineLayoutException(string.Format("Error creating pipeline layout: {0}", result));
+                if (result != VkResult.Success) throw new PipelineLayoutException(result, string.Format("Error creating pipeline layout: {0}", result));
             }
         }
 
@@ -68,7 +68,7 @@ namespace CSGL.Vulkan {
         }
     }
 
-    public class PipelineLayoutException : Exception {
-        public PipelineLayoutException(string message) : base(message) { }
+    public class PipelineLayoutException : VulkanException {
+        public PipelineLayoutException(VkResult result, string message) : base(result, message) { }
     }
 }

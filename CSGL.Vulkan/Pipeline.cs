@@ -71,7 +71,7 @@ namespace CSGL.Vulkan {
         }
     }
 
-    public class PipelineException : Exception {
-        public PipelineException(string message) : base(message) { }
+    public class PipelineException : VulkanException {
+        public PipelineException(VkResult result, string message) : base(result, message) { }
     }
 }

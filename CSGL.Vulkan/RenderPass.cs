@@ -212,7 +212,7 @@ namespace CSGL.Vulkan {
                 info.pDependencies = (IntPtr)dependencies;
 
                 var result = Device.Commands.createRenderPass(Device.Native, ref info, Device.Instance.AllocationCallbacks, out renderPass);
-                if (result != VkResult.Success) throw new RenderPassException(string.Format("Error creating render pass: {0}"));
+                if (result != VkResult.Success) throw new RenderPassException(result, string.Format("Error creating render pass: {0}"));
 
                 GetGranularity();
             }
@@ -240,7 +240,7 @@ namespace CSGL.Vulkan {
         }
     }
 
-    public class RenderPassException : Exception {
-        public RenderPassException(string message) : base(message) { }
+    public class RenderPassException : VulkanException {
+        public RenderPassException(VkResult result, string message) : base(result, message) { }
     }
 }
