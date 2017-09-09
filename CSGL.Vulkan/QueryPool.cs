@@ -36,7 +36,8 @@ namespace CSGL.Vulkan {
             info.queryCount = mInfo.queryCount;
             info.pipelineStatistics = mInfo.pipelineStatistics;
 
-            Device.Commands.createQueryPool(Device.Native, ref info, Device.Instance.AllocationCallbacks, out queryPool);
+            var result = Device.Commands.createQueryPool(Device.Native, ref info, Device.Instance.AllocationCallbacks, out queryPool);
+            if (result != VkResult.Success) throw new QueryPoolException(result, string.Format("Error creating query pool: {0}", result));
         }
 
         public VkResult GetResults(uint firstQuery, uint queryCount, byte[] data, ulong stride, VkQueryResultFlags flags) {
@@ -67,5 +68,9 @@ namespace CSGL.Vulkan {
         ~QueryPool() {
             Dispose(false);
         }
+    }
+
+    public class QueryPoolException : VulkanException {
+        public QueryPoolException(VkResult result, string message) : base(result, message) { }
     }
 }
