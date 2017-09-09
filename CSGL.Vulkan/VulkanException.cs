@@ -1,7 +1,7 @@
 ﻿using System;
 
 namespace CSGL.Vulkan {
-    class VulkanException : Exception {
+    public class VulkanException : Exception {
         public VkResult Result { get; private set; }
 
         public VulkanException(string message) : base(message) { }
