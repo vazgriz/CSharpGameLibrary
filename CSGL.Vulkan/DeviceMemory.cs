@@ -59,7 +59,8 @@ namespace CSGL.Vulkan {
             info.allocationSize = allocationSize;
             info.memoryTypeIndex = memoryTypeIndex;
 
-            Device.Commands.allocateMemory(Device.Native, ref info, Device.Instance.AllocationCallbacks, out deviceMemory);
+            var result = Device.Commands.allocateMemory(Device.Native, ref info, Device.Instance.AllocationCallbacks, out deviceMemory);
+            if (result != VkResult.Success) throw new DeviceMemoryException(result, string.Format("Error allocating device memory: {0}", result));
 
             Size = allocationSize;
             MemoryTypeIndex = memoryTypeIndex;
