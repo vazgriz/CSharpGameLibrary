@@ -14,6 +14,8 @@ namespace CSGL.Vulkan {
         VkBufferView bufferView;
 
         public Device Device { get; private set; }
+        public Buffer Buffer { get; private set; }
+        public VkFormat Format { get; private set; }
         public ulong Offset { get; private set; }
         public ulong Range { get; private set; }
 
@@ -41,6 +43,8 @@ namespace CSGL.Vulkan {
             var result = Device.Commands.createBufferView(Device.Native, ref info, Device.Instance.AllocationCallbacks, out bufferView);
             if (result != VkResult.Success) throw new BufferViewException(result, string.Format("Error creating buffer view: {0}", result));
 
+            Buffer = mInfo.buffer;
+            Format = mInfo.format;
             Offset = mInfo.offset;
             Range = mInfo.range;
         }
