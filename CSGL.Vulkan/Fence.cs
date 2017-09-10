@@ -2,10 +2,6 @@
 using System.Collections.Generic;
 
 namespace CSGL.Vulkan {
-    public class FenceCreateInfo {
-        public VkFenceCreateFlags Flags { get; set; }
-    }
-
     public class Fence : IDisposable, INative<VkFence> {
         VkFence fence;
         bool disposed = false;
@@ -26,19 +22,18 @@ namespace CSGL.Vulkan {
 
         public Device Device { get; private set; }
 
-        public Fence(Device device, FenceCreateInfo info) {
+        public Fence(Device device, VkFenceCreateFlags flags) {
             if (device == null) throw new ArgumentNullException(nameof(device));
-            if (info == null) throw new ArgumentNullException(nameof(info));
 
             Device = device;
 
-            CreateFence(info);
+            CreateFence(flags);
         }
 
-        void CreateFence(FenceCreateInfo mInfo) {
+        void CreateFence(VkFenceCreateFlags flags) {
             VkFenceCreateInfo info = new VkFenceCreateInfo();
             info.sType = VkStructureType.FenceCreateInfo;
-            info.flags = mInfo.Flags;
+            info.flags = flags;
 
             var result = Device.Commands.createFence(Device.Native, ref info, Device.Instance.AllocationCallbacks, out fence);
             if (result != VkResult.Success) throw new FenceException(result, string.Format("Error creating fence: {0}", result));

@@ -77,6 +77,8 @@
   - Queue
     - Add Priority property
   - Fence
+    - Remove FenceCreateInfo
+    - Constructor now accepts VkFenceCreateFlags parameter
     - Add error handling to Wait
     - Add error handling to Status
   - RenderPass
