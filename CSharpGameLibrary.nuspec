@@ -29,6 +29,9 @@
   - DescriptorSet
     - Add CopyDescriptorSet class
     - Add support for copying descriptors
+  - DescriptorPool
+    - Add MaxSets property
+    - Add PoolSizes property
   - Buffer
     - Size property now returns the value of the size field in the BufferCreateInfo
   - BufferView

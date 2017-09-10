@@ -22,6 +22,8 @@ namespace CSGL.Vulkan {
         }
 
         public VkDescriptorPoolCreateFlags Flags { get; private set; }
+        public uint MaxSets { get; private set; }
+        public List<VkDescriptorPoolSize> PoolSizes { get; private set; }
 
         public DescriptorPool(Device device, DescriptorPoolCreateInfo info) {
             if (device == null) throw new ArgumentNullException(nameof(device));
@@ -48,6 +50,8 @@ namespace CSGL.Vulkan {
             }
 
             Flags = mInfo.flags;
+            MaxSets = mInfo.maxSets;
+            PoolSizes = new List<VkDescriptorPoolSize>(mInfo.poolSizes);
         }
 
         public DescriptorSet[] Allocate(DescriptorSetAllocateInfo info) {
