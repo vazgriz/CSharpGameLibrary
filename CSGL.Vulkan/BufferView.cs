@@ -30,6 +30,8 @@ namespace CSGL.Vulkan {
             if (info == null) throw new ArgumentNullException(nameof(info));
 
             Device = device;
+
+            CreateBufferView(info);
         }
 
         void CreateBufferView(BufferViewCreateInfo mInfo) {
