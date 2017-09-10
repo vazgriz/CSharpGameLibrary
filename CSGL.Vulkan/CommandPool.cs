@@ -19,6 +19,7 @@ namespace CSGL.Vulkan {
 
         public Device Device { get; private set; }
         public VkCommandPoolCreateFlags Flags { get; private set; }
+        public uint QueueFamilyIndex { get; private set; }
 
         public CommandPool(Device device, CommandPoolCreateInfo info) {
             if (device == null) throw new ArgumentNullException(nameof(device));
@@ -29,6 +30,7 @@ namespace CSGL.Vulkan {
             CreateCommandPool(info);
 
             Flags = info.flags;
+            QueueFamilyIndex = info.queueFamilyIndex;
         }
 
         void CreateCommandPool(CommandPoolCreateInfo mInfo) {

@@ -37,6 +37,7 @@
     - Add overloads to CopyBufferToImage, CopyImageToBuffer, BlitImage, ClearColorImage, SetViewports, SetScissor, ClearAttachments, and ResolveImage
   - CommandPool
     - Add Free overload
+    - Add QueueFamilyIndices property
   - DescriptorSet
     - Add CopyDescriptorSet class
     - Add support for copying descriptors
