@@ -56,7 +56,7 @@ namespace CSGL.Vulkan {
                         stride, flags
                     );
 
-                    if (!(result == VkResult.Success || result == VkResult.NotReady)) throw new QueryPoolException(result, string.Format("Error retrieving results: {0}", result));
+                    if (!(result == VkResult.Success || result == VkResult.NotReady)) throw new QueryPoolException(result, string.Format("Error getting results: {0}", result));
                     return result;
                 }
             }
