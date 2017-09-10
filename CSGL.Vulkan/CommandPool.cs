@@ -97,6 +97,13 @@ namespace CSGL.Vulkan {
             }
         }
 
+        public void Free(CommandBuffer commandBuffer) {
+            unsafe {
+                VkCommandBuffer commandBufferNative = commandBuffer.Native;
+                Device.Commands.freeCommandBuffers(Device.Native, commandPool, 1, (IntPtr)(&commandBufferNative));
+            }
+        }
+
         public void Reset(VkCommandPoolResetFlags flags) {
             Device.Commands.resetCommandPool(Device.Native, commandPool, flags);
         }
