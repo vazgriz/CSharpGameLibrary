@@ -50,11 +50,14 @@ namespace CSGL.Vulkan {
         public VkResult GetResults(uint firstQuery, uint queryCount, byte[] data, ulong stride, VkQueryResultFlags flags) {
             unsafe {
                 fixed (byte* ptr = data) {
-                    return Device.Commands.getQueryPoolResults(Device.Native, queryPool,
+                    var result = Device.Commands.getQueryPoolResults(Device.Native, queryPool,
                         firstQuery, queryCount,
                         (IntPtr)data.Length, (IntPtr)ptr,
                         stride, flags
                     );
+
+                    if (!(result == VkResult.Success || result == VkResult.NotReady)) throw new QueryPoolException(result, string.Format("Error retrieving results: {0}", result));
+                    return result;
                 }
             }
         }
