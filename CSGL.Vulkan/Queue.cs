@@ -72,12 +72,14 @@ namespace CSGL.Vulkan {
 
         public uint FamilyIndex { get; private set; }
         public QueueFamily Family { get; private set; }
+        public float Priority { get; private set; }
 
-        internal Queue(Device device, VkQueue queue, uint familyIndex) {
+        internal Queue(Device device, VkQueue queue, uint familyIndex, float priority) {
             this.device = device;
             this.queue = queue;
             FamilyIndex = familyIndex;
             Family = device.PhysicalDevice.QueueFamilies[(int)familyIndex];
+            Priority = priority;
         }
 
         public Device Device {

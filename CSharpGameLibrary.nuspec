@@ -74,6 +74,8 @@
     - Add QueryCount property
     - Add PipelineStatistics property
     - Add error handling to GetResults
+  - Queue
+    - Add Priority property
   - Fence
     - Add error handling to Wait
     - Add error handling to Status

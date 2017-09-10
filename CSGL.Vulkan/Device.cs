@@ -122,7 +122,7 @@ namespace CSGL.Vulkan {
                     VkQueue temp;
                     Commands.getDeviceQueue(device, id.familyIndex, id.index, out temp);
 
-                    var queue = new Queue(this, temp, id.familyIndex);
+                    var queue = new Queue(this, temp, id.familyIndex, queueInfo.priorities[j]);
                     queues.Add(id, queue);
                 }
             }
