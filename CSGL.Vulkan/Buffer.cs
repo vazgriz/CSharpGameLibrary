@@ -32,14 +32,10 @@ namespace CSGL.Vulkan {
             }
         }
 
-        public ulong Size {
-            get {
-                return requirements.size;
-            }
-        }
 
         public VkBufferCreateFlags Flags { get; private set; }
         public VkBufferUsageFlags Usage { get; private set; }
+        public ulong Size { get; private set; }
         public ulong Offset { get; private set; }
         public DeviceMemory Memory { get; private set; }
 
@@ -73,6 +69,7 @@ namespace CSGL.Vulkan {
 
             Flags = mInfo.flags;
             Usage = mInfo.usage;
+            Size = mInfo.size;
         }
 
         public void Bind(DeviceMemory deviceMemory, ulong offset) {
