@@ -32,6 +32,11 @@ namespace CSGL.Vulkan {
             Device = device;
 
             CreateBufferView(info);
+
+            Buffer = info.buffer;
+            Format = info.format;
+            Offset = info.offset;
+            Range = info.range;
         }
 
         void CreateBufferView(BufferViewCreateInfo mInfo) {
@@ -44,11 +49,6 @@ namespace CSGL.Vulkan {
 
             var result = Device.Commands.createBufferView(Device.Native, ref info, Device.Instance.AllocationCallbacks, out bufferView);
             if (result != VkResult.Success) throw new BufferViewException(result, string.Format("Error creating buffer view: {0}", result));
-
-            Buffer = mInfo.buffer;
-            Format = mInfo.format;
-            Offset = mInfo.offset;
-            Range = mInfo.range;
         }
 
         public void Dispose() {
