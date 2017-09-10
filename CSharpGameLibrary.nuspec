@@ -13,6 +13,8 @@
     <releaseNotes>- Vulkan
   - Instance
     - Fix bugs
+    - InstanceCreateInfo
+      - Remove non default constructors
   - DebugReportCallback
     - Fix bugs
   - Device

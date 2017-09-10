@@ -11,33 +11,12 @@ namespace CSGL.Vulkan {
         public VkVersion applicationVersion;
         public string engineName;
         public string applicationName;
-
-        public ApplicationInfo() { }
-
-        public ApplicationInfo(VkVersion apiVersion, VkVersion applicationVersion, VkVersion engineVersion, string applicationName, string engineName) {
-            this.apiVersion = apiVersion;
-            this.applicationName = applicationName;
-            this.engineName = engineName;
-            this.applicationVersion = applicationVersion;
-            this.engineVersion = engineVersion;
-        }
     }
 
     public class InstanceCreateInfo {
         public ApplicationInfo applicationInfo;
         public List<string> extensions;
         public List<string> layers;
-
-        public InstanceCreateInfo() {
-            extensions = new List<string>();
-            layers = new List<string>();
-        }
-
-        public InstanceCreateInfo(ApplicationInfo applicationInfo, List<string> extensions, List<string> layers) {
-            this.applicationInfo = applicationInfo;
-            this.extensions = extensions;
-            this.layers = layers;
-        }
     }
 
     public partial class Instance : IDisposable, INative<VkInstance> {
