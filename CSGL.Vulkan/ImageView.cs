@@ -7,12 +7,6 @@ namespace CSGL.Vulkan {
         public VkFormat format;
         public VkComponentMapping components;
         public VkImageSubresourceRange subresourceRange;
-
-        public ImageViewCreateInfo() { }
-
-        public ImageViewCreateInfo(Image image) {
-            this.image = image;
-        }
     }
 
     public class ImageView : IDisposable, INative<VkImageView> {
