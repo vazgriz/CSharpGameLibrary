@@ -38,7 +38,11 @@ namespace CSGL.Vulkan {
         public uint ArrayLayers { get; private set; }
         public VkImageUsageFlags Usage { get; private set; }
         public VkSharingMode SharingMode { get; private set; }
+        public List<uint> QueueFamilyIndices { get; private set; }
+        public VkSurfaceTransformFlagsKHR PreTransform { get; private set; }
+        public VkCompositeAlphaFlagsKHR CompositeAlpha { get; private set; }
         public VkPresentModeKHR PresentMode { get; private set; }
+        public bool Clipped { get; private set; }
 
         public VkSwapchainKHR Native {
             get {
@@ -116,6 +120,11 @@ namespace CSGL.Vulkan {
             PresentMode = info.presentMode;
             Usage = info.imageUsage;
             SharingMode = info.imageSharingMode;
+            QueueFamilyIndices = new List<uint>(mInfo.queueFamilyIndices);
+            PreTransform = mInfo.preTransform;
+            CompositeAlpha = mInfo.compositeAlpha;
+            PresentMode = mInfo.presentMode;
+            Clipped = mInfo.clipped;
         }
 
         public VkResult AcquireNextImage(ulong timeout, Semaphore semaphore, Fence fence, out uint index) {

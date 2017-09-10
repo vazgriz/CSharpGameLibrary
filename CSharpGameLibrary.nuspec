@@ -99,6 +99,11 @@
     - Add maxLod property
     - Add borderColor property
     - Add unnormalizedCoordinates property
+  - Swapchain
+    - Add QueueFamilyIndices property
+    - Add PreTransform property
+    - Add CompositeAlpha property
+    - Add Clipped property
   - Exceptions
     - Add VulkanException class
     - Change all classes in CSGL.Vulkan to throw exceptions inheriting from VulkanException
