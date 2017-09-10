@@ -22,6 +22,7 @@ namespace CSGL.Vulkan {
 
         public Device Device { get; private set; }
         public RenderPass RenderPass { get; private set; }
+        public List<ImageView> Attachments { get; private set; }
         public uint Width { get; private set; }
         public uint Height { get; private set; }
         public uint Layers { get; private set; }
@@ -59,6 +60,7 @@ namespace CSGL.Vulkan {
             }
 
             RenderPass = mInfo.renderPass;
+            Attachments = new List<ImageView>(mInfo.attachments);
             Width = mInfo.width;
             Height = mInfo.height;
             Layers = mInfo.layers;
