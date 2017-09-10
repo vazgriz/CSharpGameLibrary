@@ -52,6 +52,9 @@ namespace CSGL.Vulkan {
             internalCallback = InternalCallback;
 
             CreateCallback(info);
+
+            Callback = info.callback;
+            Flags = info.flags;
         }
 
         void CreateCallback(DebugReportCallbackCreateInfo mInfo) {
