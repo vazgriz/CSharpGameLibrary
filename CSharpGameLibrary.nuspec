@@ -39,6 +39,8 @@
     - Add Layout property
     - ComputePipeline
       - Add BasePipeline property
+    - GraphicsPipeline
+      - Add BasePipeline property
   - Exceptions
     - Add VulkanException class
     - Change all classes in CSGL.Vulkan to throw exceptions inheriting from VulkanException
