@@ -51,6 +51,8 @@ namespace CSGL.Vulkan {
 
             Vulkan.Load(ref getDeviceProcAddr, Instance);
             Commands = new DeviceCommands(this);
+
+            GetQueues(info);
         }
 
         void CreateDevice(DeviceCreateInfo mInfo) {
@@ -112,19 +114,26 @@ namespace CSGL.Vulkan {
             }
         }
 
+        void GetQueues(DeviceCreateInfo info) {
+            for (int i = 0; i < info.queueCreateInfos.Count; i++) {
+                var queueInfo = info.queueCreateInfos[i];
+                for (int j = 0; j < (int)queueInfo.queueCount; j++) {
+                    QueueID id = new QueueID(queueInfo.queueFamilyIndex, (uint)j);
+                    VkQueue temp;
+                    Commands.getDeviceQueue(device, id.familyIndex, id.index, out temp);
+
+                    var queue = new Queue(this, temp, id.familyIndex);
+                    queues.Add(id, queue);
+                }
+            }
+        }
+
         public Queue GetQueue(uint familyIndex, uint index) {
             QueueID id = new QueueID(familyIndex, index);
             if (queues.ContainsKey(id)) {
                 return queues[id];
-            } else {
-                VkQueue temp;
-                Commands.getDeviceQueue(device, familyIndex, index, out temp);
-
-                var result = new Queue(this, temp, familyIndex);
-                queues.Add(id, result);
-
-                return result;
             }
+            throw new DeviceException("Requested queue does not exist");
         }
 
         public IntPtr GetProcAdddress(string command) {
