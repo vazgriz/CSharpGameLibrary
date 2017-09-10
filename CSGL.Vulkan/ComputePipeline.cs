@@ -9,12 +9,12 @@ namespace CSGL.Vulkan {
         public VkPipelineCreateFlags flags;
         public PipelineShaderStageCreateInfo stage;
         public PipelineLayout layout;
-        public Pipeline basePipelineHandle;
+        public ComputePipeline basePipelineHandle;
         public int basePipelineIndex;
     }
 
     public class ComputePipeline : Pipeline {
-        public Pipeline BasePipeline { get; internal set; }
+        public ComputePipeline BasePipeline { get; internal set; }
 
         internal ComputePipeline(Device device, VkPipeline pipeline, ComputePipelineCreateInfo info) {
             Device = device;
