@@ -11,12 +11,21 @@
     <projectUrl>https://github.com/vazgriz/CSharpGameLibrary</projectUrl>
     <description>C# bindings for GLFW, OpenGL, and Vulkan</description>
     <releaseNotes>- Vulkan
-  - Fix bug in Instance creation
-  - Fix bugs in DebugReportCallback
-  - Remove non default constructor from DeviceCreateInfo
-  - Remove non default constructor from DeviceQueueCreateInfo
-  - Remove non default constructor from SwapchainCreateInfo
-  - Remove non default constructors from ShaderModuleCreateInfo
+  - Instance
+    - Fix bugs
+  - DebugReportCallback
+    - Fix bugs
+  - Device
+    - DeviceCreateInfo
+      - Remove non default constructor
+    - DeviceQueueCreateInfo
+      - Remove non default constructor
+  - Swapchain
+    - SwapchainCreateInfo
+      - Remove non default constructor
+  - ShaderModule
+    - ShaderModuleCreateInfo
+      - Remove non default constructors
   - CommandBuffer
     - Implement IDisposable
     - Remove Draw overload
@@ -52,6 +61,9 @@
   - Image
     - Add SharingMode property
 	- Add QueueFamilyIndices property
+  - ImageView
+    - ImageViewCreateInfo
+      - Remove non default constructor
   - Exceptions
     - Add VulkanException class
     - Change all classes in CSGL.Vulkan to throw exceptions inheriting from VulkanException
