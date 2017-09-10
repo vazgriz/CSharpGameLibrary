@@ -63,6 +63,10 @@ namespace CSGL.Vulkan {
             }
         }
 
+        public List<AttachmentDescription> Attachments { get; private set; }
+        public List<SubpassDescription> Subpasses { get; private set; }
+        public List<SubpassDependency> Dependencies { get; private set; }
+
         public RenderPass(Device device, RenderPassCreateInfo info) {
             if (device == null) throw new ArgumentNullException(nameof(device));
             if (info == null) throw new ArgumentNullException(nameof(info));
@@ -70,6 +74,10 @@ namespace CSGL.Vulkan {
             Device = device;
 
             CreateRenderPass(info);
+
+            if (info.attachments != null) Attachments = new List<AttachmentDescription>(info.attachments);
+            if (info.subpasses != null) Subpasses = new List<SubpassDescription>(info.subpasses);
+            if (info.dependencies != null) Dependencies = new List<SubpassDependency>(info.dependencies);
         }
 
         void CreateRenderPass(RenderPassCreateInfo mInfo) {

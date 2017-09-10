@@ -79,6 +79,10 @@
   - Fence
     - Add error handling to Wait
     - Add error handling to Status
+  - RenderPass
+    - Add Attachments property
+    - Add Subpasses property
+    - Add Dependencies property
   - Exceptions
     - Add VulkanException class
     - Change all classes in CSGL.Vulkan to throw exceptions inheriting from VulkanException
