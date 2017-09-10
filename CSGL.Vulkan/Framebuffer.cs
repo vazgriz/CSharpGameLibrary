@@ -34,6 +34,12 @@ namespace CSGL.Vulkan {
             Device = device;
 
             CreateFramebuffer(info);
+
+            RenderPass = info.renderPass;
+            Attachments = new List<ImageView>(info.attachments);
+            Width = info.width;
+            Height = info.height;
+            Layers = info.layers;
         }
 
         void CreateFramebuffer(FramebufferCreateInfo mInfo) {
@@ -58,12 +64,6 @@ namespace CSGL.Vulkan {
                 var result = Device.Commands.createFramebuffer(Device.Native, ref info, Device.Instance.AllocationCallbacks, out framebuffer);
                 if (result != VkResult.Success) throw new FramebufferException(result, string.Format("Error creating framebuffer: {0}", result));
             }
-
-            RenderPass = mInfo.renderPass;
-            Attachments = new List<ImageView>(mInfo.attachments);
-            Width = mInfo.width;
-            Height = mInfo.height;
-            Layers = mInfo.layers;
         }
 
         public void Dispose() {
