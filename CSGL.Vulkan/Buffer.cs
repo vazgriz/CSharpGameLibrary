@@ -47,6 +47,10 @@ namespace CSGL.Vulkan {
             CreateBuffer(info);
 
             Device.Commands.getMemoryRequirements(Device.Native, buffer, out requirements);
+
+            Flags = info.flags;
+            Usage = info.usage;
+            Size = info.size;
         }
 
         void CreateBuffer(BufferCreateInfo mInfo) {
@@ -65,10 +69,6 @@ namespace CSGL.Vulkan {
                 var result = Device.Commands.createBuffer(Device.Native, ref info, Device.Instance.AllocationCallbacks, out buffer);
                 if (result != VkResult.Success) throw new BufferException(result, string.Format("Error creating Buffer: {0}", result));
             }
-
-            Flags = mInfo.flags;
-            Usage = mInfo.usage;
-            Size = mInfo.size;
         }
 
         public void Bind(DeviceMemory deviceMemory, ulong offset) {
