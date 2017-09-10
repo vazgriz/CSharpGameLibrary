@@ -48,6 +48,8 @@
     - Add Bindings property
   - Buffer
     - Size property now returns the value of the size field in the BufferCreateInfo
+    - Add SharingMode property
+    - Add QueueFamilyIndices property
   - BufferView
     - Add Buffer property
     - Add Format property
