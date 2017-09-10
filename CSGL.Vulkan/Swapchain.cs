@@ -63,6 +63,19 @@ namespace CSGL.Vulkan {
             CreateSwapchain(info);
 
             GetImages();
+
+            Format = info.imageFormat;
+            ColorSpace = info.imageColorSpace;
+            Extent = info.imageExtent;
+            ArrayLayers = info.imageArrayLayers;
+            PresentMode = info.presentMode;
+            Usage = info.imageUsage;
+            SharingMode = info.imageSharingMode;
+            QueueFamilyIndices = new List<uint>(info.queueFamilyIndices);
+            PreTransform = info.preTransform;
+            CompositeAlpha = info.compositeAlpha;
+            PresentMode = info.presentMode;
+            Clipped = info.clipped;
         }
 
         void GetImages() {
@@ -112,19 +125,6 @@ namespace CSGL.Vulkan {
                 var result = Device.Commands.createSwapchain(Device.Native, ref info, Device.Instance.AllocationCallbacks, out swapchain);
                 if (result != VkResult.Success) throw new SwapchainException(result, string.Format("Error creating swapchain: {0}", result));
             }
-
-            Format = info.imageFormat;
-            ColorSpace = info.imageColorSpace;
-            Extent = info.imageExtent;
-            ArrayLayers = info.imageArrayLayers;
-            PresentMode = info.presentMode;
-            Usage = info.imageUsage;
-            SharingMode = info.imageSharingMode;
-            QueueFamilyIndices = new List<uint>(mInfo.queueFamilyIndices);
-            PreTransform = mInfo.preTransform;
-            CompositeAlpha = mInfo.compositeAlpha;
-            PresentMode = mInfo.presentMode;
-            Clipped = mInfo.clipped;
         }
 
         public VkResult AcquireNextImage(ulong timeout, Semaphore semaphore, Fence fence, out uint index) {
