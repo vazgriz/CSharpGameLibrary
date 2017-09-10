@@ -18,7 +18,9 @@ namespace CSGL.Vulkan {
 
         public VkResult Status {
             get {
-                return Device.Commands.getFenceStatus(Device.Native, fence);
+                var result = Device.Commands.getFenceStatus(Device.Native, fence);
+                if (!(result == VkResult.Success || result == VkResult.Timeout)) throw new FenceException(result, string.Format("Error getting status: {0}", result));
+                return result;
             }
         }
 
@@ -103,7 +105,9 @@ namespace CSGL.Vulkan {
         }
 
         public VkResult Wait(ulong timeout) {
-            return Wait(Device, new Fence[] { this }, false, timeout);
+            var result = Wait(Device, new Fence[] { this }, false, timeout);
+            if (!(result == VkResult.Success || result == VkResult.Timeout)) throw new FenceException(result, string.Format("Error waiting on fence: {0}", result));
+            return result;
         }
 
         public VkResult Wait() {

@@ -74,6 +74,9 @@
     - Add QueryCount property
     - Add PipelineStatistics property
     - Add error handling to GetResults
+  - Fence
+    - Add error handling to Wait
+    - Add error handling to Status
   - Exceptions
     - Add VulkanException class
     - Change all classes in CSGL.Vulkan to throw exceptions inheriting from VulkanException
