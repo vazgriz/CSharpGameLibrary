@@ -66,6 +66,9 @@
   - ImageView
     - ImageViewCreateInfo
       - Remove non default constructor
+  - PipelineLayout
+    - Add Layouts property
+    - Add PushConstantRanges property
   - Exceptions
     - Add VulkanException class
     - Change all classes in CSGL.Vulkan to throw exceptions inheriting from VulkanException

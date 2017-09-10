@@ -12,6 +12,8 @@ namespace CSGL.Vulkan {
         bool disposed = false;
 
         public Device Device { get; private set; }
+        public List<DescriptorSetLayout> Layouts { get; private set; }
+        public List<VkPushConstantRange> PushConstantRanges { get; private set; }
 
         public VkPipelineLayout Native {
             get {
@@ -25,6 +27,9 @@ namespace CSGL.Vulkan {
 
             Device = device;
             CreateLayout(info);
+
+            if (info.setLayouts != null) Layouts = new List<DescriptorSetLayout>(info.setLayouts);
+            if (info.pushConstantRanges != null) PushConstantRanges = new List<VkPushConstantRange>(info.pushConstantRanges);
         }
 
         void CreateLayout(PipelineLayoutCreateInfo mInfo) {
