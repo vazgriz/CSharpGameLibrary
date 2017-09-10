@@ -55,6 +55,8 @@ namespace CSGL.Vulkan {
         public VkSampleCountFlags Samples { get; private set; }
         public VkImageTiling Tiling { get; private set; }
         public VkImageUsageFlags Usage { get; private set; }
+        public VkSharingMode SharingMode { get; private set; }
+        public List<uint> QueueFamilyIndices { get; private set; }
 
         public ulong Offset { get; private set; }
         public DeviceMemory Memory { get; private set; }
@@ -107,6 +109,8 @@ namespace CSGL.Vulkan {
             Samples = mInfo.samples;
             Tiling = mInfo.tiling;
             Usage = mInfo.usage;
+            SharingMode = mInfo.sharingMode;
+            if (mInfo.queueFamilyIndices != null) QueueFamilyIndices = new List<uint>(mInfo.queueFamilyIndices);
         }
 
         void GetSparseRequirements() {

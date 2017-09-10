@@ -49,6 +49,9 @@
       - Add BasePipeline property
   - Framebuffer
     - Add Attachments property
+  - Image
+    - Add SharingMode property
+	- Add QueueFamilyIndices property
   - Exceptions
     - Add VulkanException class
     - Change all classes in CSGL.Vulkan to throw exceptions inheriting from VulkanException
