@@ -83,6 +83,22 @@
     - Add Attachments property
     - Add Subpasses property
     - Add Dependencies property
+  - Sampler
+    - Add MagFilter property
+    - Add MinFilter property
+    - Add MipmapMode property
+    - Add AddressModeU property
+    - Add AddressModeV property
+    - Add AddressModeW property
+    - Add MipLodBias property
+    - Add AnisotropyEnable property
+    - Add maxAnisotropy property
+    - Add compareEnable property
+    - Add compareOp property
+    - Add minLod property
+    - Add maxLod property
+    - Add borderColor property
+    - Add unnormalizedCoordinates property
   - Exceptions
     - Add VulkanException class
     - Change all classes in CSGL.Vulkan to throw exceptions inheriting from VulkanException
