@@ -12,22 +12,49 @@
     <description>C# bindings for GLFW, OpenGL, and Vulkan</description>
     <releaseNotes>- Vulkan
   - Fix bug in Instance creation
+  - Fix bugs in DebugReportCallback
   - Remove non default constructor from DeviceCreateInfo
   - Remove non default constructor from DeviceQueueCreateInfo
   - Remove non default constructor from SwapchainCreateInfo
   - Remove non default constructors from ShaderModuleCreateInfo
   - CommandBuffer
+    - Implement IDisposable
     - Remove Draw overload
     - Remove BindDescriptorSets overloads
     - Remove CopyBuffer overload
     - Rename BindVertexBuffer to BindVertexBuffers
     - Add overloads to CopyBufferToImage, CopyImageToBuffer, BlitImage, ClearColorImage, SetViewports, SetScissor, ClearAttachments, and ResolveImage
-  - Add Interop.AddressOf method
+  - CommandPool
+    - Add Free overload
+  - DescriptorSet
+    - Add CopyDescriptorSet class
+    - Add support for copying descriptors
+  - Buffer
+    - Size property now returns the value of the size field in the BufferCreateInfo
+  - BufferView
+    - Add Buffer property
+    - Add Format property
+  - Exceptions
+    - Add VulkanException class
+    - Change all classes in CSGL.Vulkan to throw exceptions inheriting from VulkanException
+    - Add QueryPoolException
+    - Add CommandBufferException
   - Fix structs in CSGL.Vulkan
     - VkImageBlit
     - VkPhysicalDeviceLimits
+  - Change enum value names for:
+    - VkQueryResultFlags
+    - VkSampleCountFlags
+    - VkSurfaceTransformsFlagsKHR
+    - VkBlendFactor
+    - VkFormat
+    - VkImageType
+    - VkImageViewType
+    - VkIndexType
 - GLFW
-  - Fix bug that caused managed delegate to be garbage collected</releaseNotes>
+  - Fix bug that caused managed delegate to be garbage collected
+- Add Interop.AddressOf method
+- Fix bug in Interop.GetInternalArray</releaseNotes>
     <copyright>Copyright 2017</copyright>
     <tags>glfw opengl vulkan</tags>
   </metadata>
