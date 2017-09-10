@@ -26,6 +26,38 @@ namespace CSGL.Vulkan {
 
         public Device Device { get; private set; }
 
+        public Fence(Device device, FenceCreateInfo info) {
+            if (device == null) throw new ArgumentNullException(nameof(device));
+            if (info == null) throw new ArgumentNullException(nameof(info));
+
+            Device = device;
+
+            CreateFence(info);
+        }
+
+        void CreateFence(FenceCreateInfo mInfo) {
+            VkFenceCreateInfo info = new VkFenceCreateInfo();
+            info.sType = VkStructureType.FenceCreateInfo;
+            info.flags = mInfo.Flags;
+
+            var result = Device.Commands.createFence(Device.Native, ref info, Device.Instance.AllocationCallbacks, out fence);
+            if (result != VkResult.Success) throw new FenceException(result, string.Format("Error creating fence: {0}", result));
+        }
+
+        public void Reset() {
+            Reset(Device, new Fence[] { this });
+        }
+
+        public VkResult Wait(ulong timeout) {
+            var result = Wait(Device, new Fence[] { this }, false, timeout);
+            if (!(result == VkResult.Success || result == VkResult.Timeout)) throw new FenceException(result, string.Format("Error waiting on fence: {0}", result));
+            return result;
+        }
+
+        public VkResult Wait() {
+            return Wait(ulong.MaxValue);
+        }
+
         public static void Reset(Device device, Fence[] fences) {
             if (device == null) throw new ArgumentNullException(nameof(device));
             if (fences == null) throw new ArgumentNullException(nameof(fences));
@@ -80,38 +112,6 @@ namespace CSGL.Vulkan {
                 if (!(result == VkResult.Success || result == VkResult.Timeout)) throw new FenceException(result, string.Format("Error waiting on fences: {0}", result));
                 return result;
             }
-        }
-
-        public Fence(Device device, FenceCreateInfo info) {
-            if (device == null) throw new ArgumentNullException(nameof(device));
-            if (info == null) throw new ArgumentNullException(nameof(info));
-
-            Device = device;
-
-            CreateFence(info);
-        }
-
-        void CreateFence(FenceCreateInfo mInfo) {
-            VkFenceCreateInfo info = new VkFenceCreateInfo();
-            info.sType = VkStructureType.FenceCreateInfo;
-            info.flags = mInfo.Flags;
-
-            var result = Device.Commands.createFence(Device.Native, ref info, Device.Instance.AllocationCallbacks, out fence);
-            if (result != VkResult.Success) throw new FenceException(result, string.Format("Error creating fence: {0}", result));
-        }
-
-        public void Reset() {
-            Reset(Device, new Fence[] { this });
-        }
-
-        public VkResult Wait(ulong timeout) {
-            var result = Wait(Device, new Fence[] { this }, false, timeout);
-            if (!(result == VkResult.Success || result == VkResult.Timeout)) throw new FenceException(result, string.Format("Error waiting on fence: {0}", result));
-            return result;
-        }
-
-        public VkResult Wait() {
-            return Wait(ulong.MaxValue);
         }
 
         public void Dispose() {
