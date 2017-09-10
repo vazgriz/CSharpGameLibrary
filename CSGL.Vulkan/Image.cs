@@ -74,6 +74,18 @@ namespace CSGL.Vulkan {
             CreateImage(info);
 
             Device.Commands.getImageMemoryRequirements(Device.Native, image, out requirements);
+
+            Flags = info.flags;
+            ImageType = info.imageType;
+            Format = info.format;
+            Extent = info.extent;
+            MipLevels = info.mipLevels;
+            ArrayLayers = info.arrayLayers;
+            Samples = info.samples;
+            Tiling = info.tiling;
+            Usage = info.usage;
+            SharingMode = info.sharingMode;
+            if (info.queueFamilyIndices != null) QueueFamilyIndices = new List<uint>(info.queueFamilyIndices);
         }
 
         void CreateImage(ImageCreateInfo mInfo) {
@@ -99,18 +111,6 @@ namespace CSGL.Vulkan {
                 var result = Device.Commands.createImage(Device.Native, ref info, Device.Instance.AllocationCallbacks, out image);
                 if (result != VkResult.Success) throw new ImageException(result, string.Format("Error creating image: {0}", result));
             }
-
-            Flags = mInfo.flags;
-            ImageType = mInfo.imageType;
-            Format = mInfo.format;
-            Extent = mInfo.extent;
-            MipLevels = mInfo.mipLevels;
-            ArrayLayers = mInfo.arrayLayers;
-            Samples = mInfo.samples;
-            Tiling = mInfo.tiling;
-            Usage = mInfo.usage;
-            SharingMode = mInfo.sharingMode;
-            if (mInfo.queueFamilyIndices != null) QueueFamilyIndices = new List<uint>(mInfo.queueFamilyIndices);
         }
 
         void GetSparseRequirements() {
