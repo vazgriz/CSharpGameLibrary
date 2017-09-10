@@ -32,7 +32,6 @@ namespace CSGL.Vulkan {
             }
         }
 
-
         public VkBufferCreateFlags Flags { get; private set; }
         public VkBufferUsageFlags Usage { get; private set; }
         public ulong Size { get; private set; }
