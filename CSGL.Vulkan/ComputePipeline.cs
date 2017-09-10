@@ -14,9 +14,12 @@ namespace CSGL.Vulkan {
     }
 
     public class ComputePipeline : Pipeline {
-        internal ComputePipeline(Device device, VkPipeline pipeline) {
+        public Pipeline BasePipeline { get; internal set; }
+
+        internal ComputePipeline(Device device, VkPipeline pipeline, ComputePipelineCreateInfo info) {
             Device = device;
             this.pipeline = pipeline;
+            SetProperties(info);
         }
 
         public ComputePipeline(Device device, ComputePipelineCreateInfo info, PipelineCache cache) {
@@ -31,6 +34,18 @@ namespace CSGL.Vulkan {
             }
 
             pipeline = CreatePipelinesInternal(device, new ComputePipelineCreateInfo[] { info }, nativeCache)[0];
+
+            SetProperties(info);
+
+            //not possible to use basePipelineIndex
+            if ((info.flags & VkPipelineCreateFlags.DerivativeBit) == VkPipelineCreateFlags.DerivativeBit && info.basePipelineHandle != null) {
+                BasePipeline = info.basePipelineHandle;
+            }
+        }
+
+        void SetProperties(ComputePipelineCreateInfo info) {
+            Flags = info.flags;
+            Layout = info.layout;
         }
 
         static internal VkPipeline[] CreatePipelinesInternal(Device device, ComputePipelineCreateInfo[] mInfos, VkPipelineCache cache) {
