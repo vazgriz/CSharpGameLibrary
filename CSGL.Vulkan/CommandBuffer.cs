@@ -8,8 +8,9 @@ namespace CSGL.Vulkan {
         public uint commandBufferCount;
     }
 
-    public class CommandBuffer : INative<VkCommandBuffer> {
+    public class CommandBuffer : IDisposable, INative<VkCommandBuffer> {
         VkCommandBuffer commandBuffer;
+        bool disposed;
 
         public VkCommandBuffer Native {
             get {
@@ -26,6 +27,23 @@ namespace CSGL.Vulkan {
             Pool = pool;
             this.commandBuffer = commandBuffer;
             Level = level;
+        }
+
+        public void Dispose() {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        void Dispose(bool disposing) {
+            if (disposed) return;
+
+            Pool.Free(this);
+
+            disposed = true;
+        }
+
+        ~CommandBuffer() {
+            Dispose(false);
         }
 
         public void Begin(CommandBufferBeginInfo info) {
