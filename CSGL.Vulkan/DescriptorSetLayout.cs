@@ -12,6 +12,7 @@ namespace CSGL.Vulkan {
         bool disposed;
 
         public Device Device { get; private set; }
+        public List<VkDescriptorSetLayoutBinding> Bindings { get; private set; }
 
         public VkDescriptorSetLayout Native {
             get {
@@ -26,6 +27,8 @@ namespace CSGL.Vulkan {
             Device = device;
 
             CreateDescriptorSetLayout(info);
+
+            Bindings = new List<VkDescriptorSetLayoutBinding>(info.bindings);
         }
 
         void CreateDescriptorSetLayout(DescriptorSetLayoutCreateInfo mInfo) {

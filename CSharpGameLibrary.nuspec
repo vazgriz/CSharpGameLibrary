@@ -33,6 +33,8 @@
   - DescriptorPool
     - Add MaxSets property
     - Add PoolSizes property
+  - DescriptorSetLayout
+    - Add Bindings property
   - Buffer
     - Size property now returns the value of the size field in the BufferCreateInfo
   - BufferView
