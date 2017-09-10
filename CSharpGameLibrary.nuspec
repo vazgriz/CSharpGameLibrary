@@ -29,6 +29,7 @@
   - DescriptorSet
     - Add CopyDescriptorSet class
     - Add support for copying descriptors
+    - Add Layouts property
   - DescriptorPool
     - Add MaxSets property
     - Add PoolSizes property

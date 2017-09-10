@@ -76,7 +76,7 @@ namespace CSGL.Vulkan {
                 var results = new DescriptorSet[(int)info.descriptorSetCount];
 
                 for (int i = 0; i < info.descriptorSetCount; i++) {
-                    results[i] = new DescriptorSet(Device, this, descriptorSetsMarshalled[i]);
+                    results[i] = new DescriptorSet(Device, this, descriptorSetsMarshalled[i], info);
                 }
 
                 return results;

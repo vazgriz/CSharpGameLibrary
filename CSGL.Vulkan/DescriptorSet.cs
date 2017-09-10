@@ -44,6 +44,7 @@ namespace CSGL.Vulkan {
 
         public Device Device { get; private set; }
         public DescriptorPool Pool { get; private set; }
+        public List<DescriptorSetLayout> Layouts { get; private set; }
 
         public VkDescriptorSet Native {
             get {
@@ -51,10 +52,11 @@ namespace CSGL.Vulkan {
             }
         }
 
-        internal DescriptorSet(Device device, DescriptorPool pool, VkDescriptorSet descriptorSet) {
+        internal DescriptorSet(Device device, DescriptorPool pool, VkDescriptorSet descriptorSet, DescriptorSetAllocateInfo info) {
             Device = device;
             Pool = pool;
             this.descriptorSet = descriptorSet;
+            Layouts = new List<DescriptorSetLayout>(info.setLayouts);
         }
 
         public static void Update(Device device, List<WriteDescriptorSet> writes, List<CopyDescriptorSet> copies) {
