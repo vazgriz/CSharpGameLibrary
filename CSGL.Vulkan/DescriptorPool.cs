@@ -32,6 +32,10 @@ namespace CSGL.Vulkan {
             Device = device;
 
             CreateDescriptorPool(info);
+
+            Flags = info.flags;
+            MaxSets = info.maxSets;
+            PoolSizes = new List<VkDescriptorPoolSize>(info.poolSizes);
         }
 
         void CreateDescriptorPool(DescriptorPoolCreateInfo mInfo) {
@@ -48,10 +52,6 @@ namespace CSGL.Vulkan {
                 var result = Device.Commands.createDescriptorPool(Device.Native, ref info, Device.Instance.AllocationCallbacks, out descriptorPool);
                 if (result != VkResult.Success) throw new DescriptorPoolException(result, string.Format("Error creating descriptor pool: {0}", result));
             }
-
-            Flags = mInfo.flags;
-            MaxSets = mInfo.maxSets;
-            PoolSizes = new List<VkDescriptorPoolSize>(mInfo.poolSizes);
         }
 
         public DescriptorSet[] Allocate(DescriptorSetAllocateInfo info) {
