@@ -22,8 +22,6 @@ namespace CSGL.Vulkan {
     }
 
     public class GraphicsPipeline : Pipeline {
-        public GraphicsPipeline BasePipeline { get; internal set; }
-
         internal GraphicsPipeline(Device device, VkPipeline pipeline, GraphicsPipelineCreateInfo info) {
             Device = device;
             this.pipeline = pipeline;
@@ -44,11 +42,6 @@ namespace CSGL.Vulkan {
             pipeline = CreatePipelinesInternal(device, new GraphicsPipelineCreateInfo[] { info }, nativeCache)[0];
 
             SetProperties(info);
-
-            //not possible to use basePipelineIndex
-            if ((info.flags & VkPipelineCreateFlags.DerivativeBit) == VkPipelineCreateFlags.DerivativeBit && info.basePipelineHandle != null) {
-                BasePipeline = info.basePipelineHandle;
-            }
         }
 
         void SetProperties(GraphicsPipelineCreateInfo info) {

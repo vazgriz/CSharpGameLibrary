@@ -35,17 +35,6 @@ namespace CSGL.Vulkan {
                 pipelines[i] = new GraphicsPipeline(device, natives[i], infos[i]);
             }
 
-            for (int i = 0; i < infos.Length; i++) {
-                if ((infos[i].flags & VkPipelineCreateFlags.DerivativeBit) == VkPipelineCreateFlags.DerivativeBit) {
-                    if (infos[i].basePipelineHandle != null) {
-                        pipelines[i].BasePipeline = infos[i].basePipelineHandle;
-                    }
-                    if (infos[i].basePipelineIndex != -1) {
-                        pipelines[i].BasePipeline = pipelines[infos[i].basePipelineIndex];
-                    }
-                }
-            }
-
             return pipelines;
         }
 
@@ -63,17 +52,6 @@ namespace CSGL.Vulkan {
 
             for (int i = 0; i < infos.Length; i++) {
                 pipelines[i] = new ComputePipeline(device, natives[i], infos[i]);
-            }
-
-            for (int i = 0; i < infos.Length; i++) {
-                if ((infos[i].flags & VkPipelineCreateFlags.DerivativeBit) == VkPipelineCreateFlags.DerivativeBit) {
-                    if (infos[i].basePipelineHandle != null) {
-                        pipelines[i].BasePipeline = infos[i].basePipelineHandle;
-                    }
-                    if (infos[i].basePipelineIndex != -1) {
-                        pipelines[i].BasePipeline = pipelines[infos[i].basePipelineIndex];
-                    }
-                }
             }
 
             return pipelines;
