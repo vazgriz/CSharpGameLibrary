@@ -20,6 +20,9 @@ namespace CSGL.Vulkan {
         }
 
         public Device Device { get; private set; }
+        public VkQueryType QueryType { get; private set; }
+        public uint QueryCount { get; private set; }
+        public VkQueryPipelineStatisticFlags PipelineStatistics { get; private set; }
 
         public QueryPool(Device device, QueryPoolCreateInfo info) {
             if (device == null) throw new ArgumentNullException(nameof(device));
@@ -27,6 +30,10 @@ namespace CSGL.Vulkan {
             Device = device;
 
             CreateQueryPool(info);
+
+            QueryType = info.queryType;
+            QueryCount = info.queryCount;
+            PipelineStatistics = info.pipelineStatistics;
         }
 
         void CreateQueryPool(QueryPoolCreateInfo mInfo) {

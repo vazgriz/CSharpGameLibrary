@@ -69,6 +69,10 @@
   - PipelineLayout
     - Add Layouts property
     - Add PushConstantRanges property
+  - QueryPool
+    - Add QueryType property
+    - Add QueryCount property
+    - Add PipelineStatistics property
   - Exceptions
     - Add VulkanException class
     - Change all classes in CSGL.Vulkan to throw exceptions inheriting from VulkanException
