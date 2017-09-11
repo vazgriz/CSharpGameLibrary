@@ -22,7 +22,7 @@ namespace CSGL.Vulkan {
     }
 
     public class GraphicsPipeline : Pipeline {
-        public List<PipelineShaderStageCreateInfo> Stages { get; private set; }
+        public IList<PipelineShaderStageCreateInfo> Stages { get; private set; }
         public PipelineVertexInputStateCreateInfo VertexInputState { get; private set; }
         public PipelineInputAssemblyStateCreateInfo InputAssemblyState { get; private set; }
         public PipelineTessellationStateCreateInfo TessellationState { get; private set; }
@@ -61,10 +61,11 @@ namespace CSGL.Vulkan {
             Flags = info.flags;
             Layout = info.layout;
             if (info.stages != null) {
-                Stages = new List<PipelineShaderStageCreateInfo>(info.stages.Count);
+                var stages = new List<PipelineShaderStageCreateInfo>(info.stages.Count);
                 foreach (var stage in info.stages) {
-                    Stages.Add(new PipelineShaderStageCreateInfo(stage));
+                    stages.Add(new PipelineShaderStageCreateInfo(stage));
                 }
+                Stages = stages.AsReadOnly();
             }
             if (info.vertexInputState != null) VertexInputState = new PipelineVertexInputStateCreateInfo(info.vertexInputState);
             if (info.inputAssemblyState != null) InputAssemblyState = new PipelineInputAssemblyStateCreateInfo(info.inputAssemblyState);
