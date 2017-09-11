@@ -43,16 +43,6 @@ namespace CSGL {
             }
         }
 
-        public MarshalledArray(INative<T>[] array) {
-            if (array != null) {
-                count = array.Length;
-                Allocate(count);
-                for (int i = 0; i < count; i++) {
-                    Marshal.StructureToPtr(array[i].Native, GetAddress(i), false);
-                }
-            }
-        }
-
         public unsafe MarshalledArray(void* ptr, IList<T> list) {   //meant to be used for stackalloc'ed memory
             if (ptr == null) throw new ArgumentNullException(nameof(ptr));
 
