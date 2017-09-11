@@ -22,7 +22,6 @@ namespace CSGL.Vulkan {
         bool disposed = false;
 
         VkMemoryRequirements requirements;
-        List<VkSparseImageMemoryRequirements> sparseRequirements;
 
         public Device Device { get; private set; }
 
@@ -114,7 +113,7 @@ namespace CSGL.Vulkan {
         }
 
         void GetSparseRequirements() {
-            sparseRequirements = new List<VkSparseImageMemoryRequirements>();
+            var sparseRequirements = new List<VkSparseImageMemoryRequirements>();
 
             uint count = 0;
             Device.Commands.getImageSparseRequirements(Device.Native, image, ref count, IntPtr.Zero);
