@@ -165,6 +165,12 @@ namespace CSGL {
             }
         }
 
+        public static T Read<T>(IntPtr source) where T : struct {
+            unsafe {
+                return Unsafe.Read<T>((byte*)source);
+            }
+        }
+
         public static long SizeOf<T>() where T : struct {
             return Unsafe.SizeOf<T>();
         }

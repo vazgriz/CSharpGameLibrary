@@ -140,6 +140,7 @@
   - Fix bug that caused managed delegate to be garbage collected
 - Interop
   - Add AddressOf method
+  - Add Read method
   - Fix bug in GetInternalArray
   - Remove Marshal overloads
   - Remove Copy overloads
