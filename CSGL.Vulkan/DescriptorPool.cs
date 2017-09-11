@@ -54,29 +54,29 @@ namespace CSGL.Vulkan {
             }
         }
 
-        public DescriptorSet[] Allocate(DescriptorSetAllocateInfo info) {
+        public IList<DescriptorSet> Allocate(DescriptorSetAllocateInfo info) {
             var infoNative = new VkDescriptorSetAllocateInfo();
             infoNative.sType = VkStructureType.DescriptorSetAllocateInfo;
             infoNative.descriptorPool = descriptorPool;
-            infoNative.descriptorSetCount = info.descriptorSetCount;
 
             var layoutsMarshalled = new NativeArray<VkDescriptorSetLayout>(info.setLayouts.Count);
             for (int i = 0; i < info.setLayouts.Count; i++) {
                 layoutsMarshalled[i] = info.setLayouts[i].Native;
             }
+            infoNative.descriptorSetCount = (uint)layoutsMarshalled.Count;
             infoNative.pSetLayouts = layoutsMarshalled.Address;
 
-            var descriptorSetsMarshalled = new NativeArray<VkDescriptorSet>((int)info.descriptorSetCount);
+            var descriptorSetsMarshalled = new NativeArray<VkDescriptorSet>(info.setLayouts.Count);
 
             using (layoutsMarshalled)
             using (descriptorSetsMarshalled) {
                 var result = Device.Commands.allocateDescriptorSets(Device.Native, ref infoNative, descriptorSetsMarshalled.Address);
                 if (result != VkResult.Success) throw new DescriptorPoolException(result, string.Format("Error allocating descriptor sets: {0}", result));
 
-                var results = new DescriptorSet[(int)info.descriptorSetCount];
+                var results = new List<DescriptorSet>(info.setLayouts.Count);
 
-                for (int i = 0; i < info.descriptorSetCount; i++) {
-                    results[i] = new DescriptorSet(Device, this, descriptorSetsMarshalled[i], info);
+                for (int i = 0; i < info.setLayouts.Count; i++) {
+                    results.Add(new DescriptorSet(Device, this, descriptorSetsMarshalled[i], info.setLayouts[i]));
                 }
 
                 return results;

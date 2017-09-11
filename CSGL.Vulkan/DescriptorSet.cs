@@ -3,7 +3,6 @@ using System.Collections.Generic;
 
 namespace CSGL.Vulkan {
     public class DescriptorSetAllocateInfo {
-        public uint descriptorSetCount;
         public IList<DescriptorSetLayout> setLayouts;
     }
 
@@ -44,7 +43,7 @@ namespace CSGL.Vulkan {
 
         public Device Device { get; private set; }
         public DescriptorPool Pool { get; private set; }
-        public IList<DescriptorSetLayout> Layouts { get; private set; }
+        public DescriptorSetLayout Layout { get; private set; }
 
         public VkDescriptorSet Native {
             get {
@@ -52,11 +51,11 @@ namespace CSGL.Vulkan {
             }
         }
 
-        internal DescriptorSet(Device device, DescriptorPool pool, VkDescriptorSet descriptorSet, DescriptorSetAllocateInfo info) {
+        internal DescriptorSet(Device device, DescriptorPool pool, VkDescriptorSet descriptorSet, DescriptorSetLayout setLayout) {
             Device = device;
             Pool = pool;
             this.descriptorSet = descriptorSet;
-            if (info.setLayouts != null) Layouts = new List<DescriptorSetLayout>(info.setLayouts).AsReadOnly();
+            Layout = setLayout;
         }
 
         public static void Update(Device device, List<WriteDescriptorSet> writes, List<CopyDescriptorSet> copies) {
