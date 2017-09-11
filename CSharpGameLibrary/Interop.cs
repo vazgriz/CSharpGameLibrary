@@ -214,7 +214,7 @@ namespace CSGL {
             Marshal(array, dest, array.Length);
         }
 
-        public static unsafe void Marshal<T, U>(List<U> list, void* dest, int count) where T : struct where U : INative<T> {
+        public static unsafe void Marshal<T, U>(IList<U> list, void* dest, int count) where T : struct where U : INative<T> {
             if (list == null || list.Count == 0) return;
 
             int size = (int)SizeOf<T>();
@@ -226,7 +226,7 @@ namespace CSGL {
             }
         }
 
-        public static unsafe void Marshal<T, U>(List<U> list, void* dest) where T : struct where U : INative<T> {
+        public static unsafe void Marshal<T, U>(IList<U> list, void* dest) where T : struct where U : INative<T> {
             if (list == null || list.Count == 0) return;
             Marshal<T, U>(list, dest, list.Count);
         }
