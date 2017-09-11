@@ -100,7 +100,7 @@ namespace CSGL {
                     Marshal.DestroyStructure<T>(GetAddress(i));
                 }
             }
-            
+
             if (allocated) {
                 Marshal.FreeHGlobal(ptr);
             }
