@@ -34,18 +34,6 @@ namespace CSGL {
             }
         }
 
-        public NativeArray(INative<T>[] array) {
-            if (array != null) {
-                count = array.Length;
-                Allocate(count);
-                unsafe {
-                    for (int i = 0; i < count; i++) {
-                        Unsafe.Write(GetAddressInternal(i), array[i].Native);
-                    }
-                }
-            }
-        }
-
         void Allocate(int count) {
             unsafe {
                 if (count > 0) ptr = (void*)Marshal.AllocHGlobal(count * elementSize);
