@@ -59,7 +59,7 @@ namespace CSGL.Vulkan {
 
             unsafe {
                 var fencesNative = stackalloc VkFence[fences.Length];
-                Interop.Marshal(fences, fencesNative);
+                Interop.Marshal<VkFence, Fence>(fences, fencesNative);
 
                 var result = device.Commands.resetFences(device.Native, (uint)fences.Length, (IntPtr)fencesNative);
                 if (result != VkResult.Success) throw new FenceException(result, string.Format("Error resetting fences: {0}", result));
@@ -85,7 +85,7 @@ namespace CSGL.Vulkan {
 
             unsafe {
                 var fencesNative = stackalloc VkFence[fences.Length];
-                Interop.Marshal(fences, fencesNative);
+                Interop.Marshal<VkFence, Fence>(fences, fencesNative);
 
                 uint waitAllNative = waitAll ? 1u : 0u;
                 var result = device.Commands.waitFences(device.Native, (uint)fences.Length, (IntPtr)fencesNative, waitAllNative, timeout);

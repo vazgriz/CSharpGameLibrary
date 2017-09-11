@@ -48,7 +48,7 @@ namespace CSGL.Vulkan {
         public void Merge(PipelineCache[] srcCaches) {
             unsafe {
                 VkPipelineCache* srcNative = stackalloc VkPipelineCache[srcCaches.Length];
-                Interop.Marshal(srcCaches, srcNative);
+                Interop.Marshal<VkPipelineCache, PipelineCache>(srcCaches, srcNative);
 
                 Device.Commands.mergePipelineCache(Device.Native, pipelineCache, (uint)srcCaches.Length, (IntPtr)srcNative);
             }

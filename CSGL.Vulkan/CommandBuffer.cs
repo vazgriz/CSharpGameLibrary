@@ -74,7 +74,7 @@ namespace CSGL.Vulkan {
             unsafe {
                 var buffersNative = stackalloc VkBuffer[buffers.Length];
 
-                Interop.Marshal<VkBuffer>(buffers, buffersNative);
+                Interop.Marshal<VkBuffer, Buffer>(buffers, buffersNative);
 
                 fixed (ulong* ptr = offsets) {
                     Device.Commands.cmdBindVertexBuffers(commandBuffer, firstBinding, (uint)buffers.Length, (IntPtr)(buffersNative), ref offsets[0]);
@@ -109,7 +109,7 @@ namespace CSGL.Vulkan {
             unsafe {
                 var sets = stackalloc VkDescriptorSet[descriptorSets.Length];
 
-                Interop.Marshal(descriptorSets, sets);
+                Interop.Marshal<VkDescriptorSet, DescriptorSet>(descriptorSets, sets);
 
                 int dynamicOffsetCount = 0;
                 if (dynamicOffsets != null) dynamicOffsetCount = dynamicOffsets.Length;
