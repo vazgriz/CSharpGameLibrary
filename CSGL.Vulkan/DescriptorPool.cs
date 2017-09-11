@@ -80,6 +80,23 @@ namespace CSGL.Vulkan {
             }
         }
 
+        public DescriptorSet Allocate(DescriptorSetLayout layout) {
+            unsafe {
+                var info = new VkDescriptorSetAllocateInfo();
+                info.sType = VkStructureType.DescriptorSetAllocateInfo;
+                info.descriptorPool = descriptorPool;
+                info.descriptorSetCount = 1;
+
+                VkDescriptorSetLayout layoutNative = layout.Native;
+                info.pSetLayouts = (IntPtr)(&layoutNative);
+
+                VkDescriptorSet result;
+                Device.Commands.allocateDescriptorSets(Device.Native, ref info, (IntPtr)(&result));
+
+                return new DescriptorSet(Device, this, result, layout);
+            }
+        }
+
         public void Reset(VkDescriptorPoolResetFlags flags) {
             var result = Device.Commands.resetDescriptorPool(Device.Native, descriptorPool, flags);
             if (result != VkResult.Success) throw new DescriptorPoolException(result, string.Format("Error resetting descriptor pool: {0}", result));

@@ -45,6 +45,7 @@
   - DescriptorPool
     - Add MaxSets property
     - Add PoolSizes property
+    - Add Allocate overload
   - DescriptorSetLayout
     - Add Bindings property
   - Buffer
