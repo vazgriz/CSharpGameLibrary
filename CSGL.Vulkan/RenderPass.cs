@@ -18,11 +18,32 @@ namespace CSGL.Vulkan {
         public VkAttachmentStoreOp stencilStoreOp;
         public VkImageLayout initialLayout;
         public VkImageLayout finalLayout;
+
+        public AttachmentDescription() { }
+
+        internal AttachmentDescription(AttachmentDescription other) {
+            flags = other.flags;
+            format = other.format;
+            samples = other.samples;
+            loadOp = other.loadOp;
+            storeOp = other.storeOp;
+            stencilLoadOp = other.stencilLoadOp;
+            stencilStoreOp = other.stencilStoreOp;
+            initialLayout = other.initialLayout;
+            finalLayout = other.finalLayout;
+        }
     }
 
     public class AttachmentReference {
         public uint attachment;
         public VkImageLayout layout;
+
+        public AttachmentReference() { }
+
+        internal AttachmentReference(AttachmentReference other) {
+            attachment = other.attachment;
+            layout = other.layout;
+        }
     }
 
     public class SubpassDescription {
@@ -32,6 +53,32 @@ namespace CSGL.Vulkan {
         public List<AttachmentReference> resolveAttachments;
         public List<uint> preserveAttachments;
         public AttachmentReference depthStencilAttachment;
+
+        public SubpassDescription() { }
+
+        internal SubpassDescription(SubpassDescription other) {
+            pipelineBindPoint = other.pipelineBindPoint;
+            if (other.inputAttachments != null) {
+                inputAttachments = new List<AttachmentReference>(other.inputAttachments.Count);
+                foreach (var input in other.inputAttachments) {
+                    inputAttachments.Add(new AttachmentReference(input));
+                }
+            }
+            if (other.colorAttachments != null) {
+                colorAttachments = new List<AttachmentReference>(other.colorAttachments.Count);
+                foreach (var color in other.colorAttachments) {
+                    colorAttachments.Add(new AttachmentReference(color));
+                }
+            }
+            if (other.resolveAttachments != null) {
+                resolveAttachments = new List<AttachmentReference>(other.resolveAttachments);
+                foreach (var resolve in other.resolveAttachments) {
+                    resolveAttachments.Add(new AttachmentReference(resolve));
+                }
+            }
+            if (other.preserveAttachments != null) preserveAttachments = new List<uint>(other.preserveAttachments);
+            if (other.depthStencilAttachment != null) depthStencilAttachment = new AttachmentReference(other.depthStencilAttachment);
+        }
     }
 
     public class SubpassDependency {
@@ -42,6 +89,18 @@ namespace CSGL.Vulkan {
         public VkAccessFlags srcAccessMask;
         public VkAccessFlags dstAccessMask;
         public VkDependencyFlags dependencyFlags;
+
+        public SubpassDependency() { }
+
+        internal SubpassDependency(SubpassDependency other) {
+            srcSubpass = other.srcSubpass;
+            dstSubpass = other.dstSubpass;
+            srcStageMask = other.srcStageMask;
+            dstStageMask = other.dstStageMask;
+            srcAccessMask = other.srcAccessMask;
+            dstAccessMask = other.dstAccessMask;
+            dependencyFlags = other.dependencyFlags;
+        }
     }
 
     public class RenderPass : IDisposable, INative<VkRenderPass> {
@@ -75,9 +134,24 @@ namespace CSGL.Vulkan {
 
             CreateRenderPass(info);
 
-            if (info.attachments != null) Attachments = new List<AttachmentDescription>(info.attachments);
-            if (info.subpasses != null) Subpasses = new List<SubpassDescription>(info.subpasses);
-            if (info.dependencies != null) Dependencies = new List<SubpassDependency>(info.dependencies);
+            if (info.attachments != null) {
+                Attachments = new List<AttachmentDescription>(info.attachments.Count);
+                foreach (var attachment in info.attachments) {
+                    Attachments.Add(new AttachmentDescription(attachment));
+                }
+            }
+            if (info.subpasses != null) {
+                Subpasses = new List<SubpassDescription>(info.subpasses.Count);
+                foreach (var subpass in info.subpasses) {
+                    Subpasses.Add(new SubpassDescription(subpass));
+                }
+            }
+            if (info.dependencies != null) {
+                Dependencies = new List<SubpassDependency>(info.dependencies.Count);
+                foreach (var dependency in  info.dependencies) {
+                    Dependencies.Add(new SubpassDependency(dependency));
+                }
+            }
         }
 
         void CreateRenderPass(RenderPassCreateInfo mInfo) {
