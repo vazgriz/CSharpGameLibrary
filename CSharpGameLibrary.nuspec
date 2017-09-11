@@ -46,6 +46,7 @@
     - Add MaxSets property
     - Add PoolSizes property
     - Add Allocate overload
+    - Add Free methods
   - DescriptorSetLayout
     - Add Bindings property
   - Buffer

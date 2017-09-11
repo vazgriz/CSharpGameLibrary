@@ -102,6 +102,21 @@ namespace CSGL.Vulkan {
             if (result != VkResult.Success) throw new DescriptorPoolException(result, string.Format("Error resetting descriptor pool: {0}", result));
         }
 
+        public void Free(IList<DescriptorSet> descriptorSets) {
+            unsafe {
+                var descriptorSetsNative = stackalloc VkDescriptorSet[descriptorSets.Count];
+                Interop.Marshal<VkDescriptorSet, DescriptorSet>(descriptorSets, descriptorSetsNative);
+                Device.Commands.freeDescriptorSets(Device.Native, descriptorPool, (uint)descriptorSets.Count, (IntPtr)descriptorSetsNative);
+            }
+        }
+
+        public void Free(DescriptorSet descriptorSets) {
+            unsafe {
+                VkDescriptorSet descriptorSetNative = descriptorSets.Native;
+                Device.Commands.freeDescriptorSets(Device.Native, descriptorPool, 1, (IntPtr)(&descriptorSetNative));
+            }
+        }
+
         public void Dispose() {
             Dispose(true);
             GC.SuppressFinalize(this);
