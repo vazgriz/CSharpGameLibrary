@@ -38,7 +38,7 @@ namespace CSGL.Vulkan {
         public uint ArrayLayers { get; private set; }
         public VkImageUsageFlags Usage { get; private set; }
         public VkSharingMode SharingMode { get; private set; }
-        public List<uint> QueueFamilyIndices { get; private set; }
+        public IList<uint> QueueFamilyIndices { get; private set; }
         public VkSurfaceTransformFlagsKHR PreTransform { get; private set; }
         public VkCompositeAlphaFlagsKHR CompositeAlpha { get; private set; }
         public VkPresentModeKHR PresentMode { get; private set; }
@@ -71,7 +71,7 @@ namespace CSGL.Vulkan {
             PresentMode = info.presentMode;
             Usage = info.imageUsage;
             SharingMode = info.imageSharingMode;
-            QueueFamilyIndices = new List<uint>(info.queueFamilyIndices);
+            if (info.queueFamilyIndices != null) QueueFamilyIndices = new List<uint>(info.queueFamilyIndices).AsReadOnly();
             PreTransform = info.preTransform;
             CompositeAlpha = info.compositeAlpha;
             PresentMode = info.presentMode;
