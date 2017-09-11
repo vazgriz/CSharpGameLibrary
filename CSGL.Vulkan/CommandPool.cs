@@ -110,6 +110,8 @@ namespace CSGL.Vulkan {
             foreach (var commandBuffer in commandBuffers) {
                 commandBuffer.CanDispose = false;
             }
+
+            commandBuffers.Clear();
         }
 
         public void Dispose() {
