@@ -9,7 +9,7 @@ namespace CSGL.Vulkan {
         public ulong size;
         public VkBufferUsageFlags usage;
         public VkSharingMode sharingMode;
-        public List<uint> queueFamilyIndices;
+        public IList<uint> queueFamilyIndices;
     }
 
     public class Buffer : IDisposable, INative<VkBuffer> {
