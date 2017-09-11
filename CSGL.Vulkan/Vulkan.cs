@@ -50,10 +50,8 @@ namespace CSGL.Vulkan {
         static vkCreateInstanceDelegate createInstance;
         static vkEnumerateInstanceExtensionPropertiesDelegate enumerateExtensionProperties;
         static vkEnumerateInstanceLayerPropertiesDelegate enumerateLayerProperties;
-
-        static List<Extension> availableExtensions;
+        
         static ReadOnlyCollection<Extension> extensionsReadOnly;
-        static List<Layer> availableLayers;
         static ReadOnlyCollection<Layer> layersReadOnly;
 
         static bool initialized = false;
@@ -86,7 +84,7 @@ namespace CSGL.Vulkan {
         }
 
         static void GetLayers() {
-            availableLayers = new List<Layer>();
+            var availableLayers = new List<Layer>();
 
             uint lCount = 0;
             enumerateLayerProperties(ref lCount, IntPtr.Zero);
@@ -104,7 +102,7 @@ namespace CSGL.Vulkan {
         }
 
         static void GetExtensions() {
-            availableExtensions = new List<Extension>();
+            var availableExtensions = new List<Extension>();
 
             uint exCount = 0;
             enumerateExtensionProperties(null, ref exCount, IntPtr.Zero);
