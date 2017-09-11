@@ -58,6 +58,9 @@
   - Pipeline
     - Add Flags property
     - Add Layout property
+    - GraphicsPipeline
+      - Add RenderPass property
+      - Add Subpass property
   - Framebuffer
     - Add Attachments property
   - Image

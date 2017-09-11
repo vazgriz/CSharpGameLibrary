@@ -22,6 +22,9 @@ namespace CSGL.Vulkan {
     }
 
     public class GraphicsPipeline : Pipeline {
+        public RenderPass RenderPass { get; private set; }
+        public uint Subpass { get; private set; }
+
         internal GraphicsPipeline(Device device, VkPipeline pipeline, GraphicsPipelineCreateInfo info) {
             Device = device;
             this.pipeline = pipeline;
@@ -47,6 +50,8 @@ namespace CSGL.Vulkan {
         void SetProperties(GraphicsPipelineCreateInfo info) {
             Flags = info.flags;
             Layout = info.layout;
+            RenderPass = info.renderPass;
+            Subpass = info.subpass;
         }
 
         static internal VkPipeline[] CreatePipelinesInternal(Device device, GraphicsPipelineCreateInfo[] mInfos, VkPipelineCache cache) {
