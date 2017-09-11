@@ -6,7 +6,7 @@ using CSGL.Vulkan.Unmanaged;
 
 namespace CSGL.Vulkan {
     public class ShaderModuleCreateInfo {
-        public byte[] data;
+        public IList<byte> data;
     }
 
     public class ShaderModule : IDisposable, INative<VkShaderModule> {
@@ -40,9 +40,9 @@ namespace CSGL.Vulkan {
         void CreateShader(ShaderModuleCreateInfo mInfo) {
             VkShaderModuleCreateInfo info = new VkShaderModuleCreateInfo();
             info.sType = VkStructureType.ShaderModuleCreateInfo;
-            info.codeSize = (IntPtr)mInfo.data.Length;
+            info.codeSize = (IntPtr)mInfo.data.Count;
 
-            var dataPinned = new PinnedArray<byte>(mInfo.data);
+            var dataPinned = new NativeArray<byte>(mInfo.data);
             info.pCode = dataPinned.Address;
 
             using (dataPinned) {
