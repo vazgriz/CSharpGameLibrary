@@ -25,6 +25,8 @@ namespace CSGL.Vulkan {
         public uint MaxSets { get; private set; }
         public IList<VkDescriptorPoolSize> PoolSizes { get; private set; }
 
+        List<DescriptorSet> descriptorSets;
+
         public DescriptorPool(Device device, DescriptorPoolCreateInfo info) {
             if (device == null) throw new ArgumentNullException(nameof(device));
             if (info == null) throw new ArgumentNullException(nameof(info));
@@ -36,6 +38,8 @@ namespace CSGL.Vulkan {
             Flags = info.flags;
             MaxSets = info.maxSets;
             if (info.poolSizes != null) PoolSizes = new List<VkDescriptorPoolSize>(info.poolSizes).AsReadOnly();
+
+            descriptorSets = new List<DescriptorSet>();
         }
 
         void CreateDescriptorPool(DescriptorPoolCreateInfo mInfo) {
@@ -74,6 +78,7 @@ namespace CSGL.Vulkan {
 
                 for (int i = 0; i < info.setLayouts.Count; i++) {
                     results.Add(new DescriptorSet(Device, this, resultsNative[i], info.setLayouts[i]));
+                    descriptorSets.Add(results[i]);
                 }
 
                 return results;
@@ -94,13 +99,23 @@ namespace CSGL.Vulkan {
                 var result = Device.Commands.allocateDescriptorSets(Device.Native, ref info, (IntPtr)(&setNative));
                 if (result != VkResult.Success) throw new DescriptorPoolException(result, string.Format("Error allocating descriptor set: {0}", result));
 
-                return new DescriptorSet(Device, this, setNative, layout);
+                var set =  new DescriptorSet(Device, this, setNative, layout);
+
+                descriptorSets.Add(set);
+
+                return set;
             }
         }
 
         public void Reset(VkDescriptorPoolResetFlags flags) {
             var result = Device.Commands.resetDescriptorPool(Device.Native, descriptorPool, flags);
             if (result != VkResult.Success) throw new DescriptorPoolException(result, string.Format("Error resetting descriptor pool: {0}", result));
+
+            foreach (var descriptorSet in descriptorSets) {
+                descriptorSet.CanDispose = false;
+            }
+
+            descriptorSets.Clear();
         }
 
         public void Free(IList<DescriptorSet> descriptorSets) {
@@ -127,6 +142,10 @@ namespace CSGL.Vulkan {
             if (disposed) return;
 
             Device.Commands.destroyDescriptorPool(Device.Native, descriptorPool, Device.Instance.AllocationCallbacks);
+
+            foreach (var descriptorSet in descriptorSets) {
+                descriptorSet.CanDispose = false;
+            }
 
             disposed = true;
         }

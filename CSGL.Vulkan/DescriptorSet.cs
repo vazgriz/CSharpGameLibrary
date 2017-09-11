@@ -38,8 +38,9 @@ namespace CSGL.Vulkan {
         public uint descriptorCount;
     }
 
-    public class DescriptorSet : INative<VkDescriptorSet> {
+    public class DescriptorSet : IDisposable, INative<VkDescriptorSet> {
         VkDescriptorSet descriptorSet;
+        bool disposed;
 
         public Device Device { get; private set; }
         public DescriptorPool Pool { get; private set; }
@@ -51,11 +52,34 @@ namespace CSGL.Vulkan {
             }
         }
 
+        //set when pool is reset
+        //prevents double free
+        internal bool CanDispose { get; set; }
+
         internal DescriptorSet(Device device, DescriptorPool pool, VkDescriptorSet descriptorSet, DescriptorSetLayout setLayout) {
             Device = device;
             Pool = pool;
             this.descriptorSet = descriptorSet;
             Layout = setLayout;
+        }
+
+        public void Dispose() {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        void Dispose(bool disposing) {
+            if (disposed) return;
+
+            if (CanDispose) {
+                Pool.Free(this);
+            }
+
+            disposed = true;
+        }
+
+        ~DescriptorSet() {
+            Dispose(false);
         }
 
         public static void Update(Device device, List<WriteDescriptorSet> writes, List<CopyDescriptorSet> copies) {

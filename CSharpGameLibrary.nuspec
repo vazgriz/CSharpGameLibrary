@@ -40,6 +40,7 @@
     - Add QueueFamilyIndices property
     - Remove Allocate overload
   - DescriptorSet
+    - Implement IDisposable
     - Add CopyDescriptorSet class
     - Add support for copying descriptors
     - Add Layouts property
