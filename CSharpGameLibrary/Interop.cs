@@ -139,16 +139,16 @@ namespace CSGL {
             Copy(source, dest, source.Count);
         }
 
-        public static void Copy<T>(IntPtr source, T[] dest, int count) where T : struct {
-            GCHandle handle = GCHandle.Alloc(dest, GCHandleType.Pinned);
-            Copy(source, handle.AddrOfPinnedObject(), count);
-            handle.Free();
+        public static void Copy<T>(IntPtr source, IList<T> dest, int count) where T : struct {
+            long size = SizeOf<T>();
+            for (int i = 0; i < count; i++) {
+                IntPtr ptr = (IntPtr)((long)source + size * i);
+                dest[i] = Read<T>(ptr);
+            }
         }
 
-        public static void Copy<T>(IntPtr source, T[] dest) where T : struct {
-            GCHandle handle = GCHandle.Alloc(dest, GCHandleType.Pinned);
-            Copy(source, handle.AddrOfPinnedObject(), dest.Length);
-            handle.Free();
+        public static void Copy<T>(IntPtr source, IList<T> dest) where T : struct {
+            Copy(source, dest, dest.Count);
         }
 
         public static void Write<T>(T source, IntPtr dest) where T : struct {
