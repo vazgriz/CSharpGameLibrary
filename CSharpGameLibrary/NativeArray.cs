@@ -26,8 +26,7 @@ namespace CSGL {
             if (list != null) {
                 count = list.Count;
                 Allocate(count);
-                unsafe
-                {
+                unsafe {
                     for (int i = 0; i < count; i++) {
                         Unsafe.Write(GetAddressInternal(i), list[i]);
                     }
@@ -39,18 +38,16 @@ namespace CSGL {
             if (array != null) {
                 count = array.Length;
                 Allocate(count);
-                unsafe
-                {
+                unsafe {
                     for (int i = 0; i < count; i++) {
                         Unsafe.Write(GetAddressInternal(i), array[i].Native);
                     }
                 }
             }
         }
-        
+
         void Allocate(int count) {
-            unsafe
-            {
+            unsafe {
                 if (count > 0) ptr = (void*)Marshal.AllocHGlobal(count * elementSize);
             }
             allocated = true;
@@ -59,15 +56,13 @@ namespace CSGL {
         public T this[int i] {
             get {
                 if (i < 0 || i >= count) throw new IndexOutOfRangeException(string.Format("Index {0} is out of range [0, {1}]", i, count));
-                unsafe
-                {
+                unsafe {
                     return Unsafe.Read<T>(GetAddressInternal(i));
                 }
             }
             set {
                 if (i < 0 || i >= count) throw new IndexOutOfRangeException(string.Format("Index {0} is out of range [0, {1}]", i, count));
-                unsafe
-                {
+                unsafe {
                     Unsafe.Write(GetAddressInternal(i), value);
                 }
             }
@@ -75,8 +70,7 @@ namespace CSGL {
 
         public IntPtr Address {
             get {
-                unsafe
-                {
+                unsafe {
                     return (IntPtr)ptr;
                 }
             }
@@ -87,8 +81,7 @@ namespace CSGL {
         }
 
         public IntPtr GetAddress(int i) {
-            unsafe
-            {
+            unsafe {
                 return (IntPtr)GetAddressInternal(i);
             }
         }
@@ -107,8 +100,7 @@ namespace CSGL {
             if (disposed) return;
 
             if (allocated) {
-                unsafe
-                {
+                unsafe {
                     Marshal.FreeHGlobal((IntPtr)ptr);
                 }
             }
