@@ -138,8 +138,9 @@
     - VkIndexType
 - GLFW
   - Fix bug that caused managed delegate to be garbage collected
-- Add Interop.AddressOf method
-- Fix bug in Interop.GetInternalArray</releaseNotes>
+- Interop
+  - Add AddressOf method
+  - Fix bug in GetInternalArray</releaseNotes>
     <copyright>Copyright 2017</copyright>
     <tags>glfw opengl vulkan</tags>
   </metadata>
