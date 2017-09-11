@@ -38,6 +38,7 @@
   - CommandPool
     - Add Free overload
     - Add QueueFamilyIndices property
+    - Remove Allocate overload
   - DescriptorSet
     - Add CopyDescriptorSet class
     - Add support for copying descriptors
