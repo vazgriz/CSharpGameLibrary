@@ -141,7 +141,9 @@
 - Interop
   - Add AddressOf method
   - Fix bug in GetInternalArray
-  - Remove Marshal overloads</releaseNotes>
+  - Remove Marshal overloads
+  - Remove Copy overloads
+  - Rename some Copy overloads to Write</releaseNotes>
     <copyright>Copyright 2017</copyright>
     <tags>glfw opengl vulkan</tags>
   </metadata>

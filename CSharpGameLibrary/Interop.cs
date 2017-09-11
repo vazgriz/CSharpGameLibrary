@@ -149,16 +149,16 @@ namespace CSGL {
             handle.Free();
         }
 
-        public static void Copy<T>(T source, IntPtr dest) where T : struct {
+        public static void Write<T>(T source, IntPtr dest) where T : struct {
             unsafe {
                 Unsafe.Write((void*)dest, source);
             }
         }
 
-        public static void Copy<T>(T data, byte[] dest, int offset) where T : struct {
+        public static void Write<T>(T data, byte[] dest, int offset) where T : struct {
             unsafe {
                 fixed (byte* ptr = dest) {
-                    Copy(data, (IntPtr)(ptr + offset));
+                    Write(data, (IntPtr)(ptr + offset));
                 }
             }
         }
