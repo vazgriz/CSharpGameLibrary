@@ -4,19 +4,18 @@ using System.Collections.Generic;
 namespace CSGL.Vulkan {
     public class SpecializationInfo {
         public List<VkSpecializationMapEntry> mapEntries;
-        public byte[] data;
+        public IList<byte> data;
 
         internal SpecializationInfo(SpecializationInfo other) {
             if (other.mapEntries != null) mapEntries = new List<VkSpecializationMapEntry>(other.mapEntries);
             if (other.data != null) {
-                data = new byte[other.data.Length];
-                Array.Copy(other.data, data, data.Length);
+                data = new List<byte>(data.Count).AsReadOnly();
             }
         }
 
         internal IntPtr GetNative(DisposableList<IDisposable> marshalled) {
             var entriesMarshalled = new MarshalledArray<VkSpecializationMapEntry>(mapEntries);
-            var dataMarshalled = new PinnedArray<byte>(data);
+            var dataMarshalled = new NativeArray<byte>(data);
             marshalled.Add(entriesMarshalled);
             marshalled.Add(dataMarshalled);
 
@@ -67,14 +66,14 @@ namespace CSGL.Vulkan {
     }
 
     public class PipelineVertexInputStateCreateInfo {
-        public List<VkVertexInputBindingDescription> vertexBindingDescriptions;
-        public List<VkVertexInputAttributeDescription> vertexAttributeDescriptions;
+        public IList<VkVertexInputBindingDescription> vertexBindingDescriptions;
+        public IList<VkVertexInputAttributeDescription> vertexAttributeDescriptions;
 
         public PipelineVertexInputStateCreateInfo() { }
 
         internal PipelineVertexInputStateCreateInfo(PipelineVertexInputStateCreateInfo other) {
-            if (other.vertexBindingDescriptions != null) vertexBindingDescriptions = new List<VkVertexInputBindingDescription>(other.vertexBindingDescriptions);
-            if (other.vertexAttributeDescriptions != null) vertexAttributeDescriptions = new List<VkVertexInputAttributeDescription>(other.vertexAttributeDescriptions);
+            if (other.vertexBindingDescriptions != null) vertexBindingDescriptions = new List<VkVertexInputBindingDescription>(other.vertexBindingDescriptions).AsReadOnly();
+            if (other.vertexAttributeDescriptions != null) vertexAttributeDescriptions = new List<VkVertexInputAttributeDescription>(other.vertexAttributeDescriptions).AsReadOnly();
         }
 
         internal VkPipelineVertexInputStateCreateInfo GetNative(DisposableList<IDisposable> marshalled) {
@@ -136,14 +135,14 @@ namespace CSGL.Vulkan {
     }
 
     public class PipelineViewportStateCreateInfo {
-        public List<VkViewport> viewports;
-        public List<VkRect2D> scissors;
+        public IList<VkViewport> viewports;
+        public IList<VkRect2D> scissors;
 
         public PipelineViewportStateCreateInfo() { }
 
         internal PipelineViewportStateCreateInfo(PipelineViewportStateCreateInfo other) {
-            if (other.viewports != null) viewports = new List<VkViewport>(other.viewports);
-            if (other.scissors != null) scissors = new List<VkRect2D>(other.scissors);
+            if (other.viewports != null) viewports = new List<VkViewport>(other.viewports).AsReadOnly();
+            if (other.scissors != null) scissors = new List<VkRect2D>(other.scissors).AsReadOnly();
         }
 
         internal VkPipelineViewportStateCreateInfo GetNative(DisposableList<IDisposable> marshalled) {
@@ -214,7 +213,7 @@ namespace CSGL.Vulkan {
         public VkSampleCountFlags rasterizationSamples;
         public bool sampleShadingEnable;
         public float minSampleShading;
-        public List<uint> sampleMask;
+        public IList<uint> sampleMask;
         public bool alphaToCoverageEnable;
         public bool alphaToOneEnable;
 
@@ -224,7 +223,7 @@ namespace CSGL.Vulkan {
             rasterizationSamples = other.rasterizationSamples;
             sampleShadingEnable = other.sampleShadingEnable;
             minSampleShading = other.minSampleShading;
-            if (other.sampleMask != null) sampleMask = new List<uint>(other.sampleMask);
+            if (other.sampleMask != null) sampleMask = new List<uint>(other.sampleMask).AsReadOnly();
             alphaToCoverageEnable = other.alphaToCoverageEnable;
             alphaToOneEnable = other.alphaToOneEnable;
         }
@@ -332,8 +331,8 @@ namespace CSGL.Vulkan {
     public class PipelineColorBlendStateCreateInfo {
         public bool logicOpEnable;
         public VkLogicOp logicOp;
-        public List<PipelineColorBlendAttachmentState> attachments;
-        public List<float> blendConstants;
+        public IList<PipelineColorBlendAttachmentState> attachments;
+        public IList<float> blendConstants;
 
         public PipelineColorBlendStateCreateInfo() { }
 
@@ -341,10 +340,11 @@ namespace CSGL.Vulkan {
             logicOpEnable = other.logicOpEnable;
             logicOp = other.logicOp;
             if (other.attachments != null) {
-                attachments = new List<PipelineColorBlendAttachmentState>(other.attachments.Count);
+                var attachments = new List<PipelineColorBlendAttachmentState>(other.attachments.Count);
                 foreach (var attachment in other.attachments) {
                     attachments.Add(new PipelineColorBlendAttachmentState(attachment));
                 }
+                this.attachments = attachments.AsReadOnly();
             }
             if (other.blendConstants != null) blendConstants = new List<float>(other.blendConstants);
         }
@@ -379,12 +379,12 @@ namespace CSGL.Vulkan {
     }
 
     public class PipelineDynamicStateCreateInfo {
-        public List<VkDynamicState> dynamicStates;
+        public IList<VkDynamicState> dynamicStates;
 
         public PipelineDynamicStateCreateInfo() { }
 
         internal PipelineDynamicStateCreateInfo(PipelineDynamicStateCreateInfo other) {
-            if (other.dynamicStates != null) dynamicStates = new List<VkDynamicState>(other.dynamicStates);
+            if (other.dynamicStates != null) dynamicStates = new List<VkDynamicState>(other.dynamicStates).AsReadOnly();
         }
 
         internal VkPipelineDynamicStateCreateInfo GetNative(DisposableList<IDisposable> marshalled) {
