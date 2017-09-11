@@ -23,7 +23,7 @@ namespace CSGL.Vulkan {
         public Instance Instance { get; private set; }
         public PhysicalDevice PhysicalDevice { get; set; }
 
-        public List<string> Extensions { get; private set; }
+        public IList<string> Extensions { get; private set; }
 
         public VkDevice Native {
             get {
@@ -40,9 +40,9 @@ namespace CSGL.Vulkan {
             queues = new Dictionary<QueueID, Queue>();
 
             if (info.extensions == null) {
-                Extensions = new List<string>();
+                Extensions = new List<string>().AsReadOnly();
             } else {
-                Extensions = new List<string>(info.extensions);
+                Extensions = new List<string>(info.extensions).AsReadOnly();
             }
 
             ValidateExtensions();
