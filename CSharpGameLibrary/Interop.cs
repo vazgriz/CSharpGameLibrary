@@ -155,26 +155,12 @@ namespace CSGL {
             }
         }
 
-        public static void Copy<T>(List<T> source, IntPtr dest) where T : struct {
-            Copy(GetInternalArray(source), dest, source.Count);
-        }
-
         public static void Copy<T>(T data, byte[] dest, int offset) where T : struct {
             unsafe {
                 fixed (byte* ptr = dest) {
                     Copy(data, (IntPtr)(ptr + offset));
                 }
             }
-        }
-
-        public static void Copy<T, U>(T[] source, U[] dest) where T : struct
-                                                            where U : struct {
-            long size = System.Math.Min(SizeOf(source), SizeOf(dest));
-            GCHandle sourceHandle = GCHandle.Alloc(source, GCHandleType.Pinned);
-            GCHandle destHandle = GCHandle.Alloc(dest, GCHandleType.Pinned);
-            Copy(sourceHandle.AddrOfPinnedObject(), destHandle.AddrOfPinnedObject(), size);
-            destHandle.Free();
-            sourceHandle.Free();
         }
 
         public static long SizeOf<T>() where T : struct {
