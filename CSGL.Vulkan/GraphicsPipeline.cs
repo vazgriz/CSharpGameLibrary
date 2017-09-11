@@ -22,6 +22,16 @@ namespace CSGL.Vulkan {
     }
 
     public class GraphicsPipeline : Pipeline {
+        public List<PipelineShaderStageCreateInfo> Stages { get; private set; }
+        public PipelineVertexInputStateCreateInfo VertexInputState { get; private set; }
+        public PipelineInputAssemblyStateCreateInfo InputAssemblyState { get; private set; }
+        public PipelineTessellationStateCreateInfo TessellationState { get; private set; }
+        public PipelineViewportStateCreateInfo ViewportState { get; private set; }
+        public PipelineRasterizationStateCreateInfo RasterizationState { get; private set; }
+        public PipelineMultisampleStateCreateInfo MultisampleState { get; private set; }
+        public PipelineDepthStencilStateCreateInfo DepthStencilState { get; private set; }
+        public PipelineColorBlendStateCreateInfo ColorBlendState { get; private set; }
+        public PipelineDynamicStateCreateInfo DynamicState { get; private set; }
         public RenderPass RenderPass { get; private set; }
         public uint Subpass { get; private set; }
 
@@ -50,6 +60,21 @@ namespace CSGL.Vulkan {
         void SetProperties(GraphicsPipelineCreateInfo info) {
             Flags = info.flags;
             Layout = info.layout;
+            if (info.stages != null) {
+                Stages = new List<PipelineShaderStageCreateInfo>(info.stages.Count);
+                foreach (var stage in info.stages) {
+                    Stages.Add(new PipelineShaderStageCreateInfo(stage));
+                }
+            }
+            if (info.vertexInputState != null) VertexInputState = new PipelineVertexInputStateCreateInfo(info.vertexInputState);
+            if (info.inputAssemblyState != null) InputAssemblyState = new PipelineInputAssemblyStateCreateInfo(info.inputAssemblyState);
+            if (info.tessellationState != null) TessellationState = new PipelineTessellationStateCreateInfo(info.tessellationState);
+            if (info.viewportState != null) ViewportState = new PipelineViewportStateCreateInfo(info.viewportState);
+            if (info.rasterizationState != null) RasterizationState = new PipelineRasterizationStateCreateInfo(info.rasterizationState);
+            if (info.multisampleState != null) MultisampleState = new PipelineMultisampleStateCreateInfo(info.multisampleState);
+            if (info.depthStencilState != null) DepthStencilState = new PipelineDepthStencilStateCreateInfo(info.depthStencilState);
+            if (info.colorBlendState != null) ColorBlendState = new PipelineColorBlendStateCreateInfo(info.colorBlendState);
+            if (info.dynamicState != null) DynamicState = new PipelineDynamicStateCreateInfo(info.dynamicState);
             RenderPass = info.renderPass;
             Subpass = info.subpass;
         }

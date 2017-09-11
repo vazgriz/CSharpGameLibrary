@@ -59,6 +59,16 @@
     - Add Flags property
     - Add Layout property
     - GraphicsPipeline
+      - Add Stages property
+      - Add VertexInputState property
+      - Add InputAssemblyState property
+      - Add TessellationState property
+      - Add ViewportState property
+      - Add RasterizationState property
+      - Add MultisampleState property
+      - Add DepthStencilState property
+      - Add ColorBlendState property
+      - Add DynamicState property
       - Add RenderPass property
       - Add Subpass property
   - Framebuffer
