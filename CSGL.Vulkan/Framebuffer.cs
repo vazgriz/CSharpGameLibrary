@@ -22,7 +22,7 @@ namespace CSGL.Vulkan {
 
         public Device Device { get; private set; }
         public RenderPass RenderPass { get; private set; }
-        public List<ImageView> Attachments { get; private set; }
+        public IList<ImageView> Attachments { get; private set; }
         public uint Width { get; private set; }
         public uint Height { get; private set; }
         public uint Layers { get; private set; }
@@ -36,7 +36,7 @@ namespace CSGL.Vulkan {
             CreateFramebuffer(info);
 
             RenderPass = info.renderPass;
-            Attachments = new List<ImageView>(info.attachments);
+            if (info.attachments != null) Attachments = new List<ImageView>(info.attachments).AsReadOnly();
             Width = info.width;
             Height = info.height;
             Layers = info.layers;
