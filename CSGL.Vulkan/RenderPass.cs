@@ -122,9 +122,9 @@ namespace CSGL.Vulkan {
             }
         }
 
-        public List<AttachmentDescription> Attachments { get; private set; }
-        public List<SubpassDescription> Subpasses { get; private set; }
-        public List<SubpassDependency> Dependencies { get; private set; }
+        public IList<AttachmentDescription> Attachments { get; private set; }
+        public IList<SubpassDescription> Subpasses { get; private set; }
+        public IList<SubpassDependency> Dependencies { get; private set; }
 
         public RenderPass(Device device, RenderPassCreateInfo info) {
             if (device == null) throw new ArgumentNullException(nameof(device));
@@ -135,22 +135,27 @@ namespace CSGL.Vulkan {
             CreateRenderPass(info);
 
             if (info.attachments != null) {
-                Attachments = new List<AttachmentDescription>(info.attachments.Count);
+                var attachments = new List<AttachmentDescription>(info.attachments.Count);
                 foreach (var attachment in info.attachments) {
-                    Attachments.Add(new AttachmentDescription(attachment));
+                    attachments.Add(new AttachmentDescription(attachment));
                 }
+                Attachments = attachments.AsReadOnly();
             }
             if (info.subpasses != null) {
-                Subpasses = new List<SubpassDescription>(info.subpasses.Count);
+                var subpasses = new List<SubpassDescription>(info.subpasses.Count);
                 foreach (var subpass in info.subpasses) {
-                    Subpasses.Add(new SubpassDescription(subpass));
+                    subpasses.Add(new SubpassDescription(subpass));
                 }
+
+                Subpasses = subpasses.AsReadOnly();
             }
             if (info.dependencies != null) {
-                Dependencies = new List<SubpassDependency>(info.dependencies.Count);
+                var dependencies = new List<SubpassDependency>(info.dependencies.Count);
                 foreach (var dependency in  info.dependencies) {
-                    Dependencies.Add(new SubpassDependency(dependency));
+                    dependencies.Add(new SubpassDependency(dependency));
                 }
+
+                Dependencies = dependencies.AsReadOnly();
             }
         }
 
