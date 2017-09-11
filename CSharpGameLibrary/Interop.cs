@@ -70,16 +70,19 @@ namespace CSGL {
             return ListAccessor<T>.accessor(list);
         }
 
+        static unsafe void CopyBytes(void* source, void* dest, long size) {
+            byte* _source = (byte*)source;
+            byte* _dest = (byte*)dest;
+
+            for (long i = 0; i < size; i++) {
+                _dest[i] = _source[i];
+            }
+        }
+
         public static unsafe void Copy(void* source, void* dest, long size) {
-            //if source and dest are not congruent modulo
+            //if source and dest do not have the same alignment
             if ((long)source % 8 != (long)dest % 8) {
-                byte* _source = (byte*)source;
-                byte* _dest = (byte*)dest;
-
-                for (long i = 0; i < size; i++) {
-                    _dest[i] = _source[i];
-                }
-
+                CopyBytes(source, dest, size);
                 return;
             }
 
