@@ -86,42 +86,27 @@ namespace CSGL {
                 return;
             }
 
-            //copies start, middle end sections seperately so that the middle section can be copied by boundary aligned double words
-            long s = (long)source;
-
-            long startMod = s % 8;
-            long startOffset = (8 - startMod) % 8;
-
-            long endMod = (s + size) % 8;
-            long endOffset = ((s + size) - endMod) - s;
-
-            long wordCount = (endOffset - startOffset) / 8;
-
-            {
-                byte* _dest = (byte*)dest + endOffset;
-                byte* _source = (byte*)source + endOffset;
-                for (long i = endMod - 1; i >= 0; i--) {
-                    _dest[i] = _source[i];
-                }
+            //copies front, middle, and end sections seperately so that the middle section can be copied by boundary aligned double words
+            long frontUnalign = (long)source % 8;
+            long middleOffset = 0;
+            if (frontUnalign != 0) {
+                middleOffset += 8 - frontUnalign;
             }
 
-            {
-                long* _dest = (long*)dest + startOffset;
-                long* _source = (long*)source + startOffset;
+            long endSize = ((long)source + size) % 8;
+            long endOffset = size - endSize;
 
-                for (long i = wordCount - 1; i >= 0; i--) {
-                    _dest[i] = _source[i];
-                }
+            long middleSize = (endOffset - middleOffset) / 8;
+
+            CopyBytes(source, dest, middleOffset);
+
+            long* sourceMiddle = (long*)((long)source + middleOffset);
+            long* destMiddle = (long*)((long)dest + middleOffset);
+            for (long i = 0; i < middleSize; i++) {
+                destMiddle[i] = sourceMiddle[i];
             }
 
-            {
-                byte* _dest = (byte*)dest;
-                byte* _source = (byte*)source;
-
-                for (long i = startMod - 1; i >= 0; i--) {
-                    _dest[i] = _source[i];
-                }
-            }
+            CopyBytes((void*)((long)source + endOffset), (void*)((long)dest + endOffset), endSize);
         }
 
         public static void Copy(IntPtr source, IntPtr dest, long size) {
