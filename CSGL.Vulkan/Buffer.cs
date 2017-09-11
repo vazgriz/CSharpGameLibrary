@@ -35,7 +35,7 @@ namespace CSGL.Vulkan {
         public VkBufferCreateFlags Flags { get; private set; }
         public VkBufferUsageFlags Usage { get; private set; }
         public VkSharingMode SharingMode { get; private set; }
-        public List<uint> QueueFamilyIndices { get; private set; }
+        public IList<uint> QueueFamilyIndices { get; private set; }
         public ulong Size { get; private set; }
         public ulong Offset { get; private set; }
         public DeviceMemory Memory { get; private set; }
@@ -53,7 +53,7 @@ namespace CSGL.Vulkan {
             Flags = info.flags;
             Usage = info.usage;
             Size = info.size;
-            if (info.queueFamilyIndices != null) QueueFamilyIndices = new List<uint>(info.queueFamilyIndices);
+            if (info.queueFamilyIndices != null) QueueFamilyIndices = new List<uint>(info.queueFamilyIndices).AsReadOnly();
         }
 
         void CreateBuffer(BufferCreateInfo mInfo) {
