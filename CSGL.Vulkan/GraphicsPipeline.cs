@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace CSGL.Vulkan {
     public class GraphicsPipelineCreateInfo {
         public VkPipelineCreateFlags flags;
-        public List<PipelineShaderStageCreateInfo> stages;
+        public IList<PipelineShaderStageCreateInfo> stages;
         public PipelineVertexInputStateCreateInfo vertexInputState;
         public PipelineInputAssemblyStateCreateInfo inputAssemblyState;
         public PipelineTessellationStateCreateInfo tessellationState;

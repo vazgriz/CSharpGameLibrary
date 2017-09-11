@@ -8,21 +8,21 @@ namespace CSGL.Vulkan {
     public class DeviceQueueCreateInfo {
         public uint queueFamilyIndex;
         public uint queueCount;
-        public List<float> priorities;
+        public IList<float> priorities;
     }
 
     public class SubmitInfo {
-        public List<Semaphore> waitSemaphores;
-        public List<VkPipelineStageFlags> waitDstStageMask;
-        public List<CommandBuffer> commandBuffers;
-        public List<Semaphore> signalSemaphores;
+        public IList<Semaphore> waitSemaphores;
+        public IList<VkPipelineStageFlags> waitDstStageMask;
+        public IList<CommandBuffer> commandBuffers;
+        public IList<Semaphore> signalSemaphores;
     }
 
     public class PresentInfo {
-        public List<Semaphore> waitSemaphores;
-        public List<Swapchain> swapchains;
-        public List<uint> imageIndices;
-        public List<VkResult> results;
+        public IList<Semaphore> waitSemaphores;
+        public IList<Swapchain> swapchains;
+        public IList<uint> imageIndices;
+        public IList<VkResult> results;
     }
 
     public class SparseMemoryBind {

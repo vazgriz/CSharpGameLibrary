@@ -3,8 +3,8 @@ using System.Collections.Generic;
 
 namespace CSGL.Vulkan {
     public class PipelineLayoutCreateInfo {
-        public List<DescriptorSetLayout> setLayouts;
-        public List<VkPushConstantRange> pushConstantRanges;
+        public IList<DescriptorSetLayout> setLayouts;
+        public IList<VkPushConstantRange> pushConstantRanges;
     }
 
     public class PipelineLayout : IDisposable, INative<VkPipelineLayout> {

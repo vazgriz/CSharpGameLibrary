@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace CSGL.Vulkan {
     public class DescriptorSetAllocateInfo {
         public uint descriptorSetCount;
-        public List<DescriptorSetLayout> setLayouts;
+        public IList<DescriptorSetLayout> setLayouts;
     }
 
     public class DescriptorBufferInfo {

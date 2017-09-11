@@ -51,7 +51,7 @@ namespace CSGL.Vulkan {
         public RenderPass renderPass;
         public Framebuffer framebuffer;
         public VkRect2D renderArea;
-        public List<VkClearValue> clearValues;
+        public IList<VkClearValue> clearValues;
 
         internal VkRenderPassBeginInfo GetNative(DisposableList<IDisposable> marshalled) {
             VkRenderPassBeginInfo info = new VkRenderPassBeginInfo();

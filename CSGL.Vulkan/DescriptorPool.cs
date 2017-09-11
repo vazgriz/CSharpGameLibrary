@@ -5,7 +5,7 @@ namespace CSGL.Vulkan {
     public class DescriptorPoolCreateInfo {
         public VkDescriptorPoolCreateFlags flags;
         public uint maxSets;
-        public List<VkDescriptorPoolSize> poolSizes;
+        public IList<VkDescriptorPoolSize> poolSizes;
     }
 
     public class DescriptorPool : IDisposable, INative<VkDescriptorPool> {

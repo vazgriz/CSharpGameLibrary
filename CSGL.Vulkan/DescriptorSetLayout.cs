@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace CSGL.Vulkan {
     public class DescriptorSetLayoutCreateInfo {
-        public List<VkDescriptorSetLayoutBinding> bindings;
+        public IList<VkDescriptorSetLayoutBinding> bindings;
     }
 
     public class DescriptorSetLayout : IDisposable, INative<VkDescriptorSetLayout> {

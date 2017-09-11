@@ -13,7 +13,7 @@ namespace CSGL.Vulkan {
         public VkImageTiling tiling;
         public VkImageUsageFlags usage;
         public VkSharingMode sharingMode;
-        public List<uint> queueFamilyIndices;
+        public IList<uint> queueFamilyIndices;
         public VkImageLayout initialLayout;
     }
 

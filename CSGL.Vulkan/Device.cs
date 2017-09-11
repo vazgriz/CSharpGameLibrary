@@ -5,8 +5,8 @@ using CSGL.Vulkan.Unmanaged;
 
 namespace CSGL.Vulkan {
     public class DeviceCreateInfo {
-        public List<string> extensions;
-        public List<DeviceQueueCreateInfo> queueCreateInfos;
+        public IList<string> extensions;
+        public IList<DeviceQueueCreateInfo> queueCreateInfos;
         public VkPhysicalDeviceFeatures features;
     }
 

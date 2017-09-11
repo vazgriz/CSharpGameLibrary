@@ -15,7 +15,7 @@ namespace CSGL.Vulkan {
         public uint imageArrayLayers;
         public VkImageUsageFlags imageUsage;
         public VkSharingMode imageSharingMode;
-        public List<uint> queueFamilyIndices;
+        public IList<uint> queueFamilyIndices;
         public VkSurfaceTransformFlagsKHR preTransform;
         public VkCompositeAlphaFlagsKHR compositeAlpha;
         public VkPresentModeKHR presentMode;

@@ -3,9 +3,9 @@ using System.Collections.Generic;
 
 namespace CSGL.Vulkan {
     public class RenderPassCreateInfo {
-        public List<AttachmentDescription> attachments;
-        public List<SubpassDescription> subpasses;
-        public List<SubpassDependency> dependencies;
+        public IList<AttachmentDescription> attachments;
+        public IList<SubpassDescription> subpasses;
+        public IList<SubpassDependency> dependencies;
     }
 
     public class AttachmentDescription {
@@ -48,10 +48,10 @@ namespace CSGL.Vulkan {
 
     public class SubpassDescription {
         public VkPipelineBindPoint pipelineBindPoint;
-        public List<AttachmentReference> inputAttachments;
-        public List<AttachmentReference> colorAttachments;
-        public List<AttachmentReference> resolveAttachments;
-        public List<uint> preserveAttachments;
+        public IList<AttachmentReference> inputAttachments;
+        public IList<AttachmentReference> colorAttachments;
+        public IList<AttachmentReference> resolveAttachments;
+        public IList<uint> preserveAttachments;
         public AttachmentReference depthStencilAttachment;
 
         public SubpassDescription() { }

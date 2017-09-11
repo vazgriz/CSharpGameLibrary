@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace CSGL.Vulkan {
     public class FramebufferCreateInfo {
         public RenderPass renderPass;
-        public List<ImageView> attachments;
+        public IList<ImageView> attachments;
         public uint width;
         public uint height;
         public uint layers;
