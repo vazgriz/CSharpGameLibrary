@@ -140,7 +140,8 @@
   - Fix bug that caused managed delegate to be garbage collected
 - Interop
   - Add AddressOf method
-  - Fix bug in GetInternalArray</releaseNotes>
+  - Fix bug in GetInternalArray
+  - Remove Marshal overloads</releaseNotes>
     <copyright>Copyright 2017</copyright>
     <tags>glfw opengl vulkan</tags>
   </metadata>
