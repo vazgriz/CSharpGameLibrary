@@ -22,6 +22,10 @@ namespace CSGL.Vulkan {
         public CommandPool Pool { get; private set; }
         public VkCommandBufferLevel Level { get; private set; }
 
+        //set to false if pool is reset
+        //prevents double free
+        internal bool CanDispose { get; set; } = true;
+
         internal CommandBuffer(Device device, CommandPool pool, VkCommandBuffer commandBuffer, VkCommandBufferLevel level) {
             Device = device;
             Pool = pool;
@@ -37,7 +41,9 @@ namespace CSGL.Vulkan {
         void Dispose(bool disposing) {
             if (disposed) return;
 
-            Pool.Free(this);
+            if (CanDispose) {
+                Pool.Free(this);
+            }
 
             disposed = true;
         }

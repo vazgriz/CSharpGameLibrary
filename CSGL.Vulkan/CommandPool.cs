@@ -21,6 +21,8 @@ namespace CSGL.Vulkan {
         public VkCommandPoolCreateFlags Flags { get; private set; }
         public uint QueueFamilyIndex { get; private set; }
 
+        List<CommandBuffer> commandBuffers;
+
         public CommandPool(Device device, CommandPoolCreateInfo info) {
             if (device == null) throw new ArgumentNullException(nameof(device));
             if (info == null) throw new ArgumentNullException(nameof(info));
@@ -31,6 +33,8 @@ namespace CSGL.Vulkan {
 
             Flags = info.flags;
             QueueFamilyIndex = info.queueFamilyIndex;
+
+            commandBuffers = new List<CommandBuffer>();
         }
 
         void CreateCommandPool(CommandPoolCreateInfo mInfo) {
@@ -59,6 +63,7 @@ namespace CSGL.Vulkan {
                 if (result != VkResult.Success) throw new CommandPoolException(result, string.Format("Error allocating command buffer: {0}", result));
 
                 CommandBuffer commandBuffer = new CommandBuffer(Device, this, commandBufferMarshalled.Value, level);
+                commandBuffers.Add(commandBuffer);
 
                 return commandBuffer;
             }
@@ -78,6 +83,7 @@ namespace CSGL.Vulkan {
 
                 for (int i = 0; i < count; i++) {
                     commandBuffers[i] = new CommandBuffer(Device, this, commandBuffersMarshalled[i], level);
+                    this.commandBuffers.Add(commandBuffers[i]);
                 }
 
                 return commandBuffers;
@@ -111,6 +117,9 @@ namespace CSGL.Vulkan {
 
         public void Reset(VkCommandPoolResetFlags flags) {
             Device.Commands.resetCommandPool(Device.Native, commandPool, flags);
+            foreach (var commandBuffer in commandBuffers) {
+                commandBuffer.CanDispose = false;
+            }
         }
 
         public void Dispose() {
