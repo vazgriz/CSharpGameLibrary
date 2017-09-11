@@ -29,8 +29,7 @@ namespace CSGL {
         }
 
         public static string GetString(IntPtr ptr) {
-            unsafe
-            {
+            unsafe {
                 return GetString((byte*)ptr);
             }
         }
@@ -55,7 +54,7 @@ namespace CSGL {
             public static Func<List<T>, T[]> accessor;
 
             static ListAccessor() {
-                var dm = new DynamicMethod("get", MethodAttributes.Static | MethodAttributes.Public,CallingConventions.Standard,
+                var dm = new DynamicMethod("get", MethodAttributes.Static | MethodAttributes.Public, CallingConventions.Standard,
                     typeof(T[]), new Type[] { typeof(List<T>) }, typeof(ListAccessor<T>), true);
                 var il = dm.GetILGenerator();
                 il.Emit(OpCodes.Ldarg_0); // Load List<T> argument
@@ -123,8 +122,7 @@ namespace CSGL {
         }
 
         public static void Copy(IntPtr source, IntPtr dest, long size) {
-            unsafe
-            {
+            unsafe {
                 Copy((void*)source, (void*)dest, size);
             }
         }
@@ -152,8 +150,7 @@ namespace CSGL {
         }
 
         public static void Copy<T>(T source, IntPtr dest) where T : struct {
-            unsafe
-            {
+            unsafe {
                 Unsafe.Write((void*)dest, source);
             }
         }
@@ -163,8 +160,7 @@ namespace CSGL {
         }
 
         public static void Copy<T>(T data, byte[] dest, int offset) where T : struct {
-            unsafe
-            {
+            unsafe {
                 fixed (byte* ptr = dest) {
                     Copy(data, (IntPtr)(ptr + offset));
                 }
@@ -196,8 +192,7 @@ namespace CSGL {
         public static long Offset<T1, T2>(ref T1 type, ref T2 field)
             where T1 : struct
             where T2 : struct {
-            unsafe
-            {
+            unsafe {
                 return (byte*)Unsafe.AsPointer(ref field) - (byte*)Unsafe.AsPointer(ref type);
             }
         }
