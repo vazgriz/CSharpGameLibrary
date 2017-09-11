@@ -122,6 +122,10 @@ namespace CSGL.Vulkan {
 
             Device.Commands.destroyCommandPool(Device.Native, commandPool, Device.Instance.AllocationCallbacks);
 
+            foreach (var commandBuffer in commandBuffers) {
+                commandBuffer.CanDispose = false;
+            }
+
             disposed = true;
         }
 
