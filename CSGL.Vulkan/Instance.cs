@@ -24,10 +24,6 @@ namespace CSGL.Vulkan {
         IntPtr alloc = IntPtr.Zero;
         bool disposed = false;
 
-        List<string> extensions;
-        List<string> layers;
-        List<PhysicalDevice> physicalDevices;
-
         vkGetInstanceProcAddrDelegate getProcAddrDel;
         public InstanceCommands Commands { get; private set; }
         public IList<string> Extensions { get; private set; }
@@ -63,6 +59,9 @@ namespace CSGL.Vulkan {
         void Init(InstanceCreateInfo mInfo) {
             if (!GLFW.GLFW.VulkanSupported()) throw new InstanceException("Vulkan not supported");
             if (!initialized) Init();
+
+            List<string> extensions;
+            List<string> layers;
 
             if (mInfo.extensions == null) {
                 extensions = new List<string>();
@@ -136,7 +135,7 @@ namespace CSGL.Vulkan {
             var devices = new NativeArray<VkPhysicalDevice>((int)count);
             Commands.enumeratePhysicalDevices(instance, ref count, devices.Address);
 
-            physicalDevices = new List<PhysicalDevice>();
+            var physicalDevices = new List<PhysicalDevice>();
             for (int i = 0; i < count; i++) {
                 physicalDevices.Add(new PhysicalDevice(this, devices[i]));
             }
