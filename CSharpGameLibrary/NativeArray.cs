@@ -22,20 +22,7 @@ namespace CSGL {
 
         public NativeArray(uint count) : this((int)count) { }
 
-        public NativeArray(T[] array) {
-            if (array != null) {
-                count = array.Length;
-                Allocate(array.Length);
-                unsafe
-                {
-                    for (int i = 0; i < count; i++) {
-                        Interop.Copy(array, (IntPtr)ptr);
-                    }
-                }
-            }
-        }
-
-        public NativeArray(List<T> list) {
+        public NativeArray(IList<T> list) {
             if (list != null) {
                 count = list.Count;
                 Allocate(count);
