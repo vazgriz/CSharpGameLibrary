@@ -128,11 +128,7 @@ namespace CSGL {
             return Unsafe.SizeOf<T>();
         }
 
-        public static long SizeOf<T>(T[] array) where T : struct {
-            return Unsafe.SizeOf<T>() * array.Length;
-        }
-
-        public static long SizeOf<T>(List<T> list) where T : struct {
+        public static long SizeOf<T>(IList<T> list) where T : struct {
             return Unsafe.SizeOf<T>() * list.Count;
         }
 
