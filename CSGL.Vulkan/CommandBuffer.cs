@@ -361,19 +361,11 @@ namespace CSGL.Vulkan {
             }
         }
 
-        public void SetViewports(uint firstViewport, VkViewport[] viewports) {
+        public void SetViewports(uint firstViewport, IList<VkViewport> viewports) {
             unsafe {
-                fixed (VkViewport* ptr = viewports) {
-                    Device.Commands.cmdSetViewports(commandBuffer, firstViewport, (uint)viewports.Length, (IntPtr)ptr);
-                }
-            }
-        }
-
-        public void SetViewports(uint firstViewport, List<VkViewport> viewports) {
-            unsafe {
-                fixed (VkViewport* ptr = Interop.GetInternalArray(viewports)) {
-                    Device.Commands.cmdSetViewports(commandBuffer, firstViewport, (uint)viewports.Count, (IntPtr)ptr);
-                }
+                var viewportsNative = stackalloc VkViewport[viewports.Count];
+                Interop.Copy(viewports, (IntPtr)viewportsNative);
+                Device.Commands.cmdSetViewports(commandBuffer, firstViewport, (uint)viewports.Count, (IntPtr)viewportsNative);
             }
         }
 
