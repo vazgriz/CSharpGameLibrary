@@ -286,7 +286,7 @@ namespace CSGL.Vulkan {
         }
 
         public void WaitEvents(List<Event> events, VkPipelineStageFlags srcStageMask, VkPipelineStageFlags dstStageMask,
-            List<MemoryBarrier> memoryBarriers, List<BufferMemoryBarrier> bufferMemoryBarriers, List<ImageMemoryBarrier> imageMemoryBarriers) {
+            IList<MemoryBarrier> memoryBarriers, IList<BufferMemoryBarrier> bufferMemoryBarriers, IList<ImageMemoryBarrier> imageMemoryBarriers) {
             unsafe {
                 var eventsNative = stackalloc VkEvent[events.Count];
                 Interop.Marshal<VkEvent, Event>(events, eventsNative);
