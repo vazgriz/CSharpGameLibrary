@@ -55,7 +55,7 @@ namespace CSGL.Vulkan {
         public VkImageTiling Tiling { get; private set; }
         public VkImageUsageFlags Usage { get; private set; }
         public VkSharingMode SharingMode { get; private set; }
-        public List<uint> QueueFamilyIndices { get; private set; }
+        public IList<uint> QueueFamilyIndices { get; private set; }
 
         public ulong Offset { get; private set; }
         public DeviceMemory Memory { get; private set; }
@@ -84,7 +84,7 @@ namespace CSGL.Vulkan {
             Tiling = info.tiling;
             Usage = info.usage;
             SharingMode = info.sharingMode;
-            if (info.queueFamilyIndices != null) QueueFamilyIndices = new List<uint>(info.queueFamilyIndices);
+            if (info.queueFamilyIndices != null) QueueFamilyIndices = new List<uint>(info.queueFamilyIndices).AsReadOnly();
         }
 
         void CreateImage(ImageCreateInfo mInfo) {
