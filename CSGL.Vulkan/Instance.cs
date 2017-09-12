@@ -15,8 +15,8 @@ namespace CSGL.Vulkan {
 
     public class InstanceCreateInfo {
         public ApplicationInfo applicationInfo;
-        public List<string> extensions;
-        public List<string> layers;
+        public IList<string> extensions;
+        public IList<string> layers;
     }
 
     public partial class Instance : IDisposable, INative<VkInstance> {
