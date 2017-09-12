@@ -395,4 +395,8 @@ namespace CSGL.Vulkan {
             }
         }
     }
+
+    public class QueueException : VulkanException {
+        public QueueException(VkResult result, string message) : base(result, message) { }
+    }
 }
