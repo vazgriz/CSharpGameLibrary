@@ -134,6 +134,9 @@ namespace CSGL.Vulkan {
             if (fence != null) fTemp = fence.Native;
 
             var result = Device.Commands.acquireNextImage(Device.Native, swapchain, timeout, sTemp, fTemp, out index);
+            if (!(result == VkResult.Success || result == VkResult.SuboptimalKhr || result == VkResult.NotReady || result == VkResult.Timeout)) {
+                throw new SwapchainException(result, string.Format("Error acquiring image: {0}", result));
+            }
             return result;
         }
 
