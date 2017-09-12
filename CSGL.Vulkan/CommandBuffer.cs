@@ -76,19 +76,7 @@ namespace CSGL.Vulkan {
             Device.Commands.cmdBindPipeline(commandBuffer, bindPoint, pipeline.Native);
         }
 
-        public void BindVertexBuffers(uint firstBinding, Buffer[] buffers, ulong[] offsets) {
-            unsafe {
-                var buffersNative = stackalloc VkBuffer[buffers.Length];
-
-                Interop.Marshal<VkBuffer, Buffer>(buffers, buffersNative);
-
-                fixed (ulong* ptr = offsets) {
-                    Device.Commands.cmdBindVertexBuffers(commandBuffer, firstBinding, (uint)buffers.Length, (IntPtr)(buffersNative), ref offsets[0]);
-                }
-            }
-        }
-
-        public void BindVertexBuffers(uint firstBinding, List<Buffer> buffers, List<ulong> offsets) {
+        public void BindVertexBuffers(uint firstBinding, IList<Buffer> buffers, IList<ulong> offsets) {
             unsafe {
                 var buffersNative = stackalloc VkBuffer[buffers.Count];
                 var offsetsNative = stackalloc ulong[offsets.Count];
@@ -111,24 +99,7 @@ namespace CSGL.Vulkan {
             Device.Commands.cmdBindIndexBuffer(commandBuffer, buffer.Native, offset, indexType);
         }
 
-        public void BindDescriptorSets(VkPipelineBindPoint pipelineBindPoint, PipelineLayout layout, uint firstSet, DescriptorSet[] descriptorSets, uint[] dynamicOffsets) {
-            unsafe {
-                var sets = stackalloc VkDescriptorSet[descriptorSets.Length];
-
-                Interop.Marshal<VkDescriptorSet, DescriptorSet>(descriptorSets, sets);
-
-                int dynamicOffsetCount = 0;
-                if (dynamicOffsets != null) dynamicOffsetCount = dynamicOffsets.Length;
-
-                fixed (uint* ptr = dynamicOffsets) {
-                    Device.Commands.cmdBindDescriptorSets(commandBuffer, pipelineBindPoint, layout.Native,
-                        firstSet, (uint)descriptorSets.Length, (IntPtr)sets,
-                        (uint)dynamicOffsetCount, (IntPtr)ptr);
-                }
-            }
-        }
-
-        public void BindDescriptorSets(VkPipelineBindPoint pipelineBindPoint, PipelineLayout layout, uint firstSet, List<DescriptorSet> descriptorSets, List<uint> dynamicOffsets) {
+        public void BindDescriptorSets(VkPipelineBindPoint pipelineBindPoint, PipelineLayout layout, uint firstSet, IList<DescriptorSet> descriptorSets, IList<uint> dynamicOffsets) {
             unsafe {
                 int dynamicOffsetCount = 0;
                 if (dynamicOffsets != null) dynamicOffsetCount = dynamicOffsets.Count;
@@ -146,7 +117,7 @@ namespace CSGL.Vulkan {
             }
         }
 
-        public void BindDescriptorSets(VkPipelineBindPoint pipelineBindPoint, PipelineLayout layout, uint firstSet, DescriptorSet descriptorSet, List<uint> dynamicOffsets) {
+        public void BindDescriptorSets(VkPipelineBindPoint pipelineBindPoint, PipelineLayout layout, uint firstSet, DescriptorSet descriptorSet, IList<uint> dynamicOffsets) {
             unsafe {
                 int dynamicOffsetCount = 0;
                 if (dynamicOffsets != null) dynamicOffsetCount = dynamicOffsets.Count;
