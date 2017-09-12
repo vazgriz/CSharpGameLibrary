@@ -263,18 +263,14 @@ namespace CSGL.Vulkan {
             Device.Commands.cmdPushConstants(commandBuffer, layout.Native, stageFlags, offset, size, data);
         }
 
-        public void PushConstants(PipelineLayout layout, VkShaderStageFlags stageFlags, uint offset, byte[] data) {
+        public void PushConstants<T>(PipelineLayout layout, VkShaderStageFlags stageFlags, uint offset, IList<T> data) where T : struct {
             unsafe {
-                fixed (byte* ptr = data) {
-                    Device.Commands.cmdPushConstants(commandBuffer, layout.Native, stageFlags, offset, (uint)data.Length, (IntPtr)ptr);
-                }
-            }
-        }
+                uint size = (uint)Interop.SizeOf(data);
+                var dataNative = stackalloc byte[(int)size];
+                Interop.Copy(data, (IntPtr)dataNative);
 
-        public void PushConstants<T>(PipelineLayout layout, VkShaderStageFlags stageFlags, uint offset, T[] data) where T : struct {
-            GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
-            Device.Commands.cmdPushConstants(commandBuffer, layout.Native, stageFlags, offset, (uint)(data.Length * Interop.SizeOf<T>()), handle.AddrOfPinnedObject());
-            handle.Free();
+                Device.Commands.cmdPushConstants(commandBuffer, layout.Native, stageFlags, offset, size, (IntPtr)dataNative);
+            }
         }
 
         public void PushConstants<T>(PipelineLayout layout, VkShaderStageFlags stageFlags, uint offset, List<T> data) where T : struct {
