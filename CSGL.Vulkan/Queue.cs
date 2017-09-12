@@ -235,14 +235,14 @@ namespace CSGL.Vulkan {
             return result;
         }
 
-        public VkResult BindSparse(IList<BindSparseInfo> bindInfo, Fence fence) {
+        public void BindSparse(IList<BindSparseInfo> bindInfo, Fence fence) {
             VkFence fenceNative = VkFence.Null;
             if (fence != null) {
                 fenceNative = fence.Native;
             }
 
             if (bindInfo == null || bindInfo.Count == 0) {
-                return Device.Commands.queueBindSparse(queue, 0, IntPtr.Zero, fenceNative);
+                Device.Commands.queueBindSparse(queue, 0, IntPtr.Zero, fenceNative);
             }
 
             unsafe {
@@ -396,7 +396,8 @@ namespace CSGL.Vulkan {
                     infosNative[i] = info;
                 }
 
-                return Device.Commands.queueBindSparse(queue, (uint)bindInfo.Count, (IntPtr)infosNative, fenceNative);
+                var result = Device.Commands.queueBindSparse(queue, (uint)bindInfo.Count, (IntPtr)infosNative, fenceNative);
+                if (result != VkResult.Success) throw new QueueException(result, string.Format("Error binding to queue: {0}", result));
             }
         }
     }
