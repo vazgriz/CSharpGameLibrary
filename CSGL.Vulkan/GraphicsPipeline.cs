@@ -80,10 +80,10 @@ namespace CSGL.Vulkan {
             Subpass = info.subpass;
         }
 
-        static internal VkPipeline[] CreatePipelinesInternal(Device device, GraphicsPipelineCreateInfo[] mInfos, VkPipelineCache cache) {
-            int count = mInfos.Length;
+        static internal IList<VkPipeline> CreatePipelinesInternal(Device device, IList<GraphicsPipelineCreateInfo> mInfos, VkPipelineCache cache) {
+            int count = mInfos.Count;
             var infosMarshalled = new MarshalledArray<VkGraphicsPipelineCreateInfo>(count);
-            var pipelineResults = new VkPipeline[count];
+            var pipelineResults = new List<VkPipeline>(count);
             var marshalledArrays = new DisposableList<IDisposable>(count);
 
             for (int i = 0; i < count; i++) {
@@ -173,15 +173,23 @@ namespace CSGL.Vulkan {
             }
 
             using (infosMarshalled)
-            using (marshalledArrays)
-            using (var pipelinesMarshalled = new PinnedArray<VkPipeline>(pipelineResults)) {
-                var result = device.Commands.createGraphicsPiplines(
-                    device.Native, cache,
-                    (uint)count, infosMarshalled.Address,
-                    device.Instance.AllocationCallbacks, pipelinesMarshalled.Address);
+            using (marshalledArrays) {
+                unsafe {
+                    var pipelinesNative = stackalloc VkPipeline[count];
 
-                if (result != VkResult.Success) throw new PipelineException(result, string.Format("Error creating pipeline: {0}", result));
-                return pipelineResults;
+                    var result = device.Commands.createGraphicsPiplines(
+                        device.Native, cache,
+                        (uint)count, infosMarshalled.Address,
+                        device.Instance.AllocationCallbacks, (IntPtr)pipelinesNative);
+
+                    if (result != VkResult.Success) throw new PipelineException(result, string.Format("Error creating pipeline: {0}", result));
+
+                    for (int i = 0; i < count; i++) {
+                        pipelineResults.Add(pipelinesNative[i]);
+                    }
+
+                    return pipelineResults;
+                }
             }
         }
     }
