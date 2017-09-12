@@ -165,7 +165,10 @@ namespace CSGL.Vulkan {
                     infosNative[i] = info;
                 }
 
-                return Device.Commands.queueSubmit(queue, (uint)infos.Count, (IntPtr)infosNative, fenceNative);
+                var result = Device.Commands.queueSubmit(queue, (uint)infos.Count, (IntPtr)infosNative, fenceNative);
+                if (result != VkResult.Success) throw new QueueException(result, string.Format("Error submitting command to queue: {0}", result));
+
+                return result;
             }
         }
 
