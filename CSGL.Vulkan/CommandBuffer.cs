@@ -467,19 +467,11 @@ namespace CSGL.Vulkan {
             Device.Commands.cmdFillBuffer(commandBuffer, dstBuffer.Native, dstOffset, size, data);
         }
 
-        public void BlitImage(Image srcImage, VkImageLayout srcImageLayout, Image dstImage, VkImageLayout dstImageLayout, VkImageBlit[] regions, VkFilter filter) {
+        public void BlitImage(Image srcImage, VkImageLayout srcImageLayout, Image dstImage, VkImageLayout dstImageLayout, IList<VkImageBlit> regions, VkFilter filter) {
             unsafe {
-                fixed (VkImageBlit* ptr = regions) {
-                    Device.Commands.cmdBlitImage(commandBuffer, srcImage.Native, srcImageLayout, dstImage.Native, dstImageLayout, (uint)regions.Length, (IntPtr)ptr, filter);
-                }
-            }
-        }
-
-        public void BlitImage(Image srcImage, VkImageLayout srcImageLayout, Image dstImage, VkImageLayout dstImageLayout, List<VkImageBlit> regions, VkFilter filter) {
-            unsafe {
-                fixed (VkImageBlit* ptr = Interop.GetInternalArray(regions)) {
-                    Device.Commands.cmdBlitImage(commandBuffer, srcImage.Native, srcImageLayout, dstImage.Native, dstImageLayout, (uint)regions.Count, (IntPtr)ptr, filter);
-                }
+                var regionsNative = stackalloc VkImageBlit[regions.Count];
+                Interop.Copy(regions, (IntPtr)regionsNative);
+                Device.Commands.cmdBlitImage(commandBuffer, srcImage.Native, srcImageLayout, dstImage.Native, dstImageLayout, (uint)regions.Count, (IntPtr)regionsNative, filter);
             }
         }
 
