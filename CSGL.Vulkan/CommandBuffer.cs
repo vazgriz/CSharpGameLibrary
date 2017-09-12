@@ -495,19 +495,11 @@ namespace CSGL.Vulkan {
             }
         }
 
-        public void CopyImageToBuffer(Image srcImage, VkImageLayout srcImageLayout, Buffer dstBuffer, VkBufferImageCopy[] regions) {
+        public void CopyImageToBuffer(Image srcImage, VkImageLayout srcImageLayout, Buffer dstBuffer, IList<VkBufferImageCopy> regions) {
             unsafe {
-                fixed (VkBufferImageCopy* ptr = regions) {
-                    Device.Commands.cmdCopyImageToBuffer(commandBuffer, srcImage.Native, srcImageLayout, dstBuffer.Native, (uint)regions.Length, (IntPtr)ptr);
-                }
-            }
-        }
-
-        public void CopyImageToBuffer(Image srcImage, VkImageLayout srcImageLayout, Buffer dstBuffer, List<VkBufferImageCopy> regions) {
-            unsafe {
-                fixed (VkBufferImageCopy* ptr = Interop.GetInternalArray(regions)) {
-                    Device.Commands.cmdCopyImageToBuffer(commandBuffer, srcImage.Native, srcImageLayout, dstBuffer.Native, (uint)regions.Count, (IntPtr)ptr);
-                }
+                var regionsNative = stackalloc VkBufferImageCopy[regions.Count];
+                Interop.Copy(regions, (IntPtr)regionsNative);
+                Device.Commands.cmdCopyImageToBuffer(commandBuffer, srcImage.Native, srcImageLayout, dstBuffer.Native, (uint)regions.Count, (IntPtr)regionsNative);
             }
         }
 
