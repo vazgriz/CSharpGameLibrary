@@ -177,7 +177,7 @@ namespace CSGL.Vulkan {
         }
 
         public void PipelineBarrier(VkPipelineStageFlags srcStageMask, VkPipelineStageFlags dstStageMask, VkDependencyFlags flags,
-            List<MemoryBarrier> memoryBarriers, List<BufferMemoryBarrier> bufferMemoryBarriers, List<ImageMemoryBarrier> imageMemoryBarriers) {
+            IList<MemoryBarrier> memoryBarriers, IList<BufferMemoryBarrier> bufferMemoryBarriers, IList<ImageMemoryBarrier> imageMemoryBarriers) {
 
             int mbCount = 0;
             int bbCount = 0;
