@@ -454,12 +454,13 @@ namespace CSGL.Vulkan {
             }
         }
 
-        public void UpdateBuffer<T>(Buffer dstBuffer, ulong dstOffset, T[] data) where T : struct {
-            ulong size = (ulong)(data.Length * Interop.SizeOf<T>());
-
-            GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
-            Device.Commands.cmdUpdateBuffer(commandBuffer, dstBuffer.Native, dstOffset, size, handle.AddrOfPinnedObject());
-            handle.Free();
+        public void UpdateBuffer<T>(Buffer dstBuffer, ulong dstOffset, IList<T> data) where T : struct {
+            int size = (int)Interop.SizeOf(data);
+            using (var dataNative = new NativeArray<byte>(size)) {
+                Interop.Copy(data, dataNative.Address);
+                    
+                Device.Commands.cmdUpdateBuffer(commandBuffer, dstBuffer.Native, dstOffset, (ulong)size, dataNative.Address);
+            }
         }
 
         public void FillBuffer(Buffer dstBuffer, ulong dstOffset, ulong size, uint data) {
