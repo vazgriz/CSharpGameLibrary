@@ -34,7 +34,7 @@
     - Remove BindDescriptorSets overloads
     - Remove CopyBuffer overload
     - Rename BindVertexBuffer to BindVertexBuffers
-    - Add overloads to CopyBufferToImage, CopyImageToBuffer, BlitImage, ClearColorImage, SetViewports, SetScissor, ClearAttachments, and ResolveImage
+    - Remove overloads
   - CommandPool
     - Add Free overload
     - Add QueueFamilyIndices property
