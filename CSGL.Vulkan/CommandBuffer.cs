@@ -509,21 +509,14 @@ namespace CSGL.Vulkan {
             }
         }
 
-        public void ClearAttachments(VkClearAttachment[] attachments, VkClearRect[] rects) {
+        public void ClearAttachments(IList<VkClearAttachment> attachments, IList<VkClearRect> rects) {
             unsafe {
-                fixed (VkClearAttachment* attachmentPtr = attachments)
-                fixed (VkClearRect* rectPtr = rects) {
-                    Device.Commands.cmdClearAttachments(commandBuffer, (uint)attachments.Length, (IntPtr)attachmentPtr, (uint)rects.Length, (IntPtr)rectPtr);
-                }
-            }
-        }
+                var attachmentsNative = stackalloc VkClearAttachment[attachments.Count];
+                var rectsNative = stackalloc VkClearRect[rects.Count];
+                Interop.Copy(attachments, (IntPtr)attachmentsNative);
+                Interop.Copy(rects, (IntPtr)rectsNative);
 
-        public void ClearAttachments(List<VkClearAttachment> attachments, List<VkClearRect> rects) {
-            unsafe {
-                fixed (VkClearAttachment* attachmentPtr = Interop.GetInternalArray(attachments))
-                fixed (VkClearRect* rectPtr = Interop.GetInternalArray(rects)) {
-                    Device.Commands.cmdClearAttachments(commandBuffer, (uint)attachments.Count, (IntPtr)attachmentPtr, (uint)rects.Count, (IntPtr)rectPtr);
-                }
+                Device.Commands.cmdClearAttachments(commandBuffer, (uint)attachments.Count, (IntPtr)attachmentsNative, (uint)rects.Count, (IntPtr)rectsNative);
             }
         }
 
