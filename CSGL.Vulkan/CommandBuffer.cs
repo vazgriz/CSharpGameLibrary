@@ -526,19 +526,11 @@ namespace CSGL.Vulkan {
             }
         }
 
-        public void ResolveImage(Image srcImage, VkImageLayout srcImageLayout, Image dstImage, VkImageLayout dstImageLayout, VkImageResolve[] regions) {
+        public void ResolveImage(Image srcImage, VkImageLayout srcImageLayout, Image dstImage, VkImageLayout dstImageLayout, IList<VkImageResolve> regions) {
             unsafe {
-                fixed (VkImageResolve* ptr = regions) {
-                    Device.Commands.cmdResolveImage(commandBuffer, srcImage.Native, srcImageLayout, dstImage.Native, dstImageLayout, (uint)regions.Length, (IntPtr)ptr);
-                }
-            }
-        }
-
-        public void ResolveImage(Image srcImage, VkImageLayout srcImageLayout, Image dstImage, VkImageLayout dstImageLayout, List<VkImageResolve> regions) {
-            unsafe {
-                fixed (VkImageResolve* ptr = Interop.GetInternalArray(regions)) {
-                    Device.Commands.cmdResolveImage(commandBuffer, srcImage.Native, srcImageLayout, dstImage.Native, dstImageLayout, (uint)regions.Count, (IntPtr)ptr);
-                }
+                var regionsNative = stackalloc VkImageResolve[regions.Count];
+                Interop.Copy(regions, (IntPtr)regionsNative);
+                Device.Commands.cmdResolveImage(commandBuffer, srcImage.Native, srcImageLayout, dstImage.Native, dstImageLayout, (uint)regions.Count, (IntPtr)regionsNative);
             }
         }
 
