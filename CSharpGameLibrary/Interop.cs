@@ -70,43 +70,8 @@ namespace CSGL {
             return ListAccessor<T>.accessor(list);
         }
 
-        static unsafe void CopyBytes(void* source, void* dest, long size) {
-            byte* _source = (byte*)source;
-            byte* _dest = (byte*)dest;
-
-            for (long i = 0; i < size; i++) {
-                _dest[i] = _source[i];
-            }
-        }
-
         public static unsafe void Copy(void* source, void* dest, long size) {
-            //if source and dest do not have the same alignment
-            if ((long)source % 8 != (long)dest % 8) {
-                CopyBytes(source, dest, size);
-                return;
-            }
-
-            //copies front, middle, and end sections seperately so that the middle section can be copied by boundary aligned double words
-            long frontUnalign = (long)source % 8;
-            long middleOffset = 0;
-            if (frontUnalign != 0) {
-                middleOffset += 8 - frontUnalign;
-            }
-
-            long endSize = ((long)source + size) % 8;
-            long endOffset = size - endSize;
-
-            long middleSize = (endOffset - middleOffset) / 8;
-
-            CopyBytes(source, dest, middleOffset);
-
-            long* sourceMiddle = (long*)((long)source + middleOffset);
-            long* destMiddle = (long*)((long)dest + middleOffset);
-            for (long i = 0; i < middleSize; i++) {
-                destMiddle[i] = sourceMiddle[i];
-            }
-
-            CopyBytes((void*)((long)source + endOffset), (void*)((long)dest + endOffset), endSize);
+            Buffer.MemoryCopy(source, dest, size, size);
         }
 
         public static void Copy(IntPtr source, IntPtr dest, long size) {
