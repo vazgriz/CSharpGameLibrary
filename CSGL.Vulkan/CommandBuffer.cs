@@ -251,7 +251,7 @@ namespace CSGL.Vulkan {
             }
         }
 
-        public void Execute(List<CommandBuffer> commandBuffers) {
+        public void Execute(IList<CommandBuffer> commandBuffers) {
             unsafe {
                 var commandBuffersNative = stackalloc VkCommandBuffer[commandBuffers.Count];
                 Interop.Marshal<VkCommandBuffer, CommandBuffer>(commandBuffers, commandBuffersNative);
