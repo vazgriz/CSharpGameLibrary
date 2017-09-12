@@ -92,14 +92,14 @@ namespace CSGL.Vulkan {
             Device.Commands.queueWaitIdle(queue);
         }
 
-        public VkResult Submit(IList<SubmitInfo> infos, Fence fence = null) {
+        public void Submit(IList<SubmitInfo> infos, Fence fence = null) {
             VkFence fenceNative = VkFence.Null;
             if (fence != null) {
                 fenceNative = fence.Native;
             }
 
             if (infos == null || infos.Count == 0) {
-                return Device.Commands.queueSubmit(queue, 0, IntPtr.Zero, fenceNative);
+                Device.Commands.queueSubmit(queue, 0, IntPtr.Zero, fenceNative);
             }
 
             unsafe {
@@ -167,8 +167,6 @@ namespace CSGL.Vulkan {
 
                 var result = Device.Commands.queueSubmit(queue, (uint)infos.Count, (IntPtr)infosNative, fenceNative);
                 if (result != VkResult.Success) throw new QueueException(result, string.Format("Error submitting command to queue: {0}", result));
-
-                return result;
             }
         }
 

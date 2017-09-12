@@ -93,6 +93,8 @@
     - Add error handling to GetResults
   - Queue
     - Add Priority property
+    - Change return type of Submit to void
+    - Change return type of BindSparse to void
   - Fence
     - Remove FenceCreateInfo
     - Constructor now accepts VkFenceCreateFlags parameter
