@@ -397,11 +397,12 @@ namespace CSGL.Vulkan {
             Device.Commands.cmdSetDepthBias(commandBuffer, constantFactor, clamp, slopeFactor);
         }
 
-        public void SetBlendConstants(float[] blendConstants) {
+        public void SetBlendConstants(IList<float> blendConstants) {
             unsafe {
-                fixed (float* ptr = blendConstants) {
-                    Device.Commands.cmdSetBlendConstants(commandBuffer, (IntPtr)ptr);
-                }
+                var blendConstantsNative = stackalloc float[4]; //vulkan expects 4 floats
+                Interop.Copy(blendConstants, (IntPtr)blendConstantsNative, 4);
+
+                Device.Commands.cmdSetBlendConstants(commandBuffer, (IntPtr)blendConstantsNative);
             }
         }
 
