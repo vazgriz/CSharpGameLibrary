@@ -92,7 +92,7 @@ namespace CSGL.Vulkan {
             Device.Commands.queueWaitIdle(queue);
         }
 
-        public VkResult Submit(List<SubmitInfo> infos, Fence fence = null) {
+        public VkResult Submit(IList<SubmitInfo> infos, Fence fence = null) {
             VkFence fenceNative = VkFence.Null;
             if (fence != null) {
                 fenceNative = fence.Native;
@@ -230,7 +230,7 @@ namespace CSGL.Vulkan {
             return result;
         }
 
-        public VkResult BindSparse(List<BindSparseInfo> bindInfo, Fence fence) {
+        public VkResult BindSparse(IList<BindSparseInfo> bindInfo, Fence fence) {
             VkFence fenceNative = VkFence.Null;
             if (fence != null) {
                 fenceNative = fence.Native;
