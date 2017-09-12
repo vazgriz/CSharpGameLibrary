@@ -273,15 +273,6 @@ namespace CSGL.Vulkan {
             }
         }
 
-        public void PushConstants<T>(PipelineLayout layout, VkShaderStageFlags stageFlags, uint offset, List<T> data) where T : struct {
-            unsafe {
-                int size = (int)Interop.SizeOf<T>();
-                byte* native = stackalloc byte[size * data.Count];
-                Interop.Copy(data, (IntPtr)native);
-                Device.Commands.cmdPushConstants(commandBuffer, layout.Native, stageFlags, offset, (uint)(size * data.Count), (IntPtr)native);
-            }
-        }
-
         public void PushConstants<T>(PipelineLayout layout, VkShaderStageFlags stageFlags, uint offset, T data) where T : struct {
             Device.Commands.cmdPushConstants(commandBuffer, layout.Native, stageFlags, offset, (uint)Interop.SizeOf<T>(), Interop.AddressOf(ref data));
         }
