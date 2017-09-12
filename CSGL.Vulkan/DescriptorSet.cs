@@ -82,7 +82,7 @@ namespace CSGL.Vulkan {
             Dispose(false);
         }
 
-        public static void Update(Device device, List<WriteDescriptorSet> writes, List<CopyDescriptorSet> copies) {
+        public static void Update(Device device, IList<WriteDescriptorSet> writes, IList<CopyDescriptorSet> copies) {
             if (device == null) throw new ArgumentNullException(nameof(device));
 
             int copyCount = 0;
