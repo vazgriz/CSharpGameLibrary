@@ -375,19 +375,11 @@ namespace CSGL.Vulkan {
             }
         }
 
-        public void SetScissor(uint firstScissor, VkRect2D[] scissors) {
+        public void SetScissor(uint firstScissor, IList<VkRect2D> scissors) {
             unsafe {
-                fixed (VkRect2D* ptr = scissors) {
-                    Device.Commands.cmdSetScissor(commandBuffer, firstScissor, (uint)scissors.Length, (IntPtr)(ptr));
-                }
-            }
-        }
-
-        public void SetScissor(uint firstScissor, List<VkRect2D> scissors) {
-            unsafe {
-                fixed (VkRect2D* ptr = Interop.GetInternalArray(scissors)) {
-                    Device.Commands.cmdSetScissor(commandBuffer, firstScissor, (uint)scissors.Count, (IntPtr)(ptr));
-                }
+                var scissorsNative = stackalloc VkRect2D[scissors.Count];
+                Interop.Copy(scissors, (IntPtr)scissorsNative);
+                Device.Commands.cmdSetScissor(commandBuffer, firstScissor, (uint)scissors.Count, (IntPtr)scissorsNative);
             }
         }
 
