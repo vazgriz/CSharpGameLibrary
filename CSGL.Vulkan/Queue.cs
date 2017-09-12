@@ -206,6 +206,8 @@ namespace CSGL.Vulkan {
                     info.results[i] = (VkResult)results[i];
                 }
 
+                if (!(result == VkResult.Success || result == VkResult.SuboptimalKhr)) throw new QueueException(result, string.Format("Error presenting from queue: {0}", result));
+
                 return result;
             }
         }
