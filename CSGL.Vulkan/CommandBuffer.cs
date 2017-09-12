@@ -347,7 +347,7 @@ namespace CSGL.Vulkan {
             }
         }
 
-        public void WaitEvents(List<Event> events, VkPipelineStageFlags srcStageMask, VkPipelineStageFlags dstStageMask) {
+        public void WaitEvents(IList<Event> events, VkPipelineStageFlags srcStageMask, VkPipelineStageFlags dstStageMask) {
             unsafe {
                 var eventsNative = stackalloc VkEvent[events.Count];
                 Interop.Marshal<VkEvent, Event>(events, eventsNative);
