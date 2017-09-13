@@ -51,7 +51,7 @@ namespace CSGL.Vulkan {
             }
         }
 
-        public List<VkSurfaceFormatKHR> GetFormats(PhysicalDevice physicalDevice) {
+        public IList<VkSurfaceFormatKHR> GetFormats(PhysicalDevice physicalDevice) {
             var formats = new List<VkSurfaceFormatKHR>();
 
             uint count = 0;
@@ -69,7 +69,7 @@ namespace CSGL.Vulkan {
             return formats;
         }
 
-        public List<VkPresentModeKHR> GetModes(PhysicalDevice physicalDevice) {
+        public IList<VkPresentModeKHR> GetModes(PhysicalDevice physicalDevice) {
             var presentModes = new List<VkPresentModeKHR>();
 
             uint count = 0;
