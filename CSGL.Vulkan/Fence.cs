@@ -40,7 +40,11 @@ namespace CSGL.Vulkan {
         }
 
         public void Reset() {
-            Reset(Device, new Fence[] { this });
+            unsafe {
+                VkFence fenceNative = fence;
+                var result = Device.Commands.resetFences(Device.Native, 1, (IntPtr)(&fenceNative));
+                if (result != VkResult.Success) throw new FenceException(result, string.Format("Error resetting fence: {0}", result));
+            }
         }
 
         public VkResult Wait(ulong timeout) {
