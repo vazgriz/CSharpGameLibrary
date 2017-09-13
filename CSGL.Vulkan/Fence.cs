@@ -48,9 +48,12 @@ namespace CSGL.Vulkan {
         }
 
         public VkResult Wait(ulong timeout) {
-            var result = Wait(Device, new Fence[] { this }, false, timeout);
-            if (!(result == VkResult.Success || result == VkResult.Timeout)) throw new FenceException(result, string.Format("Error waiting on fence: {0}", result));
-            return result;
+            unsafe {
+                VkFence fenceNative = fence;
+                var result = Device.Commands.waitFences(Device.Native, 1, (IntPtr)(&fenceNative), 0, timeout);
+                if (!(result == VkResult.Success || result == VkResult.Timeout)) throw new FenceException(result, string.Format("Error waiting on fence: {0}", result));
+                return result;
+            }
         }
 
         public VkResult Wait() {
