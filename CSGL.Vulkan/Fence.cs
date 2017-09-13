@@ -53,20 +53,7 @@ namespace CSGL.Vulkan {
             return Wait(ulong.MaxValue);
         }
 
-        public static void Reset(Device device, Fence[] fences) {
-            if (device == null) throw new ArgumentNullException(nameof(device));
-            if (fences == null) throw new ArgumentNullException(nameof(fences));
-
-            unsafe {
-                var fencesNative = stackalloc VkFence[fences.Length];
-                Interop.Marshal<VkFence, Fence>(fences, fencesNative);
-
-                var result = device.Commands.resetFences(device.Native, (uint)fences.Length, (IntPtr)fencesNative);
-                if (result != VkResult.Success) throw new FenceException(result, string.Format("Error resetting fences: {0}", result));
-            }
-        }
-
-        public static void Reset(Device device, List<Fence> fences) {
+        public static void Reset(Device device, IList<Fence> fences) {
             if (device == null) throw new ArgumentNullException(nameof(device));
             if (fences == null) throw new ArgumentNullException(nameof(fences));
 
@@ -79,22 +66,7 @@ namespace CSGL.Vulkan {
             }
         }
 
-        public static VkResult Wait(Device device, Fence[] fences, bool waitAll, ulong timeout) {
-            if (device == null) throw new ArgumentNullException(nameof(device));
-            if (fences == null) throw new ArgumentNullException(nameof(fences));
-
-            unsafe {
-                var fencesNative = stackalloc VkFence[fences.Length];
-                Interop.Marshal<VkFence, Fence>(fences, fencesNative);
-
-                uint waitAllNative = waitAll ? 1u : 0u;
-                var result = device.Commands.waitFences(device.Native, (uint)fences.Length, (IntPtr)fencesNative, waitAllNative, timeout);
-                if (!(result == VkResult.Success || result == VkResult.Timeout)) throw new FenceException(result, string.Format("Error waiting on fences: {0}", result));
-                return result;
-            }
-        }
-
-        public static VkResult Wait(Device device, List<Fence> fences, bool waitAll, ulong timeout) {
+        public static VkResult Wait(Device device, IList<Fence> fences, bool waitAll, ulong timeout) {
             if (device == null) throw new ArgumentNullException(nameof(device));
             if (fences == null) throw new ArgumentNullException(nameof(fences));
 
