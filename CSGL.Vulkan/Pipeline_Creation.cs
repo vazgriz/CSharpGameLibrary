@@ -10,7 +10,7 @@ namespace CSGL.Vulkan {
 
         internal SpecializationInfo(SpecializationInfo other) {
             if (other.mapEntries != null) mapEntries = new List<VkSpecializationMapEntry>(other.mapEntries).AsReadOnly();
-            if (other.data != null) data = new List<byte>(data.Count).AsReadOnly();
+            if (other.data != null) data = new List<byte>(other.data).AsReadOnly();
         }
 
         internal IntPtr GetNative(DisposableList<IDisposable> marshalled) {
