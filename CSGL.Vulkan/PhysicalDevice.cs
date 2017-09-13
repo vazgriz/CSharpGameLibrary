@@ -116,7 +116,7 @@ namespace CSGL.Vulkan {
             }
         }
 
-        public List<VkSparseImageFormatProperties> GetSparseImageFormatProperties(VkFormat format, VkImageType type, VkSampleCountFlags samples, VkImageUsageFlags usage, VkImageTiling tiling) {
+        public IList<VkSparseImageFormatProperties> GetSparseImageFormatProperties(VkFormat format, VkImageType type, VkSampleCountFlags samples, VkImageUsageFlags usage, VkImageTiling tiling) {
             var result = new List<VkSparseImageFormatProperties>();
 
             uint count = 0;
