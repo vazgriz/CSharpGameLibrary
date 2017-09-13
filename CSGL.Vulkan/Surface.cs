@@ -52,40 +52,37 @@ namespace CSGL.Vulkan {
         }
 
         public IList<VkSurfaceFormatKHR> GetFormats(PhysicalDevice physicalDevice) {
-            var formats = new List<VkSurfaceFormatKHR>();
+            unsafe {
+                var formats = new List<VkSurfaceFormatKHR>();
 
-            uint count = 0;
-            Instance.Commands.getFormats(physicalDevice.Native, surface, ref count, IntPtr.Zero);
-            var formatsNative = new NativeArray<VkSurfaceFormatKHR>((int)count);
-            Instance.Commands.getFormats(physicalDevice.Native, surface, ref count, formatsNative.Address);
-
-            using (formatsNative) {
+                uint count = 0;
+                Instance.Commands.getFormats(physicalDevice.Native, surface, ref count, IntPtr.Zero);
+                var formatsNative = stackalloc VkSurfaceFormatKHR[(int)count];
+                Instance.Commands.getFormats(physicalDevice.Native, surface, ref count, (IntPtr)formatsNative);
+                
                 for (int i = 0; i < count; i++) {
-                    var format = formatsNative[i];
-                    formats.Add(format);
+                    formats.Add(formatsNative[i]);
                 }
-            }
 
-            return formats;
+                return formats;
+            }
         }
 
         public IList<VkPresentModeKHR> GetModes(PhysicalDevice physicalDevice) {
-            var presentModes = new List<VkPresentModeKHR>();
+            unsafe {
+                var presentModes = new List<VkPresentModeKHR>();
 
-            uint count = 0;
-            Instance.Commands.getModes(physicalDevice.Native, surface, ref count, IntPtr.Zero);
-            var modes = new int[(int)count];    //VkPresentModeKHR is an enum and can't be marshalled directly
-            var modesMarshalled = new PinnedArray<int>(modes);
-            Instance.Commands.getModes(physicalDevice.Native, surface, ref count, modesMarshalled.Address);
-
-            using (modesMarshalled) {
+                uint count = 0;
+                Instance.Commands.getModes(physicalDevice.Native, surface, ref count, IntPtr.Zero);
+                var presentModesNative = stackalloc VkPresentModeKHR[(int)count];
+                Instance.Commands.getModes(physicalDevice.Native, surface, ref count, (IntPtr)presentModesNative);
+                
                 for (int i = 0; i < count; i++) {
-                    var mode = (VkPresentModeKHR)modes[i];
-                    presentModes.Add(mode);
+                    presentModes.Add(presentModesNative[i]);
                 }
-            }
 
-            return presentModes;
+                return presentModes;
+            }
         }
 
         public void Dispose() {
