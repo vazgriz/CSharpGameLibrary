@@ -3,14 +3,14 @@ using System.Collections.Generic;
 
 namespace CSGL.Vulkan {
     public class SpecializationInfo {
-        public List<VkSpecializationMapEntry> mapEntries;
+        public IList<VkSpecializationMapEntry> mapEntries;
         public IList<byte> data;
 
+        public SpecializationInfo() { }
+
         internal SpecializationInfo(SpecializationInfo other) {
-            if (other.mapEntries != null) mapEntries = new List<VkSpecializationMapEntry>(other.mapEntries);
-            if (other.data != null) {
-                data = new List<byte>(data.Count).AsReadOnly();
-            }
+            if (other.mapEntries != null) mapEntries = new List<VkSpecializationMapEntry>(other.mapEntries).AsReadOnly();
+            if (other.data != null) data = new List<byte>(data.Count).AsReadOnly();
         }
 
         internal IntPtr GetNative(DisposableList<IDisposable> marshalled) {
@@ -346,7 +346,7 @@ namespace CSGL.Vulkan {
                 }
                 this.attachments = attachments.AsReadOnly();
             }
-            if (other.blendConstants != null) blendConstants = new List<float>(other.blendConstants);
+            if (other.blendConstants != null) blendConstants = new List<float>(other.blendConstants).AsReadOnly();
         }
 
         internal VkPipelineColorBlendStateCreateInfo GetNative(DisposableList<IDisposable> marshalled) {
