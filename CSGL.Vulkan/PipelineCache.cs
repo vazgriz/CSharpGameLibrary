@@ -43,9 +43,11 @@ namespace CSGL.Vulkan {
             Device.Commands.getPipelineCacheData(Device.Native, pipelineCache, ref length, IntPtr.Zero);
             byte[] result = new byte[length];
 
-            GCHandle handle = GCHandle.Alloc(result, GCHandleType.Pinned);
-            Device.Commands.getPipelineCacheData(Device.Native, pipelineCache, ref length, handle.AddrOfPinnedObject());
-            handle.Free();
+            unsafe {
+                fixed (byte* ptr = result) {
+                    Device.Commands.getPipelineCacheData(Device.Native, pipelineCache, ref length, (IntPtr)ptr);
+                }
+            }
 
             return result;
         }
