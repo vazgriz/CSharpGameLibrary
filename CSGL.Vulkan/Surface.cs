@@ -68,7 +68,7 @@ namespace CSGL.Vulkan {
             }
         }
 
-        public IList<VkPresentModeKHR> GetModes(PhysicalDevice physicalDevice) {
+        public IList<VkPresentModeKHR> GetPresentModes(PhysicalDevice physicalDevice) {
             unsafe {
                 var presentModes = new List<VkPresentModeKHR>();
 
