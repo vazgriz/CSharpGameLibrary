@@ -191,7 +191,7 @@ namespace CSGL.Vulkan {
             }
         }
 
-        public void Update(List<WriteDescriptorSet> writes, List<CopyDescriptorSet> copies) {
+        public void Update(IList<WriteDescriptorSet> writes, IList<CopyDescriptorSet> copies) {
             Update(Device, writes, copies);
         }
     }
