@@ -59,22 +59,25 @@ namespace CSGL.Vulkan {
         internal SubpassDescription(SubpassDescription other) {
             pipelineBindPoint = other.pipelineBindPoint;
             if (other.inputAttachments != null) {
-                inputAttachments = new List<AttachmentReference>(other.inputAttachments.Count);
+                var inputAttachments = new List<AttachmentReference>(other.inputAttachments.Count);
                 foreach (var input in other.inputAttachments) {
                     inputAttachments.Add(new AttachmentReference(input));
                 }
+                this.inputAttachments = inputAttachments.AsReadOnly();
             }
             if (other.colorAttachments != null) {
-                colorAttachments = new List<AttachmentReference>(other.colorAttachments.Count);
+                var colorAttachments = new List<AttachmentReference>(other.colorAttachments.Count);
                 foreach (var color in other.colorAttachments) {
                     colorAttachments.Add(new AttachmentReference(color));
                 }
+                this.colorAttachments = colorAttachments.AsReadOnly();
             }
             if (other.resolveAttachments != null) {
-                resolveAttachments = new List<AttachmentReference>(other.resolveAttachments);
+                var resolveAttachments = new List<AttachmentReference>(other.resolveAttachments);
                 foreach (var resolve in other.resolveAttachments) {
                     resolveAttachments.Add(new AttachmentReference(resolve));
                 }
+                this.resolveAttachments = resolveAttachments.AsReadOnly();
             }
             if (other.preserveAttachments != null) preserveAttachments = new List<uint>(other.preserveAttachments);
             if (other.depthStencilAttachment != null) depthStencilAttachment = new AttachmentReference(other.depthStencilAttachment);
