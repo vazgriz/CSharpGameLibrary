@@ -23,9 +23,9 @@ namespace CSGL.Vulkan {
         public uint dstBinding;
         public uint dstArrayElement;
         public VkDescriptorType descriptorType;
-        public List<DescriptorImageInfo> imageInfo;
-        public List<DescriptorBufferInfo> bufferInfo;
-        public List<BufferView> texelBufferView;
+        public IList<DescriptorImageInfo> imageInfo;
+        public IList<DescriptorBufferInfo> bufferInfo;
+        public IList<BufferView> texelBufferView;
     }
 
     public class CopyDescriptorSet {
