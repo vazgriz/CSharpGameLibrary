@@ -44,25 +44,25 @@ namespace CSGL.Vulkan {
 
     public partial class SparseBufferMemoryBindInfo {
         public Buffer buffer;
-        public List<SparseMemoryBind> binds;
+        public IList<SparseMemoryBind> binds;
     }
 
     public partial class SparseImageOpaqueMemoryBindInfo {
         public Image image;
-        public List<SparseMemoryBind> binds;
+        public IList<SparseMemoryBind> binds;
     }
 
     public partial class SparseImageMemoryBindInfo {
         public Image image;
-        public List<SparseImageMemoryBind> binds;
+        public IList<SparseImageMemoryBind> binds;
     }
 
     public class BindSparseInfo {
-        public List<Semaphore> waitSemaphores;
-        public List<SparseBufferMemoryBindInfo> bufferBinds;
-        public List<SparseImageOpaqueMemoryBindInfo> imageOpaqueBinds;
-        public List<SparseImageMemoryBindInfo> imageBinds;
-        public List<Semaphore> signalSemaphores;
+        public IList<Semaphore> waitSemaphores;
+        public IList<SparseBufferMemoryBindInfo> bufferBinds;
+        public IList<SparseImageOpaqueMemoryBindInfo> imageOpaqueBinds;
+        public IList<SparseImageMemoryBindInfo> imageBinds;
+        public IList<Semaphore> signalSemaphores;
     }
 
     public class Queue {
