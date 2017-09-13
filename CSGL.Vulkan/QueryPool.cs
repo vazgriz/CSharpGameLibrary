@@ -63,6 +63,24 @@ namespace CSGL.Vulkan {
             }
         }
 
+        public VkResult GetResults<T>(uint firstQuery, uint queryCount, IList<T> data, ulong stride, VkQueryResultFlags flags) where T : struct {
+            unsafe {
+                int size = (int)Interop.SizeOf(data);
+                byte* results = stackalloc byte[size];
+                var result = Device.Commands.getQueryPoolResults(
+                    Device.Native, queryPool,
+                    firstQuery, queryCount,
+                    (IntPtr)size, (IntPtr)results,
+                    stride, flags
+                );
+
+                Interop.Copy((IntPtr)results, data);
+
+                if (!(result == VkResult.Success || result == VkResult.NotReady)) throw new QueryPoolException(result, string.Format("Error getting results: {0}", result));
+                return result;
+            }
+        }
+
         public void Dispose() {
             Dispose(true);
             GC.SuppressFinalize(this);
