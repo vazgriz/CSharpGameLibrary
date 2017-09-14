@@ -68,6 +68,8 @@ namespace CSGL.Vulkan {
 
         public Image(Device device, ImageCreateInfo info) {
             if (device == null) throw new ArgumentNullException(nameof(device));
+            if (info == null) throw new ArgumentNullException(nameof(info));
+
             Device = device;
 
             CreateImage(info);
