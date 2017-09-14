@@ -171,6 +171,8 @@ namespace CSGL.Vulkan {
         }
 
         public VkResult Present(PresentInfo info) {
+            if (info == null) throw new ArgumentNullException(nameof(info));
+
             unsafe {
                 var waitSemaphoresNative = stackalloc VkSemaphore[info.waitSemaphores.Count];
                 Interop.Marshal<VkSemaphore, Semaphore>(info.waitSemaphores, waitSemaphoresNative);
