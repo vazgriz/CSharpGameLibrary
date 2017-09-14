@@ -53,7 +53,6 @@ namespace CSGL.Vulkan {
         public Swapchain(Device device, SwapchainCreateInfo info) {
             if (device == null) throw new ArgumentNullException(nameof(device));
             if (info == null) throw new ArgumentNullException(nameof(info));
-            if (info.surface == null) throw new ArgumentNullException(nameof(info.surface));
 
             Surface = info.surface;
             Device = device;
@@ -97,6 +96,8 @@ namespace CSGL.Vulkan {
         }
 
         void CreateSwapchain(SwapchainCreateInfo mInfo) {
+            if (mInfo.surface == null) throw new ArgumentNullException(nameof(mInfo.surface));
+
             var info = new VkSwapchainCreateInfoKHR();
             info.sType = VkStructureType.SwapchainCreateInfoKhr;
             info.surface = mInfo.surface.Native;
