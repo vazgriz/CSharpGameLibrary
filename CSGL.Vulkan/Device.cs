@@ -56,6 +56,8 @@ namespace CSGL.Vulkan {
         }
 
         void CreateDevice(DeviceCreateInfo mInfo) {
+            if (mInfo.queueCreateInfos == null) throw new ArgumentNullException(nameof(mInfo.queueCreateInfos));
+
             var extensionsMarshalled = new NativeStringArray(mInfo.extensions);
             MarshalledArray<VkDeviceQueueCreateInfo> queueInfos = null;
             DisposableList<NativeArray<float>> prioritiesMarshalled = null;
@@ -66,29 +68,27 @@ namespace CSGL.Vulkan {
             info.enabledExtensionCount = (uint)extensionsMarshalled.Count;
             info.ppEnabledExtensionNames = extensionsMarshalled.Address;
             info.pEnabledFeatures = features.Address;
+            
+            int length = mInfo.queueCreateInfos.Count;
+            info.queueCreateInfoCount = (uint)length;
+            queueInfos = new MarshalledArray<VkDeviceQueueCreateInfo>(length);
+            prioritiesMarshalled = new DisposableList<NativeArray<float>>(length);
 
-            if (mInfo.queueCreateInfos != null) {
-                int length = mInfo.queueCreateInfos.Count;
-                info.queueCreateInfoCount = (uint)length;
-                queueInfos = new MarshalledArray<VkDeviceQueueCreateInfo>(length);
-                prioritiesMarshalled = new DisposableList<NativeArray<float>>(length);
+            for (int i = 0; i < length; i++) {
+                var mi = mInfo.queueCreateInfos[i];
+                var qInfo = new VkDeviceQueueCreateInfo();
+                qInfo.sType = VkStructureType.DeviceQueueCreateInfo;
 
-                for (int i = 0; i < length; i++) {
-                    var mi = mInfo.queueCreateInfos[i];
-                    var qInfo = new VkDeviceQueueCreateInfo();
-                    qInfo.sType = VkStructureType.DeviceQueueCreateInfo;
+                var priorityMarshalled = new NativeArray<float>(mi.priorities);
+                prioritiesMarshalled.Add(priorityMarshalled);
+                qInfo.pQueuePriorities = priorityMarshalled.Address;
+                qInfo.queueCount = mi.queueCount;
+                qInfo.queueFamilyIndex = mi.queueFamilyIndex;
 
-                    var priorityMarshalled = new NativeArray<float>(mi.priorities);
-                    prioritiesMarshalled.Add(priorityMarshalled);
-                    qInfo.pQueuePriorities = priorityMarshalled.Address;
-                    qInfo.queueCount = mi.queueCount;
-                    qInfo.queueFamilyIndex = mi.queueFamilyIndex;
-
-                    queueInfos[i] = qInfo;
-                }
-
-                info.pQueueCreateInfos = queueInfos.Address;
+                queueInfos[i] = qInfo;
             }
+
+            info.pQueueCreateInfos = queueInfos.Address;
 
             using (extensionsMarshalled)
             using (queueInfos)
