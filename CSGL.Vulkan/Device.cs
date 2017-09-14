@@ -161,7 +161,7 @@ namespace CSGL.Vulkan {
             Dispose(false);
         }
 
-        struct QueueID {
+        struct QueueID : IEquatable<QueueID> {
             public uint familyIndex;
             public uint index;
 
@@ -172,6 +172,10 @@ namespace CSGL.Vulkan {
 
             public override int GetHashCode() {
                 return familyIndex.GetHashCode() ^ index.GetHashCode();
+            }
+
+            public bool Equals(QueueID other) {
+                return familyIndex == other.familyIndex && index == other.index;
             }
         }
     }
