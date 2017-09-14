@@ -92,7 +92,7 @@ namespace CSGL.Vulkan {
             Device.Commands.queueWaitIdle(queue);
         }
 
-        public void Submit(IList<SubmitInfo> infos, Fence fence = null) {
+        public void Submit(IList<SubmitInfo> infos, Fence fence) {
             VkFence fenceNative = VkFence.Null;
             if (fence != null) {
                 fenceNative = fence.Native;
