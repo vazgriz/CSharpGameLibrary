@@ -40,6 +40,8 @@ namespace CSGL.Vulkan {
         }
 
         void CreateBufferView(BufferViewCreateInfo mInfo) {
+            if (mInfo.buffer == null) throw new ArgumentNullException(nameof(mInfo.buffer));
+
             VkBufferViewCreateInfo info = new VkBufferViewCreateInfo();
             info.sType = VkStructureType.BufferViewCreateInfo;
             info.buffer = mInfo.buffer.Native;
