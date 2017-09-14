@@ -54,7 +54,6 @@
     <Compile Include="CommandBuffer.cs" />
     <Compile Include="CommandPool.cs" />
     <Compile Include="Commands.cs" />
-    <Compile Include="Command_Recording.cs" />
     <Compile Include="ComputePipeline.cs" />
     <Compile Include="DescriptorPool.cs" />
     <Compile Include="DescriptorSet.cs" />
