@@ -43,6 +43,8 @@ namespace CSGL.Vulkan {
         }
 
         void CreateDescriptorPool(DescriptorPoolCreateInfo mInfo) {
+            if (mInfo.poolSizes == null) throw new ArgumentNullException(nameof(mInfo.poolSizes));
+
             var info = new VkDescriptorPoolCreateInfo();
             info.sType = VkStructureType.DescriptorPoolCreateInfo;
             info.flags = mInfo.flags;
@@ -59,6 +61,9 @@ namespace CSGL.Vulkan {
         }
 
         public IList<DescriptorSet> Allocate(DescriptorSetAllocateInfo info) {
+            if (info == null) throw new ArgumentNullException(nameof(info));
+            if (info.setLayouts == null) throw new ArgumentNullException(nameof(info.setLayouts));
+
             unsafe {
                 var infoNative = new VkDescriptorSetAllocateInfo();
                 infoNative.sType = VkStructureType.DescriptorSetAllocateInfo;
@@ -86,6 +91,8 @@ namespace CSGL.Vulkan {
         }
 
         public DescriptorSet Allocate(DescriptorSetLayout layout) {
+            if (layout == null) throw new ArgumentNullException(nameof(layout));
+
             unsafe {
                 var info = new VkDescriptorSetAllocateInfo();
                 info.sType = VkStructureType.DescriptorSetAllocateInfo;
