@@ -57,18 +57,24 @@ namespace CSGL.Vulkan {
         }
 
         void CreateBuffer(BufferCreateInfo mInfo) {
-            var info = new VkBufferCreateInfo();
-            info.sType = VkStructureType.BufferCreateInfo;
-            info.flags = mInfo.flags;
-            info.size = mInfo.size;
-            info.usage = mInfo.usage;
-            info.sharingMode = mInfo.sharingMode;
+            unsafe {
+                int indicesCount = 0;
+                if (mInfo.queueFamilyIndices != null) indicesCount = mInfo.queueFamilyIndices.Count;
 
-            var indicesMarshalled = new NativeArray<uint>(mInfo.queueFamilyIndices);
-            info.queueFamilyIndexCount = (uint)indicesMarshalled.Count;
-            info.pQueueFamilyIndices = indicesMarshalled.Address;
+                var queueFamilyIndicesNative = stackalloc uint[indicesCount];
 
-            using (indicesMarshalled) {
+                var info = new VkBufferCreateInfo();
+                info.sType = VkStructureType.BufferCreateInfo;
+                info.flags = mInfo.flags;
+                info.size = mInfo.size;
+                info.usage = mInfo.usage;
+                info.sharingMode = mInfo.sharingMode;
+
+                if (mInfo.queueFamilyIndices != null) Interop.Copy(mInfo.queueFamilyIndices, (IntPtr)queueFamilyIndicesNative);
+                
+                info.queueFamilyIndexCount = (uint)indicesCount;
+                info.pQueueFamilyIndices = (IntPtr)queueFamilyIndicesNative;
+                
                 var result = Device.Commands.createBuffer(Device.Native, ref info, Device.Instance.AllocationCallbacks, out buffer);
                 if (result != VkResult.Success) throw new BufferException(result, string.Format("Error creating Buffer: {0}", result));
             }
