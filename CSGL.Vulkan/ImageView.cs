@@ -29,7 +29,6 @@ namespace CSGL.Vulkan {
         public ImageView(Device device, ImageViewCreateInfo info) {
             if (device == null) throw new ArgumentNullException(nameof(device));
             if (info == null) throw new ArgumentNullException(nameof(info));
-            if (info.image == null) throw new ArgumentNullException(nameof(info.image));
 
             Device = device;
 
@@ -43,6 +42,8 @@ namespace CSGL.Vulkan {
         }
 
         void CreateImageView(ImageViewCreateInfo mInfo) {
+            if (mInfo.image == null) throw new ArgumentNullException(nameof(mInfo.image));
+
             VkImageViewCreateInfo info = new VkImageViewCreateInfo();
             info.sType = VkStructureType.ImageViewCreateInfo;
             info.image = mInfo.image.Native;
