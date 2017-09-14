@@ -15,42 +15,11 @@ namespace CSGL.Vulkan {
         public bool occlusionQueryEnable;
         public VkQueryControlFlags queryFlags;
         public VkQueryPipelineStatisticFlags pipelineStatistics;
-
-        internal VkCommandBufferInheritanceInfo GetNative() {
-            VkCommandBufferInheritanceInfo info = new VkCommandBufferInheritanceInfo();
-            info.sType = VkStructureType.CommandBufferInheritanceInfo;
-            info.renderPass = renderPass.Native;
-            info.subpass = subpass;
-
-            var framebufferNative = VkFramebuffer.Null;
-            if (framebuffer != null) framebufferNative = framebuffer.Native;
-            info.framebuffer = framebufferNative;
-
-            info.occlusionQueryEnable = occlusionQueryEnable ? 1u : 0u;
-            info.queryFlags = queryFlags;
-            info.pipelineStatistics = pipelineStatistics;
-
-            return info;
-        }
     }
 
     public class CommandBufferBeginInfo {
         public VkCommandBufferUsageFlags flags;
         public CommandBufferInheritanceInfo inheritanceInfo;
-
-        internal VkCommandBufferBeginInfo GetNative(DisposableList<IDisposable> marshalled) {
-            VkCommandBufferBeginInfo info = new VkCommandBufferBeginInfo();
-            info.sType = VkStructureType.CommandBufferBeginInfo;
-            info.flags = flags;
-
-            if (inheritanceInfo != null) {
-                var inheritanceInfoMarshalled = new Marshalled<VkCommandBufferInheritanceInfo>(inheritanceInfo.GetNative());
-                info.pInheritanceInfo = inheritanceInfoMarshalled.Address;
-                marshalled.Add(inheritanceInfoMarshalled);
-            }
-
-            return info;
-        }
     }
 
     public class RenderPassBeginInfo {
@@ -147,8 +116,25 @@ namespace CSGL.Vulkan {
         }
 
         public void Begin(CommandBufferBeginInfo info) {
-            using (var marshalled = new DisposableList<IDisposable>()) {
-                var infoNative = info.GetNative(marshalled);
+            unsafe {
+                var infoNative = new VkCommandBufferBeginInfo();
+                infoNative.sType = VkStructureType.CommandBufferBeginInfo;
+                infoNative.flags = info.flags;
+
+                VkCommandBufferInheritanceInfo inheritanceNative = new VkCommandBufferInheritanceInfo();
+                if (info.inheritanceInfo != null) {
+                    inheritanceNative.sType = VkStructureType.CommandBufferInheritanceInfo;
+                    inheritanceNative.renderPass = info.inheritanceInfo.renderPass.Native;
+                    inheritanceNative.subpass = info.inheritanceInfo.subpass;
+
+                    if (info.inheritanceInfo.framebuffer != null) inheritanceNative.framebuffer = info.inheritanceInfo.framebuffer.Native;
+
+                    inheritanceNative.occlusionQueryEnable = info.inheritanceInfo.occlusionQueryEnable ? 1u : 0u;
+                    inheritanceNative.queryFlags = info.inheritanceInfo.queryFlags;
+                    inheritanceNative.pipelineStatistics = info.inheritanceInfo.pipelineStatistics;
+
+                    infoNative.pInheritanceInfo = (IntPtr)(&inheritanceNative);
+                }
 
                 var result = Device.Commands.beginCommandBuffer(commandBuffer, ref infoNative);
                 if (result != VkResult.Success) throw new CommandBufferException(result, string.Format("Error beginning command buffer: {0}", result));
