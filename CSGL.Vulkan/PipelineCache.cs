@@ -25,6 +25,8 @@ namespace CSGL.Vulkan {
         }
 
         void CreateCache(PipelineCacheCreateInfo mInfo) {
+            if (mInfo.initialData == null) throw new ArgumentNullException(nameof(mInfo.initialData));
+
             var info = new VkPipelineCacheCreateInfo();
             info.sType = VkStructureType.PipelineCacheCreateInfo;
             info.initialDataSize = (IntPtr)mInfo.initialData.Count;
