@@ -43,24 +43,24 @@ namespace CSGL.Vulkan {
         }
 
         void CreateFramebuffer(FramebufferCreateInfo mInfo) {
-            VkFramebufferCreateInfo info = new VkFramebufferCreateInfo();
-            info.sType = VkStructureType.FramebufferCreateInfo;
-            info.renderPass = mInfo.renderPass.Native;
+            unsafe {
+                int attachmentCount = 0;
+                if (mInfo.attachments != null) attachmentCount = mInfo.attachments.Count;
 
-            var attachmentsMarshalled = new NativeArray<VkImageView>(mInfo.attachments.Count);
+                VkFramebufferCreateInfo info = new VkFramebufferCreateInfo();
+                info.sType = VkStructureType.FramebufferCreateInfo;
+                info.renderPass = mInfo.renderPass.Native;
 
-            for (int i = 0; i < mInfo.attachments.Count; i++) {
-                attachmentsMarshalled[i] = mInfo.attachments[i].Native;
-            }
+                var attachmentsNative = stackalloc VkImageView[attachmentCount];
+                if (mInfo.attachments != null) Interop.Marshal<VkImageView, ImageView>(mInfo.attachments, attachmentsNative);
 
-            info.attachmentCount = (uint)mInfo.attachments.Count;
-            info.pAttachments = attachmentsMarshalled.Address;
+                info.attachmentCount = (uint)attachmentCount;
+                info.pAttachments = (IntPtr)attachmentsNative;
 
-            info.width = mInfo.width;
-            info.height = mInfo.height;
-            info.layers = mInfo.layers;
-
-            using (attachmentsMarshalled) {
+                info.width = mInfo.width;
+                info.height = mInfo.height;
+                info.layers = mInfo.layers;
+                
                 var result = Device.Commands.createFramebuffer(Device.Native, ref info, Device.Instance.AllocationCallbacks, out framebuffer);
                 if (result != VkResult.Success) throw new FramebufferException(result, string.Format("Error creating framebuffer: {0}", result));
             }
