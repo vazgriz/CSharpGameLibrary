@@ -134,7 +134,7 @@ namespace CSGL.Vulkan {
                 }
 
                 var waitSemaphoresNative = stackalloc VkSemaphore[totalWaitSemaphores];
-                var waitDstNative = stackalloc int[totalWaitSemaphores];    //required to be the same length as above
+                var waitDstNative = stackalloc VkPipelineStageFlags[totalWaitSemaphores];    //required to be the same length as above
                 var commandBuffersNative = stackalloc VkCommandBuffer[totalCommandBuffers];
                 var signalSemaphoresNative = stackalloc VkSemaphore[totalSignalSemaphores];
 
@@ -154,7 +154,7 @@ namespace CSGL.Vulkan {
                         Interop.Marshal<VkSemaphore, Semaphore>(infos[i].waitSemaphores, &waitSemaphoresNative[waitSemaphoresIndex]);
 
                         for (int j = 0; j < waitCount; j++) {
-                            waitDstNative[waitSemaphoresIndex + j] = (int)infos[i].waitDstStageMask[j];
+                            waitDstNative[waitSemaphoresIndex + j] = infos[i].waitDstStageMask[j];
                         }
 
                         info.waitSemaphoreCount = (uint)waitCount;
