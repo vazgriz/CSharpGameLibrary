@@ -19,6 +19,9 @@ namespace CSGL.Vulkan {
         }
 
         public PipelineCache(Device device, PipelineCacheCreateInfo info) {
+            if (device == null) throw new ArgumentNullException(nameof(device));
+            if (info == null) throw new ArgumentNullException(nameof(info));
+
             Device = device;
 
             CreateCache(info);
