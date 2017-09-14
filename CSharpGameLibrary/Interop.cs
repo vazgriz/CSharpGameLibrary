@@ -156,6 +156,14 @@ namespace CSGL {
             if (list == null || list.Count == 0) return;
             Marshal<T, U>(list, dest, list.Count);
         }
+        
+        public static void Marshal<T, U>(IList<U> list, IntPtr dest) where T : struct where U : INative<T> {
+            if (list == null || list.Count == 0) return;
+
+            unsafe {
+                Marshal<T, U>(list, (void*)dest, list.Count);
+            }
+        }
 
         public static IntPtr AddressOf<T>(ref T data) where T : struct {
             unsafe {
