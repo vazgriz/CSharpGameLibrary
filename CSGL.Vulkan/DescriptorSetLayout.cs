@@ -32,6 +32,8 @@ namespace CSGL.Vulkan {
         }
 
         void CreateDescriptorSetLayout(DescriptorSetLayoutCreateInfo mInfo) {
+            if (mInfo.bindings == null) throw new ArgumentNullException(nameof(mInfo.bindings));
+
             var info = new VkDescriptorSetLayoutCreateInfo();
             info.sType = VkStructureType.DescriptorSetLayoutCreateInfo;
 
