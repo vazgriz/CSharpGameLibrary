@@ -49,6 +49,7 @@ namespace CSGL.Vulkan {
 
         public Sampler(Device device, SamplerCreateInfo info) {
             if (device == null) throw new ArgumentNullException(nameof(device));
+            if (info == null) throw new ArgumentNullException(nameof(info));
 
             Device = device;
 
