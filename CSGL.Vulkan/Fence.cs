@@ -30,6 +30,8 @@ namespace CSGL.Vulkan {
             CreateFence(flags);
         }
 
+        public Fence(Device device) : this(device, VkFenceCreateFlags.None) { }
+
         void CreateFence(VkFenceCreateFlags flags) {
             VkFenceCreateInfo info = new VkFenceCreateInfo();
             info.sType = VkStructureType.FenceCreateInfo;
