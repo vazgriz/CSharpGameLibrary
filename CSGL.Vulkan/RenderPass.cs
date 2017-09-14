@@ -163,6 +163,8 @@ namespace CSGL.Vulkan {
         }
 
         void CreateRenderPass(RenderPassCreateInfo mInfo) {
+            if (mInfo.subpasses == null) throw new ArgumentNullException(nameof(mInfo.subpasses));
+
             unsafe {
                 var info = new VkRenderPassCreateInfo();
                 info.sType = VkStructureType.RenderPassCreateInfo;
