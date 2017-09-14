@@ -66,6 +66,8 @@ namespace CSGL.Vulkan {
         }
 
         public IList<CommandBuffer> Allocate(CommandBufferAllocateInfo info) {
+            if (info == null) throw new ArgumentNullException(nameof(info));
+
             var infoNative = new VkCommandBufferAllocateInfo();
             infoNative.sType = VkStructureType.CommandBufferAllocateInfo;
             infoNative.level = info.level;
@@ -88,6 +90,8 @@ namespace CSGL.Vulkan {
         }
 
         public void Free(IList<CommandBuffer> commandBuffers) {
+            if (commandBuffers == null) throw new ArgumentNullException(nameof(commandBuffers));
+
             using (var commandBuffersMarshalled = new NativeArray<VkCommandBuffer>(commandBuffers.Count)) {
                 for (int i = 0; i < commandBuffers.Count; i++) {
                     commandBuffersMarshalled[i] = commandBuffers[i].Native;
@@ -97,6 +101,8 @@ namespace CSGL.Vulkan {
         }
 
         public void Free(CommandBuffer commandBuffer) {
+            if (commandBuffer == null) throw new ArgumentNullException(nameof(commandBuffer));
+
             unsafe {
                 VkCommandBuffer commandBufferNative = commandBuffer.Native;
                 Device.Commands.freeCommandBuffers(Device.Native, commandPool, 1, (IntPtr)(&commandBufferNative));
