@@ -27,22 +27,6 @@ namespace CSGL.Vulkan {
         public Framebuffer framebuffer;
         public VkRect2D renderArea;
         public IList<VkClearValue> clearValues;
-
-        internal VkRenderPassBeginInfo GetNative(DisposableList<IDisposable> marshalled) {
-            VkRenderPassBeginInfo info = new VkRenderPassBeginInfo();
-            info.sType = VkStructureType.RenderPassBeginInfo;
-            info.renderPass = renderPass.Native;
-            info.framebuffer = framebuffer.Native;
-            info.renderArea = renderArea;
-
-            var clearValuesMarshalled = new MarshalledArray<VkClearValue>(clearValues);
-            info.clearValueCount = (uint)clearValuesMarshalled.Count;
-            info.pClearValues = clearValuesMarshalled.Address;
-
-            marshalled.Add(clearValuesMarshalled);
-
-            return info;
-        }
     }
 
     public class MemoryBarrier {
@@ -142,8 +126,22 @@ namespace CSGL.Vulkan {
         }
 
         public void BeginRenderPass(RenderPassBeginInfo info, VkSubpassContents contents) {
-            using (var marshalled = new DisposableList<IDisposable>()) {
-                var infoNative = info.GetNative(marshalled);
+            unsafe {
+                int clearValueCount = 0;
+                if (info.clearValues != null) clearValueCount = info.clearValues.Count;
+
+                var clearValuesNative = stackalloc VkClearValue[clearValueCount];
+
+                var infoNative = new VkRenderPassBeginInfo();
+                infoNative.sType = VkStructureType.RenderPassBeginInfo;
+                infoNative.renderPass = info.renderPass.Native;
+                infoNative.framebuffer = info.framebuffer.Native;
+                infoNative.renderArea = info.renderArea;
+
+                if (info.clearValues != null) Interop.Copy(info.clearValues, (IntPtr)clearValuesNative);
+                infoNative.clearValueCount = (uint)clearValueCount;
+                infoNative.pClearValues = (IntPtr)clearValuesNative;
+
                 Device.Commands.cmdBeginRenderPass(commandBuffer, ref infoNative, contents);
             }
         }
