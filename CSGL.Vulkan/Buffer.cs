@@ -61,7 +61,6 @@ namespace CSGL.Vulkan {
                 int indicesCount = 0;
                 if (mInfo.queueFamilyIndices != null) indicesCount = mInfo.queueFamilyIndices.Count;
 
-                var queueFamilyIndicesNative = stackalloc uint[indicesCount];
 
                 var info = new VkBufferCreateInfo();
                 info.sType = VkStructureType.BufferCreateInfo;
@@ -70,6 +69,7 @@ namespace CSGL.Vulkan {
                 info.usage = mInfo.usage;
                 info.sharingMode = mInfo.sharingMode;
 
+                var queueFamilyIndicesNative = stackalloc uint[indicesCount];
                 if (mInfo.queueFamilyIndices != null) Interop.Copy(mInfo.queueFamilyIndices, (IntPtr)queueFamilyIndicesNative);
                 
                 info.queueFamilyIndexCount = (uint)indicesCount;
