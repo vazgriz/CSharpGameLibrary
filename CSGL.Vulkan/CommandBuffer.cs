@@ -150,6 +150,20 @@ namespace CSGL.Vulkan {
             Device.Commands.cmdNextSubpass(commandBuffer, contents);
         }
 
+        public void EndRenderPass() {
+            Device.Commands.cmdEndRenderPass(commandBuffer);
+        }
+
+        public void End() {
+            var result = Device.Commands.endCommandBuffer(commandBuffer);
+            if (result != VkResult.Success) throw new CommandBufferException(result, string.Format("Error ending command buffer: {0}", result));
+        }
+
+        public void Reset(VkCommandBufferResetFlags flags) {
+            var result = Device.Commands.resetCommandBuffers(commandBuffer, flags);
+            if (result != VkResult.Success) throw new CommandBufferException(result, string.Format("Error resetting command buffer: {0}"));
+        }
+
         public void BindPipeline(VkPipelineBindPoint bindPoint, Pipeline pipeline) {
             Device.Commands.cmdBindPipeline(commandBuffer, bindPoint, pipeline.Native);
         }
@@ -644,20 +658,6 @@ namespace CSGL.Vulkan {
 
         public void DispatchIndirect(Buffer buffer, ulong offset) {
             Device.Commands.cmdDispatchIndirect(commandBuffer, buffer.Native, offset);
-        }
-
-        public void EndRenderPass() {
-            Device.Commands.cmdEndRenderPass(commandBuffer);
-        }
-
-        public void End() {
-            var result = Device.Commands.endCommandBuffer(commandBuffer);
-            if (result != VkResult.Success) throw new CommandBufferException(result, string.Format("Error ending command buffer: {0}", result));
-        }
-
-        public void Reset(VkCommandBufferResetFlags flags) {
-            var result = Device.Commands.resetCommandBuffers(commandBuffer, flags);
-            if (result != VkResult.Success) throw new CommandBufferException(result, string.Format("Error resetting command buffer: {0}"));
         }
     }
 
