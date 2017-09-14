@@ -27,7 +27,6 @@ namespace CSGL.Vulkan {
         public ShaderModule(Device device, ShaderModuleCreateInfo info) {
             if (device == null) throw new ArgumentNullException(nameof(device));
             if (info == null) throw new ArgumentNullException(nameof(info));
-            if (info.data == null) throw new ArgumentNullException(nameof(info.data));
 
             this.device = device;
 
@@ -38,6 +37,8 @@ namespace CSGL.Vulkan {
         }
 
         void CreateShader(ShaderModuleCreateInfo mInfo) {
+            if (mInfo.data == null) throw new ArgumentNullException(nameof(mInfo.data));
+
             VkShaderModuleCreateInfo info = new VkShaderModuleCreateInfo();
             info.sType = VkStructureType.ShaderModuleCreateInfo;
             info.codeSize = (IntPtr)mInfo.data.Count;
