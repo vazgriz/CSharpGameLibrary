@@ -299,8 +299,12 @@ namespace CSGL.Vulkan {
             }
         }
 
-        public void PipelineBarrier(VkPipelineStageFlags srcStageMask, VkPipelineStageFlags dstStageMask, VkDependencyFlags flags,
-            IList<MemoryBarrier> memoryBarriers, IList<BufferMemoryBarrier> bufferMemoryBarriers, IList<ImageMemoryBarrier> imageMemoryBarriers) {
+        public void PipelineBarrier(
+            VkPipelineStageFlags srcStageMask, VkPipelineStageFlags dstStageMask,
+            VkDependencyFlags flags,
+            IList<MemoryBarrier> memoryBarriers,
+            IList<BufferMemoryBarrier> bufferMemoryBarriers,
+            IList<ImageMemoryBarrier> imageMemoryBarriers) {
 
             int mbCount = 0;
             int bbCount = 0;
@@ -427,8 +431,12 @@ namespace CSGL.Vulkan {
             Device.Commands.cmdResetEvent(commandBuffer, _event.Native, stageMask);
         }
 
-        public void WaitEvents(List<Event> events, VkPipelineStageFlags srcStageMask, VkPipelineStageFlags dstStageMask,
-            IList<MemoryBarrier> memoryBarriers, IList<BufferMemoryBarrier> bufferMemoryBarriers, IList<ImageMemoryBarrier> imageMemoryBarriers) {
+        public void WaitEvents(
+            List<Event> events, 
+            VkPipelineStageFlags srcStageMask, VkPipelineStageFlags dstStageMask,
+            IList<MemoryBarrier> memoryBarriers, 
+            IList<BufferMemoryBarrier> bufferMemoryBarriers, 
+            IList<ImageMemoryBarrier> imageMemoryBarriers) {
 
             if (events == null) throw new ArgumentNullException(nameof(events));
 
