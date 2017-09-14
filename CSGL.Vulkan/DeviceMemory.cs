@@ -79,6 +79,8 @@ namespace CSGL.Vulkan {
         }
 
         static VkMappedMemoryRange Marshal(MappedMemoryRange range) {
+            if (range == null) throw new ArgumentNullException(nameof(range));
+
             var result = new VkMappedMemoryRange();
             result.sType = VkStructureType.MappedMemoryRange;
             result.memory = range.memory.Native;
@@ -111,6 +113,8 @@ namespace CSGL.Vulkan {
         }
 
         public void Flush(IList<MappedMemoryRange> ranges) {
+            if (ranges == null) throw new ArgumentNullException(nameof(ranges));
+
             for (int i = 0; i < ranges.Count; i++) {
                 ranges[i].memory = this;
             }
@@ -159,6 +163,8 @@ namespace CSGL.Vulkan {
         }
 
         public void Invalidate(IList<MappedMemoryRange> ranges) {
+            if (ranges == null) throw new ArgumentNullException(nameof(ranges));
+
             for (int i = 0; i < ranges.Count; i++) {
                 ranges[i].memory = this;
             }
