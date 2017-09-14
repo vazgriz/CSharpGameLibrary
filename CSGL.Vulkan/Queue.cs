@@ -188,7 +188,7 @@ namespace CSGL.Vulkan {
                 if (info.results != null) { //user may not request results
                     resultsLength = swapchainCount;
                 }
-                var results = stackalloc int[resultsLength];
+                var results = stackalloc VkResult[resultsLength];
 
                 var infoNative = new VkPresentInfoKHR();
                 infoNative.sType = VkStructureType.PresentInfoKhr;
@@ -201,7 +201,7 @@ namespace CSGL.Vulkan {
                 var result = Device.Commands.queuePresent(queue, ref infoNative);
 
                 for (int i = 0; i < resultsLength; i++) {   //default resultsLength is 0, safe to iterate
-                    info.results[i] = (VkResult)results[i];
+                    info.results[i] = results[i];
                 }
 
                 if (!(result == VkResult.Success || result == VkResult.SuboptimalKhr)) throw new QueueException(result, string.Format("Error presenting from queue: {0}", result));
