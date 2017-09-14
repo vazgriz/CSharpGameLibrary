@@ -88,25 +88,31 @@ namespace CSGL.Vulkan {
         }
 
         void CreateImage(ImageCreateInfo mInfo) {
-            var info = new VkImageCreateInfo();
-            info.sType = VkStructureType.ImageCreateInfo;
-            info.flags = mInfo.flags;
-            info.imageType = mInfo.imageType;
-            info.format = mInfo.format;
-            info.extent = mInfo.extent;
-            info.mipLevels = mInfo.mipLevels;
-            info.arrayLayers = mInfo.arrayLayers;
-            info.samples = mInfo.samples;
-            info.tiling = mInfo.tiling;
-            info.usage = mInfo.usage;
-            info.sharingMode = mInfo.sharingMode;
+            unsafe {
+                int indicesCount = 0;
+                if (mInfo.queueFamilyIndices != null) indicesCount = mInfo.queueFamilyIndices.Count;
 
-            var indicesMarshalled = new NativeArray<uint>(mInfo.queueFamilyIndices);
-            info.queueFamilyIndexCount = (uint)indicesMarshalled.Count;
-            info.pQueueFamilyIndices = indicesMarshalled.Address;
-            info.initialLayout = mInfo.initialLayout;
+                var info = new VkImageCreateInfo();
+                info.sType = VkStructureType.ImageCreateInfo;
+                info.flags = mInfo.flags;
+                info.imageType = mInfo.imageType;
+                info.format = mInfo.format;
+                info.extent = mInfo.extent;
+                info.mipLevels = mInfo.mipLevels;
+                info.arrayLayers = mInfo.arrayLayers;
+                info.samples = mInfo.samples;
+                info.tiling = mInfo.tiling;
+                info.usage = mInfo.usage;
+                info.sharingMode = mInfo.sharingMode;
 
-            using (indicesMarshalled) {
+                var queueFamilyIndicesNative = stackalloc uint[indicesCount];
+                if (mInfo.queueFamilyIndices != null) Interop.Copy(mInfo.queueFamilyIndices, (IntPtr)queueFamilyIndicesNative);
+                
+                info.queueFamilyIndexCount = (uint)indicesCount;
+                info.pQueueFamilyIndices = (IntPtr)queueFamilyIndicesNative;
+
+                info.initialLayout = mInfo.initialLayout;
+                
                 var result = Device.Commands.createImage(Device.Native, ref info, Device.Instance.AllocationCallbacks, out image);
                 if (result != VkResult.Success) throw new ImageException(result, string.Format("Error creating image: {0}", result));
             }
