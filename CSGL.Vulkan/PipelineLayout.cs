@@ -33,25 +33,28 @@ namespace CSGL.Vulkan {
         }
 
         void CreateLayout(PipelineLayoutCreateInfo mInfo) {
-            VkPipelineLayoutCreateInfo info = new VkPipelineLayoutCreateInfo();
-            info.sType = VkStructureType.PipelineLayoutCreateInfo;
+            unsafe {
+                int layoutCount = 0;
+                if (mInfo.setLayouts != null) layoutCount = mInfo.setLayouts.Count;
 
-            NativeArray<VkDescriptorSetLayout> layoutsMarshalled = null;
-            if (mInfo.setLayouts != null) {
-                layoutsMarshalled = new NativeArray<VkDescriptorSetLayout>(mInfo.setLayouts.Count);
-                for (int i = 0; i < mInfo.setLayouts.Count; i++) {
-                    layoutsMarshalled[i] = mInfo.setLayouts[i].Native;
-                }
-                info.setLayoutCount = (uint)layoutsMarshalled.Count;
-                info.pSetLayouts = layoutsMarshalled.Address;
-            }
+                int pushConstantsCount = 0;
+                if (mInfo.pushConstantRanges != null) pushConstantsCount = mInfo.pushConstantRanges.Count;
 
-            var pushConstantsMarshalled = new MarshalledArray<VkPushConstantRange>(mInfo.pushConstantRanges);
-            info.pushConstantRangeCount = (uint)pushConstantsMarshalled.Count;
-            info.pPushConstantRanges = pushConstantsMarshalled.Address;
+                VkPipelineLayoutCreateInfo info = new VkPipelineLayoutCreateInfo();
+                info.sType = VkStructureType.PipelineLayoutCreateInfo;
 
-            using (layoutsMarshalled)
-            using (pushConstantsMarshalled) {
+                var layoutsNative = stackalloc VkDescriptorSetLayout[layoutCount];
+                if (mInfo.setLayouts != null) Interop.Marshal<VkDescriptorSetLayout, DescriptorSetLayout>(mInfo.setLayouts, layoutsNative);
+
+                info.setLayoutCount = (uint)layoutCount;
+                info.pSetLayouts = (IntPtr)layoutsNative;
+
+                var pushConstantsNative = stackalloc VkPushConstantRange[pushConstantsCount];
+                if (mInfo.pushConstantRanges != null) Interop.Copy(mInfo.pushConstantRanges, (IntPtr)pushConstantsNative);
+
+                info.pushConstantRangeCount = (uint)pushConstantsCount;
+                info.pPushConstantRanges = (IntPtr)pushConstantsNative;
+                
                 var result = Device.Commands.createPipelineLayout(Device.Native, ref info, Device.Instance.AllocationCallbacks, out pipelineLayout);
                 if (result != VkResult.Success) throw new PipelineLayoutException(result, string.Format("Error creating pipeline layout: {0}", result));
             }
