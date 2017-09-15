@@ -28,8 +28,8 @@ namespace CSGL.Vulkan {
             Device = device;
             CreateLayout(info);
 
-            if (info.setLayouts != null) Layouts = new List<DescriptorSetLayout>(info.setLayouts).AsReadOnly();
-            if (info.pushConstantRanges != null) PushConstantRanges = new List<VkPushConstantRange>(info.pushConstantRanges).AsReadOnly();
+            Layouts = info.setLayouts.CloneReadOnly();
+            PushConstantRanges = info.pushConstantRanges.CloneReadOnly();
         }
 
         void CreateLayout(PipelineLayoutCreateInfo mInfo) {

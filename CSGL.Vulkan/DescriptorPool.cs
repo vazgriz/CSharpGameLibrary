@@ -37,7 +37,7 @@ namespace CSGL.Vulkan {
 
             Flags = info.flags;
             MaxSets = info.maxSets;
-            if (info.poolSizes != null) PoolSizes = new List<VkDescriptorPoolSize>(info.poolSizes).AsReadOnly();
+            PoolSizes = info.poolSizes.CloneReadOnly();
 
             descriptorSets = new List<DescriptorSet>();
         }

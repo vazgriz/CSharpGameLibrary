@@ -79,7 +79,7 @@ namespace CSGL.Vulkan {
                 }
                 this.resolveAttachments = resolveAttachments.AsReadOnly();
             }
-            if (other.preserveAttachments != null) preserveAttachments = new List<uint>(other.preserveAttachments);
+            preserveAttachments = other.preserveAttachments.CloneReadOnly();
             if (other.depthStencilAttachment != null) depthStencilAttachment = new AttachmentReference(other.depthStencilAttachment);
         }
     }

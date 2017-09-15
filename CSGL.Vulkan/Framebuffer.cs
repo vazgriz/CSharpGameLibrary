@@ -36,7 +36,7 @@ namespace CSGL.Vulkan {
             CreateFramebuffer(info);
 
             RenderPass = info.renderPass;
-            if (info.attachments != null) Attachments = new List<ImageView>(info.attachments).AsReadOnly();
+            Attachments = info.attachments.CloneReadOnly();
             Width = info.width;
             Height = info.height;
             Layers = info.layers;

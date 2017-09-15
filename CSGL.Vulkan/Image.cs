@@ -86,7 +86,7 @@ namespace CSGL.Vulkan {
             Tiling = info.tiling;
             Usage = info.usage;
             SharingMode = info.sharingMode;
-            if (info.queueFamilyIndices != null) QueueFamilyIndices = new List<uint>(info.queueFamilyIndices).AsReadOnly();
+            QueueFamilyIndices = info.queueFamilyIndices.CloneReadOnly();
         }
 
         void CreateImage(ImageCreateInfo mInfo) {

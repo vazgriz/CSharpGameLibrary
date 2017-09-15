@@ -60,24 +60,14 @@ namespace CSGL.Vulkan {
             if (!GLFW.GLFW.VulkanSupported()) throw new InstanceException("Vulkan not supported");
             if (!initialized) Init();
 
-            if (mInfo.extensions == null) {
-                Extensions = new List<string>().AsReadOnly();
-            } else {
-                Extensions = new List<string>(mInfo.extensions).AsReadOnly();
-            }
-
-            if (mInfo.layers == null) {
-                Layers = new List<string>().AsReadOnly();
-            } else {
-                Layers = new List<string>(mInfo.layers).AsReadOnly();
-            }
-
             CreateInstance(mInfo);
 
             Vulkan.Load(ref getProcAddrDel, instance);
 
             Commands = new InstanceCommands(this);
-
+            
+            Extensions = mInfo.extensions.CloneReadOnly();
+            Layers = mInfo.layers.CloneReadOnly();
             GetPhysicalDevices();
         }
 

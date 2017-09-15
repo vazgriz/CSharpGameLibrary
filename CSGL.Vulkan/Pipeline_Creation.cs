@@ -9,8 +9,8 @@ namespace CSGL.Vulkan {
         public SpecializationInfo() { }
 
         internal SpecializationInfo(SpecializationInfo other) {
-            if (other.mapEntries != null) mapEntries = new List<VkSpecializationMapEntry>(other.mapEntries).AsReadOnly();
-            if (other.data != null) data = new List<byte>(other.data).AsReadOnly();
+            mapEntries = other.mapEntries.CloneReadOnly();
+            data = other.data.CloneReadOnly();
         }
 
         internal IntPtr GetNative(DisposableList<IDisposable> marshalled) {
@@ -72,8 +72,8 @@ namespace CSGL.Vulkan {
         public PipelineVertexInputStateCreateInfo() { }
 
         internal PipelineVertexInputStateCreateInfo(PipelineVertexInputStateCreateInfo other) {
-            if (other.vertexBindingDescriptions != null) vertexBindingDescriptions = new List<VkVertexInputBindingDescription>(other.vertexBindingDescriptions).AsReadOnly();
-            if (other.vertexAttributeDescriptions != null) vertexAttributeDescriptions = new List<VkVertexInputAttributeDescription>(other.vertexAttributeDescriptions).AsReadOnly();
+            vertexBindingDescriptions = other.vertexBindingDescriptions.CloneReadOnly();
+            vertexAttributeDescriptions = other.vertexAttributeDescriptions.CloneReadOnly();
         }
 
         internal VkPipelineVertexInputStateCreateInfo GetNative(DisposableList<IDisposable> marshalled) {
@@ -141,8 +141,8 @@ namespace CSGL.Vulkan {
         public PipelineViewportStateCreateInfo() { }
 
         internal PipelineViewportStateCreateInfo(PipelineViewportStateCreateInfo other) {
-            if (other.viewports != null) viewports = new List<VkViewport>(other.viewports).AsReadOnly();
-            if (other.scissors != null) scissors = new List<VkRect2D>(other.scissors).AsReadOnly();
+            viewports = other.viewports.CloneReadOnly();
+            scissors = other.scissors.CloneReadOnly();
         }
 
         internal VkPipelineViewportStateCreateInfo GetNative(DisposableList<IDisposable> marshalled) {
@@ -223,7 +223,7 @@ namespace CSGL.Vulkan {
             rasterizationSamples = other.rasterizationSamples;
             sampleShadingEnable = other.sampleShadingEnable;
             minSampleShading = other.minSampleShading;
-            if (other.sampleMask != null) sampleMask = new List<uint>(other.sampleMask).AsReadOnly();
+            sampleMask = other.sampleMask.CloneReadOnly();
             alphaToCoverageEnable = other.alphaToCoverageEnable;
             alphaToOneEnable = other.alphaToOneEnable;
         }
@@ -346,7 +346,7 @@ namespace CSGL.Vulkan {
                 }
                 this.attachments = attachments.AsReadOnly();
             }
-            if (other.blendConstants != null) blendConstants = new List<float>(other.blendConstants).AsReadOnly();
+            blendConstants = other.blendConstants.CloneReadOnly();
         }
 
         internal VkPipelineColorBlendStateCreateInfo GetNative(DisposableList<IDisposable> marshalled) {
@@ -384,7 +384,7 @@ namespace CSGL.Vulkan {
         public PipelineDynamicStateCreateInfo() { }
 
         internal PipelineDynamicStateCreateInfo(PipelineDynamicStateCreateInfo other) {
-            if (other.dynamicStates != null) dynamicStates = new List<VkDynamicState>(other.dynamicStates).AsReadOnly();
+            dynamicStates = other.dynamicStates.CloneReadOnly();
         }
 
         internal VkPipelineDynamicStateCreateInfo GetNative(DisposableList<IDisposable> marshalled) {

@@ -70,7 +70,7 @@ namespace CSGL.Vulkan {
             PresentMode = info.presentMode;
             Usage = info.imageUsage;
             SharingMode = info.imageSharingMode;
-            if (info.queueFamilyIndices != null) QueueFamilyIndices = new List<uint>(info.queueFamilyIndices).AsReadOnly();
+            QueueFamilyIndices = info.queueFamilyIndices.CloneReadOnly();
             PreTransform = info.preTransform;
             CompositeAlpha = info.compositeAlpha;
             PresentMode = info.presentMode;

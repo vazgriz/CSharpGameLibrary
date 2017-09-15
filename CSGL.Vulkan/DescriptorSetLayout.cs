@@ -28,7 +28,7 @@ namespace CSGL.Vulkan {
 
             CreateDescriptorSetLayout(info);
 
-            if (info.bindings != null) Bindings = new List<VkDescriptorSetLayoutBinding>(info.bindings).AsReadOnly();
+            Bindings = info.bindings.CloneReadOnly();
         }
 
         void CreateDescriptorSetLayout(DescriptorSetLayoutCreateInfo mInfo) {

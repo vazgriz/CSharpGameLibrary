@@ -53,7 +53,7 @@ namespace CSGL.Vulkan {
             Flags = info.flags;
             Usage = info.usage;
             Size = info.size;
-            if (info.queueFamilyIndices != null) QueueFamilyIndices = new List<uint>(info.queueFamilyIndices).AsReadOnly();
+            QueueFamilyIndices = info.queueFamilyIndices.CloneReadOnly();
         }
 
         void CreateBuffer(BufferCreateInfo mInfo) {

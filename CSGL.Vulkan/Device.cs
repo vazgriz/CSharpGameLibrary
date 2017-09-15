@@ -39,12 +39,6 @@ namespace CSGL.Vulkan {
             Instance = physicalDevice.Instance;
             queues = new Dictionary<QueueID, Queue>();
 
-            if (info.extensions == null) {
-                Extensions = new List<string>().AsReadOnly();
-            } else {
-                Extensions = new List<string>(info.extensions).AsReadOnly();
-            }
-
             ValidateExtensions();
 
             CreateDevice(info);
@@ -52,6 +46,7 @@ namespace CSGL.Vulkan {
             Vulkan.Load(ref getDeviceProcAddr, Instance);
             Commands = new DeviceCommands(this);
 
+            Extensions = info.extensions.CloneReadOnly();
             GetQueues(info);
         }
 
