@@ -98,8 +98,8 @@ namespace CSGL.Vulkan {
             foreach (string ex in Extensions) {
                 bool found = false;
 
-                for (int i = 0; i < PhysicalDevice.AvailableExtensions.Count; i++) {
-                    if (PhysicalDevice.AvailableExtensions[i].Name == ex) {
+                foreach (var available in PhysicalDevice.AvailableExtensions) {
+                    if (available.Name == ex) {
                         found = true;
                         break;
                     }
