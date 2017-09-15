@@ -61,7 +61,6 @@ namespace CSGL.Vulkan {
                 int indicesCount = 0;
                 if (mInfo.queueFamilyIndices != null) indicesCount = mInfo.queueFamilyIndices.Count;
 
-
                 var info = new VkBufferCreateInfo();
                 info.sType = VkStructureType.BufferCreateInfo;
                 info.flags = mInfo.flags;
