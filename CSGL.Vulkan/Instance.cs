@@ -63,6 +63,9 @@ namespace CSGL.Vulkan {
             Extensions = mInfo.extensions.CloneReadOnly();
             Layers = mInfo.layers.CloneReadOnly();
 
+            ValidateExtensions();
+            ValidateLayers();
+
             CreateInstance(mInfo);
 
             Vulkan.Load(ref getProcAddrDel, instance);
@@ -126,6 +129,36 @@ namespace CSGL.Vulkan {
             }
 
             PhysicalDevices = physicalDevices.AsReadOnly();
+        }
+
+        void ValidateExtensions() {
+            foreach (var ex in Extensions) {
+                bool found = false;
+
+                foreach (var available in AvailableExtensions) {
+                    if (available.Name == ex) {
+                        found = true;
+                        break;
+                    }
+                }
+
+                if (!found) throw new InstanceException(string.Format("Requested extension not available: {0}", ex));
+            }
+        }
+
+        void ValidateLayers() {
+            foreach (var layer in Layers) {
+                bool found = false;
+
+                foreach (var available in AvailableLayers) {
+                    if (available.Name == layer) {
+                        found = true;
+                        break;
+                    }
+                }
+
+                if (!found) throw new InstanceException(string.Format("Requested layer not available: {0}", layer));
+            }
         }
 
         public IntPtr GetProcAddress(string command) {
