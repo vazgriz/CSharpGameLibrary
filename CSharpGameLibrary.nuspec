@@ -155,6 +155,7 @@
     <tags>glfw opengl vulkan</tags>
   </metadata>
   <files>
+    <!-- Manually include the other projects -->
     <file src="../CSGL.Vulkan/bin/release/CSGL.Vulkan.dll" target="lib/net46" />
     <file src="../CSGL.Vulkan/bin/release/CSGL.Vulkan.pdb" target="lib/net46" />
     <file src="../CSGL.OpenGL/bin/release/CSGL.OpenGL.dll" target="lib/net46" />
