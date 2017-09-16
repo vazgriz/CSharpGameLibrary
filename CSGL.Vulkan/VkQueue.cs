@@ -31,7 +31,7 @@ namespace CSGL.Vulkan {
         public VkSparseMemoryBindFlags flags;
     }
 
-    public partial class VkSparseImageMemoryBind {
+    public class VkSparseImageMemoryBind {
         public Unmanaged.VkImageSubresource subresource;
         public Unmanaged.VkOffset3D offset;
         public Unmanaged.VkExtent3D extent;
@@ -40,17 +40,17 @@ namespace CSGL.Vulkan {
         public VkSparseMemoryBindFlags flags;
     }
 
-    public partial class VkSparseBufferMemoryBindInfo {
+    public class VkSparseBufferMemoryBindInfo {
         public VkBuffer buffer;
         public IList<VkSparseMemoryBind> binds;
     }
 
-    public partial class VkSparseImageOpaqueMemoryBindInfo {
+    public class VkSparseImageOpaqueMemoryBindInfo {
         public VkImage image;
         public IList<VkSparseMemoryBind> binds;
     }
 
-    public partial class VkSparseImageMemoryBindInfo {
+    public class VkSparseImageMemoryBindInfo {
         public VkImage image;
         public IList<VkSparseImageMemoryBind> binds;
     }
