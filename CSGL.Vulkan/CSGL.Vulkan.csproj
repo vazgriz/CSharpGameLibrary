@@ -88,7 +88,7 @@
     <Compile Include="Unmanaged\delegates.cs" />
     <Compile Include="Unmanaged\structs.cs" />
     <Compile Include="VkVersion.cs" />
-    <Compile Include="Vulkan.cs" />
+    <Compile Include="Unmanaged\VK.cs" />
     <Compile Include="VulkanException.cs" />
   </ItemGroup>
   <ItemGroup>

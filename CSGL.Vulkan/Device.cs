@@ -42,7 +42,7 @@ namespace CSGL.Vulkan {
 
             CreateDevice(info);
 
-            Vulkan.Load(ref getDeviceProcAddr, Instance);
+            Unmanaged.VK.Load(ref getDeviceProcAddr, Instance);
             Commands = new DeviceCommands(this);
 
             GetQueues(info);

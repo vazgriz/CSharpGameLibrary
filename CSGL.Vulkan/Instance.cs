@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Runtime.InteropServices;
 
 namespace CSGL.Vulkan {
@@ -40,6 +41,35 @@ namespace CSGL.Vulkan {
             }
         }
 
+        static Unmanaged.vkCreateInstanceDelegate createInstance;
+        static Unmanaged.vkEnumerateInstanceExtensionPropertiesDelegate enumerateExtensionProperties;
+        static Unmanaged.vkEnumerateInstanceLayerPropertiesDelegate enumerateLayerProperties;
+
+        static ReadOnlyCollection<Extension> extensionsReadOnly;
+        static ReadOnlyCollection<Layer> layersReadOnly;
+
+        static bool initialized = false;
+
+        public static IList<Extension> AvailableExtensions {
+            get {
+                if (extensionsReadOnly == null) {
+                    if (!initialized) Init();
+                    GetExtensions();
+                }
+                return extensionsReadOnly;
+            }
+        }
+
+        public static IList<Layer> AvailableLayers {
+            get {
+                if (layersReadOnly == null) {
+                    if (!initialized) Init();
+                    GetLayers();
+                }
+                return layersReadOnly;
+            }
+        }
+
         public Instance(InstanceCreateInfo info) {
             if (info == null) throw new ArgumentNullException(nameof(info));
             Init(info);
@@ -66,7 +96,7 @@ namespace CSGL.Vulkan {
 
             CreateInstance(mInfo);
 
-            Vulkan.Load(ref getProcAddrDel, instance);
+            Unmanaged.VK.Load(ref getProcAddrDel, instance);
 
             Commands = new InstanceCommands(this);
             
@@ -161,6 +191,48 @@ namespace CSGL.Vulkan {
 
         public IntPtr GetProcAddress(string command) {
             return getProcAddrDel(instance, Interop.GetUTF8(command));
+        }
+
+        internal static void Init() {
+            Unmanaged.VK.Load(ref createInstance);
+            Unmanaged.VK.Load(ref enumerateExtensionProperties);
+            Unmanaged.VK.Load(ref enumerateLayerProperties);
+            initialized = true;
+        }
+
+        static void GetLayers() {
+            var availableLayers = new List<Layer>();
+
+            uint lCount = 0;
+            enumerateLayerProperties(ref lCount, IntPtr.Zero);
+
+            using (var layersMarshalled = new MarshalledArray<Unmanaged.VkLayerProperties>((int)lCount)) {
+                enumerateLayerProperties(ref lCount, layersMarshalled.Address);
+
+                for (int i = 0; i < lCount; i++) {
+                    var layer = layersMarshalled[i];
+                    availableLayers.Add(new Layer(layer));
+                }
+
+            }
+            layersReadOnly = availableLayers.AsReadOnly();
+        }
+
+        static void GetExtensions() {
+            var availableExtensions = new List<Extension>();
+
+            uint exCount = 0;
+            enumerateExtensionProperties(null, ref exCount, IntPtr.Zero);
+
+            using (var extensionsMarshalled = new MarshalledArray<Unmanaged.VkExtensionProperties>((int)exCount)) {
+                enumerateExtensionProperties(null, ref exCount, extensionsMarshalled.Address);
+
+                for (int i = 0; i < exCount; i++) {
+                    var extension = extensionsMarshalled[i];
+                    availableExtensions.Add(new Extension(extension));
+                }
+            }
+            extensionsReadOnly = availableExtensions.AsReadOnly();
         }
 
         public void Dispose() {
