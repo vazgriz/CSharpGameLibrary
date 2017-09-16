@@ -6,10 +6,10 @@ using CSGL;
 namespace CSGL.Vulkan {
     public class VkBufferCreateInfo {
         public VkBufferCreateFlags flags;
-        public ulong size;
+        public long size;
         public VkBufferUsageFlags usage;
         public VkSharingMode sharingMode;
-        public IList<uint> queueFamilyIndices;
+        public IList<int> queueFamilyIndices;
     }
 
     public class VkBuffer : IDisposable, INative<Unmanaged.VkBuffer> {
@@ -35,9 +35,9 @@ namespace CSGL.Vulkan {
         public VkBufferCreateFlags Flags { get; private set; }
         public VkBufferUsageFlags Usage { get; private set; }
         public VkSharingMode SharingMode { get; private set; }
-        public IList<uint> QueueFamilyIndices { get; private set; }
-        public ulong Size { get; private set; }
-        public ulong Offset { get; private set; }
+        public IList<int> QueueFamilyIndices { get; private set; }
+        public long Size { get; private set; }
+        public long Offset { get; private set; }
         public VkDeviceMemory Memory { get; private set; }
 
         public VkBuffer(VkDevice device, VkBufferCreateInfo info) {
@@ -64,7 +64,7 @@ namespace CSGL.Vulkan {
                 var info = new Unmanaged.VkBufferCreateInfo();
                 info.sType = VkStructureType.BufferCreateInfo;
                 info.flags = mInfo.flags;
-                info.size = mInfo.size;
+                info.size = (ulong)mInfo.size;
                 info.usage = mInfo.usage;
                 info.sharingMode = mInfo.sharingMode;
 
@@ -79,10 +79,10 @@ namespace CSGL.Vulkan {
             }
         }
 
-        public void Bind(VkDeviceMemory deviceMemory, ulong offset) {
+        public void Bind(VkDeviceMemory deviceMemory, long offset) {
             if (deviceMemory == null) throw new ArgumentNullException(nameof(deviceMemory));
 
-            var result = Device.Commands.bindBuffer(Device.Native, buffer, deviceMemory.Native, offset);
+            var result = Device.Commands.bindBuffer(Device.Native, buffer, deviceMemory.Native, (ulong)offset);
             if (result != VkResult.Success) throw new BufferException(result, string.Format("Error binding buffer: {0}", result));
 
             Offset = offset;
