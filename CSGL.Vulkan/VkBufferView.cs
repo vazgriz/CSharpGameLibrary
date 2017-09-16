@@ -5,8 +5,8 @@ namespace CSGL.Vulkan {
     public class VkBufferViewCreateInfo {
         public VkBuffer buffer;
         public VkFormat format;
-        public ulong offset;
-        public ulong range;
+        public long offset;
+        public long range;
     }
 
     public class VkBufferView : INative<Unmanaged.VkBufferView>, IDisposable {
@@ -16,8 +16,8 @@ namespace CSGL.Vulkan {
         public VkDevice Device { get; private set; }
         public VkBuffer Buffer { get; private set; }
         public VkFormat Format { get; private set; }
-        public ulong Offset { get; private set; }
-        public ulong Range { get; private set; }
+        public long Offset { get; private set; }
+        public long Range { get; private set; }
 
         public Unmanaged.VkBufferView Native {
             get {
@@ -46,8 +46,8 @@ namespace CSGL.Vulkan {
             info.sType = VkStructureType.BufferViewCreateInfo;
             info.buffer = mInfo.buffer.Native;
             info.format = mInfo.format;
-            info.offset = mInfo.offset;
-            info.range = mInfo.range;
+            info.offset = (ulong)mInfo.offset;
+            info.range = (ulong)mInfo.range;
 
             var result = Device.Commands.createBufferView(Device.Native, ref info, Device.Instance.AllocationCallbacks, out bufferView);
             if (result != VkResult.Success) throw new BufferViewException(result, string.Format("Error creating buffer view: {0}", result));
