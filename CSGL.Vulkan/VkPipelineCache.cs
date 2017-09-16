@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
 namespace CSGL.Vulkan {
-    public class PipelineCacheCreateInfo {
+    public class VkPipelineCacheCreateInfo {
         public IList<byte> initialData;
     }
 
@@ -18,7 +18,7 @@ namespace CSGL.Vulkan {
             }
         }
 
-        public VkPipelineCache(VkDevice device, PipelineCacheCreateInfo info) {
+        public VkPipelineCache(VkDevice device, VkPipelineCacheCreateInfo info) {
             if (device == null) throw new ArgumentNullException(nameof(device));
             if (info == null) throw new ArgumentNullException(nameof(info));
 
@@ -27,7 +27,7 @@ namespace CSGL.Vulkan {
             CreateCache(info);
         }
 
-        void CreateCache(PipelineCacheCreateInfo mInfo) {
+        void CreateCache(VkPipelineCacheCreateInfo mInfo) {
             if (mInfo.initialData == null) throw new ArgumentNullException(nameof(mInfo.initialData));
 
             var info = new Unmanaged.VkPipelineCacheCreateInfo();

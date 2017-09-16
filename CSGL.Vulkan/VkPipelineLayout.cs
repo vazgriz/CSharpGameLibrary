@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 
 namespace CSGL.Vulkan {
-    public class PipelineLayoutCreateInfo {
+    public class VkPipelineLayoutCreateInfo {
         public IList<VkDescriptorSetLayout> setLayouts;
         public IList<Unmanaged.VkPushConstantRange> pushConstantRanges;
     }
@@ -21,7 +21,7 @@ namespace CSGL.Vulkan {
             }
         }
 
-        public VkPipelineLayout(VkDevice device, PipelineLayoutCreateInfo info) {
+        public VkPipelineLayout(VkDevice device, VkPipelineLayoutCreateInfo info) {
             if (device == null) throw new ArgumentNullException(nameof(device));
             if (info == null) throw new ArgumentNullException(nameof(info));
 
@@ -32,7 +32,7 @@ namespace CSGL.Vulkan {
             PushConstantRanges = info.pushConstantRanges.CloneReadOnly();
         }
 
-        void CreateLayout(PipelineLayoutCreateInfo mInfo) {
+        void CreateLayout(VkPipelineLayoutCreateInfo mInfo) {
             unsafe {
                 int layoutCount = 0;
                 if (mInfo.setLayouts != null) layoutCount = mInfo.setLayouts.Count;

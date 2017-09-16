@@ -1,7 +1,7 @@
 ﻿using System;
 
 namespace CSGL.Vulkan {
-    public class ImageViewCreateInfo {
+    public class VkImageViewCreateInfo {
         public VkImage image;
         public VkImageViewType viewType;
         public VkFormat format;
@@ -26,7 +26,7 @@ namespace CSGL.Vulkan {
         public Unmanaged.VkComponentMapping Components { get; private set; }
         public Unmanaged.VkImageSubresourceRange SubresourceRange { get; private set; }
 
-        public VkImageView(VkDevice device, ImageViewCreateInfo info) {
+        public VkImageView(VkDevice device, VkImageViewCreateInfo info) {
             if (device == null) throw new ArgumentNullException(nameof(device));
             if (info == null) throw new ArgumentNullException(nameof(info));
 
@@ -41,7 +41,7 @@ namespace CSGL.Vulkan {
             SubresourceRange = info.subresourceRange;
         }
 
-        void CreateImageView(ImageViewCreateInfo mInfo) {
+        void CreateImageView(VkImageViewCreateInfo mInfo) {
             if (mInfo.image == null) throw new ArgumentNullException(nameof(mInfo.image));
 
             var info = new Unmanaged.VkImageViewCreateInfo();

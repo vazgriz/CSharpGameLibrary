@@ -5,7 +5,7 @@ using CSGL;
 using CSGL.Vulkan;
 
 namespace CSGL.Vulkan {
-    public class SwapchainCreateInfo {
+    public class VkSwapchainCreateInfo {
         public VkSurface surface;
         public uint minImageCount;
         public VkFormat imageFormat;
@@ -47,7 +47,7 @@ namespace CSGL.Vulkan {
             }
         }
 
-        public VkSwapchain(VkDevice device, SwapchainCreateInfo info) {
+        public VkSwapchain(VkDevice device, VkSwapchainCreateInfo info) {
             if (device == null) throw new ArgumentNullException(nameof(device));
             if (info == null) throw new ArgumentNullException(nameof(info));
 
@@ -90,7 +90,7 @@ namespace CSGL.Vulkan {
             Images = images.AsReadOnly();
         }
 
-        void CreateSwapchain(SwapchainCreateInfo mInfo) {
+        void CreateSwapchain(VkSwapchainCreateInfo mInfo) {
             if (mInfo.surface == null) throw new ArgumentNullException(nameof(mInfo.surface));
 
             var info = new Unmanaged.VkSwapchainCreateInfoKHR();

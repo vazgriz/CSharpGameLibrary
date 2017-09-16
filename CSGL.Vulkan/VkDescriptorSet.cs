@@ -2,33 +2,33 @@
 using System.Collections.Generic;
 
 namespace CSGL.Vulkan {
-    public class DescriptorSetAllocateInfo {
+    public class VkDescriptorSetAllocateInfo {
         public IList<VkDescriptorSetLayout> setLayouts;
     }
 
-    public class DescriptorBufferInfo {
+    public class VkDescriptorBufferInfo {
         public VkBuffer buffer;
         public ulong offset;
         public ulong range;
     }
 
-    public class DescriptorImageInfo {
+    public class VkDescriptorImageInfo {
         public VkSampler sampler;
         public VkImageView imageView;
         public VkImageLayout imageLayout;
     }
 
-    public class WriteDescriptorSet {
+    public class VkWriteDescriptorSet {
         public VkDescriptorSet dstSet;
         public uint dstBinding;
         public uint dstArrayElement;
         public VkDescriptorType descriptorType;
-        public IList<DescriptorImageInfo> imageInfo;
-        public IList<DescriptorBufferInfo> bufferInfo;
+        public IList<VkDescriptorImageInfo> imageInfo;
+        public IList<VkDescriptorBufferInfo> bufferInfo;
         public IList<VkBufferView> texelBufferView;
     }
 
-    public class CopyDescriptorSet {
+    public class VkCopyDescriptorSet {
         public VkDescriptorSet srcSet;
         public uint srcBinding;
         public uint srcArrayElement;
@@ -82,7 +82,7 @@ namespace CSGL.Vulkan {
             Dispose(false);
         }
 
-        public static void Update(VkDevice device, IList<WriteDescriptorSet> writes, IList<CopyDescriptorSet> copies) {
+        public static void Update(VkDevice device, IList<VkWriteDescriptorSet> writes, IList<VkCopyDescriptorSet> copies) {
             if (device == null) throw new ArgumentNullException(nameof(device));
 
             int copyCount = 0;
@@ -191,7 +191,7 @@ namespace CSGL.Vulkan {
             }
         }
 
-        public void Update(IList<WriteDescriptorSet> writes, IList<CopyDescriptorSet> copies) {
+        public void Update(IList<VkWriteDescriptorSet> writes, IList<VkCopyDescriptorSet> copies) {
             Update(Device, writes, copies);
         }
     }

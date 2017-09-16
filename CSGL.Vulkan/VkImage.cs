@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 
 namespace CSGL.Vulkan {
-    public class ImageCreateInfo {
+    public class VkImageCreateInfo {
         public VkImageCreateFlags flags;
         public VkImageType imageType;
         public VkFormat format;
@@ -66,7 +66,7 @@ namespace CSGL.Vulkan {
             Format = format;
         }
 
-        public VkImage(VkDevice device, ImageCreateInfo info) {
+        public VkImage(VkDevice device, VkImageCreateInfo info) {
             if (device == null) throw new ArgumentNullException(nameof(device));
             if (info == null) throw new ArgumentNullException(nameof(info));
 
@@ -89,7 +89,7 @@ namespace CSGL.Vulkan {
             QueueFamilyIndices = info.queueFamilyIndices.CloneReadOnly();
         }
 
-        void CreateImage(ImageCreateInfo mInfo) {
+        void CreateImage(VkImageCreateInfo mInfo) {
             unsafe {
                 int indicesCount = 0;
                 if (mInfo.queueFamilyIndices != null) indicesCount = mInfo.queueFamilyIndices.Count;

@@ -2,13 +2,13 @@
 using System.Collections.Generic;
 
 namespace CSGL.Vulkan {
-    public class RenderPassCreateInfo {
-        public IList<AttachmentDescription> attachments;
-        public IList<SubpassDescription> subpasses;
-        public IList<SubpassDependency> dependencies;
+    public class VkRenderPassCreateInfo {
+        public IList<VkAttachmentDescription> attachments;
+        public IList<VkSubpassDescription> subpasses;
+        public IList<VkSubpassDependency> dependencies;
     }
 
-    public class AttachmentDescription {
+    public class VkAttachmentDescription {
         public VkAttachmentDescriptionFlags flags;
         public VkFormat format;
         public VkSampleCountFlags samples;
@@ -19,9 +19,9 @@ namespace CSGL.Vulkan {
         public VkImageLayout initialLayout;
         public VkImageLayout finalLayout;
 
-        public AttachmentDescription() { }
+        public VkAttachmentDescription() { }
 
-        internal AttachmentDescription(AttachmentDescription other) {
+        internal VkAttachmentDescription(VkAttachmentDescription other) {
             flags = other.flags;
             format = other.format;
             samples = other.samples;
@@ -34,57 +34,57 @@ namespace CSGL.Vulkan {
         }
     }
 
-    public class AttachmentReference {
+    public class VkAttachmentReference {
         public uint attachment;
         public VkImageLayout layout;
 
-        public AttachmentReference() { }
+        public VkAttachmentReference() { }
 
-        internal AttachmentReference(AttachmentReference other) {
+        internal VkAttachmentReference(VkAttachmentReference other) {
             attachment = other.attachment;
             layout = other.layout;
         }
     }
 
-    public class SubpassDescription {
+    public class VkSubpassDescription {
         public VkPipelineBindPoint pipelineBindPoint;
-        public IList<AttachmentReference> inputAttachments;
-        public IList<AttachmentReference> colorAttachments;
-        public IList<AttachmentReference> resolveAttachments;
+        public IList<VkAttachmentReference> inputAttachments;
+        public IList<VkAttachmentReference> colorAttachments;
+        public IList<VkAttachmentReference> resolveAttachments;
         public IList<uint> preserveAttachments;
-        public AttachmentReference depthStencilAttachment;
+        public VkAttachmentReference depthStencilAttachment;
 
-        public SubpassDescription() { }
+        public VkSubpassDescription() { }
 
-        internal SubpassDescription(SubpassDescription other) {
+        internal VkSubpassDescription(VkSubpassDescription other) {
             pipelineBindPoint = other.pipelineBindPoint;
             if (other.inputAttachments != null) {
-                var inputAttachments = new List<AttachmentReference>(other.inputAttachments.Count);
+                var inputAttachments = new List<VkAttachmentReference>(other.inputAttachments.Count);
                 foreach (var input in other.inputAttachments) {
-                    inputAttachments.Add(new AttachmentReference(input));
+                    inputAttachments.Add(new VkAttachmentReference(input));
                 }
                 this.inputAttachments = inputAttachments.AsReadOnly();
             }
             if (other.colorAttachments != null) {
-                var colorAttachments = new List<AttachmentReference>(other.colorAttachments.Count);
+                var colorAttachments = new List<VkAttachmentReference>(other.colorAttachments.Count);
                 foreach (var color in other.colorAttachments) {
-                    colorAttachments.Add(new AttachmentReference(color));
+                    colorAttachments.Add(new VkAttachmentReference(color));
                 }
                 this.colorAttachments = colorAttachments.AsReadOnly();
             }
             if (other.resolveAttachments != null) {
-                var resolveAttachments = new List<AttachmentReference>(other.resolveAttachments);
+                var resolveAttachments = new List<VkAttachmentReference>(other.resolveAttachments);
                 foreach (var resolve in other.resolveAttachments) {
-                    resolveAttachments.Add(new AttachmentReference(resolve));
+                    resolveAttachments.Add(new VkAttachmentReference(resolve));
                 }
                 this.resolveAttachments = resolveAttachments.AsReadOnly();
             }
             preserveAttachments = other.preserveAttachments.CloneReadOnly();
-            if (other.depthStencilAttachment != null) depthStencilAttachment = new AttachmentReference(other.depthStencilAttachment);
+            if (other.depthStencilAttachment != null) depthStencilAttachment = new VkAttachmentReference(other.depthStencilAttachment);
         }
     }
 
-    public class SubpassDependency {
+    public class VkSubpassDependency {
         public uint srcSubpass;
         public uint dstSubpass;
         public VkPipelineStageFlags srcStageMask;
@@ -93,9 +93,9 @@ namespace CSGL.Vulkan {
         public VkAccessFlags dstAccessMask;
         public VkDependencyFlags dependencyFlags;
 
-        public SubpassDependency() { }
+        public VkSubpassDependency() { }
 
-        internal SubpassDependency(SubpassDependency other) {
+        internal VkSubpassDependency(VkSubpassDependency other) {
             srcSubpass = other.srcSubpass;
             dstSubpass = other.dstSubpass;
             srcStageMask = other.srcStageMask;
@@ -125,11 +125,11 @@ namespace CSGL.Vulkan {
             }
         }
 
-        public IList<AttachmentDescription> Attachments { get; private set; }
-        public IList<SubpassDescription> Subpasses { get; private set; }
-        public IList<SubpassDependency> Dependencies { get; private set; }
+        public IList<VkAttachmentDescription> Attachments { get; private set; }
+        public IList<VkSubpassDescription> Subpasses { get; private set; }
+        public IList<VkSubpassDependency> Dependencies { get; private set; }
 
-        public VkRenderPass(VkDevice device, RenderPassCreateInfo info) {
+        public VkRenderPass(VkDevice device, VkRenderPassCreateInfo info) {
             if (device == null) throw new ArgumentNullException(nameof(device));
             if (info == null) throw new ArgumentNullException(nameof(info));
 
@@ -138,31 +138,31 @@ namespace CSGL.Vulkan {
             CreateRenderPass(info);
 
             if (info.attachments != null) {
-                var attachments = new List<AttachmentDescription>(info.attachments.Count);
+                var attachments = new List<VkAttachmentDescription>(info.attachments.Count);
                 foreach (var attachment in info.attachments) {
-                    attachments.Add(new AttachmentDescription(attachment));
+                    attachments.Add(new VkAttachmentDescription(attachment));
                 }
                 Attachments = attachments.AsReadOnly();
             }
             if (info.subpasses != null) {
-                var subpasses = new List<SubpassDescription>(info.subpasses.Count);
+                var subpasses = new List<VkSubpassDescription>(info.subpasses.Count);
                 foreach (var subpass in info.subpasses) {
-                    subpasses.Add(new SubpassDescription(subpass));
+                    subpasses.Add(new VkSubpassDescription(subpass));
                 }
 
                 Subpasses = subpasses.AsReadOnly();
             }
             if (info.dependencies != null) {
-                var dependencies = new List<SubpassDependency>(info.dependencies.Count);
+                var dependencies = new List<VkSubpassDependency>(info.dependencies.Count);
                 foreach (var dependency in  info.dependencies) {
-                    dependencies.Add(new SubpassDependency(dependency));
+                    dependencies.Add(new VkSubpassDependency(dependency));
                 }
 
                 Dependencies = dependencies.AsReadOnly();
             }
         }
 
-        void CreateRenderPass(RenderPassCreateInfo mInfo) {
+        void CreateRenderPass(VkRenderPassCreateInfo mInfo) {
             if (mInfo.subpasses == null) throw new ArgumentNullException(nameof(mInfo.subpasses));
 
             unsafe {

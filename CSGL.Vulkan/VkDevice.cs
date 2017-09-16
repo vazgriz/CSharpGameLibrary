@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 
 namespace CSGL.Vulkan {
-    public class DeviceCreateInfo {
+    public class VkDeviceCreateInfo {
         public IList<string> extensions;
-        public IList<DeviceQueueCreateInfo> queueCreateInfos;
+        public IList<VkDeviceQueueCreateInfo> queueCreateInfos;
         public Unmanaged.VkPhysicalDeviceFeatures features;
     }
 
@@ -29,7 +29,7 @@ namespace CSGL.Vulkan {
             }
         }
 
-        public VkDevice(VkPhysicalDevice physicalDevice, DeviceCreateInfo info) {
+        public VkDevice(VkPhysicalDevice physicalDevice, VkDeviceCreateInfo info) {
             if (physicalDevice == null) throw new ArgumentNullException(nameof(physicalDevice));
             if (info == null) throw new ArgumentNullException(nameof(info));
 
@@ -48,7 +48,7 @@ namespace CSGL.Vulkan {
             GetQueues(info);
         }
 
-        void CreateDevice(DeviceCreateInfo mInfo) {
+        void CreateDevice(VkDeviceCreateInfo mInfo) {
             if (mInfo.queueCreateInfos == null) throw new ArgumentNullException(nameof(mInfo.queueCreateInfos));
 
             var extensionsMarshalled = new NativeStringArray(mInfo.extensions);
@@ -107,7 +107,7 @@ namespace CSGL.Vulkan {
             }
         }
 
-        void GetQueues(DeviceCreateInfo info) {
+        void GetQueues(VkDeviceCreateInfo info) {
             for (int i = 0; i < info.queueCreateInfos.Count; i++) {
                 var queueInfo = info.queueCreateInfos[i];
                 for (int j = 0; j < (int)queueInfo.queueCount; j++) {

@@ -3,27 +3,27 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
 namespace CSGL.Vulkan {
-    public class DeviceQueueCreateInfo {
+    public class VkDeviceQueueCreateInfo {
         public uint queueFamilyIndex;
         public uint queueCount;
         public IList<float> priorities;
     }
 
-    public class SubmitInfo {
+    public class VkSubmitInfo {
         public IList<VkSemaphore> waitSemaphores;
         public IList<VkPipelineStageFlags> waitDstStageMask;
         public IList<VkCommandBuffer> commandBuffers;
         public IList<VkSemaphore> signalSemaphores;
     }
 
-    public class PresentInfo {
+    public class VkPresentInfo {
         public IList<VkSemaphore> waitSemaphores;
         public IList<VkSwapchain> swapchains;
         public IList<uint> imageIndices;
         public IList<VkResult> results;
     }
 
-    public class SparseMemoryBind {
+    public class VkSparseMemoryBind {
         public ulong resourceOffset;
         public ulong size;
         public VkDeviceMemory memory;
@@ -31,7 +31,7 @@ namespace CSGL.Vulkan {
         public VkSparseMemoryBindFlags flags;
     }
 
-    public partial class SparseImageMemoryBind {
+    public partial class VkSparseImageMemoryBind {
         public Unmanaged.VkImageSubresource subresource;
         public Unmanaged.VkOffset3D offset;
         public Unmanaged.VkExtent3D extent;
@@ -40,26 +40,26 @@ namespace CSGL.Vulkan {
         public VkSparseMemoryBindFlags flags;
     }
 
-    public partial class SparseBufferMemoryBindInfo {
+    public partial class VkSparseBufferMemoryBindInfo {
         public VkBuffer buffer;
-        public IList<SparseMemoryBind> binds;
+        public IList<VkSparseMemoryBind> binds;
     }
 
-    public partial class SparseImageOpaqueMemoryBindInfo {
+    public partial class VkSparseImageOpaqueMemoryBindInfo {
         public VkImage image;
-        public IList<SparseMemoryBind> binds;
+        public IList<VkSparseMemoryBind> binds;
     }
 
-    public partial class SparseImageMemoryBindInfo {
+    public partial class VkSparseImageMemoryBindInfo {
         public VkImage image;
-        public IList<SparseImageMemoryBind> binds;
+        public IList<VkSparseImageMemoryBind> binds;
     }
 
-    public class BindSparseInfo {
+    public class VkBindSparseInfo {
         public IList<VkSemaphore> waitSemaphores;
-        public IList<SparseBufferMemoryBindInfo> bufferBinds;
-        public IList<SparseImageOpaqueMemoryBindInfo> imageOpaqueBinds;
-        public IList<SparseImageMemoryBindInfo> imageBinds;
+        public IList<VkSparseBufferMemoryBindInfo> bufferBinds;
+        public IList<VkSparseImageOpaqueMemoryBindInfo> imageOpaqueBinds;
+        public IList<VkSparseImageMemoryBindInfo> imageBinds;
         public IList<VkSemaphore> signalSemaphores;
     }
 
@@ -90,7 +90,7 @@ namespace CSGL.Vulkan {
             Device.Commands.queueWaitIdle(queue);
         }
 
-        public void Submit(IList<SubmitInfo> infos, VkFence fence) {
+        public void Submit(IList<VkSubmitInfo> infos, VkFence fence) {
             var fenceNative = Unmanaged.VkFence.Null;
             if (fence != null) {
                 fenceNative = fence.Native;
@@ -187,7 +187,7 @@ namespace CSGL.Vulkan {
             }
         }
 
-        public VkResult Present(PresentInfo info) {
+        public VkResult Present(VkPresentInfo info) {
             if (info == null) throw new ArgumentNullException(nameof(info));
 
             unsafe {
@@ -229,7 +229,7 @@ namespace CSGL.Vulkan {
             }
         }
 
-        Unmanaged.VkSparseMemoryBind Marshal(SparseMemoryBind bind) {
+        Unmanaged.VkSparseMemoryBind Marshal(VkSparseMemoryBind bind) {
             var result = new Unmanaged.VkSparseMemoryBind();
             result.resourceOffset = bind.resourceOffset;
             result.size = bind.size;
@@ -240,7 +240,7 @@ namespace CSGL.Vulkan {
             return result;
         }
 
-        Unmanaged.VkSparseImageMemoryBind MarshalImage(SparseImageMemoryBind bind) {
+        Unmanaged.VkSparseImageMemoryBind MarshalImage(VkSparseImageMemoryBind bind) {
             var result = new Unmanaged.VkSparseImageMemoryBind();
             result.subresource = bind.subresource;
             result.offset = bind.offset;
@@ -252,7 +252,7 @@ namespace CSGL.Vulkan {
             return result;
         }
 
-        public void BindSparse(IList<BindSparseInfo> bindInfo, VkFence fence) {
+        public void BindSparse(IList<VkBindSparseInfo> bindInfo, VkFence fence) {
             var fenceNative = Unmanaged.VkFence.Null;
             if (fence != null) {
                 fenceNative = fence.Native;

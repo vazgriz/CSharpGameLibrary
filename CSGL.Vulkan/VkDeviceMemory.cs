@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 
 namespace CSGL.Vulkan {
-    public class MemoryAllocateInfo {
+    public class VkMemoryAllocateInfo {
         public ulong allocationSize;
         public uint memoryTypeIndex;
     }
 
-    public class MappedMemoryRange {
+    public class VkMappedMemoryRange {
         public VkDeviceMemory memory;
         public ulong offset;
         public ulong size;
@@ -36,7 +36,7 @@ namespace CSGL.Vulkan {
             }
         }
 
-        public VkDeviceMemory(VkDevice device, MemoryAllocateInfo info) {
+        public VkDeviceMemory(VkDevice device, VkMemoryAllocateInfo info) {
             if (device == null) throw new ArgumentNullException(nameof(device));
             if (info == null) throw new ArgumentNullException(nameof(info));
 
@@ -78,7 +78,7 @@ namespace CSGL.Vulkan {
             Device.Commands.unmapMemory(Device.Native, deviceMemory);
         }
 
-        static Unmanaged.VkMappedMemoryRange Marshal(MappedMemoryRange range) {
+        static Unmanaged.VkMappedMemoryRange Marshal(VkMappedMemoryRange range) {
             if (range == null) throw new ArgumentNullException(nameof(range));
 
             var result = new Unmanaged.VkMappedMemoryRange();
@@ -90,7 +90,7 @@ namespace CSGL.Vulkan {
             return result;
         }
 
-        public static void Flush(VkDevice device, IList<MappedMemoryRange> ranges) {
+        public static void Flush(VkDevice device, IList<VkMappedMemoryRange> ranges) {
             unsafe {
                 var rangesNative = stackalloc Unmanaged.VkMappedMemoryRange[ranges.Count];
 
@@ -103,7 +103,7 @@ namespace CSGL.Vulkan {
             }
         }
 
-        public static void Flush(VkDevice device, MappedMemoryRange ranges) {
+        public static void Flush(VkDevice device, VkMappedMemoryRange ranges) {
             var rangeNative = Marshal(ranges);
 
             unsafe {
@@ -112,7 +112,7 @@ namespace CSGL.Vulkan {
             }
         }
 
-        public void Flush(IList<MappedMemoryRange> ranges) {
+        public void Flush(IList<VkMappedMemoryRange> ranges) {
             if (ranges == null) throw new ArgumentNullException(nameof(ranges));
 
             for (int i = 0; i < ranges.Count; i++) {
@@ -122,7 +122,7 @@ namespace CSGL.Vulkan {
             Flush(Device, ranges);
         }
 
-        public void Flush(MappedMemoryRange ranges) {
+        public void Flush(VkMappedMemoryRange ranges) {
             ranges.memory = this;
             Flush(Device, ranges);
         }
@@ -140,7 +140,7 @@ namespace CSGL.Vulkan {
             }
         }
 
-        public static void Invalidate(VkDevice device, IList<MappedMemoryRange> ranges) {
+        public static void Invalidate(VkDevice device, IList<VkMappedMemoryRange> ranges) {
             unsafe {
                 var rangesNative = stackalloc Unmanaged.VkMappedMemoryRange[ranges.Count];
 
@@ -153,7 +153,7 @@ namespace CSGL.Vulkan {
             }
         }
 
-        public static void Invalidate(VkDevice device, MappedMemoryRange ranges) {
+        public static void Invalidate(VkDevice device, VkMappedMemoryRange ranges) {
             var rangeNative = Marshal(ranges);
 
             unsafe {
@@ -162,7 +162,7 @@ namespace CSGL.Vulkan {
             }
         }
 
-        public void Invalidate(IList<MappedMemoryRange> ranges) {
+        public void Invalidate(IList<VkMappedMemoryRange> ranges) {
             if (ranges == null) throw new ArgumentNullException(nameof(ranges));
 
             for (int i = 0; i < ranges.Count; i++) {
@@ -172,7 +172,7 @@ namespace CSGL.Vulkan {
             Invalidate(Device, ranges);
         }
 
-        public void Invalidate(MappedMemoryRange ranges) {
+        public void Invalidate(VkMappedMemoryRange ranges) {
             ranges.memory = this;
             Invalidate(Device, ranges);
         }

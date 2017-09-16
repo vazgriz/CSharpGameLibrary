@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
 namespace CSGL.Vulkan {
-    public class CommandBufferAllocateInfo {
+    public class VkCommandBufferAllocateInfo {
         public VkCommandBufferLevel level;
         public uint commandBufferCount;
     }
 
-    public class CommandBufferInheritanceInfo {
+    public class VkCommandBufferInheritanceInfo {
         public VkRenderPass renderPass;
         public uint subpass;
         public VkFramebuffer framebuffer;
@@ -17,24 +17,24 @@ namespace CSGL.Vulkan {
         public VkQueryPipelineStatisticFlags pipelineStatistics;
     }
 
-    public class CommandBufferBeginInfo {
+    public class VkCommandBufferBeginInfo {
         public VkCommandBufferUsageFlags flags;
-        public CommandBufferInheritanceInfo inheritanceInfo;
+        public VkCommandBufferInheritanceInfo inheritanceInfo;
     }
 
-    public class RenderPassBeginInfo {
+    public class VkRenderPassBeginInfo {
         public VkRenderPass renderPass;
         public VkFramebuffer framebuffer;
         public Unmanaged.VkRect2D renderArea;
         public IList<Unmanaged.VkClearValue> clearValues;
     }
 
-    public class MemoryBarrier {
+    public class VkMemoryBarrier {
         public VkAccessFlags srcAccessMask;
         public VkAccessFlags dstAccessMask;
     }
 
-    public class BufferMemoryBarrier {
+    public class VkBufferMemoryBarrier {
         public VkAccessFlags srcAccessMask;
         public VkAccessFlags dstAccessMask;
         public uint srcQueueFamilyIndex;
@@ -44,7 +44,7 @@ namespace CSGL.Vulkan {
         public ulong size;
     }
 
-    public class ImageMemoryBarrier {
+    public class VkImageMemoryBarrier {
         public VkAccessFlags srcAccessMask;
         public VkAccessFlags dstAccessMask;
         public VkImageLayout oldLayout;
@@ -99,7 +99,7 @@ namespace CSGL.Vulkan {
             Dispose(false);
         }
 
-        public void Begin(CommandBufferBeginInfo info) {
+        public void Begin(VkCommandBufferBeginInfo info) {
             if (info == null) throw new ArgumentNullException(nameof(info));
 
             unsafe {
@@ -127,7 +127,7 @@ namespace CSGL.Vulkan {
             }
         }
 
-        public void BeginRenderPass(RenderPassBeginInfo info, VkSubpassContents contents) {
+        public void BeginRenderPass(VkRenderPassBeginInfo info, VkSubpassContents contents) {
             if (info == null) throw new ArgumentNullException(nameof(info));
 
             unsafe {
@@ -302,9 +302,9 @@ namespace CSGL.Vulkan {
         public void PipelineBarrier(
             VkPipelineStageFlags srcStageMask, VkPipelineStageFlags dstStageMask,
             VkDependencyFlags flags,
-            IList<MemoryBarrier> memoryBarriers,
-            IList<BufferMemoryBarrier> bufferMemoryBarriers,
-            IList<ImageMemoryBarrier> imageMemoryBarriers) {
+            IList<VkMemoryBarrier> memoryBarriers,
+            IList<VkBufferMemoryBarrier> bufferMemoryBarriers,
+            IList<VkImageMemoryBarrier> imageMemoryBarriers) {
 
             int mbCount = 0;
             int bbCount = 0;
@@ -434,9 +434,9 @@ namespace CSGL.Vulkan {
         public void WaitEvents(
             List<VkEvent> events, 
             VkPipelineStageFlags srcStageMask, VkPipelineStageFlags dstStageMask,
-            IList<MemoryBarrier> memoryBarriers, 
-            IList<BufferMemoryBarrier> bufferMemoryBarriers, 
-            IList<ImageMemoryBarrier> imageMemoryBarriers) {
+            IList<VkMemoryBarrier> memoryBarriers, 
+            IList<VkBufferMemoryBarrier> bufferMemoryBarriers, 
+            IList<VkImageMemoryBarrier> imageMemoryBarriers) {
 
             if (events == null) throw new ArgumentNullException(nameof(events));
 

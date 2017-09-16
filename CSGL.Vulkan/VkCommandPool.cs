@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 
 namespace CSGL.Vulkan {
-    public class CommandPoolCreateInfo {
+    public class VkCommandPoolCreateInfo {
         public VkCommandPoolCreateFlags flags;
         public uint queueFamilyIndex;
     }
@@ -23,7 +23,7 @@ namespace CSGL.Vulkan {
 
         List<VkCommandBuffer> commandBuffers;
 
-        public VkCommandPool(VkDevice device, CommandPoolCreateInfo info) {
+        public VkCommandPool(VkDevice device, VkCommandPoolCreateInfo info) {
             if (device == null) throw new ArgumentNullException(nameof(device));
             if (info == null) throw new ArgumentNullException(nameof(info));
 
@@ -37,7 +37,7 @@ namespace CSGL.Vulkan {
             commandBuffers = new List<VkCommandBuffer>();
         }
 
-        void CreateCommandPool(CommandPoolCreateInfo mInfo) {
+        void CreateCommandPool(VkCommandPoolCreateInfo mInfo) {
             var info = new Unmanaged.VkCommandPoolCreateInfo();
             info.sType = VkStructureType.CommandPoolCreateInfo;
             info.flags = mInfo.flags;
@@ -65,7 +65,7 @@ namespace CSGL.Vulkan {
             }
         }
 
-        public IList<VkCommandBuffer> Allocate(CommandBufferAllocateInfo info) {
+        public IList<VkCommandBuffer> Allocate(VkCommandBufferAllocateInfo info) {
             if (info == null) throw new ArgumentNullException(nameof(info));
 
             var infoNative = new Unmanaged.VkCommandBufferAllocateInfo();

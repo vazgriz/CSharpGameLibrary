@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using CSGL;
 
 namespace CSGL.Vulkan {
-    public class BufferCreateInfo {
+    public class VkBufferCreateInfo {
         public VkBufferCreateFlags flags;
         public ulong size;
         public VkBufferUsageFlags usage;
@@ -40,7 +40,7 @@ namespace CSGL.Vulkan {
         public ulong Offset { get; private set; }
         public VkDeviceMemory Memory { get; private set; }
 
-        public VkBuffer(VkDevice device, BufferCreateInfo info) {
+        public VkBuffer(VkDevice device, VkBufferCreateInfo info) {
             if (device == null) throw new ArgumentNullException(nameof(device));
             if (info == null) throw new ArgumentNullException(nameof(info));
 
@@ -56,7 +56,7 @@ namespace CSGL.Vulkan {
             QueueFamilyIndices = info.queueFamilyIndices.CloneReadOnly();
         }
 
-        void CreateBuffer(BufferCreateInfo mInfo) {
+        void CreateBuffer(VkBufferCreateInfo mInfo) {
             unsafe {
                 int indicesCount = 0;
                 if (mInfo.queueFamilyIndices != null) indicesCount = mInfo.queueFamilyIndices.Count;

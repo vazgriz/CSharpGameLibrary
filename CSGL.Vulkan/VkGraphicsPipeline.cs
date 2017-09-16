@@ -2,18 +2,18 @@
 using System.Collections.Generic;
 
 namespace CSGL.Vulkan {
-    public class GraphicsPipelineCreateInfo {
+    public class VkGraphicsPipelineCreateInfo {
         public VkPipelineCreateFlags flags;
-        public IList<PipelineShaderStageCreateInfo> stages;
-        public PipelineVertexInputStateCreateInfo vertexInputState;
-        public PipelineInputAssemblyStateCreateInfo inputAssemblyState;
-        public PipelineTessellationStateCreateInfo tessellationState;
-        public PipelineViewportStateCreateInfo viewportState;
-        public PipelineRasterizationStateCreateInfo rasterizationState;
-        public PipelineMultisampleStateCreateInfo multisampleState;
-        public PipelineDepthStencilStateCreateInfo depthStencilState;
-        public PipelineColorBlendStateCreateInfo colorBlendState;
-        public PipelineDynamicStateCreateInfo dynamicState;
+        public IList<VkPipelineShaderStageCreateInfo> stages;
+        public VkPipelineVertexInputStateCreateInfo vertexInputState;
+        public VkPipelineInputAssemblyStateCreateInfo inputAssemblyState;
+        public VkPipelineTessellationStateCreateInfo tessellationState;
+        public VkPipelineViewportStateCreateInfo viewportState;
+        public VkPipelineRasterizationStateCreateInfo rasterizationState;
+        public VkPipelineMultisampleStateCreateInfo multisampleState;
+        public VkPipelineDepthStencilStateCreateInfo depthStencilState;
+        public VkPipelineColorBlendStateCreateInfo colorBlendState;
+        public VkPipelineDynamicStateCreateInfo dynamicState;
         public VkPipelineLayout layout;
         public VkRenderPass renderPass;
         public uint subpass;
@@ -22,26 +22,26 @@ namespace CSGL.Vulkan {
     }
 
     public class VkGraphicsPipeline : VkPipeline {
-        public IList<PipelineShaderStageCreateInfo> Stages { get; private set; }
-        public PipelineVertexInputStateCreateInfo VertexInputState { get; private set; }
-        public PipelineInputAssemblyStateCreateInfo InputAssemblyState { get; private set; }
-        public PipelineTessellationStateCreateInfo TessellationState { get; private set; }
-        public PipelineViewportStateCreateInfo ViewportState { get; private set; }
-        public PipelineRasterizationStateCreateInfo RasterizationState { get; private set; }
-        public PipelineMultisampleStateCreateInfo MultisampleState { get; private set; }
-        public PipelineDepthStencilStateCreateInfo DepthStencilState { get; private set; }
-        public PipelineColorBlendStateCreateInfo ColorBlendState { get; private set; }
-        public PipelineDynamicStateCreateInfo DynamicState { get; private set; }
+        public IList<VkPipelineShaderStageCreateInfo> Stages { get; private set; }
+        public VkPipelineVertexInputStateCreateInfo VertexInputState { get; private set; }
+        public VkPipelineInputAssemblyStateCreateInfo InputAssemblyState { get; private set; }
+        public VkPipelineTessellationStateCreateInfo TessellationState { get; private set; }
+        public VkPipelineViewportStateCreateInfo ViewportState { get; private set; }
+        public VkPipelineRasterizationStateCreateInfo RasterizationState { get; private set; }
+        public VkPipelineMultisampleStateCreateInfo MultisampleState { get; private set; }
+        public VkPipelineDepthStencilStateCreateInfo DepthStencilState { get; private set; }
+        public VkPipelineColorBlendStateCreateInfo ColorBlendState { get; private set; }
+        public VkPipelineDynamicStateCreateInfo DynamicState { get; private set; }
         public VkRenderPass RenderPass { get; private set; }
         public uint Subpass { get; private set; }
 
-        internal VkGraphicsPipeline(VkDevice device, Unmanaged.VkPipeline pipeline, GraphicsPipelineCreateInfo info) {
+        internal VkGraphicsPipeline(VkDevice device, Unmanaged.VkPipeline pipeline, VkGraphicsPipelineCreateInfo info) {
             Device = device;
             this.pipeline = pipeline;
             SetProperties(info);
         }
 
-        public VkGraphicsPipeline(VkDevice device, GraphicsPipelineCreateInfo info, VkPipelineCache cache) {
+        public VkGraphicsPipeline(VkDevice device, VkGraphicsPipelineCreateInfo info, VkPipelineCache cache) {
             if (device == null) throw new ArgumentNullException(nameof(device));
             if (info == null) throw new ArgumentNullException(nameof(info));
 
@@ -52,35 +52,35 @@ namespace CSGL.Vulkan {
                 nativeCache = cache.Native;
             }
 
-            pipeline = CreatePipelinesInternal(device, new GraphicsPipelineCreateInfo[] { info }, nativeCache)[0];
+            pipeline = CreatePipelinesInternal(device, new VkGraphicsPipelineCreateInfo[] { info }, nativeCache)[0];
 
             SetProperties(info);
         }
 
-        void SetProperties(GraphicsPipelineCreateInfo info) {
+        void SetProperties(VkGraphicsPipelineCreateInfo info) {
             Flags = info.flags;
             Layout = info.layout;
             if (info.stages != null) {
-                var stages = new List<PipelineShaderStageCreateInfo>(info.stages.Count);
+                var stages = new List<VkPipelineShaderStageCreateInfo>(info.stages.Count);
                 foreach (var stage in info.stages) {
-                    stages.Add(new PipelineShaderStageCreateInfo(stage));
+                    stages.Add(new VkPipelineShaderStageCreateInfo(stage));
                 }
                 Stages = stages.AsReadOnly();
             }
-            if (info.vertexInputState != null) VertexInputState = new PipelineVertexInputStateCreateInfo(info.vertexInputState);
-            if (info.inputAssemblyState != null) InputAssemblyState = new PipelineInputAssemblyStateCreateInfo(info.inputAssemblyState);
-            if (info.tessellationState != null) TessellationState = new PipelineTessellationStateCreateInfo(info.tessellationState);
-            if (info.viewportState != null) ViewportState = new PipelineViewportStateCreateInfo(info.viewportState);
-            if (info.rasterizationState != null) RasterizationState = new PipelineRasterizationStateCreateInfo(info.rasterizationState);
-            if (info.multisampleState != null) MultisampleState = new PipelineMultisampleStateCreateInfo(info.multisampleState);
-            if (info.depthStencilState != null) DepthStencilState = new PipelineDepthStencilStateCreateInfo(info.depthStencilState);
-            if (info.colorBlendState != null) ColorBlendState = new PipelineColorBlendStateCreateInfo(info.colorBlendState);
-            if (info.dynamicState != null) DynamicState = new PipelineDynamicStateCreateInfo(info.dynamicState);
+            if (info.vertexInputState != null) VertexInputState = new VkPipelineVertexInputStateCreateInfo(info.vertexInputState);
+            if (info.inputAssemblyState != null) InputAssemblyState = new VkPipelineInputAssemblyStateCreateInfo(info.inputAssemblyState);
+            if (info.tessellationState != null) TessellationState = new VkPipelineTessellationStateCreateInfo(info.tessellationState);
+            if (info.viewportState != null) ViewportState = new VkPipelineViewportStateCreateInfo(info.viewportState);
+            if (info.rasterizationState != null) RasterizationState = new VkPipelineRasterizationStateCreateInfo(info.rasterizationState);
+            if (info.multisampleState != null) MultisampleState = new VkPipelineMultisampleStateCreateInfo(info.multisampleState);
+            if (info.depthStencilState != null) DepthStencilState = new VkPipelineDepthStencilStateCreateInfo(info.depthStencilState);
+            if (info.colorBlendState != null) ColorBlendState = new VkPipelineColorBlendStateCreateInfo(info.colorBlendState);
+            if (info.dynamicState != null) DynamicState = new VkPipelineDynamicStateCreateInfo(info.dynamicState);
             RenderPass = info.renderPass;
             Subpass = info.subpass;
         }
 
-        static internal IList<Unmanaged.VkPipeline> CreatePipelinesInternal(VkDevice device, IList<GraphicsPipelineCreateInfo> mInfos, Unmanaged.VkPipelineCache cache) {
+        static internal IList<Unmanaged.VkPipeline> CreatePipelinesInternal(VkDevice device, IList<VkGraphicsPipelineCreateInfo> mInfos, Unmanaged.VkPipelineCache cache) {
             int count = mInfos.Count;
             var infosMarshalled = new MarshalledArray<Unmanaged.VkGraphicsPipelineCreateInfo>(count);
             var pipelineResults = new List<Unmanaged.VkPipeline>(count);

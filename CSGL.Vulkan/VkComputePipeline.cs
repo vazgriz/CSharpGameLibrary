@@ -5,22 +5,22 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace CSGL.Vulkan {
-    public class ComputePipelineCreateInfo {
+    public class VkComputePipelineCreateInfo {
         public VkPipelineCreateFlags flags;
-        public PipelineShaderStageCreateInfo stage;
+        public VkPipelineShaderStageCreateInfo stage;
         public VkPipelineLayout layout;
         public VkComputePipeline basePipelineHandle;
         public int basePipelineIndex;
     }
 
     public class VkComputePipeline : VkPipeline {
-        internal VkComputePipeline(VkDevice device, Unmanaged.VkPipeline pipeline, ComputePipelineCreateInfo info) {
+        internal VkComputePipeline(VkDevice device, Unmanaged.VkPipeline pipeline, VkComputePipelineCreateInfo info) {
             Device = device;
             this.pipeline = pipeline;
             SetProperties(info);
         }
 
-        public VkComputePipeline(VkDevice device, ComputePipelineCreateInfo info, VkPipelineCache cache) {
+        public VkComputePipeline(VkDevice device, VkComputePipelineCreateInfo info, VkPipelineCache cache) {
             if (device == null) throw new ArgumentNullException(nameof(device));
             if (info == null) throw new ArgumentNullException(nameof(info));
 
@@ -31,17 +31,17 @@ namespace CSGL.Vulkan {
                 nativeCache = cache.Native;
             }
 
-            pipeline = CreatePipelinesInternal(device, new ComputePipelineCreateInfo[] { info }, nativeCache)[0];
+            pipeline = CreatePipelinesInternal(device, new VkComputePipelineCreateInfo[] { info }, nativeCache)[0];
 
             SetProperties(info);
         }
 
-        void SetProperties(ComputePipelineCreateInfo info) {
+        void SetProperties(VkComputePipelineCreateInfo info) {
             Flags = info.flags;
             Layout = info.layout;
         }
 
-        static internal IList<Unmanaged.VkPipeline> CreatePipelinesInternal(VkDevice device, IList<ComputePipelineCreateInfo> mInfos, Unmanaged.VkPipelineCache cache) {
+        static internal IList<Unmanaged.VkPipeline> CreatePipelinesInternal(VkDevice device, IList<VkComputePipelineCreateInfo> mInfos, Unmanaged.VkPipelineCache cache) {
             int count = mInfos.Count;
             var infosMarshalled = new MarshalledArray<Unmanaged.VkComputePipelineCreateInfo>(count);
             var pipelineResults = new List<Unmanaged.VkPipeline>(count);

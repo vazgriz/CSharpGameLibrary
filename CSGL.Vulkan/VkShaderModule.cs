@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 
 namespace CSGL.Vulkan {
-    public class ShaderModuleCreateInfo {
+    public class VkShaderModuleCreateInfo {
         public IList<byte> data;
     }
 
@@ -19,7 +19,7 @@ namespace CSGL.Vulkan {
             }
         }
 
-        public VkShaderModule(VkDevice device, ShaderModuleCreateInfo info) {
+        public VkShaderModule(VkDevice device, VkShaderModuleCreateInfo info) {
             if (device == null) throw new ArgumentNullException(nameof(device));
             if (info == null) throw new ArgumentNullException(nameof(info));
 
@@ -28,7 +28,7 @@ namespace CSGL.Vulkan {
             CreateShader(info);
         }
 
-        void CreateShader(ShaderModuleCreateInfo mInfo) {
+        void CreateShader(VkShaderModuleCreateInfo mInfo) {
             if (mInfo.data == null) throw new ArgumentNullException(nameof(mInfo.data));
 
             var info = new Unmanaged.VkShaderModuleCreateInfo();

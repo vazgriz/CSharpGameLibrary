@@ -2,7 +2,7 @@
 using System.Runtime.InteropServices;
 
 namespace CSGL.Vulkan {
-    public delegate void DebugReportCallbackDelegate(
+    public delegate void VkDebugReportCallbackDelegate(
         VkDebugReportFlagsEXT flags,
         VkDebugReportObjectTypeEXT objectType,
         ulong _object,
@@ -12,9 +12,9 @@ namespace CSGL.Vulkan {
         string message
     );
 
-    public class DebugReportCallbackCreateInfo {
+    public class VkDebugReportCallbackCreateInfo {
         public VkDebugReportFlagsEXT flags;
-        public DebugReportCallbackDelegate callback;
+        public VkDebugReportCallbackDelegate callback;
     }
 
     public class VkDebugReportCallback : IDisposable, INative<Unmanaged.VkDebugReportCallbackEXT> {
@@ -30,7 +30,7 @@ namespace CSGL.Vulkan {
         }
 
         public VkDebugReportFlagsEXT Flags { get; private set; }
-        public event DebugReportCallbackDelegate Callback = delegate { };
+        public event VkDebugReportCallbackDelegate Callback = delegate { };
 
         delegate uint InternalCallbackDelegate(
             VkDebugReportFlagsEXT flags,
@@ -44,7 +44,7 @@ namespace CSGL.Vulkan {
         );
         InternalCallbackDelegate internalCallback;
 
-        public VkDebugReportCallback(VkInstance instance, DebugReportCallbackCreateInfo info) {
+        public VkDebugReportCallback(VkInstance instance, VkDebugReportCallbackCreateInfo info) {
             if (instance == null) throw new ArgumentNullException(nameof(instance));
             if (info == null) throw new ArgumentNullException(nameof(info));
 
@@ -57,7 +57,7 @@ namespace CSGL.Vulkan {
             Flags = info.flags;
         }
 
-        void CreateCallback(DebugReportCallbackCreateInfo mInfo) {
+        void CreateCallback(VkDebugReportCallbackCreateInfo mInfo) {
             var info = new Unmanaged.VkDebugReportCallbackCreateInfoEXT();
             info.sType = VkStructureType.DebugReportCallbackCreateInfoExt;
             info.flags = mInfo.flags;

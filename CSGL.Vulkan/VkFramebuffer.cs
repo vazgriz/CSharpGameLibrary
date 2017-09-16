@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 
 namespace CSGL.Vulkan {
-    public class FramebufferCreateInfo {
+    public class VkFramebufferCreateInfo {
         public VkRenderPass renderPass;
         public IList<VkImageView> attachments;
         public uint width;
@@ -27,7 +27,7 @@ namespace CSGL.Vulkan {
         public uint Height { get; private set; }
         public uint Layers { get; private set; }
 
-        public VkFramebuffer(VkDevice device, FramebufferCreateInfo info) {
+        public VkFramebuffer(VkDevice device, VkFramebufferCreateInfo info) {
             if (device == null) throw new ArgumentNullException(nameof(device));
             if (info == null) throw new ArgumentNullException(nameof(info));
 
@@ -42,7 +42,7 @@ namespace CSGL.Vulkan {
             Layers = info.layers;
         }
 
-        void CreateFramebuffer(FramebufferCreateInfo mInfo) {
+        void CreateFramebuffer(VkFramebufferCreateInfo mInfo) {
             unsafe {
                 int attachmentCount = 0;
                 if (mInfo.attachments != null) attachmentCount = mInfo.attachments.Count;

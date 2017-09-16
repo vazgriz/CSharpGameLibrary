@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 
 namespace CSGL.Vulkan {
-    public class BufferViewCreateInfo {
+    public class VkBufferViewCreateInfo {
         public VkBuffer buffer;
         public VkFormat format;
         public ulong offset;
@@ -25,7 +25,7 @@ namespace CSGL.Vulkan {
             }
         }
 
-        public VkBufferView(VkDevice device, BufferViewCreateInfo info) {
+        public VkBufferView(VkDevice device, VkBufferViewCreateInfo info) {
             if (device == null) throw new ArgumentNullException(nameof(device));
             if (info == null) throw new ArgumentNullException(nameof(info));
 
@@ -39,7 +39,7 @@ namespace CSGL.Vulkan {
             Range = info.range;
         }
 
-        void CreateBufferView(BufferViewCreateInfo mInfo) {
+        void CreateBufferView(VkBufferViewCreateInfo mInfo) {
             if (mInfo.buffer == null) throw new ArgumentNullException(nameof(mInfo.buffer));
 
             var info = new Unmanaged.VkBufferViewCreateInfo();

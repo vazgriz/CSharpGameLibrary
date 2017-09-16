@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 
 namespace CSGL.Vulkan {
-    public class DescriptorSetLayoutCreateInfo {
+    public class VkDescriptorSetLayoutCreateInfo {
         public IList<Unmanaged.VkDescriptorSetLayoutBinding> bindings;
     }
 
@@ -20,7 +20,7 @@ namespace CSGL.Vulkan {
             }
         }
 
-        public VkDescriptorSetLayout(VkDevice device, DescriptorSetLayoutCreateInfo info) {
+        public VkDescriptorSetLayout(VkDevice device, VkDescriptorSetLayoutCreateInfo info) {
             if (device == null) throw new ArgumentNullException(nameof(device));
             if (info == null) throw new ArgumentNullException(nameof(info));
 
@@ -31,7 +31,7 @@ namespace CSGL.Vulkan {
             Bindings = info.bindings.CloneReadOnly();
         }
 
-        void CreateDescriptorSetLayout(DescriptorSetLayoutCreateInfo mInfo) {
+        void CreateDescriptorSetLayout(VkDescriptorSetLayoutCreateInfo mInfo) {
             if (mInfo.bindings == null) throw new ArgumentNullException(nameof(mInfo.bindings));
 
             var info = new Unmanaged.VkDescriptorSetLayoutCreateInfo();

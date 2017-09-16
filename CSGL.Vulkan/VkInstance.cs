@@ -4,7 +4,7 @@ using System.Collections.ObjectModel;
 using System.Runtime.InteropServices;
 
 namespace CSGL.Vulkan {
-    public class ApplicationInfo {
+    public class VkApplicationInfo {
         public VkVersion apiVersion;
         public VkVersion engineVersion;
         public VkVersion applicationVersion;
@@ -12,8 +12,8 @@ namespace CSGL.Vulkan {
         public string applicationName;
     }
 
-    public class InstanceCreateInfo {
-        public ApplicationInfo applicationInfo;
+    public class VkInstanceCreateInfo {
+        public VkApplicationInfo applicationInfo;
         public IList<string> extensions;
         public IList<string> layers;
     }
@@ -70,12 +70,12 @@ namespace CSGL.Vulkan {
             }
         }
 
-        public VkInstance(InstanceCreateInfo info) {
+        public VkInstance(VkInstanceCreateInfo info) {
             if (info == null) throw new ArgumentNullException(nameof(info));
             Init(info);
         }
 
-        public VkInstance(InstanceCreateInfo info, Unmanaged.VkAllocationCallbacks callbacks) {
+        public VkInstance(VkInstanceCreateInfo info, Unmanaged.VkAllocationCallbacks callbacks) {
             if (info == null) throw new ArgumentNullException(nameof(info));
 
             alloc = Marshal.AllocHGlobal(Marshal.SizeOf<Unmanaged.VkAllocationCallbacks>());
@@ -84,7 +84,7 @@ namespace CSGL.Vulkan {
             Init(info);
         }
 
-        void Init(InstanceCreateInfo mInfo) {
+        void Init(VkInstanceCreateInfo mInfo) {
             if (!GLFW.GLFW.VulkanSupported()) throw new InstanceException("Vulkan not supported");
             if (!initialized) Init();
 
@@ -103,7 +103,7 @@ namespace CSGL.Vulkan {
             GetPhysicalDevices();
         }
 
-        void CreateInstance(InstanceCreateInfo mInfo) {
+        void CreateInstance(VkInstanceCreateInfo mInfo) {
             InteropString appName = null;
             InteropString engineName = null;
             Marshalled<Unmanaged.VkApplicationInfo> appInfoMarshalled = null;

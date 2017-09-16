@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 
 namespace CSGL.Vulkan {
-    public class SamplerCreateInfo {
+    public class VkSamplerCreateInfo {
         public VkFilter magFilter;
         public VkFilter minFilter;
         public VkSamplerMipmapMode mipmapMode;
@@ -47,7 +47,7 @@ namespace CSGL.Vulkan {
         public VkBorderColor BorderColor { get; private set; }
         public bool UnnormalizedCoordinates { get; private set; }
 
-        public VkSampler(VkDevice device, SamplerCreateInfo info) {
+        public VkSampler(VkDevice device, VkSamplerCreateInfo info) {
             if (device == null) throw new ArgumentNullException(nameof(device));
             if (info == null) throw new ArgumentNullException(nameof(info));
 
@@ -72,7 +72,7 @@ namespace CSGL.Vulkan {
             UnnormalizedCoordinates = info.unnormalizedCoordinates;
         }
 
-        void CreateSampler(SamplerCreateInfo mInfo) {
+        void CreateSampler(VkSamplerCreateInfo mInfo) {
             var info = new Unmanaged.VkSamplerCreateInfo();
             info.sType = VkStructureType.SamplerCreateInfo;
             info.magFilter = mInfo.magFilter;

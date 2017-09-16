@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 
 namespace CSGL.Vulkan {
-    public class DescriptorPoolCreateInfo {
+    public class VkDescriptorPoolCreateInfo {
         public VkDescriptorPoolCreateFlags flags;
         public uint maxSets;
         public IList<Unmanaged.VkDescriptorPoolSize> poolSizes;
@@ -27,7 +27,7 @@ namespace CSGL.Vulkan {
 
         List<VkDescriptorSet> descriptorSets;
 
-        public VkDescriptorPool(VkDevice device, DescriptorPoolCreateInfo info) {
+        public VkDescriptorPool(VkDevice device, VkDescriptorPoolCreateInfo info) {
             if (device == null) throw new ArgumentNullException(nameof(device));
             if (info == null) throw new ArgumentNullException(nameof(info));
 
@@ -42,7 +42,7 @@ namespace CSGL.Vulkan {
             descriptorSets = new List<VkDescriptorSet>();
         }
 
-        void CreateDescriptorPool(DescriptorPoolCreateInfo mInfo) {
+        void CreateDescriptorPool(VkDescriptorPoolCreateInfo mInfo) {
             if (mInfo.poolSizes == null) throw new ArgumentNullException(nameof(mInfo.poolSizes));
 
             var info = new Unmanaged.VkDescriptorPoolCreateInfo();
@@ -60,7 +60,7 @@ namespace CSGL.Vulkan {
             }
         }
 
-        public IList<VkDescriptorSet> Allocate(DescriptorSetAllocateInfo info) {
+        public IList<VkDescriptorSet> Allocate(VkDescriptorSetAllocateInfo info) {
             if (info == null) throw new ArgumentNullException(nameof(info));
             if (info.setLayouts == null) throw new ArgumentNullException(nameof(info.setLayouts));
 

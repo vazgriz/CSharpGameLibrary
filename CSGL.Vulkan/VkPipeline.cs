@@ -17,7 +17,7 @@ namespace CSGL.Vulkan {
         public VkPipelineCreateFlags Flags { get; protected set; }
         public VkPipelineLayout Layout { get; protected set; }
 
-        public static IList<VkGraphicsPipeline> CreatePipelines(VkDevice device, IList<GraphicsPipelineCreateInfo> infos, VkPipelineCache cache) {
+        public static IList<VkGraphicsPipeline> CreatePipelines(VkDevice device, IList<VkGraphicsPipelineCreateInfo> infos, VkPipelineCache cache) {
             if (device == null) throw new ArgumentNullException(nameof(device));
             if (infos == null) throw new ArgumentNullException(nameof(infos));
 
@@ -36,7 +36,7 @@ namespace CSGL.Vulkan {
             return pipelines;
         }
 
-        public static IList<VkComputePipeline> CreatePipelines(VkDevice device, IList<ComputePipelineCreateInfo> infos, VkPipelineCache cache) {
+        public static IList<VkComputePipeline> CreatePipelines(VkDevice device, IList<VkComputePipelineCreateInfo> infos, VkPipelineCache cache) {
             if (device == null) throw new ArgumentNullException(nameof(device));
             if (infos == null) throw new ArgumentNullException(nameof(infos));
 
