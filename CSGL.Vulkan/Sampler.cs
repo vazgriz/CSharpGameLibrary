@@ -20,11 +20,11 @@ namespace CSGL.Vulkan {
         public bool unnormalizedCoordinates;
     }
 
-    public class Sampler : IDisposable, INative<VkSampler> {
-        VkSampler sampler;
+    public class Sampler : IDisposable, INative<Unmanaged.VkSampler> {
+        Unmanaged.VkSampler sampler;
         bool disposed;
 
-        public VkSampler Native {
+        public Unmanaged.VkSampler Native {
             get {
                 return sampler;
             }
@@ -73,7 +73,7 @@ namespace CSGL.Vulkan {
         }
 
         void CreateSampler(SamplerCreateInfo mInfo) {
-            var info = new VkSamplerCreateInfo();
+            var info = new Unmanaged.VkSamplerCreateInfo();
             info.sType = VkStructureType.SamplerCreateInfo;
             info.magFilter = mInfo.magFilter;
             info.minFilter = mInfo.minFilter;

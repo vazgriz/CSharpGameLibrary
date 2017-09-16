@@ -2,23 +2,21 @@
 using System.Collections.Generic;
 using System.IO;
 
-using CSGL.Vulkan.Unmanaged;
-
 namespace CSGL.Vulkan {
     public class ShaderModuleCreateInfo {
         public IList<byte> data;
     }
 
-    public class ShaderModule : IDisposable, INative<VkShaderModule> {
-        VkShaderModule shaderModule;
+    public class ShaderModule : IDisposable, INative<Unmanaged.VkShaderModule> {
+        Unmanaged.VkShaderModule shaderModule;
         bool disposed = false;
 
         Device device;
 
-        vkCreateShaderModuleDelegate createShaderModule;
-        vkDestroyShaderModuleDelegate destroyShaderModule;
+        Unmanaged.vkCreateShaderModuleDelegate createShaderModule;
+        Unmanaged.vkDestroyShaderModuleDelegate destroyShaderModule;
 
-        public VkShaderModule Native {
+        public Unmanaged.VkShaderModule Native {
             get {
                 return shaderModule;
             }
@@ -39,7 +37,7 @@ namespace CSGL.Vulkan {
         void CreateShader(ShaderModuleCreateInfo mInfo) {
             if (mInfo.data == null) throw new ArgumentNullException(nameof(mInfo.data));
 
-            VkShaderModuleCreateInfo info = new VkShaderModuleCreateInfo();
+            var info = new Unmanaged.VkShaderModuleCreateInfo();
             info.sType = VkStructureType.ShaderModuleCreateInfo;
             info.codeSize = (IntPtr)mInfo.data.Count;
 

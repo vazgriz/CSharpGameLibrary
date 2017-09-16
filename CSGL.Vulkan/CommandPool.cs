@@ -7,11 +7,11 @@ namespace CSGL.Vulkan {
         public uint queueFamilyIndex;
     }
 
-    public class CommandPool : IDisposable, INative<VkCommandPool> {
-        VkCommandPool commandPool;
+    public class CommandPool : IDisposable, INative<Unmanaged.VkCommandPool> {
+        Unmanaged.VkCommandPool commandPool;
         bool disposed = false;
 
-        public VkCommandPool Native {
+        public Unmanaged.VkCommandPool Native {
             get {
                 return commandPool;
             }
@@ -38,7 +38,7 @@ namespace CSGL.Vulkan {
         }
 
         void CreateCommandPool(CommandPoolCreateInfo mInfo) {
-            VkCommandPoolCreateInfo info = new VkCommandPoolCreateInfo();
+            var info = new Unmanaged.VkCommandPoolCreateInfo();
             info.sType = VkStructureType.CommandPoolCreateInfo;
             info.flags = mInfo.flags;
             info.queueFamilyIndex = mInfo.queueFamilyIndex;
@@ -48,13 +48,13 @@ namespace CSGL.Vulkan {
         }
 
         public CommandBuffer Allocate(VkCommandBufferLevel level) {
-            var info = new VkCommandBufferAllocateInfo();
+            var info = new Unmanaged.VkCommandBufferAllocateInfo();
             info.sType = VkStructureType.CommandBufferAllocateInfo;
             info.level = level;
             info.commandPool = commandPool;
             info.commandBufferCount = 1;
 
-            using (var commandBufferMarshalled = new Native<VkCommandBuffer>()) {
+            using (var commandBufferMarshalled = new Native<Unmanaged.VkCommandBuffer>()) {
                 var result = Device.Commands.allocateCommandBuffers(Device.Native, ref info, commandBufferMarshalled.Address);
                 if (result != VkResult.Success) throw new CommandPoolException(result, string.Format("Error allocating command buffer: {0}", result));
 
@@ -68,13 +68,13 @@ namespace CSGL.Vulkan {
         public IList<CommandBuffer> Allocate(CommandBufferAllocateInfo info) {
             if (info == null) throw new ArgumentNullException(nameof(info));
 
-            var infoNative = new VkCommandBufferAllocateInfo();
+            var infoNative = new Unmanaged.VkCommandBufferAllocateInfo();
             infoNative.sType = VkStructureType.CommandBufferAllocateInfo;
             infoNative.level = info.level;
             infoNative.commandPool = commandPool;
             infoNative.commandBufferCount = info.commandBufferCount;
 
-            using (var commandBuffersMarshalled = new NativeArray<VkCommandBuffer>(info.commandBufferCount)) {
+            using (var commandBuffersMarshalled = new NativeArray<Unmanaged.VkCommandBuffer>(info.commandBufferCount)) {
                 var results = new List<CommandBuffer>((int)info.commandBufferCount);
 
                 var result = Device.Commands.allocateCommandBuffers(Device.Native, ref infoNative, commandBuffersMarshalled.Address);
@@ -92,7 +92,7 @@ namespace CSGL.Vulkan {
         public void Free(IList<CommandBuffer> commandBuffers) {
             if (commandBuffers == null) throw new ArgumentNullException(nameof(commandBuffers));
 
-            using (var commandBuffersMarshalled = new NativeArray<VkCommandBuffer>(commandBuffers.Count)) {
+            using (var commandBuffersMarshalled = new NativeArray<Unmanaged.VkCommandBuffer>(commandBuffers.Count)) {
                 for (int i = 0; i < commandBuffers.Count; i++) {
                     commandBuffersMarshalled[i] = commandBuffers[i].Native;
                 }
@@ -104,7 +104,7 @@ namespace CSGL.Vulkan {
             if (commandBuffer == null) throw new ArgumentNullException(nameof(commandBuffer));
 
             unsafe {
-                VkCommandBuffer commandBufferNative = commandBuffer.Native;
+                Unmanaged.VkCommandBuffer commandBufferNative = commandBuffer.Native;
                 Device.Commands.freeCommandBuffers(Device.Native, commandPool, 1, (IntPtr)(&commandBufferNative));
             }
         }

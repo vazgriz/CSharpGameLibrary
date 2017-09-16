@@ -17,13 +17,13 @@ namespace CSGL.Vulkan {
         public DebugReportCallbackDelegate callback;
     }
 
-    public class DebugReportCallback : IDisposable, INative<VkDebugReportCallbackEXT> {
-        VkDebugReportCallbackEXT callback;
+    public class DebugReportCallback : IDisposable, INative<Unmanaged.VkDebugReportCallbackEXT> {
+        Unmanaged.VkDebugReportCallbackEXT callback;
         bool disposed;
 
         public Instance Instance { get; private set; }
 
-        public VkDebugReportCallbackEXT Native {
+        public Unmanaged.VkDebugReportCallbackEXT Native {
             get {
                 return callback;
             }
@@ -58,7 +58,7 @@ namespace CSGL.Vulkan {
         }
 
         void CreateCallback(DebugReportCallbackCreateInfo mInfo) {
-            var info = new VkDebugReportCallbackCreateInfoEXT();
+            var info = new Unmanaged.VkDebugReportCallbackCreateInfoEXT();
             info.sType = VkStructureType.DebugReportCallbackCreateInfoExt;
             info.flags = mInfo.flags;
             info.pfnCallback = Marshal.GetFunctionPointerForDelegate(internalCallback);

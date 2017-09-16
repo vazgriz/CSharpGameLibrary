@@ -10,11 +10,11 @@ namespace CSGL.Vulkan {
         public uint layers;
     }
 
-    public class Framebuffer : IDisposable, INative<VkFramebuffer> {
-        VkFramebuffer framebuffer;
+    public class Framebuffer : IDisposable, INative<Unmanaged.VkFramebuffer> {
+        Unmanaged.VkFramebuffer framebuffer;
         bool disposed = false;
 
-        public VkFramebuffer Native {
+        public Unmanaged.VkFramebuffer Native {
             get {
                 return framebuffer;
             }
@@ -47,12 +47,12 @@ namespace CSGL.Vulkan {
                 int attachmentCount = 0;
                 if (mInfo.attachments != null) attachmentCount = mInfo.attachments.Count;
 
-                VkFramebufferCreateInfo info = new VkFramebufferCreateInfo();
+                var info = new Unmanaged.VkFramebufferCreateInfo();
                 info.sType = VkStructureType.FramebufferCreateInfo;
                 info.renderPass = mInfo.renderPass.Native;
 
-                var attachmentsNative = stackalloc VkImageView[attachmentCount];
-                if (mInfo.attachments != null) Interop.Marshal<VkImageView, ImageView>(mInfo.attachments, attachmentsNative);
+                var attachmentsNative = stackalloc Unmanaged.VkImageView[attachmentCount];
+                if (mInfo.attachments != null) Interop.Marshal<Unmanaged.VkImageView, ImageView>(mInfo.attachments, attachmentsNative);
 
                 info.attachmentCount = (uint)attachmentCount;
                 info.pAttachments = (IntPtr)attachmentsNative;

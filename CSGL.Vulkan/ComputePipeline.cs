@@ -14,7 +14,7 @@ namespace CSGL.Vulkan {
     }
 
     public class ComputePipeline : Pipeline {
-        internal ComputePipeline(Device device, VkPipeline pipeline, ComputePipelineCreateInfo info) {
+        internal ComputePipeline(Device device, Unmanaged.VkPipeline pipeline, ComputePipelineCreateInfo info) {
             Device = device;
             this.pipeline = pipeline;
             SetProperties(info);
@@ -26,7 +26,7 @@ namespace CSGL.Vulkan {
 
             Device = device;
 
-            VkPipelineCache nativeCache = VkPipelineCache.Null;
+            var nativeCache = Unmanaged.VkPipelineCache.Null;
             if (cache != null) {
                 nativeCache = cache.Native;
             }
@@ -41,15 +41,15 @@ namespace CSGL.Vulkan {
             Layout = info.layout;
         }
 
-        static internal IList<VkPipeline> CreatePipelinesInternal(Device device, IList<ComputePipelineCreateInfo> mInfos, VkPipelineCache cache) {
+        static internal IList<Unmanaged.VkPipeline> CreatePipelinesInternal(Device device, IList<ComputePipelineCreateInfo> mInfos, Unmanaged.VkPipelineCache cache) {
             int count = mInfos.Count;
-            var infosMarshalled = new MarshalledArray<VkComputePipelineCreateInfo>(count);
-            var pipelineResults = new List<VkPipeline>(count);
+            var infosMarshalled = new MarshalledArray<Unmanaged.VkComputePipelineCreateInfo>(count);
+            var pipelineResults = new List<Unmanaged.VkPipeline>(count);
             var marshalledArrays = new DisposableList<IDisposable>(count);
 
             for (int i = 0; i < count; i++) {
                 var mInfo = mInfos[i];
-                VkComputePipelineCreateInfo info = new VkComputePipelineCreateInfo();
+                var info = new Unmanaged.VkComputePipelineCreateInfo();
                 info.sType = VkStructureType.ComputePipelineCreateInfo;
                 info.flags = mInfo.flags;
 
@@ -67,7 +67,7 @@ namespace CSGL.Vulkan {
             using (infosMarshalled)
             using (marshalledArrays) {
                 unsafe {
-                    var pipelinesNative = stackalloc VkPipeline[count];
+                    var pipelinesNative = stackalloc Unmanaged.VkPipeline[count];
 
                     var result = device.Commands.createComputePipelines(
                         device.Native, cache,

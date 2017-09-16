@@ -9,9 +9,9 @@ namespace CSGL.Vulkan {
         public ulong range;
     }
 
-    public class BufferView : INative<VkBufferView>, IDisposable {
+    public class BufferView : INative<Unmanaged.VkBufferView>, IDisposable {
         bool disposed;
-        VkBufferView bufferView;
+        Unmanaged.VkBufferView bufferView;
 
         public Device Device { get; private set; }
         public Buffer Buffer { get; private set; }
@@ -19,7 +19,7 @@ namespace CSGL.Vulkan {
         public ulong Offset { get; private set; }
         public ulong Range { get; private set; }
 
-        public VkBufferView Native {
+        public Unmanaged.VkBufferView Native {
             get {
                 return bufferView;
             }
@@ -42,7 +42,7 @@ namespace CSGL.Vulkan {
         void CreateBufferView(BufferViewCreateInfo mInfo) {
             if (mInfo.buffer == null) throw new ArgumentNullException(nameof(mInfo.buffer));
 
-            VkBufferViewCreateInfo info = new VkBufferViewCreateInfo();
+            var info = new Unmanaged.VkBufferViewCreateInfo();
             info.sType = VkStructureType.BufferViewCreateInfo;
             info.buffer = mInfo.buffer.Native;
             info.format = mInfo.format;

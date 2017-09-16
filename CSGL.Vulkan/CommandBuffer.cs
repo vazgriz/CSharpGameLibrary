@@ -25,8 +25,8 @@ namespace CSGL.Vulkan {
     public class RenderPassBeginInfo {
         public RenderPass renderPass;
         public Framebuffer framebuffer;
-        public VkRect2D renderArea;
-        public IList<VkClearValue> clearValues;
+        public Unmanaged.VkRect2D renderArea;
+        public IList<Unmanaged.VkClearValue> clearValues;
     }
 
     public class MemoryBarrier {
@@ -52,14 +52,14 @@ namespace CSGL.Vulkan {
         public uint srcQueueFamilyIndex;
         public uint dstQueueFamilyIndex;
         public Image image;
-        public VkImageSubresourceRange subresourceRange;
+        public Unmanaged.VkImageSubresourceRange subresourceRange;
     }
 
-    public class CommandBuffer : IDisposable, INative<VkCommandBuffer> {
-        VkCommandBuffer commandBuffer;
+    public class CommandBuffer : IDisposable, INative<Unmanaged.VkCommandBuffer> {
+        Unmanaged.VkCommandBuffer commandBuffer;
         bool disposed;
 
-        public VkCommandBuffer Native {
+        public Unmanaged.VkCommandBuffer Native {
             get {
                 return commandBuffer;
             }
@@ -73,7 +73,7 @@ namespace CSGL.Vulkan {
         //prevents double free
         internal bool CanDispose { get; set; } = true;
 
-        internal CommandBuffer(Device device, CommandPool pool, VkCommandBuffer commandBuffer, VkCommandBufferLevel level) {
+        internal CommandBuffer(Device device, CommandPool pool, Unmanaged.VkCommandBuffer commandBuffer, VkCommandBufferLevel level) {
             Device = device;
             Pool = pool;
             this.commandBuffer = commandBuffer;
@@ -103,11 +103,11 @@ namespace CSGL.Vulkan {
             if (info == null) throw new ArgumentNullException(nameof(info));
 
             unsafe {
-                var infoNative = new VkCommandBufferBeginInfo();
+                var infoNative = new Unmanaged.VkCommandBufferBeginInfo();
                 infoNative.sType = VkStructureType.CommandBufferBeginInfo;
                 infoNative.flags = info.flags;
 
-                VkCommandBufferInheritanceInfo inheritanceNative = new VkCommandBufferInheritanceInfo();
+                var inheritanceNative = new Unmanaged.VkCommandBufferInheritanceInfo();
                 if (info.inheritanceInfo != null) {
                     inheritanceNative.sType = VkStructureType.CommandBufferInheritanceInfo;
                     inheritanceNative.renderPass = info.inheritanceInfo.renderPass.Native;
@@ -134,9 +134,9 @@ namespace CSGL.Vulkan {
                 int clearValueCount = 0;
                 if (info.clearValues != null) clearValueCount = info.clearValues.Count;
 
-                var clearValuesNative = stackalloc VkClearValue[clearValueCount];
+                var clearValuesNative = stackalloc Unmanaged.VkClearValue[clearValueCount];
 
-                var infoNative = new VkRenderPassBeginInfo();
+                var infoNative = new Unmanaged.VkRenderPassBeginInfo();
                 infoNative.sType = VkStructureType.RenderPassBeginInfo;
                 infoNative.renderPass = info.renderPass.Native;
                 infoNative.framebuffer = info.framebuffer.Native;
@@ -179,10 +179,10 @@ namespace CSGL.Vulkan {
             if (offsets == null) throw new ArgumentNullException(nameof(offsets));
 
             unsafe {
-                var buffersNative = stackalloc VkBuffer[buffers.Count];
+                var buffersNative = stackalloc Unmanaged.VkBuffer[buffers.Count];
                 var offsetsNative = stackalloc ulong[offsets.Count];
 
-                Interop.Marshal<VkBuffer, Buffer>(buffers, buffersNative);
+                Interop.Marshal<Unmanaged.VkBuffer, Buffer>(buffers, buffersNative);
                 Interop.Copy(offsets, (IntPtr)offsetsNative);
 
                 Device.Commands.cmdBindVertexBuffers(commandBuffer, firstBinding, (uint)buffers.Count, (IntPtr)(buffersNative), ref offsetsNative[0]);
@@ -193,7 +193,7 @@ namespace CSGL.Vulkan {
             if (buffer == null) throw new ArgumentNullException(nameof(buffer));
 
             unsafe {
-                VkBuffer bufferNative = buffer.Native;
+                Unmanaged.VkBuffer bufferNative = buffer.Native;
                 Device.Commands.cmdBindVertexBuffers(commandBuffer, firstBinding, 1, (IntPtr)(&bufferNative), ref offset);
             }
         }
@@ -211,10 +211,10 @@ namespace CSGL.Vulkan {
                 int dynamicOffsetCount = 0;
                 if (dynamicOffsets != null) dynamicOffsetCount = dynamicOffsets.Count;
 
-                var sets = stackalloc VkDescriptorSet[descriptorSets.Count];
+                var sets = stackalloc Unmanaged.VkDescriptorSet[descriptorSets.Count];
                 var offsets = stackalloc uint[dynamicOffsetCount];
 
-                Interop.Marshal<VkDescriptorSet, DescriptorSet>(descriptorSets, sets);
+                Interop.Marshal<Unmanaged.VkDescriptorSet, DescriptorSet>(descriptorSets, sets);
 
                 if (dynamicOffsets != null) Interop.Copy(dynamicOffsets, (IntPtr)offsets);
 
@@ -233,7 +233,7 @@ namespace CSGL.Vulkan {
 
                 var offsets = stackalloc uint[dynamicOffsetCount];
 
-                VkDescriptorSet setNative = descriptorSet.Native;
+                Unmanaged.VkDescriptorSet setNative = descriptorSet.Native;
                 if (dynamicOffsets != null) Interop.Copy(dynamicOffsets, (IntPtr)offsets);
 
                 Device.Commands.cmdBindDescriptorSets(commandBuffer, VkPipelineBindPoint.Graphics, layout.Native,
@@ -250,19 +250,19 @@ namespace CSGL.Vulkan {
             Device.Commands.cmdDrawIndexed(commandBuffer, indexCount, instanceCount, firstIndex, vertexOffset, firstInstance);
         }
 
-        public void CopyBuffer(Buffer srcBuffer, Buffer dstBuffer, IList<VkBufferCopy> regions) {
+        public void CopyBuffer(Buffer srcBuffer, Buffer dstBuffer, IList<Unmanaged.VkBufferCopy> regions) {
             if (srcBuffer == null) throw new ArgumentNullException(nameof(srcBuffer));
             if (dstBuffer == null) throw new ArgumentNullException(nameof(dstBuffer));
             if (regions == null) throw new ArgumentNullException(nameof(regions));
 
             unsafe {
-                var regionsNative = stackalloc VkBufferCopy[regions.Count];
+                var regionsNative = stackalloc Unmanaged.VkBufferCopy[regions.Count];
                 Interop.Copy(regions, (IntPtr)regionsNative);
                 Device.Commands.cmdCopyBuffer(commandBuffer, srcBuffer.Native, dstBuffer.Native, (uint)regions.Count, (IntPtr)regionsNative);
             }
         }
 
-        public void CopyBuffer(Buffer srcBuffer, Buffer dstBuffer, VkBufferCopy region) {
+        public void CopyBuffer(Buffer srcBuffer, Buffer dstBuffer, Unmanaged.VkBufferCopy region) {
             if (srcBuffer == null) throw new ArgumentNullException(nameof(srcBuffer));
             if (dstBuffer == null) throw new ArgumentNullException(nameof(dstBuffer));
 
@@ -271,13 +271,13 @@ namespace CSGL.Vulkan {
             }
         }
 
-        public void CopyImage(Image srcImage, VkImageLayout srcImageLayout, Image dstImage, VkImageLayout dstImageLayout, IList<VkImageCopy> regions) {
+        public void CopyImage(Image srcImage, VkImageLayout srcImageLayout, Image dstImage, VkImageLayout dstImageLayout, IList<Unmanaged.VkImageCopy> regions) {
             if (srcImage == null) throw new ArgumentNullException(nameof(srcImage));
             if (dstImage == null) throw new ArgumentNullException(nameof(dstImage));
             if (regions == null) throw new ArgumentNullException(nameof(regions));
 
             unsafe {
-                var regionsNative = stackalloc VkImageCopy[regions.Count];
+                var regionsNative = stackalloc Unmanaged.VkImageCopy[regions.Count];
                 Interop.Copy(regions, (IntPtr)regionsNative);
 
                 Device.Commands.cmdCopyImage(commandBuffer,
@@ -287,7 +287,7 @@ namespace CSGL.Vulkan {
             }
         }
 
-        public void CopyImage(Image srcImage, VkImageLayout srcImageLayout, Image dstImage, VkImageLayout dstImageLayout, VkImageCopy regions) {
+        public void CopyImage(Image srcImage, VkImageLayout srcImageLayout, Image dstImage, VkImageLayout dstImageLayout, Unmanaged.VkImageCopy regions) {
             if (srcImage == null) throw new ArgumentNullException(nameof(srcImage));
             if (dstImage == null) throw new ArgumentNullException(nameof(dstImage));
 
@@ -315,21 +315,21 @@ namespace CSGL.Vulkan {
             if (imageMemoryBarriers != null) ibCount = imageMemoryBarriers.Count;
 
             unsafe {
-                var mbNative = stackalloc VkMemoryBarrier[mbCount];
+                var mbNative = stackalloc Unmanaged.VkMemoryBarrier[mbCount];
 
                 for (int i = 0; i < mbCount; i++) {
                     var mb = memoryBarriers[i];
-                    mbNative[i] = new VkMemoryBarrier();
+                    mbNative[i] = new Unmanaged.VkMemoryBarrier();
                     mbNative[i].sType = VkStructureType.MemoryBarrier;
                     mbNative[i].srcAccessMask = mb.srcAccessMask;
                     mbNative[i].dstAccessMask = mb.dstAccessMask;
                 }
 
-                var bbNative = stackalloc VkBufferMemoryBarrier[bbCount];
+                var bbNative = stackalloc Unmanaged.VkBufferMemoryBarrier[bbCount];
 
                 for (int i = 0; i < bbCount; i++) {
                     var bb = bufferMemoryBarriers[i];
-                    bbNative[i] = new VkBufferMemoryBarrier();
+                    bbNative[i] = new Unmanaged.VkBufferMemoryBarrier();
                     bbNative[i].sType = VkStructureType.BufferMemoryBarrier;
                     bbNative[i].srcAccessMask = bb.srcAccessMask;
                     bbNative[i].dstAccessMask = bb.dstAccessMask;
@@ -340,11 +340,11 @@ namespace CSGL.Vulkan {
                     bbNative[i].size = bb.size;
                 }
 
-                var ibNative = stackalloc VkImageMemoryBarrier[ibCount];
+                var ibNative = stackalloc Unmanaged.VkImageMemoryBarrier[ibCount];
 
                 for (int i = 0; i < ibCount; i++) {
                     var ib = imageMemoryBarriers[i];
-                    ibNative[i] = new VkImageMemoryBarrier();
+                    ibNative[i] = new Unmanaged.VkImageMemoryBarrier();
                     ibNative[i].sType = VkStructureType.ImageMemoryBarrier;
                     ibNative[i].srcAccessMask = ib.srcAccessMask;
                     ibNative[i].dstAccessMask = ib.dstAccessMask;
@@ -364,18 +364,18 @@ namespace CSGL.Vulkan {
             }
         }
 
-        public void ClearColorImage(Image image, VkImageLayout imageLayout, ref VkClearColorValue clearColor, IList<VkImageSubresourceRange> ranges) {
+        public void ClearColorImage(Image image, VkImageLayout imageLayout, ref Unmanaged.VkClearColorValue clearColor, IList<Unmanaged.VkImageSubresourceRange> ranges) {
             if (image == null) throw new ArgumentNullException(nameof(image));
             if (ranges == null) throw new ArgumentNullException(nameof(ranges));
 
             unsafe {
-                var rangesNative = stackalloc VkImageSubresourceRange[ranges.Count];
+                var rangesNative = stackalloc Unmanaged.VkImageSubresourceRange[ranges.Count];
                 Interop.Copy(ranges, (IntPtr)rangesNative);
                 Device.Commands.cmdClearColorImage(commandBuffer, image.Native, imageLayout, ref clearColor, (uint)ranges.Count, (IntPtr)rangesNative);
             }
         }
 
-        public void ClearColorImage(Image image, VkImageLayout imageLayout, ref VkClearColorValue clearColor, VkImageSubresourceRange ranges) {
+        public void ClearColorImage(Image image, VkImageLayout imageLayout, ref Unmanaged.VkClearColorValue clearColor, Unmanaged.VkImageSubresourceRange ranges) {
             if (image == null) throw new ArgumentNullException(nameof(image));
 
             unsafe {
@@ -387,8 +387,8 @@ namespace CSGL.Vulkan {
             if (commandBuffers == null) throw new ArgumentNullException(nameof(commandBuffers));
 
             unsafe {
-                var commandBuffersNative = stackalloc VkCommandBuffer[commandBuffers.Count];
-                Interop.Marshal<VkCommandBuffer, CommandBuffer>(commandBuffers, commandBuffersNative);
+                var commandBuffersNative = stackalloc Unmanaged.VkCommandBuffer[commandBuffers.Count];
+                Interop.Marshal<Unmanaged.VkCommandBuffer, CommandBuffer>(commandBuffers, commandBuffersNative);
                 Device.Commands.cmdExecuteCommands(commandBuffer, (uint)commandBuffers.Count, (IntPtr)commandBuffersNative);
             }
         }
@@ -441,8 +441,8 @@ namespace CSGL.Vulkan {
             if (events == null) throw new ArgumentNullException(nameof(events));
 
             unsafe {
-                var eventsNative = stackalloc VkEvent[events.Count];
-                Interop.Marshal<VkEvent, Event>(events, eventsNative);
+                var eventsNative = stackalloc Unmanaged.VkEvent[events.Count];
+                Interop.Marshal<Unmanaged.VkEvent, Event>(events, eventsNative);
 
                 int mbCount = 0;
                 int bbCount = 0;
@@ -452,13 +452,13 @@ namespace CSGL.Vulkan {
                 if (bufferMemoryBarriers != null) bbCount = bufferMemoryBarriers.Count;
                 if (imageMemoryBarriers != null) ibCount = imageMemoryBarriers.Count;
 
-                var mbNative = stackalloc VkMemoryBarrier[mbCount];
-                var bbNative = stackalloc VkBufferMemoryBarrier[bbCount];
-                var ibNative = stackalloc VkImageMemoryBarrier[ibCount];
+                var mbNative = stackalloc Unmanaged.VkMemoryBarrier[mbCount];
+                var bbNative = stackalloc Unmanaged.VkBufferMemoryBarrier[bbCount];
+                var ibNative = stackalloc Unmanaged.VkImageMemoryBarrier[ibCount];
 
                 for (int i = 0; i < mbCount; i++) {
                     var mb = memoryBarriers[i];
-                    mbNative[i] = new VkMemoryBarrier();
+                    mbNative[i] = new Unmanaged.VkMemoryBarrier();
                     mbNative[i].sType = VkStructureType.MemoryBarrier;
                     mbNative[i].srcAccessMask = mb.srcAccessMask;
                     mbNative[i].dstAccessMask = mb.dstAccessMask;
@@ -466,7 +466,7 @@ namespace CSGL.Vulkan {
 
                 for (int i = 0; i < bbCount; i++) {
                     var bb = bufferMemoryBarriers[i];
-                    bbNative[i] = new VkBufferMemoryBarrier();
+                    bbNative[i] = new Unmanaged.VkBufferMemoryBarrier();
                     bbNative[i].sType = VkStructureType.BufferMemoryBarrier;
                     bbNative[i].srcAccessMask = bb.srcAccessMask;
                     bbNative[i].dstAccessMask = bb.dstAccessMask;
@@ -479,7 +479,7 @@ namespace CSGL.Vulkan {
 
                 for (int i = 0; i < ibCount; i++) {
                     var ib = imageMemoryBarriers[i];
-                    ibNative[i] = new VkImageMemoryBarrier();
+                    ibNative[i] = new Unmanaged.VkImageMemoryBarrier();
                     ibNative[i].sType = VkStructureType.ImageMemoryBarrier;
                     ibNative[i].srcAccessMask = ib.srcAccessMask;
                     ibNative[i].dstAccessMask = ib.dstAccessMask;
@@ -504,8 +504,8 @@ namespace CSGL.Vulkan {
             if (events == null) throw new ArgumentNullException(nameof(events));
 
             unsafe {
-                var eventsNative = stackalloc VkEvent[events.Count];
-                Interop.Marshal<VkEvent, Event>(events, eventsNative);
+                var eventsNative = stackalloc Unmanaged.VkEvent[events.Count];
+                Interop.Marshal<Unmanaged.VkEvent, Event>(events, eventsNative);
 
                 Device.Commands.cmdWaitEvents(commandBuffer,
                     (uint)events.Count, (IntPtr)eventsNative,
@@ -516,33 +516,33 @@ namespace CSGL.Vulkan {
             }
         }
 
-        public void SetViewports(uint firstViewport, IList<VkViewport> viewports) {
+        public void SetViewports(uint firstViewport, IList<Unmanaged.VkViewport> viewports) {
             if (viewports == null) throw new ArgumentNullException(nameof(viewports));
 
             unsafe {
-                var viewportsNative = stackalloc VkViewport[viewports.Count];
+                var viewportsNative = stackalloc Unmanaged.VkViewport[viewports.Count];
                 Interop.Copy(viewports, (IntPtr)viewportsNative);
                 Device.Commands.cmdSetViewports(commandBuffer, firstViewport, (uint)viewports.Count, (IntPtr)viewportsNative);
             }
         }
 
-        public void SetViewports(uint firstViewport, VkViewport viewports) {
+        public void SetViewports(uint firstViewport, Unmanaged.VkViewport viewports) {
             unsafe {
                 Device.Commands.cmdSetViewports(commandBuffer, firstViewport, 1, (IntPtr)(&viewports));
             }
         }
 
-        public void SetScissor(uint firstScissor, IList<VkRect2D> scissors) {
+        public void SetScissor(uint firstScissor, IList<Unmanaged.VkRect2D> scissors) {
             if (scissors == null) throw new ArgumentNullException(nameof(scissors));
 
             unsafe {
-                var scissorsNative = stackalloc VkRect2D[scissors.Count];
+                var scissorsNative = stackalloc Unmanaged.VkRect2D[scissors.Count];
                 Interop.Copy(scissors, (IntPtr)scissorsNative);
                 Device.Commands.cmdSetScissor(commandBuffer, firstScissor, (uint)scissors.Count, (IntPtr)scissorsNative);
             }
         }
 
-        public void SetScissor(uint firstScissor, VkRect2D scissors) {
+        public void SetScissor(uint firstScissor, Unmanaged.VkRect2D scissors) {
             unsafe {
                 Device.Commands.cmdSetScissor(commandBuffer, firstScissor, 1, (IntPtr)(&scissors));
             }
@@ -643,19 +643,19 @@ namespace CSGL.Vulkan {
             Device.Commands.cmdFillBuffer(commandBuffer, dstBuffer.Native, dstOffset, size, data);
         }
 
-        public void BlitImage(Image srcImage, VkImageLayout srcImageLayout, Image dstImage, VkImageLayout dstImageLayout, IList<VkImageBlit> regions, VkFilter filter) {
+        public void BlitImage(Image srcImage, VkImageLayout srcImageLayout, Image dstImage, VkImageLayout dstImageLayout, IList<Unmanaged.VkImageBlit> regions, VkFilter filter) {
             if (srcImage == null) throw new ArgumentNullException(nameof(srcImage));
             if (dstImage == null) throw new ArgumentNullException(nameof(dstImage));
             if (regions == null) throw new ArgumentNullException(nameof(regions));
 
             unsafe {
-                var regionsNative = stackalloc VkImageBlit[regions.Count];
+                var regionsNative = stackalloc Unmanaged.VkImageBlit[regions.Count];
                 Interop.Copy(regions, (IntPtr)regionsNative);
                 Device.Commands.cmdBlitImage(commandBuffer, srcImage.Native, srcImageLayout, dstImage.Native, dstImageLayout, (uint)regions.Count, (IntPtr)regionsNative, filter);
             }
         }
 
-        public void BlitImage(Image srcImage, VkImageLayout srcImageLayout, Image dstImage, VkImageLayout dstImageLayout, VkImageBlit regions, VkFilter filter) {
+        public void BlitImage(Image srcImage, VkImageLayout srcImageLayout, Image dstImage, VkImageLayout dstImageLayout, Unmanaged.VkImageBlit regions, VkFilter filter) {
             if (srcImage == null) throw new ArgumentNullException(nameof(srcImage));
             if (dstImage == null) throw new ArgumentNullException(nameof(dstImage));
 
@@ -664,19 +664,19 @@ namespace CSGL.Vulkan {
             }
         }
 
-        public void CopyBufferToImage(Buffer srcBuffer, Image dstImage, VkImageLayout dstImageLayout, IList<VkBufferImageCopy> regions) {
+        public void CopyBufferToImage(Buffer srcBuffer, Image dstImage, VkImageLayout dstImageLayout, IList<Unmanaged.VkBufferImageCopy> regions) {
             if (srcBuffer == null) throw new ArgumentNullException(nameof(srcBuffer));
             if (dstImage == null) throw new ArgumentNullException(nameof(dstImage));
             if (regions == null) throw new ArgumentNullException(nameof(regions));
 
             unsafe {
-                var regionsNative = stackalloc VkBufferImageCopy[regions.Count];
+                var regionsNative = stackalloc Unmanaged.VkBufferImageCopy[regions.Count];
                 Interop.Copy(regions, (IntPtr)regionsNative);
                 Device.Commands.cmdCopyBufferToImage(commandBuffer, srcBuffer.Native, dstImage.Native, dstImageLayout, (uint)regions.Count, (IntPtr)regionsNative);
             }
         }
 
-        public void CopyBufferToImage(Buffer srcBuffer, Image dstImage, VkImageLayout dstImageLayout, VkBufferImageCopy regions) {
+        public void CopyBufferToImage(Buffer srcBuffer, Image dstImage, VkImageLayout dstImageLayout, Unmanaged.VkBufferImageCopy regions) {
             if (srcBuffer == null) throw new ArgumentNullException(nameof(srcBuffer));
             if (dstImage == null) throw new ArgumentNullException(nameof(dstImage));
 
@@ -685,19 +685,19 @@ namespace CSGL.Vulkan {
             }
         }
 
-        public void CopyImageToBuffer(Image srcImage, VkImageLayout srcImageLayout, Buffer dstBuffer, IList<VkBufferImageCopy> regions) {
+        public void CopyImageToBuffer(Image srcImage, VkImageLayout srcImageLayout, Buffer dstBuffer, IList<Unmanaged.VkBufferImageCopy> regions) {
             if (srcImage == null) throw new ArgumentNullException(nameof(srcImage));
             if (dstBuffer == null) throw new ArgumentNullException(nameof(dstBuffer));
             if (regions == null) throw new ArgumentNullException(nameof(regions));
 
             unsafe {
-                var regionsNative = stackalloc VkBufferImageCopy[regions.Count];
+                var regionsNative = stackalloc Unmanaged.VkBufferImageCopy[regions.Count];
                 Interop.Copy(regions, (IntPtr)regionsNative);
                 Device.Commands.cmdCopyImageToBuffer(commandBuffer, srcImage.Native, srcImageLayout, dstBuffer.Native, (uint)regions.Count, (IntPtr)regionsNative);
             }
         }
 
-        public void CopyImageToBuffer(Image srcImage, VkImageLayout srcImageLayout, Buffer dstBuffer, VkBufferImageCopy regions) {
+        public void CopyImageToBuffer(Image srcImage, VkImageLayout srcImageLayout, Buffer dstBuffer, Unmanaged.VkBufferImageCopy regions) {
             if (srcImage == null) throw new ArgumentNullException(nameof(srcImage));
             if (dstBuffer == null) throw new ArgumentNullException(nameof(dstBuffer));
 
@@ -706,13 +706,13 @@ namespace CSGL.Vulkan {
             }
         }
 
-        public void ClearAttachments(IList<VkClearAttachment> attachments, IList<VkClearRect> rects) {
+        public void ClearAttachments(IList<Unmanaged.VkClearAttachment> attachments, IList<Unmanaged.VkClearRect> rects) {
             if (attachments == null) throw new ArgumentNullException(nameof(attachments));
             if (rects == null) throw new ArgumentNullException(nameof(rects));
 
             unsafe {
-                var attachmentsNative = stackalloc VkClearAttachment[attachments.Count];
-                var rectsNative = stackalloc VkClearRect[rects.Count];
+                var attachmentsNative = stackalloc Unmanaged.VkClearAttachment[attachments.Count];
+                var rectsNative = stackalloc Unmanaged.VkClearRect[rects.Count];
                 Interop.Copy(attachments, (IntPtr)attachmentsNative);
                 Interop.Copy(rects, (IntPtr)rectsNative);
 
@@ -720,25 +720,25 @@ namespace CSGL.Vulkan {
             }
         }
 
-        public void ClearAttachments(VkClearAttachment attachments, VkClearRect rects) {
+        public void ClearAttachments(Unmanaged.VkClearAttachment attachments, Unmanaged.VkClearRect rects) {
             unsafe {
                 Device.Commands.cmdClearAttachments(commandBuffer, 1, (IntPtr)(&attachments), 1, (IntPtr)(&rects));
             }
         }
 
-        public void ResolveImage(Image srcImage, VkImageLayout srcImageLayout, Image dstImage, VkImageLayout dstImageLayout, IList<VkImageResolve> regions) {
+        public void ResolveImage(Image srcImage, VkImageLayout srcImageLayout, Image dstImage, VkImageLayout dstImageLayout, IList<Unmanaged.VkImageResolve> regions) {
             if (srcImage == null) throw new ArgumentNullException(nameof(srcImage));
             if (dstImage == null) throw new ArgumentNullException(nameof(dstImage));
             if (regions == null) throw new ArgumentNullException(nameof(regions));
 
             unsafe {
-                var regionsNative = stackalloc VkImageResolve[regions.Count];
+                var regionsNative = stackalloc Unmanaged.VkImageResolve[regions.Count];
                 Interop.Copy(regions, (IntPtr)regionsNative);
                 Device.Commands.cmdResolveImage(commandBuffer, srcImage.Native, srcImageLayout, dstImage.Native, dstImageLayout, (uint)regions.Count, (IntPtr)regionsNative);
             }
         }
 
-        public void ResolveImage(Image srcImage, VkImageLayout srcImageLayout, Image dstImage, VkImageLayout dstImageLayout, VkImageResolve regions) {
+        public void ResolveImage(Image srcImage, VkImageLayout srcImageLayout, Image dstImage, VkImageLayout dstImageLayout, Unmanaged.VkImageResolve regions) {
             if (srcImage == null) throw new ArgumentNullException(nameof(srcImage));
             if (dstImage == null) throw new ArgumentNullException(nameof(dstImage));
 

@@ -1,22 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
 
-using CSGL.Vulkan.Unmanaged;
-
 namespace CSGL.Vulkan {
     public class DeviceCreateInfo {
         public IList<string> extensions;
         public IList<DeviceQueueCreateInfo> queueCreateInfos;
-        public VkPhysicalDeviceFeatures features;
+        public Unmanaged.VkPhysicalDeviceFeatures features;
     }
 
-    public partial class Device : IDisposable, INative<VkDevice> {
-        VkDevice device;
+    public partial class Device : IDisposable, INative<Unmanaged.VkDevice> {
+        Unmanaged.VkDevice device;
         bool disposed = false;
 
         Dictionary<QueueID, Queue> queues;
 
-        vkGetDeviceProcAddrDelegate getDeviceProcAddr;
+        Unmanaged.vkGetDeviceProcAddrDelegate getDeviceProcAddr;
 
         public DeviceCommands Commands { get; private set; }
 
@@ -25,7 +23,7 @@ namespace CSGL.Vulkan {
 
         public IList<string> Extensions { get; private set; }
 
-        public VkDevice Native {
+        public Unmanaged.VkDevice Native {
             get {
                 return device;
             }
@@ -54,11 +52,11 @@ namespace CSGL.Vulkan {
             if (mInfo.queueCreateInfos == null) throw new ArgumentNullException(nameof(mInfo.queueCreateInfos));
 
             var extensionsMarshalled = new NativeStringArray(mInfo.extensions);
-            MarshalledArray<VkDeviceQueueCreateInfo> queueInfos = null;
+            MarshalledArray<Unmanaged.VkDeviceQueueCreateInfo> queueInfos = null;
             DisposableList<NativeArray<float>> prioritiesMarshalled = null;
-            Marshalled<VkPhysicalDeviceFeatures> features = new Marshalled<VkPhysicalDeviceFeatures>(mInfo.features);
+            var features = new Marshalled<Unmanaged.VkPhysicalDeviceFeatures>(mInfo.features);
 
-            var info = new VkDeviceCreateInfo();
+            var info = new Unmanaged.VkDeviceCreateInfo();
             info.sType = VkStructureType.DeviceCreateInfo;
             info.enabledExtensionCount = (uint)extensionsMarshalled.Count;
             info.ppEnabledExtensionNames = extensionsMarshalled.Address;
@@ -66,12 +64,12 @@ namespace CSGL.Vulkan {
             
             int length = mInfo.queueCreateInfos.Count;
             info.queueCreateInfoCount = (uint)length;
-            queueInfos = new MarshalledArray<VkDeviceQueueCreateInfo>(length);
+            queueInfos = new MarshalledArray<Unmanaged.VkDeviceQueueCreateInfo>(length);
             prioritiesMarshalled = new DisposableList<NativeArray<float>>(length);
 
             for (int i = 0; i < length; i++) {
                 var mi = mInfo.queueCreateInfos[i];
-                var qInfo = new VkDeviceQueueCreateInfo();
+                var qInfo = new Unmanaged.VkDeviceQueueCreateInfo();
                 qInfo.sType = VkStructureType.DeviceQueueCreateInfo;
 
                 var priorityMarshalled = new NativeArray<float>(mi.priorities);
@@ -114,7 +112,7 @@ namespace CSGL.Vulkan {
                 var queueInfo = info.queueCreateInfos[i];
                 for (int j = 0; j < (int)queueInfo.queueCount; j++) {
                     QueueID id = new QueueID(queueInfo.queueFamilyIndex, (uint)j);
-                    VkQueue temp;
+                    Unmanaged.VkQueue temp;
                     Commands.getDeviceQueue(device, id.familyIndex, id.index, out temp);
 
                     var queue = new Queue(this, temp, id.familyIndex, queueInfo.priorities[j]);

@@ -1,16 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 
-using CSGL.Vulkan.Unmanaged;
-
 namespace CSGL.Vulkan {
-    public abstract class Pipeline : IDisposable, INative<VkPipeline> {
-        protected VkPipeline pipeline;
+    public abstract class Pipeline : IDisposable, INative<Unmanaged.VkPipeline> {
+        protected Unmanaged.VkPipeline pipeline;
         bool disposed = false;
 
         public Device Device { get; protected set; }
 
-        public VkPipeline Native {
+        public Unmanaged.VkPipeline Native {
             get {
                 return pipeline;
             }
@@ -23,7 +21,7 @@ namespace CSGL.Vulkan {
             if (device == null) throw new ArgumentNullException(nameof(device));
             if (infos == null) throw new ArgumentNullException(nameof(infos));
 
-            VkPipelineCache nativeCache = VkPipelineCache.Null;
+            var nativeCache = Unmanaged.VkPipelineCache.Null;
             if (cache != null) {
                 nativeCache = cache.Native;
             }
@@ -42,7 +40,7 @@ namespace CSGL.Vulkan {
             if (device == null) throw new ArgumentNullException(nameof(device));
             if (infos == null) throw new ArgumentNullException(nameof(infos));
 
-            VkPipelineCache nativeCache = VkPipelineCache.Null;
+            var nativeCache = Unmanaged.VkPipelineCache.Null;
             if (cache != null) {
                 nativeCache = cache.Native;
             }

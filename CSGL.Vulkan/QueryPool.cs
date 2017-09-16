@@ -8,12 +8,12 @@ namespace CSGL.Vulkan {
         public VkQueryPipelineStatisticFlags pipelineStatistics;
     }
 
-    public class QueryPool : IDisposable, INative<VkQueryPool> {
+    public class QueryPool : IDisposable, INative<Unmanaged.VkQueryPool> {
         bool disposed;
 
-        VkQueryPool queryPool;
+        Unmanaged.VkQueryPool queryPool;
 
-        public VkQueryPool Native {
+        public Unmanaged.VkQueryPool Native {
             get {
                 return queryPool;
             }
@@ -38,7 +38,7 @@ namespace CSGL.Vulkan {
         }
 
         void CreateQueryPool(QueryPoolCreateInfo mInfo) {
-            VkQueryPoolCreateInfo info = new VkQueryPoolCreateInfo();
+            var info = new Unmanaged.VkQueryPoolCreateInfo();
             info.sType = VkStructureType.QueryPoolCreateInfo;
             info.queryType = mInfo.queryType;
             info.queryCount = mInfo.queryCount;

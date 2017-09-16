@@ -5,15 +5,15 @@ namespace CSGL.Vulkan {
         public Image image;
         public VkImageViewType viewType;
         public VkFormat format;
-        public VkComponentMapping components;
-        public VkImageSubresourceRange subresourceRange;
+        public Unmanaged.VkComponentMapping components;
+        public Unmanaged.VkImageSubresourceRange subresourceRange;
     }
 
-    public class ImageView : IDisposable, INative<VkImageView> {
-        VkImageView imageView;
+    public class ImageView : IDisposable, INative<Unmanaged.VkImageView> {
+        Unmanaged.VkImageView imageView;
         bool disposed = false;
 
-        public VkImageView Native {
+        public Unmanaged.VkImageView Native {
             get {
                 return imageView;
             }
@@ -23,8 +23,8 @@ namespace CSGL.Vulkan {
         public Image Image { get; private set; }
         public VkImageViewType ViewType { get; private set; }
         public VkFormat Format { get; private set; }
-        public VkComponentMapping Components { get; private set; }
-        public VkImageSubresourceRange SubresourceRange { get; private set; }
+        public Unmanaged.VkComponentMapping Components { get; private set; }
+        public Unmanaged.VkImageSubresourceRange SubresourceRange { get; private set; }
 
         public ImageView(Device device, ImageViewCreateInfo info) {
             if (device == null) throw new ArgumentNullException(nameof(device));
@@ -44,7 +44,7 @@ namespace CSGL.Vulkan {
         void CreateImageView(ImageViewCreateInfo mInfo) {
             if (mInfo.image == null) throw new ArgumentNullException(nameof(mInfo.image));
 
-            VkImageViewCreateInfo info = new VkImageViewCreateInfo();
+            var info = new Unmanaged.VkImageViewCreateInfo();
             info.sType = VkStructureType.ImageViewCreateInfo;
             info.image = mInfo.image.Native;
             info.viewType = mInfo.viewType;

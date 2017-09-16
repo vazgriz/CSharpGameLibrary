@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
-using CSGL.Vulkan.Unmanaged;
-
 namespace CSGL.Vulkan {
     public class ApplicationInfo {
         public VkVersion apiVersion;
@@ -19,18 +17,18 @@ namespace CSGL.Vulkan {
         public IList<string> layers;
     }
 
-    public partial class Instance : IDisposable, INative<VkInstance> {
-        VkInstance instance;
+    public partial class Instance : IDisposable, INative<Unmanaged.VkInstance> {
+        Unmanaged.VkInstance instance;
         IntPtr alloc = IntPtr.Zero;
         bool disposed = false;
 
-        vkGetInstanceProcAddrDelegate getProcAddrDel;
+        Unmanaged.vkGetInstanceProcAddrDelegate getProcAddrDel;
         public InstanceCommands Commands { get; private set; }
         public IList<string> Extensions { get; private set; }
         public IList<string> Layers { get; private set; }
         public IList<PhysicalDevice> PhysicalDevices { get; private set; }
 
-        public VkInstance Native {
+        public Unmanaged.VkInstance Native {
             get {
                 return instance;
             }
@@ -47,10 +45,10 @@ namespace CSGL.Vulkan {
             Init(info);
         }
 
-        public Instance(InstanceCreateInfo info, VkAllocationCallbacks callbacks) {
+        public Instance(InstanceCreateInfo info, Unmanaged.VkAllocationCallbacks callbacks) {
             if (info == null) throw new ArgumentNullException(nameof(info));
 
-            alloc = Marshal.AllocHGlobal(Marshal.SizeOf<VkAllocationCallbacks>());
+            alloc = Marshal.AllocHGlobal(Marshal.SizeOf<Unmanaged.VkAllocationCallbacks>());
             Marshal.StructureToPtr(callbacks, alloc, false);
 
             Init(info);
@@ -78,12 +76,12 @@ namespace CSGL.Vulkan {
         void CreateInstance(InstanceCreateInfo mInfo) {
             InteropString appName = null;
             InteropString engineName = null;
-            Marshalled<VkApplicationInfo> appInfoMarshalled = null;
+            Marshalled<Unmanaged.VkApplicationInfo> appInfoMarshalled = null;
 
             var extensionsMarshalled = new NativeStringArray(mInfo.extensions);
             var layersMarshalled = new NativeStringArray(mInfo.layers);
 
-            var info = new VkInstanceCreateInfo();
+            var info = new Unmanaged.VkInstanceCreateInfo();
             info.sType = VkStructureType.InstanceCreateInfo;
             info.enabledExtensionCount = (uint)extensionsMarshalled.Count;
             info.ppEnabledExtensionNames = extensionsMarshalled.Address;
@@ -91,7 +89,7 @@ namespace CSGL.Vulkan {
             info.ppEnabledLayerNames = layersMarshalled.Address;
 
             if (mInfo.applicationInfo != null) {
-                var appInfo = new VkApplicationInfo();
+                var appInfo = new Unmanaged.VkApplicationInfo();
                 appInfo.sType = VkStructureType.ApplicationInfo;
                 appInfo.apiVersion = mInfo.applicationInfo.apiVersion;
                 appInfo.engineVersion = mInfo.applicationInfo.engineVersion;
@@ -103,7 +101,7 @@ namespace CSGL.Vulkan {
                 engineName = new InteropString(mInfo.applicationInfo.engineName);
                 appInfo.pEngineName = engineName.Address;
 
-                appInfoMarshalled = new Marshalled<VkApplicationInfo>(appInfo);
+                appInfoMarshalled = new Marshalled<Unmanaged.VkApplicationInfo>(appInfo);
                 info.pApplicationInfo = appInfoMarshalled.Address;
             }
 
@@ -120,7 +118,7 @@ namespace CSGL.Vulkan {
         void GetPhysicalDevices() {
             uint count = 0;
             Commands.enumeratePhysicalDevices(instance, ref count, IntPtr.Zero);
-            var devices = new NativeArray<VkPhysicalDevice>((int)count);
+            var devices = new NativeArray<Unmanaged.VkPhysicalDevice>((int)count);
             Commands.enumeratePhysicalDevices(instance, ref count, devices.Address);
 
             var physicalDevices = new List<PhysicalDevice>();
@@ -173,7 +171,7 @@ namespace CSGL.Vulkan {
         void Dispose(bool disposing) {
             if (disposed) return;
 
-            VK.DestroyInstance(instance, alloc);
+            Unmanaged.VK.DestroyInstance(instance, alloc);
             Marshal.FreeHGlobal(alloc);
 
             disposed = true;

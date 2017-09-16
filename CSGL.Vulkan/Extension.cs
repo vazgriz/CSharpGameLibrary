@@ -7,7 +7,7 @@ namespace CSGL.Vulkan {
         public string Name { get; private set; }
         public VkVersion Version { get; private set; }
 
-        internal Extension(VkExtensionProperties prop) {
+        internal Extension(Unmanaged.VkExtensionProperties prop) {
             unsafe {
                 Name = Interop.GetString(&prop.extensionName);
             }

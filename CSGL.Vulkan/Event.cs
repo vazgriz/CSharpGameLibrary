@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 
 namespace CSGL.Vulkan {
-    public class Event : IDisposable, INative<VkEvent> {
-        VkEvent _event;
+    public class Event : IDisposable, INative<Unmanaged.VkEvent> {
+        Unmanaged.VkEvent _event;
         bool disposed;
 
-        public VkEvent Native {
+        public Unmanaged.VkEvent Native {
             get {
                 return _event;
             }
@@ -23,7 +23,7 @@ namespace CSGL.Vulkan {
         }
 
         void CreateEvent() {
-            VkEventCreateInfo info = new VkEventCreateInfo();
+            var info = new Unmanaged.VkEventCreateInfo();
             info.sType = VkStructureType.EventCreateInfo;
 
             var result = Device.Commands.createEvent(Device.Native, ref info, Device.Instance.AllocationCallbacks, out _event);

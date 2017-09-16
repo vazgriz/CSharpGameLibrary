@@ -1,13 +1,13 @@
 ﻿using System;
 
 namespace CSGL.Vulkan {
-    public class Semaphore : IDisposable, INative<VkSemaphore> {
-        VkSemaphore semaphore;
+    public class Semaphore : IDisposable, INative<Unmanaged.VkSemaphore> {
+        Unmanaged.VkSemaphore semaphore;
         bool disposed = false;
 
         public Device Device { get; private set; }
 
-        public VkSemaphore Native {
+        public Unmanaged.VkSemaphore Native {
             get {
                 return semaphore;
             }
@@ -22,7 +22,7 @@ namespace CSGL.Vulkan {
         }
 
         void CreateSemaphore() {
-            VkSemaphoreCreateInfo info = new VkSemaphoreCreateInfo();
+            var info = new Unmanaged.VkSemaphoreCreateInfo();
             info.sType = VkStructureType.SemaphoreCreateInfo;
 
             var result = Device.Commands.createSemaphore(Device.Native, ref info, Device.Instance.AllocationCallbacks, out semaphore);

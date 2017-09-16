@@ -3,7 +3,6 @@ using System.Collections.Generic;
 
 using CSGL;
 using CSGL.Vulkan;
-using CSGL.Vulkan.Unmanaged;
 
 namespace CSGL.Vulkan {
     public class SwapchainCreateInfo {
@@ -11,7 +10,7 @@ namespace CSGL.Vulkan {
         public uint minImageCount;
         public VkFormat imageFormat;
         public VkColorSpaceKHR imageColorSpace;
-        public VkExtent2D imageExtent;
+        public Unmanaged.VkExtent2D imageExtent;
         public uint imageArrayLayers;
         public VkImageUsageFlags imageUsage;
         public VkSharingMode imageSharingMode;
@@ -23,18 +22,18 @@ namespace CSGL.Vulkan {
         public Swapchain oldSwapchain;
     }
 
-    public class Swapchain : IDisposable, INative<VkSwapchainKHR> {
-        VkSwapchainKHR swapchain;
+    public class Swapchain : IDisposable, INative<Unmanaged.VkSwapchainKHR> {
+        Unmanaged.VkSwapchainKHR swapchain;
         bool disposed;
 
-        vkGetSwapchainImagesKHRDelegate getImages;
+        Unmanaged.vkGetSwapchainImagesKHRDelegate getImages;
 
         public Device Device { get; private set; }
         public Surface Surface { get; private set; }
         public IList<Image> Images { get; private set; }
         public VkFormat Format { get; private set; }
         public VkColorSpaceKHR ColorSpace { get; private set; }
-        public VkExtent2D Extent { get; private set; }
+        public Unmanaged.VkExtent2D Extent { get; private set; }
         public uint ArrayLayers { get; private set; }
         public VkImageUsageFlags Usage { get; private set; }
         public VkSharingMode SharingMode { get; private set; }
@@ -44,7 +43,7 @@ namespace CSGL.Vulkan {
         public VkPresentModeKHR PresentMode { get; private set; }
         public bool Clipped { get; private set; }
 
-        public VkSwapchainKHR Native {
+        public Unmanaged.VkSwapchainKHR Native {
             get {
                 return swapchain;
             }
@@ -82,7 +81,7 @@ namespace CSGL.Vulkan {
 
             uint count = 0;
             getImages(Device.Native, swapchain, ref count, IntPtr.Zero);
-            var imagesNative = new NativeArray<VkImage>((int)count);
+            var imagesNative = new NativeArray<Unmanaged.VkImage>((int)count);
             getImages(Device.Native, swapchain, ref count, imagesNative.Address);
 
             using (imagesNative) {
@@ -98,7 +97,7 @@ namespace CSGL.Vulkan {
         void CreateSwapchain(SwapchainCreateInfo mInfo) {
             if (mInfo.surface == null) throw new ArgumentNullException(nameof(mInfo.surface));
 
-            var info = new VkSwapchainCreateInfoKHR();
+            var info = new Unmanaged.VkSwapchainCreateInfoKHR();
             info.sType = VkStructureType.SwapchainCreateInfoKhr;
             info.surface = mInfo.surface.Native;
             info.minImageCount = mInfo.minImageCount;
@@ -129,8 +128,8 @@ namespace CSGL.Vulkan {
         }
 
         public VkResult AcquireNextImage(ulong timeout, Semaphore semaphore, Fence fence, out uint index) {
-            VkSemaphore semaphoreNative = VkSemaphore.Null;
-            VkFence fenceNative = VkFence.Null;
+            var semaphoreNative = Unmanaged.VkSemaphore.Null;
+            var fenceNative = Unmanaged.VkFence.Null;
             if (semaphore != null) semaphoreNative = semaphore.Native;
             if (fence != null) fenceNative = fence.Native;
 

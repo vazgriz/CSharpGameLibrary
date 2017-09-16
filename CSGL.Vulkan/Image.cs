@@ -6,7 +6,7 @@ namespace CSGL.Vulkan {
         public VkImageCreateFlags flags;
         public VkImageType imageType;
         public VkFormat format;
-        public VkExtent3D extent;
+        public Unmanaged.VkExtent3D extent;
         public uint mipLevels;
         public uint arrayLayers;
         public VkSampleCountFlags samples;
@@ -17,21 +17,21 @@ namespace CSGL.Vulkan {
         public VkImageLayout initialLayout;
     }
 
-    public class Image : IDisposable, INative<VkImage> {
-        VkImage image;
+    public class Image : IDisposable, INative<Unmanaged.VkImage> {
+        Unmanaged.VkImage image;
         bool disposed = false;
 
-        VkMemoryRequirements requirements;
+        Unmanaged.VkMemoryRequirements requirements;
 
         public Device Device { get; private set; }
 
-        public VkImage Native {
+        public Unmanaged.VkImage Native {
             get {
                 return image;
             }
         }
 
-        public VkMemoryRequirements Requirements {
+        public Unmanaged.VkMemoryRequirements Requirements {
             get {
                 return requirements;
             }
@@ -43,12 +43,12 @@ namespace CSGL.Vulkan {
             }
         }
 
-        public IList<VkSparseImageMemoryRequirements> SparseRequirements { get; private set; }
+        public IList<Unmanaged.VkSparseImageMemoryRequirements> SparseRequirements { get; private set; }
 
         public VkImageCreateFlags Flags { get; private set; }
         public VkImageType ImageType { get; private set; }
         public VkFormat Format { get; private set; }
-        public VkExtent3D Extent { get; private set; }
+        public Unmanaged.VkExtent3D Extent { get; private set; }
         public uint MipLevels { get; private set; }
         public uint ArrayLayers { get; private set; }
         public VkSampleCountFlags Samples { get; private set; }
@@ -60,7 +60,7 @@ namespace CSGL.Vulkan {
         public ulong Offset { get; private set; }
         public DeviceMemory Memory { get; private set; }
 
-        internal Image(Device device, VkImage image, VkFormat format) { //for images that are implicitly created, eg a swapchains's images
+        internal Image(Device device, Unmanaged.VkImage image, VkFormat format) { //for images that are implicitly created, eg a swapchains's images
             Device = device;
             this.image = image;
             Format = format;
@@ -94,7 +94,7 @@ namespace CSGL.Vulkan {
                 int indicesCount = 0;
                 if (mInfo.queueFamilyIndices != null) indicesCount = mInfo.queueFamilyIndices.Count;
 
-                var info = new VkImageCreateInfo();
+                var info = new Unmanaged.VkImageCreateInfo();
                 info.sType = VkStructureType.ImageCreateInfo;
                 info.flags = mInfo.flags;
                 info.imageType = mInfo.imageType;
@@ -121,11 +121,11 @@ namespace CSGL.Vulkan {
         }
 
         void GetSparseRequirements() {
-            var sparseRequirements = new List<VkSparseImageMemoryRequirements>();
+            var sparseRequirements = new List<Unmanaged.VkSparseImageMemoryRequirements>();
 
             uint count = 0;
             Device.Commands.getImageSparseRequirements(Device.Native, image, ref count, IntPtr.Zero);
-            var sparseRequirementsNative = new MarshalledArray<VkSparseImageMemoryRequirements>((int)count);
+            var sparseRequirementsNative = new MarshalledArray<Unmanaged.VkSparseImageMemoryRequirements>((int)count);
             Device.Commands.getImageSparseRequirements(Device.Native, image, ref count, sparseRequirementsNative.Address);
 
             using (sparseRequirementsNative) {
@@ -144,8 +144,8 @@ namespace CSGL.Vulkan {
             Offset = offset;
         }
 
-        public VkSubresourceLayout GetSubresourceLayout(VkImageSubresource subresource) {
-            var result = new VkSubresourceLayout();
+        public Unmanaged.VkSubresourceLayout GetSubresourceLayout(Unmanaged.VkImageSubresource subresource) {
+            var result = new Unmanaged.VkSubresourceLayout();
 
             Device.Commands.getSubresourceLayout(Device.Native, image, ref subresource, out result);
 

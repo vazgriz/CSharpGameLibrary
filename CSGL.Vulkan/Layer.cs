@@ -7,7 +7,7 @@ namespace CSGL.Vulkan {
         public VkVersion SpecVersion { get; private set; }
         public uint ImplementationVersion { get; private set; }
 
-        internal Layer(VkLayerProperties prop) {
+        internal Layer(Unmanaged.VkLayerProperties prop) {
             unsafe {
                 Name = Interop.GetString(&prop.layerName);
                 Description = Interop.GetString(&prop.description);

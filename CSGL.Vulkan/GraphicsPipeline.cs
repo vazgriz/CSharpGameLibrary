@@ -35,7 +35,7 @@ namespace CSGL.Vulkan {
         public RenderPass RenderPass { get; private set; }
         public uint Subpass { get; private set; }
 
-        internal GraphicsPipeline(Device device, VkPipeline pipeline, GraphicsPipelineCreateInfo info) {
+        internal GraphicsPipeline(Device device, Unmanaged.VkPipeline pipeline, GraphicsPipelineCreateInfo info) {
             Device = device;
             this.pipeline = pipeline;
             SetProperties(info);
@@ -47,7 +47,7 @@ namespace CSGL.Vulkan {
 
             Device = device;
 
-            VkPipelineCache nativeCache = VkPipelineCache.Null;
+            var nativeCache = Unmanaged.VkPipelineCache.Null;
             if (cache != null) {
                 nativeCache = cache.Native;
             }
@@ -80,21 +80,21 @@ namespace CSGL.Vulkan {
             Subpass = info.subpass;
         }
 
-        static internal IList<VkPipeline> CreatePipelinesInternal(Device device, IList<GraphicsPipelineCreateInfo> mInfos, VkPipelineCache cache) {
+        static internal IList<Unmanaged.VkPipeline> CreatePipelinesInternal(Device device, IList<GraphicsPipelineCreateInfo> mInfos, Unmanaged.VkPipelineCache cache) {
             int count = mInfos.Count;
-            var infosMarshalled = new MarshalledArray<VkGraphicsPipelineCreateInfo>(count);
-            var pipelineResults = new List<VkPipeline>(count);
+            var infosMarshalled = new MarshalledArray<Unmanaged.VkGraphicsPipelineCreateInfo>(count);
+            var pipelineResults = new List<Unmanaged.VkPipeline>(count);
             var marshalledArrays = new DisposableList<IDisposable>(count);
 
             for (int i = 0; i < count; i++) {
-                VkGraphicsPipelineCreateInfo info = new VkGraphicsPipelineCreateInfo();
+                var info = new Unmanaged.VkGraphicsPipelineCreateInfo();
                 var mInfo = mInfos[i];
 
                 info.sType = VkStructureType.GraphicsPipelineCreateInfo;
                 info.flags = mInfo.flags;
 
                 int stagesCount = mInfo.stages.Count;
-                var stagesMarshalled = new MarshalledArray<VkPipelineShaderStageCreateInfo>(stagesCount);
+                var stagesMarshalled = new MarshalledArray<Unmanaged.VkPipelineShaderStageCreateInfo>(stagesCount);
                 for (int j = 0; j < stagesCount; j++) {
                     stagesMarshalled[j] = mInfo.stages[j].GetNative(marshalledArrays);
                 }
@@ -105,54 +105,54 @@ namespace CSGL.Vulkan {
                 marshalledArrays.Add(stagesMarshalled);
 
                 if (mInfo.vertexInputState != null) {
-                    var m = new Marshalled<VkPipelineVertexInputStateCreateInfo>(mInfo.vertexInputState.GetNative(marshalledArrays));
+                    var m = new Marshalled<Unmanaged.VkPipelineVertexInputStateCreateInfo>(mInfo.vertexInputState.GetNative(marshalledArrays));
                     info.pVertexInputState = m.Address;
                     marshalledArrays.Add(m);
                 }
 
                 if (mInfo.inputAssemblyState != null) {
-                    var m = new Marshalled<VkPipelineInputAssemblyStateCreateInfo>(mInfo.inputAssemblyState.GetNative());
+                    var m = new Marshalled<Unmanaged.VkPipelineInputAssemblyStateCreateInfo>(mInfo.inputAssemblyState.GetNative());
                     info.pInputAssemblyState = m.Address;
                     marshalledArrays.Add(m);
                 }
 
                 if (mInfo.tessellationState != null) {
-                    var m = new Marshalled<VkPipelineTessellationStateCreateInfo>(mInfo.tessellationState.GetNative());
+                    var m = new Marshalled<Unmanaged.VkPipelineTessellationStateCreateInfo>(mInfo.tessellationState.GetNative());
                     info.pTessellationState = m.Address;
                     marshalledArrays.Add(m);
                 }
 
                 if (mInfo.viewportState != null) {
-                    var m = new Marshalled<VkPipelineViewportStateCreateInfo>(mInfo.viewportState.GetNative(marshalledArrays));
+                    var m = new Marshalled<Unmanaged.VkPipelineViewportStateCreateInfo>(mInfo.viewportState.GetNative(marshalledArrays));
                     info.pViewportState = m.Address;
                 }
 
                 if (mInfo.rasterizationState != null) {
-                    var m = new Marshalled<VkPipelineRasterizationStateCreateInfo>(mInfo.rasterizationState.GetNative());
+                    var m = new Marshalled<Unmanaged.VkPipelineRasterizationStateCreateInfo>(mInfo.rasterizationState.GetNative());
                     info.pRasterizationState = m.Address;
                     marshalledArrays.Add(m);
                 }
 
                 if (mInfo.multisampleState != null) {
-                    var m = new Marshalled<VkPipelineMultisampleStateCreateInfo>(mInfo.multisampleState.GetNative(marshalledArrays));
+                    var m = new Marshalled<Unmanaged.VkPipelineMultisampleStateCreateInfo>(mInfo.multisampleState.GetNative(marshalledArrays));
                     info.pMultisampleState = m.Address;
                     marshalledArrays.Add(m);
                 }
 
                 if (mInfo.depthStencilState != null) {
-                    var m = new Marshalled<VkPipelineDepthStencilStateCreateInfo>(mInfo.depthStencilState.GetNative());
+                    var m = new Marshalled<Unmanaged.VkPipelineDepthStencilStateCreateInfo>(mInfo.depthStencilState.GetNative());
                     info.pDepthStencilState = m.Address;
                     marshalledArrays.Add(m);
                 }
 
                 if (mInfo.colorBlendState != null) {
-                    var m = new Marshalled<VkPipelineColorBlendStateCreateInfo>(mInfo.colorBlendState.GetNative(marshalledArrays));
+                    var m = new Marshalled<Unmanaged.VkPipelineColorBlendStateCreateInfo>(mInfo.colorBlendState.GetNative(marshalledArrays));
                     info.pColorBlendState = m.Address;
                     marshalledArrays.Add(m);
                 }
 
                 if (mInfo.dynamicState != null) {
-                    var m = new Marshalled<VkPipelineDynamicStateCreateInfo>(mInfo.dynamicState.GetNative(marshalledArrays));
+                    var m = new Marshalled<Unmanaged.VkPipelineDynamicStateCreateInfo>(mInfo.dynamicState.GetNative(marshalledArrays));
                     info.pDynamicState = m.Address;
                     marshalledArrays.Add(m);
                 }
@@ -175,7 +175,7 @@ namespace CSGL.Vulkan {
             using (infosMarshalled)
             using (marshalledArrays) {
                 unsafe {
-                    var pipelinesNative = stackalloc VkPipeline[count];
+                    var pipelinesNative = stackalloc Unmanaged.VkPipeline[count];
 
                     var result = device.Commands.createGraphicsPiplines(
                         device.Native, cache,

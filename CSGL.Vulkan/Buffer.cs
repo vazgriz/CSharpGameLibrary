@@ -12,21 +12,21 @@ namespace CSGL.Vulkan {
         public IList<uint> queueFamilyIndices;
     }
 
-    public class Buffer : IDisposable, INative<VkBuffer> {
-        VkBuffer buffer;
+    public class Buffer : IDisposable, INative<Unmanaged.VkBuffer> {
+        Unmanaged.VkBuffer buffer;
         bool disposed;
 
-        VkMemoryRequirements requirements;
+        Unmanaged.VkMemoryRequirements requirements;
 
         public Device Device { get; private set; }
 
-        public VkBuffer Native {
+        public Unmanaged.VkBuffer Native {
             get {
                 return buffer;
             }
         }
 
-        public VkMemoryRequirements Requirements {
+        public Unmanaged.VkMemoryRequirements Requirements {
             get {
                 return requirements;
             }
@@ -61,7 +61,7 @@ namespace CSGL.Vulkan {
                 int indicesCount = 0;
                 if (mInfo.queueFamilyIndices != null) indicesCount = mInfo.queueFamilyIndices.Count;
 
-                var info = new VkBufferCreateInfo();
+                var info = new Unmanaged.VkBufferCreateInfo();
                 info.sType = VkStructureType.BufferCreateInfo;
                 info.flags = mInfo.flags;
                 info.size = mInfo.size;

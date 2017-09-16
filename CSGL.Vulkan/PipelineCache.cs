@@ -7,12 +7,12 @@ namespace CSGL.Vulkan {
         public IList<byte> initialData;
     }
 
-    public class PipelineCache : INative<VkPipelineCache>, IDisposable {
+    public class PipelineCache : INative<Unmanaged.VkPipelineCache>, IDisposable {
         bool disposed;
-        VkPipelineCache pipelineCache;
+        Unmanaged.VkPipelineCache pipelineCache;
         public Device Device { get; private set; }
 
-        public VkPipelineCache Native {
+        public Unmanaged.VkPipelineCache Native {
             get {
                 return pipelineCache;
             }
@@ -30,7 +30,7 @@ namespace CSGL.Vulkan {
         void CreateCache(PipelineCacheCreateInfo mInfo) {
             if (mInfo.initialData == null) throw new ArgumentNullException(nameof(mInfo.initialData));
 
-            var info = new VkPipelineCacheCreateInfo();
+            var info = new Unmanaged.VkPipelineCacheCreateInfo();
             info.sType = VkStructureType.PipelineCacheCreateInfo;
             info.initialDataSize = (IntPtr)mInfo.initialData.Count;
 
@@ -59,8 +59,8 @@ namespace CSGL.Vulkan {
 
         public void Merge(IList<PipelineCache> srcCaches) {
             unsafe {
-                VkPipelineCache* srcNative = stackalloc VkPipelineCache[srcCaches.Count];
-                Interop.Marshal<VkPipelineCache, PipelineCache>(srcCaches, srcNative);
+                Unmanaged.VkPipelineCache* srcNative = stackalloc Unmanaged.VkPipelineCache[srcCaches.Count];
+                Interop.Marshal<Unmanaged.VkPipelineCache, PipelineCache>(srcCaches, srcNative);
 
                 Device.Commands.mergePipelineCache(Device.Native, pipelineCache, (uint)srcCaches.Count, (IntPtr)srcNative);
             }

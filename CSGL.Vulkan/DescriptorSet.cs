@@ -38,15 +38,15 @@ namespace CSGL.Vulkan {
         public uint descriptorCount;
     }
 
-    public class DescriptorSet : IDisposable, INative<VkDescriptorSet> {
-        VkDescriptorSet descriptorSet;
+    public class DescriptorSet : IDisposable, INative<Unmanaged.VkDescriptorSet> {
+        Unmanaged.VkDescriptorSet descriptorSet;
         bool disposed;
 
         public Device Device { get; private set; }
         public DescriptorPool Pool { get; private set; }
         public DescriptorSetLayout Layout { get; private set; }
 
-        public VkDescriptorSet Native {
+        public Unmanaged.VkDescriptorSet Native {
             get {
                 return descriptorSet;
             }
@@ -56,7 +56,7 @@ namespace CSGL.Vulkan {
         //prevents double free
         internal bool CanDispose { get; set; }
 
-        internal DescriptorSet(Device device, DescriptorPool pool, VkDescriptorSet descriptorSet, DescriptorSetLayout setLayout) {
+        internal DescriptorSet(Device device, DescriptorPool pool, Unmanaged.VkDescriptorSet descriptorSet, DescriptorSetLayout setLayout) {
             Device = device;
             Pool = pool;
             this.descriptorSet = descriptorSet;
@@ -108,16 +108,16 @@ namespace CSGL.Vulkan {
             }
 
             unsafe {
-                var bufferInfos = stackalloc VkDescriptorBufferInfo[totalBuffers];
-                var imageInfos = stackalloc VkDescriptorImageInfo[totalImages];
-                var bufferViews = stackalloc VkBufferView[totalBufferViews];
+                var bufferInfos = stackalloc Unmanaged.VkDescriptorBufferInfo[totalBuffers];
+                var imageInfos = stackalloc Unmanaged.VkDescriptorImageInfo[totalImages];
+                var bufferViews = stackalloc Unmanaged.VkBufferView[totalBufferViews];
 
                 int bufferIndex = 0;
                 int imageIndex = 0;
                 int bufferViewIndex = 0;
 
-                var writesNative = stackalloc VkWriteDescriptorSet[writeCount];
-                var copiesNative = stackalloc VkCopyDescriptorSet[copyCount];
+                var writesNative = stackalloc Unmanaged.VkWriteDescriptorSet[writeCount];
+                var copiesNative = stackalloc Unmanaged.VkCopyDescriptorSet[copyCount];
 
                 for (int i = 0; i < writeCount; i++) {
                     var mWrite = writes[i];
@@ -133,7 +133,7 @@ namespace CSGL.Vulkan {
                         writesNative[i].pBufferInfo = (IntPtr)(&bufferInfos[bufferViewIndex]);
 
                         for (int j = 0; j < writesNative[i].descriptorCount; j++) {
-                            VkDescriptorBufferInfo bufferInfo = new VkDescriptorBufferInfo();
+                            var bufferInfo = new Unmanaged.VkDescriptorBufferInfo();
                             bufferInfo.buffer = mWrite.bufferInfo[j].buffer.Native;
                             bufferInfo.offset = mWrite.bufferInfo[j].offset;
                             bufferInfo.range = mWrite.bufferInfo[j].range;
@@ -146,9 +146,9 @@ namespace CSGL.Vulkan {
                         writesNative[i].pImageInfo = (IntPtr)(&imageInfos[imageIndex]);
 
                         for (int j = 0; j < writesNative[i].descriptorCount; j++) {
-                            VkDescriptorImageInfo imageInfo = new VkDescriptorImageInfo();
-                            imageInfo.sampler = VkSampler.Null;
-                            imageInfo.imageView = VkImageView.Null;
+                            var imageInfo = new Unmanaged.VkDescriptorImageInfo();
+                            imageInfo.sampler = Unmanaged.VkSampler.Null;
+                            imageInfo.imageView = Unmanaged.VkImageView.Null;
 
                             if (mWrite.imageInfo[j].sampler != null) {
                                 imageInfo.sampler = mWrite.imageInfo[j].sampler.Native;

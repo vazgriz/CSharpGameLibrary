@@ -3,18 +3,18 @@ using System.Collections.Generic;
 
 namespace CSGL.Vulkan {
     public class DescriptorSetLayoutCreateInfo {
-        public IList<VkDescriptorSetLayoutBinding> bindings;
+        public IList<Unmanaged.VkDescriptorSetLayoutBinding> bindings;
     }
 
-    public class DescriptorSetLayout : IDisposable, INative<VkDescriptorSetLayout> {
-        VkDescriptorSetLayout descriptorSetLayout;
+    public class DescriptorSetLayout : IDisposable, INative<Unmanaged.VkDescriptorSetLayout> {
+        Unmanaged.VkDescriptorSetLayout descriptorSetLayout;
 
         bool disposed;
 
         public Device Device { get; private set; }
-        public IList<VkDescriptorSetLayoutBinding> Bindings { get; private set; }
+        public IList<Unmanaged.VkDescriptorSetLayoutBinding> Bindings { get; private set; }
 
-        public VkDescriptorSetLayout Native {
+        public Unmanaged.VkDescriptorSetLayout Native {
             get {
                 return descriptorSetLayout;
             }
@@ -34,10 +34,10 @@ namespace CSGL.Vulkan {
         void CreateDescriptorSetLayout(DescriptorSetLayoutCreateInfo mInfo) {
             if (mInfo.bindings == null) throw new ArgumentNullException(nameof(mInfo.bindings));
 
-            var info = new VkDescriptorSetLayoutCreateInfo();
+            var info = new Unmanaged.VkDescriptorSetLayoutCreateInfo();
             info.sType = VkStructureType.DescriptorSetLayoutCreateInfo;
 
-            var bindingsMarshalled = new MarshalledArray<VkDescriptorSetLayoutBinding>(mInfo.bindings);
+            var bindingsMarshalled = new MarshalledArray<Unmanaged.VkDescriptorSetLayoutBinding>(mInfo.bindings);
             info.bindingCount = (uint)bindingsMarshalled.Count;
             info.pBindings = bindingsMarshalled.Address;
 

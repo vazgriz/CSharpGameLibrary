@@ -4,18 +4,18 @@ using System.Collections.Generic;
 namespace CSGL.Vulkan {
     public class PipelineLayoutCreateInfo {
         public IList<DescriptorSetLayout> setLayouts;
-        public IList<VkPushConstantRange> pushConstantRanges;
+        public IList<Unmanaged.VkPushConstantRange> pushConstantRanges;
     }
 
-    public class PipelineLayout : IDisposable, INative<VkPipelineLayout> {
-        VkPipelineLayout pipelineLayout;
+    public class PipelineLayout : IDisposable, INative<Unmanaged.VkPipelineLayout> {
+        Unmanaged.VkPipelineLayout pipelineLayout;
         bool disposed = false;
 
         public Device Device { get; private set; }
         public IList<DescriptorSetLayout> Layouts { get; private set; }
-        public IList<VkPushConstantRange> PushConstantRanges { get; private set; }
+        public IList<Unmanaged.VkPushConstantRange> PushConstantRanges { get; private set; }
 
-        public VkPipelineLayout Native {
+        public Unmanaged.VkPipelineLayout Native {
             get {
                 return pipelineLayout;
             }
@@ -40,16 +40,16 @@ namespace CSGL.Vulkan {
                 int pushConstantsCount = 0;
                 if (mInfo.pushConstantRanges != null) pushConstantsCount = mInfo.pushConstantRanges.Count;
 
-                VkPipelineLayoutCreateInfo info = new VkPipelineLayoutCreateInfo();
+                var info = new Unmanaged.VkPipelineLayoutCreateInfo();
                 info.sType = VkStructureType.PipelineLayoutCreateInfo;
 
-                var layoutsNative = stackalloc VkDescriptorSetLayout[layoutCount];
-                if (mInfo.setLayouts != null) Interop.Marshal<VkDescriptorSetLayout, DescriptorSetLayout>(mInfo.setLayouts, layoutsNative);
+                var layoutsNative = stackalloc Unmanaged.VkDescriptorSetLayout[layoutCount];
+                if (mInfo.setLayouts != null) Interop.Marshal<Unmanaged.VkDescriptorSetLayout, DescriptorSetLayout>(mInfo.setLayouts, layoutsNative);
 
                 info.setLayoutCount = (uint)layoutCount;
                 info.pSetLayouts = (IntPtr)layoutsNative;
 
-                var pushConstantsNative = stackalloc VkPushConstantRange[pushConstantsCount];
+                var pushConstantsNative = stackalloc Unmanaged.VkPushConstantRange[pushConstantsCount];
                 if (mInfo.pushConstantRanges != null) Interop.Copy(mInfo.pushConstantRanges, (IntPtr)pushConstantsNative);
 
                 info.pushConstantRangeCount = (uint)pushConstantsCount;

@@ -13,13 +13,13 @@ namespace CSGL.Vulkan {
         public ulong size;
     }
 
-    public class DeviceMemory : IDisposable, INative<VkDeviceMemory> {
-        VkDeviceMemory deviceMemory;
+    public class DeviceMemory : IDisposable, INative<Unmanaged.VkDeviceMemory> {
+        Unmanaged.VkDeviceMemory deviceMemory;
         bool disposed = false;
 
         public Device Device { get; private set; }
 
-        public VkDeviceMemory Native {
+        public Unmanaged.VkDeviceMemory Native {
             get {
                 return deviceMemory;
             }
@@ -54,7 +54,7 @@ namespace CSGL.Vulkan {
         }
 
         void CreateDeviceMemory(ulong allocationSize, uint memoryTypeIndex) {
-            var info = new VkMemoryAllocateInfo();
+            var info = new Unmanaged.VkMemoryAllocateInfo();
             info.sType = VkStructureType.MemoryAllocateInfo;
             info.allocationSize = allocationSize;
             info.memoryTypeIndex = memoryTypeIndex;
@@ -78,10 +78,10 @@ namespace CSGL.Vulkan {
             Device.Commands.unmapMemory(Device.Native, deviceMemory);
         }
 
-        static VkMappedMemoryRange Marshal(MappedMemoryRange range) {
+        static Unmanaged.VkMappedMemoryRange Marshal(MappedMemoryRange range) {
             if (range == null) throw new ArgumentNullException(nameof(range));
 
-            var result = new VkMappedMemoryRange();
+            var result = new Unmanaged.VkMappedMemoryRange();
             result.sType = VkStructureType.MappedMemoryRange;
             result.memory = range.memory.Native;
             result.offset = range.offset;
@@ -92,7 +92,7 @@ namespace CSGL.Vulkan {
 
         public static void Flush(Device device, IList<MappedMemoryRange> ranges) {
             unsafe {
-                VkMappedMemoryRange* rangesNative = stackalloc VkMappedMemoryRange[ranges.Count];
+                var rangesNative = stackalloc Unmanaged.VkMappedMemoryRange[ranges.Count];
 
                 for (int i = 0; i < ranges.Count; i++) {
                     rangesNative[i] = Marshal(ranges[i]);
@@ -104,7 +104,7 @@ namespace CSGL.Vulkan {
         }
 
         public static void Flush(Device device, MappedMemoryRange ranges) {
-            VkMappedMemoryRange rangeNative = Marshal(ranges);
+            var rangeNative = Marshal(ranges);
 
             unsafe {
                 var result = device.Commands.flushMemory(device.Native, 1, (IntPtr)(&rangeNative));
@@ -128,7 +128,7 @@ namespace CSGL.Vulkan {
         }
 
         public void Flush(ulong offset, ulong size) {
-            VkMappedMemoryRange rangeNative = new VkMappedMemoryRange();
+            var rangeNative = new Unmanaged.VkMappedMemoryRange();
             rangeNative.sType = VkStructureType.MappedMemoryRange;
             rangeNative.memory = deviceMemory;
             rangeNative.offset = offset;
@@ -142,7 +142,7 @@ namespace CSGL.Vulkan {
 
         public static void Invalidate(Device device, IList<MappedMemoryRange> ranges) {
             unsafe {
-                VkMappedMemoryRange* rangesNative = stackalloc VkMappedMemoryRange[ranges.Count];
+                var rangesNative = stackalloc Unmanaged.VkMappedMemoryRange[ranges.Count];
 
                 for (int i = 0; i < ranges.Count; i++) {
                     rangesNative[i] = Marshal(ranges[i]);
@@ -154,7 +154,7 @@ namespace CSGL.Vulkan {
         }
 
         public static void Invalidate(Device device, MappedMemoryRange ranges) {
-            VkMappedMemoryRange rangeNative = Marshal(ranges);
+            var rangeNative = Marshal(ranges);
 
             unsafe {
                 var result = device.Commands.invalidateMemory(device.Native, 1, (IntPtr)(&rangeNative));
@@ -178,7 +178,7 @@ namespace CSGL.Vulkan {
         }
 
         public void Invalidate(ulong offset, ulong size) {
-            VkMappedMemoryRange rangeNative = new VkMappedMemoryRange();
+            var rangeNative = new Unmanaged.VkMappedMemoryRange();
             rangeNative.sType = VkStructureType.MappedMemoryRange;
             rangeNative.memory = deviceMemory;
             rangeNative.offset = offset;

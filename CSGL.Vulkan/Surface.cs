@@ -3,16 +3,15 @@ using System.Collections.Generic;
 
 using CSGL.GLFW;
 using CSGL.GLFW.Unmanaged;
-using CSGL.Vulkan.Unmanaged;
 
 namespace CSGL.Vulkan {
-    public class Surface : IDisposable, INative<VkSurfaceKHR> {
-        VkSurfaceKHR surface;
+    public class Surface : IDisposable, INative<Unmanaged.VkSurfaceKHR> {
+        Unmanaged.VkSurfaceKHR surface;
         bool disposed = false;
 
         public Instance Instance { get; private set; }
 
-        public VkSurfaceKHR Native {
+        public Unmanaged.VkSurfaceKHR Native {
             get {
                 return surface;
             }
@@ -43,21 +42,21 @@ namespace CSGL.Vulkan {
             if (result != VkResult.Success) throw new SurfaceException(result, string.Format("Error creating surface: {0}", result));
         }
 
-        public VkSurfaceCapabilitiesKHR GetCapabilities(PhysicalDevice physicalDevice) {
+        public Unmanaged.VkSurfaceCapabilitiesKHR GetCapabilities(PhysicalDevice physicalDevice) {
             unsafe {
-                VkSurfaceCapabilitiesKHR cap;
+                Unmanaged.VkSurfaceCapabilitiesKHR cap;
                 Instance.Commands.getCapabilities(physicalDevice.Native, surface, (IntPtr)(&cap));
                 return cap;
             }
         }
 
-        public IList<VkSurfaceFormatKHR> GetFormats(PhysicalDevice physicalDevice) {
+        public IList<Unmanaged.VkSurfaceFormatKHR> GetFormats(PhysicalDevice physicalDevice) {
             unsafe {
-                var formats = new List<VkSurfaceFormatKHR>();
+                var formats = new List<Unmanaged.VkSurfaceFormatKHR>();
 
                 uint count = 0;
                 Instance.Commands.getFormats(physicalDevice.Native, surface, ref count, IntPtr.Zero);
-                var formatsNative = stackalloc VkSurfaceFormatKHR[(int)count];
+                var formatsNative = stackalloc Unmanaged.VkSurfaceFormatKHR[(int)count];
                 Instance.Commands.getFormats(physicalDevice.Native, surface, ref count, (IntPtr)formatsNative);
                 
                 for (int i = 0; i < count; i++) {

@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 
 namespace CSGL.Vulkan {
-    public class Fence : IDisposable, INative<VkFence> {
-        VkFence fence;
+    public class Fence : IDisposable, INative<Unmanaged.VkFence> {
+        Unmanaged.VkFence fence;
         bool disposed = false;
 
-        public VkFence Native {
+        public Unmanaged.VkFence Native {
             get {
                 return fence;
             }
@@ -33,7 +33,7 @@ namespace CSGL.Vulkan {
         public Fence(Device device) : this(device, VkFenceCreateFlags.None) { }
 
         void CreateFence(VkFenceCreateFlags flags) {
-            VkFenceCreateInfo info = new VkFenceCreateInfo();
+            var info = new Unmanaged.VkFenceCreateInfo();
             info.sType = VkStructureType.FenceCreateInfo;
             info.flags = flags;
 
@@ -43,7 +43,7 @@ namespace CSGL.Vulkan {
 
         public void Reset() {
             unsafe {
-                VkFence fenceNative = fence;
+                var fenceNative = fence;
                 var result = Device.Commands.resetFences(Device.Native, 1, (IntPtr)(&fenceNative));
                 if (result != VkResult.Success) throw new FenceException(result, string.Format("Error resetting fence: {0}", result));
             }
@@ -51,7 +51,7 @@ namespace CSGL.Vulkan {
 
         public VkResult Wait(ulong timeout) {
             unsafe {
-                VkFence fenceNative = fence;
+                var fenceNative = fence;
                 var result = Device.Commands.waitFences(Device.Native, 1, (IntPtr)(&fenceNative), 0, timeout);
                 if (!(result == VkResult.Success || result == VkResult.Timeout)) throw new FenceException(result, string.Format("Error waiting on fence: {0}", result));
                 return result;
@@ -67,8 +67,8 @@ namespace CSGL.Vulkan {
             if (fences == null) throw new ArgumentNullException(nameof(fences));
 
             unsafe {
-                var fencesNative = stackalloc VkFence[fences.Count];
-                Interop.Marshal<VkFence, Fence>(fences, fencesNative);
+                var fencesNative = stackalloc Unmanaged.VkFence[fences.Count];
+                Interop.Marshal<Unmanaged.VkFence, Fence>(fences, fencesNative);
 
                 var result = device.Commands.resetFences(device.Native, (uint)fences.Count, (IntPtr)fencesNative);
                 if (result != VkResult.Success) throw new FenceException(result, string.Format("Error resetting fences: {0}", result));
@@ -80,8 +80,8 @@ namespace CSGL.Vulkan {
             if (fences == null) throw new ArgumentNullException(nameof(fences));
 
             unsafe {
-                var fencesNative = stackalloc VkFence[fences.Count];
-                Interop.Marshal<VkFence, Fence>(fences, fencesNative);
+                var fencesNative = stackalloc Unmanaged.VkFence[fences.Count];
+                Interop.Marshal<Unmanaged.VkFence, Fence>(fences, fencesNative);
 
                 uint waitAllNative = waitAll ? 1u : 0u;
                 var result = device.Commands.waitFences(device.Native, (uint)fences.Count, (IntPtr)fencesNative, waitAllNative, timeout);

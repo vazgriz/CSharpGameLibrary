@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
-using CSGL.Vulkan.Unmanaged;
-
 namespace CSGL.Vulkan {
     public class DeviceQueueCreateInfo {
         public uint queueFamilyIndex;
@@ -34,9 +32,9 @@ namespace CSGL.Vulkan {
     }
 
     public partial class SparseImageMemoryBind {
-        public VkImageSubresource subresource;
-        public VkOffset3D offset;
-        public VkExtent3D extent;
+        public Unmanaged.VkImageSubresource subresource;
+        public Unmanaged.VkOffset3D offset;
+        public Unmanaged.VkExtent3D extent;
         public DeviceMemory memory;
         public ulong memoryOffset;
         public VkSparseMemoryBindFlags flags;
@@ -66,7 +64,7 @@ namespace CSGL.Vulkan {
     }
 
     public class Queue {
-        VkQueue queue;
+        Unmanaged.VkQueue queue;
 
         Device device;
 
@@ -74,7 +72,7 @@ namespace CSGL.Vulkan {
         public QueueFamily Family { get; private set; }
         public float Priority { get; private set; }
 
-        internal Queue(Device device, VkQueue queue, uint familyIndex, float priority) {
+        internal Queue(Device device, Unmanaged.VkQueue queue, uint familyIndex, float priority) {
             this.device = device;
             this.queue = queue;
             FamilyIndex = familyIndex;
@@ -93,7 +91,7 @@ namespace CSGL.Vulkan {
         }
 
         public void Submit(IList<SubmitInfo> infos, Fence fence) {
-            VkFence fenceNative = VkFence.Null;
+            var fenceNative = Unmanaged.VkFence.Null;
             if (fence != null) {
                 fenceNative = fence.Native;
             }
@@ -133,25 +131,25 @@ namespace CSGL.Vulkan {
                     }
                 }
 
-                var waitSemaphoresNative = stackalloc VkSemaphore[totalWaitSemaphores];
+                var waitSemaphoresNative = stackalloc Unmanaged.VkSemaphore[totalWaitSemaphores];
                 var waitDstNative = stackalloc VkPipelineStageFlags[totalWaitSemaphores];    //required to be the same length as above
-                var commandBuffersNative = stackalloc VkCommandBuffer[totalCommandBuffers];
-                var signalSemaphoresNative = stackalloc VkSemaphore[totalSignalSemaphores];
+                var commandBuffersNative = stackalloc Unmanaged.VkCommandBuffer[totalCommandBuffers];
+                var signalSemaphoresNative = stackalloc Unmanaged.VkSemaphore[totalSignalSemaphores];
 
                 int waitSemaphoresIndex = 0;
                 int commandBuffersIndex = 0;
                 int signalSemaphoresIndex = 0;
 
-                var infosNative = stackalloc VkSubmitInfo[infos.Count];
+                var infosNative = stackalloc Unmanaged.VkSubmitInfo[infos.Count];
 
                 for (int i = 0; i < infos.Count; i++) {
-                    var info = new VkSubmitInfo();
+                    var info = new Unmanaged.VkSubmitInfo();
                     info.sType = VkStructureType.SubmitInfo;
 
                     if (infos[i].waitSemaphores != null) {
                         int waitCount = waitCounts[i];
 
-                        Interop.Marshal<VkSemaphore, Semaphore>(infos[i].waitSemaphores, &waitSemaphoresNative[waitSemaphoresIndex]);
+                        Interop.Marshal<Unmanaged.VkSemaphore, Semaphore>(infos[i].waitSemaphores, &waitSemaphoresNative[waitSemaphoresIndex]);
 
                         for (int j = 0; j < waitCount; j++) {
                             waitDstNative[waitSemaphoresIndex + j] = infos[i].waitDstStageMask[j];
@@ -165,7 +163,7 @@ namespace CSGL.Vulkan {
 
                     if (infos[i].commandBuffers != null) {
                         int commandCount = commandCounts[i];
-                        Interop.Marshal<VkCommandBuffer, CommandBuffer>(infos[i].commandBuffers, &commandBuffersNative[commandBuffersIndex]);
+                        Interop.Marshal<Unmanaged.VkCommandBuffer, CommandBuffer>(infos[i].commandBuffers, &commandBuffersNative[commandBuffersIndex]);
 
                         info.commandBufferCount = (uint)infos[i].commandBuffers.Count;
                         info.pCommandBuffers = (IntPtr)(&commandBuffersNative[commandBuffersIndex]);    //get address from index
@@ -174,7 +172,7 @@ namespace CSGL.Vulkan {
 
                     if (infos[i].signalSemaphores != null) {
                         int signalCount = signalCounts[i];
-                        Interop.Marshal<VkSemaphore, Semaphore>(infos[i].signalSemaphores, &signalSemaphoresNative[signalSemaphoresIndex]);
+                        Interop.Marshal<Unmanaged.VkSemaphore, Semaphore>(infos[i].signalSemaphores, &signalSemaphoresNative[signalSemaphoresIndex]);
 
                         info.signalSemaphoreCount = (uint)infos[i].signalSemaphores.Count;
                         info.pSignalSemaphores = (IntPtr)(&signalSemaphoresNative[signalSemaphoresIndex]);  //get address from index
@@ -193,14 +191,14 @@ namespace CSGL.Vulkan {
             if (info == null) throw new ArgumentNullException(nameof(info));
 
             unsafe {
-                var waitSemaphoresNative = stackalloc VkSemaphore[info.waitSemaphores.Count];
-                Interop.Marshal<VkSemaphore, Semaphore>(info.waitSemaphores, waitSemaphoresNative);
+                var waitSemaphoresNative = stackalloc Unmanaged.VkSemaphore[info.waitSemaphores.Count];
+                Interop.Marshal<Unmanaged.VkSemaphore, Semaphore>(info.waitSemaphores, waitSemaphoresNative);
 
                 //swapchains, indices, and results must have the same length
                 int swapchainCount = info.swapchains.Count;
 
-                var swapchainsNative = stackalloc VkSwapchainKHR[swapchainCount];
-                Interop.Marshal<VkSwapchainKHR, Swapchain>(info.swapchains, swapchainsNative);
+                var swapchainsNative = stackalloc Unmanaged.VkSwapchainKHR[swapchainCount];
+                Interop.Marshal<Unmanaged.VkSwapchainKHR, Swapchain>(info.swapchains, swapchainsNative);
 
                 uint* imageIndices = stackalloc uint[swapchainCount];
                 Interop.Copy(info.imageIndices, (IntPtr)imageIndices);
@@ -211,7 +209,7 @@ namespace CSGL.Vulkan {
                 }
                 var results = stackalloc VkResult[resultsLength];
 
-                var infoNative = new VkPresentInfoKHR();
+                var infoNative = new Unmanaged.VkPresentInfoKHR();
                 infoNative.sType = VkStructureType.PresentInfoKhr;
                 infoNative.waitSemaphoreCount = (uint)info.waitSemaphores.Count;
                 infoNative.pWaitSemaphores = (IntPtr)waitSemaphoresNative;
@@ -231,8 +229,8 @@ namespace CSGL.Vulkan {
             }
         }
 
-        VkSparseMemoryBind Marshal(SparseMemoryBind bind) {
-            var result = new VkSparseMemoryBind();
+        Unmanaged.VkSparseMemoryBind Marshal(SparseMemoryBind bind) {
+            var result = new Unmanaged.VkSparseMemoryBind();
             result.resourceOffset = bind.resourceOffset;
             result.size = bind.size;
             result.memory = bind.memory.Native;
@@ -242,8 +240,8 @@ namespace CSGL.Vulkan {
             return result;
         }
 
-        VkSparseImageMemoryBind MarshalImage(SparseImageMemoryBind bind) {
-            var result = new VkSparseImageMemoryBind();
+        Unmanaged.VkSparseImageMemoryBind MarshalImage(SparseImageMemoryBind bind) {
+            var result = new Unmanaged.VkSparseImageMemoryBind();
             result.subresource = bind.subresource;
             result.offset = bind.offset;
             result.extent = bind.extent;
@@ -255,7 +253,7 @@ namespace CSGL.Vulkan {
         }
 
         public void BindSparse(IList<BindSparseInfo> bindInfo, Fence fence) {
-            VkFence fenceNative = VkFence.Null;
+            var fenceNative = Unmanaged.VkFence.Null;
             if (fence != null) {
                 fenceNative = fence.Native;
             }
@@ -303,13 +301,13 @@ namespace CSGL.Vulkan {
                     }
                 }
 
-                var waitSemaphoresNative = stackalloc VkSemaphore[totalWaitSemaphores];
-                var signalSemaphoresNative = stackalloc VkSemaphore[totalSignalSemaphores];
-                var bufferBindsNative = stackalloc VkSparseBufferMemoryBindInfo[totalBufferBinds];
-                var imageOpaqueBindsNative = stackalloc VkSparseImageOpaqueMemoryBindInfo[totalImageOpaqueBinds];
-                var imageBindsNative = stackalloc VkSparseImageMemoryBindInfo[totalImageBinds];
-                var memoryBindsNative = stackalloc VkSparseMemoryBind[totalMemoryBinds];
-                var imageMemoryBindsNative = stackalloc VkSparseImageMemoryBind[totalImageMemoryBinds];
+                var waitSemaphoresNative = stackalloc Unmanaged.VkSemaphore[totalWaitSemaphores];
+                var signalSemaphoresNative = stackalloc Unmanaged.VkSemaphore[totalSignalSemaphores];
+                var bufferBindsNative = stackalloc Unmanaged.VkSparseBufferMemoryBindInfo[totalBufferBinds];
+                var imageOpaqueBindsNative = stackalloc Unmanaged.VkSparseImageOpaqueMemoryBindInfo[totalImageOpaqueBinds];
+                var imageBindsNative = stackalloc Unmanaged.VkSparseImageMemoryBindInfo[totalImageBinds];
+                var memoryBindsNative = stackalloc Unmanaged.VkSparseMemoryBind[totalMemoryBinds];
+                var imageMemoryBindsNative = stackalloc Unmanaged.VkSparseImageMemoryBind[totalImageMemoryBinds];
 
                 int waitSemaphoresIndex = 0;
                 int signalSemaphoresIndex = 0;
@@ -319,7 +317,7 @@ namespace CSGL.Vulkan {
                 int memoryBindIndex = 0;
                 int imageMemoryBindIndex = 0;
 
-                var infosNative = stackalloc VkBindSparseInfo[bindInfo.Count];
+                var infosNative = stackalloc Unmanaged.VkBindSparseInfo[bindInfo.Count];
 
                 for (int i = 0; i < bindInfo.Count; i++) {
                     var info = infosNative[i];
@@ -327,7 +325,7 @@ namespace CSGL.Vulkan {
 
                     if (bindInfo[i].waitSemaphores != null) {
                         int waitCount = bindInfo[i].waitSemaphores.Count;
-                        Interop.Marshal<VkSemaphore, Semaphore>(bindInfo[i].waitSemaphores, &waitSemaphoresNative[waitSemaphoresIndex]);
+                        Interop.Marshal<Unmanaged.VkSemaphore, Semaphore>(bindInfo[i].waitSemaphores, &waitSemaphoresNative[waitSemaphoresIndex]);
 
                         info.waitSemaphoreCount = (uint)waitCount;
                         info.pWaitSemaphores = (IntPtr)(&waitSemaphoresNative[waitSemaphoresIndex]);    //get address from index
@@ -336,7 +334,7 @@ namespace CSGL.Vulkan {
 
                     if (bindInfo[i].signalSemaphores != null) {
                         int signalCount = bindInfo[i].signalSemaphores.Count;
-                        Interop.Marshal<VkSemaphore, Semaphore>(bindInfo[i].signalSemaphores, &signalSemaphoresNative[signalSemaphoresIndex]);
+                        Interop.Marshal<Unmanaged.VkSemaphore, Semaphore>(bindInfo[i].signalSemaphores, &signalSemaphoresNative[signalSemaphoresIndex]);
 
                         info.signalSemaphoreCount = (uint)bindInfo[i].signalSemaphores.Count;
                         info.pSignalSemaphores = (IntPtr)(&signalSemaphoresNative[signalSemaphoresIndex]);  //get address from index
@@ -349,7 +347,7 @@ namespace CSGL.Vulkan {
 
                         for (int j = 0; j < bindInfo[i].bufferBinds.Count; j++) {
                             var bufferBind = bindInfo[i].bufferBinds[j];
-                            var bufferBindNative = new VkSparseBufferMemoryBindInfo();
+                            var bufferBindNative = new Unmanaged.VkSparseBufferMemoryBindInfo();
 
                             bufferBindNative.buffer = bufferBind.buffer.Native;
                             bufferBindNative.bindCount = (uint)bufferBind.binds.Count;
@@ -372,7 +370,7 @@ namespace CSGL.Vulkan {
 
                         for (int j = 0; j < bindInfo[i].imageOpaqueBinds.Count; j++) {
                             var imageOpaqueBind = bindInfo[i].imageOpaqueBinds[j];
-                            var imageOpaqueBindNative = new VkSparseImageOpaqueMemoryBindInfo();
+                            var imageOpaqueBindNative = new Unmanaged.VkSparseImageOpaqueMemoryBindInfo();
 
                             imageOpaqueBindNative.image = imageOpaqueBind.image.Native;
                             imageOpaqueBindNative.bindCount = (uint)imageOpaqueBind.binds.Count;
@@ -395,7 +393,7 @@ namespace CSGL.Vulkan {
 
                         for (int j = 0; j < bindInfo[i].imageBinds.Count; j++) {
                             var imageBind = bindInfo[i].imageBinds[j];
-                            var imageBindNative = new VkSparseImageMemoryBindInfo();
+                            var imageBindNative = new Unmanaged.VkSparseImageMemoryBindInfo();
 
                             imageBindNative.image = imageBind.image.Native;
                             imageBindNative.bindCount = (uint)imageBind.binds.Count;
