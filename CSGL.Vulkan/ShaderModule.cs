@@ -11,7 +11,7 @@ namespace CSGL.Vulkan {
         Unmanaged.VkShaderModule shaderModule;
         bool disposed = false;
 
-        Device device;
+        public Device Device { get; private set; }
 
         public Unmanaged.VkShaderModule Native {
             get {
@@ -23,7 +23,7 @@ namespace CSGL.Vulkan {
             if (device == null) throw new ArgumentNullException(nameof(device));
             if (info == null) throw new ArgumentNullException(nameof(info));
 
-            this.device = device;
+            this.Device = device;
 
             CreateShader(info);
         }
@@ -39,7 +39,7 @@ namespace CSGL.Vulkan {
             info.pCode = dataPinned.Address;
 
             using (dataPinned) {
-                var result = device.Commands.createShaderModule(device.Native, ref info, device.Instance.AllocationCallbacks, out shaderModule);
+                var result = Device.Commands.createShaderModule(Device.Native, ref info, Device.Instance.AllocationCallbacks, out shaderModule);
                 if (result != VkResult.Success) throw new ShaderModuleException(result, string.Format("Error creating shader module: {0}"));
             }
         }
@@ -52,7 +52,7 @@ namespace CSGL.Vulkan {
         void Dispose(bool disposing) {
             if (disposed) return;
 
-            device.Commands.destroyShaderModule(device.Native, shaderModule, device.Instance.AllocationCallbacks);
+            Device.Commands.destroyShaderModule(Device.Native, shaderModule, Device.Instance.AllocationCallbacks);
 
             disposed = true;
         }
