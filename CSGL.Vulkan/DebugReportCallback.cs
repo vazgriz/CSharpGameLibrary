@@ -30,7 +30,7 @@ namespace CSGL.Vulkan {
         }
 
         public VkDebugReportFlagsEXT Flags { get; private set; }
-        public DebugReportCallbackDelegate Callback { get; private set; }
+        public event DebugReportCallbackDelegate Callback = delegate { };
 
         delegate uint InternalCallbackDelegate(
             VkDebugReportFlagsEXT flags,
