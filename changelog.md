@@ -8,3 +8,5 @@
     - Change `Callback` property to an event
   - ShaderModule
     - Add Device property
+  - Queue
+    - Add Native property

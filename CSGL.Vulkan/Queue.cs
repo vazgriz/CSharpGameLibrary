@@ -63,27 +63,27 @@ namespace CSGL.Vulkan {
         public IList<Semaphore> signalSemaphores;
     }
 
-    public class Queue {
+    public class Queue : INative<Unmanaged.VkQueue> {
         Unmanaged.VkQueue queue;
 
-        Device device;
+        public Unmanaged.VkQueue Native {
+            get {
+                return queue;
+            }
+        }
+
+        public Device Device { get; private set; }
 
         public uint FamilyIndex { get; private set; }
         public QueueFamily Family { get; private set; }
         public float Priority { get; private set; }
 
         internal Queue(Device device, Unmanaged.VkQueue queue, uint familyIndex, float priority) {
-            this.device = device;
+            this.Device = device;
             this.queue = queue;
             FamilyIndex = familyIndex;
             Family = device.PhysicalDevice.QueueFamilies[(int)familyIndex];
             Priority = priority;
-        }
-
-        public Device Device {
-            get {
-                return device;
-            }
         }
 
         public void WaitIdle() {
