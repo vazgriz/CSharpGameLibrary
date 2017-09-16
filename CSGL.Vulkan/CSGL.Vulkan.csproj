@@ -82,11 +82,11 @@
     <Compile Include="Sampler.cs" />
     <Compile Include="Semaphore.cs" />
     <Compile Include="ShaderModule.cs" />
-    <Compile Include="structs.cs" />
     <Compile Include="Surface.cs" />
     <Compile Include="Swapchain.cs" />
     <Compile Include="Unmanaged\commands.cs" />
     <Compile Include="Unmanaged\delegates.cs" />
+    <Compile Include="Unmanaged\structs.cs" />
     <Compile Include="VkVersion.cs" />
     <Compile Include="Vulkan.cs" />
     <Compile Include="VulkanException.cs" />
