@@ -5,12 +5,12 @@ using System.Runtime.InteropServices;
 namespace CSGL.Vulkan {
     public class VkCommandBufferAllocateInfo {
         public VkCommandBufferLevel level;
-        public uint commandBufferCount;
+        public int commandBufferCount;
     }
 
     public class VkCommandBufferInheritanceInfo {
         public VkRenderPass renderPass;
-        public uint subpass;
+        public int subpass;
         public VkFramebuffer framebuffer;
         public bool occlusionQueryEnable;
         public VkQueryControlFlags queryFlags;
@@ -37,11 +37,11 @@ namespace CSGL.Vulkan {
     public class VkBufferMemoryBarrier {
         public VkAccessFlags srcAccessMask;
         public VkAccessFlags dstAccessMask;
-        public uint srcQueueFamilyIndex;
-        public uint dstQueueFamilyIndex;
+        public int srcQueueFamilyIndex;
+        public int dstQueueFamilyIndex;
         public VkBuffer buffer;
-        public ulong offset;
-        public ulong size;
+        public long offset;
+        public long size;
     }
 
     public class VkImageMemoryBarrier {
@@ -49,8 +49,8 @@ namespace CSGL.Vulkan {
         public VkAccessFlags dstAccessMask;
         public VkImageLayout oldLayout;
         public VkImageLayout newLayout;
-        public uint srcQueueFamilyIndex;
-        public uint dstQueueFamilyIndex;
+        public int srcQueueFamilyIndex;
+        public int dstQueueFamilyIndex;
         public VkImage image;
         public Unmanaged.VkImageSubresourceRange subresourceRange;
     }
@@ -111,7 +111,7 @@ namespace CSGL.Vulkan {
                 if (info.inheritanceInfo != null) {
                     inheritanceNative.sType = VkStructureType.CommandBufferInheritanceInfo;
                     inheritanceNative.renderPass = info.inheritanceInfo.renderPass.Native;
-                    inheritanceNative.subpass = info.inheritanceInfo.subpass;
+                    inheritanceNative.subpass = (uint)info.inheritanceInfo.subpass;
 
                     if (info.inheritanceInfo.framebuffer != null) inheritanceNative.framebuffer = info.inheritanceInfo.framebuffer.Native;
 
@@ -174,7 +174,7 @@ namespace CSGL.Vulkan {
             Device.Commands.cmdBindPipeline(commandBuffer, bindPoint, pipeline.Native);
         }
 
-        public void BindVertexBuffers(uint firstBinding, IList<VkBuffer> buffers, IList<ulong> offsets) {
+        public void BindVertexBuffers(int firstBinding, IList<VkBuffer> buffers, IList<long> offsets) {
             if (buffers == null) throw new ArgumentNullException(nameof(buffers));
             if (offsets == null) throw new ArgumentNullException(nameof(offsets));
 
@@ -185,26 +185,27 @@ namespace CSGL.Vulkan {
                 Interop.Marshal<Unmanaged.VkBuffer, VkBuffer>(buffers, buffersNative);
                 Interop.Copy(offsets, (IntPtr)offsetsNative);
 
-                Device.Commands.cmdBindVertexBuffers(commandBuffer, firstBinding, (uint)buffers.Count, (IntPtr)(buffersNative), ref offsetsNative[0]);
+                Device.Commands.cmdBindVertexBuffers(commandBuffer, (uint)firstBinding, (uint)buffers.Count, (IntPtr)(buffersNative), ref offsetsNative[0]);
             }
         }
 
-        public void BindVertexBuffers(uint firstBinding, VkBuffer buffer, ulong offset) {
+        public void BindVertexBuffers(int firstBinding, VkBuffer buffer, long offset) {
             if (buffer == null) throw new ArgumentNullException(nameof(buffer));
 
             unsafe {
                 Unmanaged.VkBuffer bufferNative = buffer.Native;
-                Device.Commands.cmdBindVertexBuffers(commandBuffer, firstBinding, 1, (IntPtr)(&bufferNative), ref offset);
+                ulong offsetNative = (ulong)offset;
+                Device.Commands.cmdBindVertexBuffers(commandBuffer, (uint)firstBinding, 1, (IntPtr)(&bufferNative), ref offsetNative);
             }
         }
 
-        public void BindIndexBuffer(VkBuffer buffer, ulong offset, VkIndexType indexType) {
+        public void BindIndexBuffer(VkBuffer buffer, long offset, VkIndexType indexType) {
             if (buffer == null) throw new ArgumentNullException(nameof(buffer));
 
-            Device.Commands.cmdBindIndexBuffer(commandBuffer, buffer.Native, offset, indexType);
+            Device.Commands.cmdBindIndexBuffer(commandBuffer, buffer.Native, (ulong)offset, indexType);
         }
 
-        public void BindDescriptorSets(VkPipelineBindPoint pipelineBindPoint, VkPipelineLayout layout, uint firstSet, IList<VkDescriptorSet> descriptorSets, IList<uint> dynamicOffsets) {
+        public void BindDescriptorSets(VkPipelineBindPoint pipelineBindPoint, VkPipelineLayout layout, int firstSet, IList<VkDescriptorSet> descriptorSets, IList<int> dynamicOffsets) {
             if (descriptorSets == null) throw new ArgumentNullException(nameof(descriptorSets));
 
             unsafe {
@@ -219,12 +220,12 @@ namespace CSGL.Vulkan {
                 if (dynamicOffsets != null) Interop.Copy(dynamicOffsets, (IntPtr)offsets);
 
                 Device.Commands.cmdBindDescriptorSets(commandBuffer, pipelineBindPoint, layout.Native,
-                    firstSet, (uint)descriptorSets.Count, (IntPtr)sets,
+                    (uint)firstSet, (uint)descriptorSets.Count, (IntPtr)sets,
                     (uint)dynamicOffsetCount, (IntPtr)offsets);
             }
         }
 
-        public void BindDescriptorSets(VkPipelineBindPoint pipelineBindPoint, VkPipelineLayout layout, uint firstSet, VkDescriptorSet descriptorSet, IList<uint> dynamicOffsets) {
+        public void BindDescriptorSets(VkPipelineBindPoint pipelineBindPoint, VkPipelineLayout layout, int firstSet, VkDescriptorSet descriptorSet, IList<int> dynamicOffsets) {
             if (descriptorSet == null) throw new ArgumentNullException(nameof(descriptorSet));
 
             unsafe {
@@ -237,17 +238,17 @@ namespace CSGL.Vulkan {
                 if (dynamicOffsets != null) Interop.Copy(dynamicOffsets, (IntPtr)offsets);
 
                 Device.Commands.cmdBindDescriptorSets(commandBuffer, VkPipelineBindPoint.Graphics, layout.Native,
-                    firstSet, 1, (IntPtr)(&setNative),
+                    (uint)firstSet, 1, (IntPtr)(&setNative),
                     (uint)dynamicOffsetCount, (IntPtr)offsets);
             }
         }
 
-        public void Draw(uint vertexCount, uint instanceCount, uint firstVertex, uint firstInstance) {
-            Device.Commands.cmdDraw(commandBuffer, vertexCount, instanceCount, firstVertex, firstInstance);
+        public void Draw(int vertexCount, int instanceCount, int firstVertex, int firstInstance) {
+            Device.Commands.cmdDraw(commandBuffer, (uint)vertexCount, (uint)instanceCount, (uint)firstVertex, (uint)firstInstance);
         }
 
-        public void DrawIndexed(uint indexCount, uint instanceCount, uint firstIndex, int vertexOffset, uint firstInstance) {
-            Device.Commands.cmdDrawIndexed(commandBuffer, indexCount, instanceCount, firstIndex, vertexOffset, firstInstance);
+        public void DrawIndexed(int indexCount, int instanceCount, int firstIndex, int vertexOffset, int firstInstance) {
+            Device.Commands.cmdDrawIndexed(commandBuffer, (uint)indexCount, (uint)instanceCount, (uint)firstIndex, vertexOffset, (uint)firstInstance);
         }
 
         public void CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, IList<Unmanaged.VkBufferCopy> regions) {
@@ -333,11 +334,11 @@ namespace CSGL.Vulkan {
                     bbNative[i].sType = VkStructureType.BufferMemoryBarrier;
                     bbNative[i].srcAccessMask = bb.srcAccessMask;
                     bbNative[i].dstAccessMask = bb.dstAccessMask;
-                    bbNative[i].srcQueueFamilyIndex = bb.srcQueueFamilyIndex;
-                    bbNative[i].dstQueueFamilyIndex = bb.dstQueueFamilyIndex;
+                    bbNative[i].srcQueueFamilyIndex = (uint)bb.srcQueueFamilyIndex;
+                    bbNative[i].dstQueueFamilyIndex = (uint)bb.dstQueueFamilyIndex;
                     bbNative[i].buffer = bb.buffer.Native;
-                    bbNative[i].offset = bb.offset;
-                    bbNative[i].size = bb.size;
+                    bbNative[i].offset = (ulong)bb.offset;
+                    bbNative[i].size = (ulong)bb.size;
                 }
 
                 var ibNative = stackalloc Unmanaged.VkImageMemoryBarrier[ibCount];
@@ -350,8 +351,8 @@ namespace CSGL.Vulkan {
                     ibNative[i].dstAccessMask = ib.dstAccessMask;
                     ibNative[i].oldLayout = ib.oldLayout;
                     ibNative[i].newLayout = ib.newLayout;
-                    ibNative[i].srcQueueFamilyIndex = ib.srcQueueFamilyIndex;
-                    ibNative[i].dstQueueFamilyIndex = ib.dstQueueFamilyIndex;
+                    ibNative[i].srcQueueFamilyIndex = (uint)ib.srcQueueFamilyIndex;
+                    ibNative[i].dstQueueFamilyIndex = (uint)ib.dstQueueFamilyIndex;
                     ibNative[i].image = ib.image.Native;
                     ibNative[i].subresourceRange = ib.subresourceRange;
                 }
@@ -393,14 +394,14 @@ namespace CSGL.Vulkan {
             }
         }
 
-        public void PushConstants(VkPipelineLayout layout, VkShaderStageFlags stageFlags, uint offset, uint size, IntPtr data) {
+        public void PushConstants(VkPipelineLayout layout, VkShaderStageFlags stageFlags, int offset, int size, IntPtr data) {
             if (layout == null) throw new ArgumentNullException(nameof(layout));
             if (data == IntPtr.Zero) throw new ArgumentNullException(nameof(data));
 
-            Device.Commands.cmdPushConstants(commandBuffer, layout.Native, stageFlags, offset, size, data);
+            Device.Commands.cmdPushConstants(commandBuffer, layout.Native, stageFlags, (uint)offset, (uint)size, data);
         }
 
-        public void PushConstants<T>(VkPipelineLayout layout, VkShaderStageFlags stageFlags, uint offset, IList<T> data) where T : struct {
+        public void PushConstants<T>(VkPipelineLayout layout, VkShaderStageFlags stageFlags, int offset, IList<T> data) where T : struct {
             if (layout == null) throw new ArgumentNullException(nameof(layout));
             if (data == null) throw new ArgumentNullException(nameof(data));
 
@@ -409,14 +410,14 @@ namespace CSGL.Vulkan {
                 var dataNative = stackalloc byte[(int)size];
                 Interop.Copy(data, (IntPtr)dataNative);
 
-                Device.Commands.cmdPushConstants(commandBuffer, layout.Native, stageFlags, offset, size, (IntPtr)dataNative);
+                Device.Commands.cmdPushConstants(commandBuffer, layout.Native, stageFlags, (uint)offset, size, (IntPtr)dataNative);
             }
         }
 
-        public void PushConstants<T>(VkPipelineLayout layout, VkShaderStageFlags stageFlags, uint offset, T data) where T : struct {
+        public void PushConstants<T>(VkPipelineLayout layout, VkShaderStageFlags stageFlags, int offset, T data) where T : struct {
             if (layout == null) throw new ArgumentNullException(nameof(layout));
 
-            Device.Commands.cmdPushConstants(commandBuffer, layout.Native, stageFlags, offset, (uint)Interop.SizeOf<T>(), Interop.AddressOf(ref data));
+            Device.Commands.cmdPushConstants(commandBuffer, layout.Native, stageFlags, (uint)offset, (uint)Interop.SizeOf<T>(), Interop.AddressOf(ref data));
         }
 
         public void SetEvent(VkEvent _event, VkPipelineStageFlags stageMask) {
@@ -470,11 +471,11 @@ namespace CSGL.Vulkan {
                     bbNative[i].sType = VkStructureType.BufferMemoryBarrier;
                     bbNative[i].srcAccessMask = bb.srcAccessMask;
                     bbNative[i].dstAccessMask = bb.dstAccessMask;
-                    bbNative[i].srcQueueFamilyIndex = bb.srcQueueFamilyIndex;
-                    bbNative[i].dstQueueFamilyIndex = bb.dstQueueFamilyIndex;
+                    bbNative[i].srcQueueFamilyIndex = (uint)bb.srcQueueFamilyIndex;
+                    bbNative[i].dstQueueFamilyIndex = (uint)bb.dstQueueFamilyIndex;
                     bbNative[i].buffer = bb.buffer.Native;
-                    bbNative[i].offset = bb.offset;
-                    bbNative[i].size = bb.size;
+                    bbNative[i].offset = (ulong)bb.offset;
+                    bbNative[i].size = (ulong)bb.size;
                 }
 
                 for (int i = 0; i < ibCount; i++) {
@@ -485,8 +486,8 @@ namespace CSGL.Vulkan {
                     ibNative[i].dstAccessMask = ib.dstAccessMask;
                     ibNative[i].oldLayout = ib.oldLayout;
                     ibNative[i].newLayout = ib.newLayout;
-                    ibNative[i].srcQueueFamilyIndex = ib.srcQueueFamilyIndex;
-                    ibNative[i].dstQueueFamilyIndex = ib.dstQueueFamilyIndex;
+                    ibNative[i].srcQueueFamilyIndex = (uint)ib.srcQueueFamilyIndex;
+                    ibNative[i].dstQueueFamilyIndex = (uint)ib.dstQueueFamilyIndex;
                     ibNative[i].image = ib.image.Native;
                     ibNative[i].subresourceRange = ib.subresourceRange;
                 }
@@ -516,35 +517,35 @@ namespace CSGL.Vulkan {
             }
         }
 
-        public void SetViewports(uint firstViewport, IList<Unmanaged.VkViewport> viewports) {
+        public void SetViewports(int firstViewport, IList<Unmanaged.VkViewport> viewports) {
             if (viewports == null) throw new ArgumentNullException(nameof(viewports));
 
             unsafe {
                 var viewportsNative = stackalloc Unmanaged.VkViewport[viewports.Count];
                 Interop.Copy(viewports, (IntPtr)viewportsNative);
-                Device.Commands.cmdSetViewports(commandBuffer, firstViewport, (uint)viewports.Count, (IntPtr)viewportsNative);
+                Device.Commands.cmdSetViewports(commandBuffer, (uint)firstViewport, (uint)viewports.Count, (IntPtr)viewportsNative);
             }
         }
 
-        public void SetViewports(uint firstViewport, Unmanaged.VkViewport viewports) {
+        public void SetViewports(int firstViewport, Unmanaged.VkViewport viewports) {
             unsafe {
-                Device.Commands.cmdSetViewports(commandBuffer, firstViewport, 1, (IntPtr)(&viewports));
+                Device.Commands.cmdSetViewports(commandBuffer, (uint)firstViewport, 1, (IntPtr)(&viewports));
             }
         }
 
-        public void SetScissor(uint firstScissor, IList<Unmanaged.VkRect2D> scissors) {
+        public void SetScissor(int firstScissor, IList<Unmanaged.VkRect2D> scissors) {
             if (scissors == null) throw new ArgumentNullException(nameof(scissors));
 
             unsafe {
                 var scissorsNative = stackalloc Unmanaged.VkRect2D[scissors.Count];
                 Interop.Copy(scissors, (IntPtr)scissorsNative);
-                Device.Commands.cmdSetScissor(commandBuffer, firstScissor, (uint)scissors.Count, (IntPtr)scissorsNative);
+                Device.Commands.cmdSetScissor(commandBuffer, (uint)firstScissor, (uint)scissors.Count, (IntPtr)scissorsNative);
             }
         }
 
-        public void SetScissor(uint firstScissor, Unmanaged.VkRect2D scissors) {
+        public void SetScissor(int firstScissor, Unmanaged.VkRect2D scissors) {
             unsafe {
-                Device.Commands.cmdSetScissor(commandBuffer, firstScissor, 1, (IntPtr)(&scissors));
+                Device.Commands.cmdSetScissor(commandBuffer, (uint)firstScissor, 1, (IntPtr)(&scissors));
             }
         }
 
@@ -595,37 +596,37 @@ namespace CSGL.Vulkan {
             Device.Commands.cmdSetStencilReference(commandBuffer, faceMask, reference);
         }
 
-        public void DrawIndirect(VkBuffer buffer, ulong offset, uint drawCount, uint stride) {
+        public void DrawIndirect(VkBuffer buffer, long offset, int drawCount, int stride) {
             if (buffer == null) throw new ArgumentNullException(nameof(buffer));
 
-            Device.Commands.cmdDrawIndirect(commandBuffer, buffer.Native, offset, drawCount, stride);
+            Device.Commands.cmdDrawIndirect(commandBuffer, buffer.Native, (ulong)offset, (uint)drawCount, (uint)stride);
         }
 
-        public void DrawIndexedIndirect(VkBuffer buffer, ulong offset, uint drawCount, uint stride) {
+        public void DrawIndexedIndirect(VkBuffer buffer, long offset, int drawCount, int stride) {
             if (buffer == null) throw new ArgumentNullException(nameof(buffer));
 
-            Device.Commands.cmdDrawIndexedIndirect(commandBuffer, buffer.Native, offset, drawCount, stride);
+            Device.Commands.cmdDrawIndexedIndirect(commandBuffer, buffer.Native, (ulong)offset, (uint)drawCount, (uint)stride);
         }
 
-        public void UpdateBuffer(VkBuffer dstBuffer, ulong dstOffset, ulong dataSize, IntPtr data) {
+        public void UpdateBuffer(VkBuffer dstBuffer, long dstOffset, long dataSize, IntPtr data) {
             if (dstBuffer == null) throw new ArgumentNullException(nameof(dstBuffer));
             if (data == IntPtr.Zero) throw new ArgumentNullException(nameof(data));
 
-            Device.Commands.cmdUpdateBuffer(commandBuffer, dstBuffer.Native, dstOffset, dataSize, data);
+            Device.Commands.cmdUpdateBuffer(commandBuffer, dstBuffer.Native, (ulong)dstOffset, (ulong)dataSize, data);
         }
 
-        public void UpdateBuffer(VkBuffer dstBuffer, ulong dstOffset, byte[] data) {
+        public void UpdateBuffer(VkBuffer dstBuffer, long dstOffset, byte[] data) {
             if (dstBuffer == null) throw new ArgumentNullException(nameof(dstBuffer));
             if (data == null) throw new ArgumentNullException(nameof(data));
 
             unsafe {
                 fixed (byte* ptr = data) {
-                    Device.Commands.cmdUpdateBuffer(commandBuffer, dstBuffer.Native, dstOffset, (ulong)data.Length, (IntPtr)ptr);
+                    Device.Commands.cmdUpdateBuffer(commandBuffer, dstBuffer.Native, (ulong)dstOffset, (ulong)data.Length, (IntPtr)ptr);
                 }
             }
         }
 
-        public void UpdateBuffer<T>(VkBuffer dstBuffer, ulong dstOffset, IList<T> data) where T : struct {
+        public void UpdateBuffer<T>(VkBuffer dstBuffer, long dstOffset, IList<T> data) where T : struct {
             if (dstBuffer == null) throw new ArgumentNullException(nameof(dstBuffer));
             if (data == null) throw new ArgumentNullException(nameof(data));
 
@@ -633,14 +634,14 @@ namespace CSGL.Vulkan {
             using (var dataNative = new NativeArray<byte>(size)) {
                 Interop.Copy(data, dataNative.Address);
                     
-                Device.Commands.cmdUpdateBuffer(commandBuffer, dstBuffer.Native, dstOffset, (ulong)size, dataNative.Address);
+                Device.Commands.cmdUpdateBuffer(commandBuffer, dstBuffer.Native, (ulong)dstOffset, (ulong)size, dataNative.Address);
             }
         }
 
-        public void FillBuffer(VkBuffer dstBuffer, ulong dstOffset, ulong size, uint data) {
+        public void FillBuffer(VkBuffer dstBuffer, long dstOffset, long size, uint data) {
             if (dstBuffer == null) throw new ArgumentNullException(nameof(dstBuffer));
 
-            Device.Commands.cmdFillBuffer(commandBuffer, dstBuffer.Native, dstOffset, size, data);
+            Device.Commands.cmdFillBuffer(commandBuffer, dstBuffer.Native, (ulong)dstOffset, (ulong)size, data);
         }
 
         public void BlitImage(VkImage srcImage, VkImageLayout srcImageLayout, VkImage dstImage, VkImageLayout dstImageLayout, IList<Unmanaged.VkImageBlit> regions, VkFilter filter) {
@@ -747,45 +748,45 @@ namespace CSGL.Vulkan {
             }
         }
 
-        public void ResetQueryPool(VkQueryPool queryPool, uint firstQuery, uint queryCount) {
+        public void ResetQueryPool(VkQueryPool queryPool, int firstQuery, int queryCount) {
             if (queryPool == null) throw new ArgumentNullException(nameof(queryPool));
 
-            Device.Commands.cmdResetQueryPool(commandBuffer, queryPool.Native, firstQuery, queryCount);
+            Device.Commands.cmdResetQueryPool(commandBuffer, queryPool.Native, (uint)firstQuery, (uint)queryCount);
         }
 
-        public void BeginQuery(VkQueryPool queryPool, uint query, VkQueryControlFlags flags) {
+        public void BeginQuery(VkQueryPool queryPool, int query, VkQueryControlFlags flags) {
             if (queryPool == null) throw new ArgumentNullException(nameof(queryPool));
 
-            Device.Commands.cmdBeginQuery(commandBuffer, queryPool.Native, query, flags);
+            Device.Commands.cmdBeginQuery(commandBuffer, queryPool.Native, (uint)query, flags);
         }
 
-        public void EndQuery(VkQueryPool queryPool, uint query) {
+        public void EndQuery(VkQueryPool queryPool, int query) {
             if (queryPool == null) throw new ArgumentNullException(nameof(queryPool));
 
-            Device.Commands.cmdEndQuery(commandBuffer, queryPool.Native, query);
+            Device.Commands.cmdEndQuery(commandBuffer, queryPool.Native, (uint)query);
         }
 
-        public void CopyQueryPoolResults(VkQueryPool queryPool, uint firstQuery, uint queryCount, VkBuffer dstBuffer, ulong dstOffset, ulong stride, VkQueryResultFlags flags) {
+        public void CopyQueryPoolResults(VkQueryPool queryPool, int firstQuery, int queryCount, VkBuffer dstBuffer, long dstOffset, long stride, VkQueryResultFlags flags) {
             if (queryPool == null) throw new ArgumentNullException(nameof(queryPool));
             if (dstBuffer == null) throw new ArgumentNullException(nameof(dstBuffer));
 
-            Device.Commands.cmdCopyQueryPoolResults(commandBuffer, queryPool.Native, firstQuery, queryCount, dstBuffer.Native, dstOffset, stride, flags);
+            Device.Commands.cmdCopyQueryPoolResults(commandBuffer, queryPool.Native, (uint)firstQuery, (uint)queryCount, dstBuffer.Native, (ulong)dstOffset, (ulong)stride, flags);
         }
 
-        public void WriteTimestamp(VkPipelineStageFlags pipelineStage, VkQueryPool queryPool, uint query) {
+        public void WriteTimestamp(VkPipelineStageFlags pipelineStage, VkQueryPool queryPool, int query) {
             if (queryPool == null) throw new ArgumentNullException(nameof(queryPool));
 
-            Device.Commands.cmdWriteTimestamp(commandBuffer, pipelineStage, queryPool.Native, query);
+            Device.Commands.cmdWriteTimestamp(commandBuffer, pipelineStage, queryPool.Native, (uint)query);
         }
 
-        public void Dispatch(uint x, uint y, uint z) {
-            Device.Commands.cmdDispatch(commandBuffer, x, y, z);
+        public void Dispatch(int x, int y, int z) {
+            Device.Commands.cmdDispatch(commandBuffer, (uint)x, (uint)y, (uint)z);
         }
 
-        public void DispatchIndirect(VkBuffer buffer, ulong offset) {
+        public void DispatchIndirect(VkBuffer buffer, long offset) {
             if (buffer == null) throw new ArgumentNullException(nameof(buffer));
 
-            Device.Commands.cmdDispatchIndirect(commandBuffer, buffer.Native, offset);
+            Device.Commands.cmdDispatchIndirect(commandBuffer, buffer.Native, (ulong)offset);
         }
     }
 
