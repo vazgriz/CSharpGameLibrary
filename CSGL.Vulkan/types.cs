@@ -128,7 +128,7 @@ namespace CSGL.Vulkan {
         }
     }
 
-    public  struct VkMemoryRequirements {
+    public struct VkMemoryRequirements {
         public long size;
         public long alignment;
         public uint memoryTypeBits;
