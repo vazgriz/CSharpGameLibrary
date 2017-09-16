@@ -7,9 +7,9 @@
   - Move `Vulkan` class to `CSGL.Vulkan.Unmanaged`
   - Add "Vk" to all class names
   - Remove extension commands from `Unmanaged.VK`
-  - DebugReportCallback
+  - VkDebugReportCallback
     - Change `Callback` property to an event
-  - ShaderModule
+  - VkShaderModule
     - Add Device property
-  - Queue
+  - VkQueue
     - Add Native property
