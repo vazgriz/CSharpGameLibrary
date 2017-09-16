@@ -26,8 +26,6 @@ namespace CSGL.Vulkan {
         Unmanaged.VkSwapchainKHR swapchain;
         bool disposed;
 
-        Unmanaged.vkGetSwapchainImagesKHRDelegate getImages;
-
         public Device Device { get; private set; }
         public Surface Surface { get; private set; }
         public IList<Image> Images { get; private set; }
@@ -56,8 +54,6 @@ namespace CSGL.Vulkan {
             Surface = info.surface;
             Device = device;
 
-            getImages = Device.Commands.getSwapchainImages;
-
             CreateSwapchain(info);
 
             GetImages();
@@ -80,9 +76,9 @@ namespace CSGL.Vulkan {
             List<Image> images = new List<Image>();
 
             uint count = 0;
-            getImages(Device.Native, swapchain, ref count, IntPtr.Zero);
+            Device.Commands.getSwapchainImages(Device.Native, swapchain, ref count, IntPtr.Zero);
             var imagesNative = new NativeArray<Unmanaged.VkImage>((int)count);
-            getImages(Device.Native, swapchain, ref count, imagesNative.Address);
+            Device.Commands.getSwapchainImages(Device.Native, swapchain, ref count, imagesNative.Address);
 
             using (imagesNative) {
                 for (int i = 0; i < count; i++) {
