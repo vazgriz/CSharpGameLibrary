@@ -9,7 +9,7 @@ namespace CSGL.Vulkan {
         public ulong size;
         public VkBufferUsageFlags usage;
         public VkSharingMode sharingMode;
-        public List<uint> queueFamilyIndices;
+        public IList<uint> queueFamilyIndices;
     }
 
     public class Buffer : IDisposable, INative<VkBuffer> {
@@ -17,7 +17,7 @@ namespace CSGL.Vulkan {
         bool disposed;
 
         VkMemoryRequirements requirements;
-        
+
         public Device Device { get; private set; }
 
         public VkBuffer Native {
@@ -32,14 +32,11 @@ namespace CSGL.Vulkan {
             }
         }
 
-        public ulong Size {
-            get {
-                return requirements.size;
-            }
-        }
-
         public VkBufferCreateFlags Flags { get; private set; }
         public VkBufferUsageFlags Usage { get; private set; }
+        public VkSharingMode SharingMode { get; private set; }
+        public IList<uint> QueueFamilyIndices { get; private set; }
+        public ulong Size { get; private set; }
         public ulong Offset { get; private set; }
         public DeviceMemory Memory { get; private set; }
 
@@ -50,36 +47,43 @@ namespace CSGL.Vulkan {
             Device = device;
 
             CreateBuffer(info);
-            
+
             Device.Commands.getMemoryRequirements(Device.Native, buffer, out requirements);
+
+            Flags = info.flags;
+            Usage = info.usage;
+            Size = info.size;
+            QueueFamilyIndices = info.queueFamilyIndices.CloneReadOnly();
         }
 
         void CreateBuffer(BufferCreateInfo mInfo) {
-            var info = new VkBufferCreateInfo();
-            info.sType = VkStructureType.BufferCreateInfo;
-            info.flags = mInfo.flags;
-            info.size = mInfo.size;
-            info.usage = mInfo.usage;
-            info.sharingMode = mInfo.sharingMode;
+            unsafe {
+                int indicesCount = 0;
+                if (mInfo.queueFamilyIndices != null) indicesCount = mInfo.queueFamilyIndices.Count;
 
-            var indicesMarshalled = new NativeArray<uint>(mInfo.queueFamilyIndices);
-            info.queueFamilyIndexCount = (uint)indicesMarshalled.Count;
-            info.pQueueFamilyIndices = indicesMarshalled.Address;
+                var info = new VkBufferCreateInfo();
+                info.sType = VkStructureType.BufferCreateInfo;
+                info.flags = mInfo.flags;
+                info.size = mInfo.size;
+                info.usage = mInfo.usage;
+                info.sharingMode = mInfo.sharingMode;
 
-            using (indicesMarshalled) {
+                var queueFamilyIndicesNative = stackalloc uint[indicesCount];
+                if (mInfo.queueFamilyIndices != null) Interop.Copy(mInfo.queueFamilyIndices, (IntPtr)queueFamilyIndicesNative);
+                
+                info.queueFamilyIndexCount = (uint)indicesCount;
+                info.pQueueFamilyIndices = (IntPtr)queueFamilyIndicesNative;
+                
                 var result = Device.Commands.createBuffer(Device.Native, ref info, Device.Instance.AllocationCallbacks, out buffer);
-                if (result != VkResult.Success) throw new BufferException(string.Format("Error creating Buffer: {0}", result));
+                if (result != VkResult.Success) throw new BufferException(result, string.Format("Error creating Buffer: {0}", result));
             }
-
-            Flags = mInfo.flags;
-            Usage = mInfo.usage;
         }
 
         public void Bind(DeviceMemory deviceMemory, ulong offset) {
             if (deviceMemory == null) throw new ArgumentNullException(nameof(deviceMemory));
 
             var result = Device.Commands.bindBuffer(Device.Native, buffer, deviceMemory.Native, offset);
-            if (result != VkResult.Success) throw new BufferException(string.Format("Error binding buffer: {0}", result));
+            if (result != VkResult.Success) throw new BufferException(result, string.Format("Error binding buffer: {0}", result));
 
             Offset = offset;
             Memory = deviceMemory;
@@ -102,7 +106,7 @@ namespace CSGL.Vulkan {
         }
     }
 
-    public class BufferException : Exception {
-        public BufferException(string message) : base(message) { }
+    public class BufferException : VulkanException {
+        public BufferException(VkResult result, string message) : base(result, message) { }
     }
 }

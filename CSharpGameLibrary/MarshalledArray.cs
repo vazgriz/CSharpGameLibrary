@@ -33,7 +33,7 @@ namespace CSGL {
             }
         }
 
-        public MarshalledArray(List<T> list) {
+        public MarshalledArray(IList<T> list) {
             if (list != null) {
                 count = list.Count;
                 Allocate(count);
@@ -43,24 +43,14 @@ namespace CSGL {
             }
         }
 
-        public MarshalledArray(INative<T>[] array) {
-            if (array != null) {
-                count = array.Length;
-                Allocate(count);
-                for (int i = 0; i < count; i++) {
-                    Marshal.StructureToPtr(array[i].Native, GetAddress(i), false);
-                }
-            }
-        }
-
-        public unsafe MarshalledArray(void* ptr, T[] array) {   //meant to be used for stackalloc'ed memory
+        public unsafe MarshalledArray(void* ptr, IList<T> list) {   //meant to be used for stackalloc'ed memory
             if (ptr == null) throw new ArgumentNullException(nameof(ptr));
 
-            if (array != null) {
-                count = array.Length;
+            if (list != null) {
+                count = list.Count;
                 this.ptr = (IntPtr)ptr;
                 for (int i = 0; i < count; i++) {
-                    Marshal.StructureToPtr(array[i], GetAddress(i), false);
+                    Marshal.StructureToPtr(list[i], GetAddress(i), false);
                 }
             }
         }
@@ -110,7 +100,7 @@ namespace CSGL {
                     Marshal.DestroyStructure<T>(GetAddress(i));
                 }
             }
-            
+
             if (allocated) {
                 Marshal.FreeHGlobal(ptr);
             }

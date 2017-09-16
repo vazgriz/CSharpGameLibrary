@@ -32,7 +32,7 @@ namespace CSGL.Vulkan {
         public VkDebugReportFlagsEXT Flags { get; private set; }
         public DebugReportCallbackDelegate Callback { get; private set; }
 
-        delegate bool InternalCallbackDelegate(
+        delegate uint InternalCallbackDelegate(
             VkDebugReportFlagsEXT flags,
             VkDebugReportObjectTypeEXT objectType,
             ulong _object,
@@ -52,6 +52,9 @@ namespace CSGL.Vulkan {
             internalCallback = InternalCallback;
 
             CreateCallback(info);
+
+            Callback = info.callback;
+            Flags = info.flags;
         }
 
         void CreateCallback(DebugReportCallbackCreateInfo mInfo) {
@@ -61,11 +64,11 @@ namespace CSGL.Vulkan {
             info.pfnCallback = Marshal.GetFunctionPointerForDelegate(internalCallback);
 
             var result = Instance.Commands.createDebugReportCallback(Instance.Native, ref info, Instance.AllocationCallbacks, out callback);
-            if (result != VkResult.Success) throw new DebugReportCallbackException(string.Format("Error creating debug report callback: {0}", result));
+            if (result != VkResult.Success) throw new DebugReportCallbackException(result, string.Format("Error creating debug report callback: {0}", result));
         }
 
-        bool InternalCallback(
-            VkDebugReportFlagsEXT flags, 
+        uint InternalCallback(
+            VkDebugReportFlagsEXT flags,
             VkDebugReportObjectTypeEXT objectType,
             ulong _object,
             IntPtr location,    //size_t in native code
@@ -78,12 +81,12 @@ namespace CSGL.Vulkan {
             string _layerPrefix = Interop.GetString(layerPrefix);
             string _message = Interop.GetString(message);
 
-            Callback(flags, objectType, _object, _location, messageCode, _layerPrefix, _message);
+            Callback?.Invoke(flags, objectType, _object, _location, messageCode, _layerPrefix, _message);
 
             //specification allows the callback to set this value
             //however C# delegates are multicast, so potentially there is no single value to return.
             //specification also says application *should* return false, so just do that instead
-            return false;
+            return 0;
         }
 
         public static void ReportMessage(
@@ -102,7 +105,12 @@ namespace CSGL.Vulkan {
             byte[] _layerPrefix = Interop.GetUTF8(layerPrefix);
             byte[] _message = Interop.GetUTF8(message);
 
-            instance.Commands.debugReportMessage(instance.Native, flags, objectType, _object, _location, messageCode, _layerPrefix, _message);
+            unsafe {
+                fixed (byte* layerPtr = _layerPrefix)
+                fixed (byte* messagePtr = _message) {
+                    instance.Commands.debugReportMessage(instance.Native, flags, objectType, _object, _location, messageCode, (IntPtr)layerPtr, (IntPtr)messagePtr);
+                }
+            }
         }
 
         public void Dispose() {
@@ -122,7 +130,7 @@ namespace CSGL.Vulkan {
         }
     }
 
-    public class DebugReportCallbackException : Exception {
-        public DebugReportCallbackException(string message) : base(message) { }
+    public class DebugReportCallbackException : VulkanException {
+        public DebugReportCallbackException(VkResult result, string message) : base(result, message) { }
     }
 }

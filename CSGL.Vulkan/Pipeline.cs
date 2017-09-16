@@ -16,7 +16,10 @@ namespace CSGL.Vulkan {
             }
         }
 
-        public static GraphicsPipeline[] CreatePipelines(Device device, GraphicsPipelineCreateInfo[] infos, PipelineCache cache) {
+        public VkPipelineCreateFlags Flags { get; protected set; }
+        public PipelineLayout Layout { get; protected set; }
+
+        public static IList<GraphicsPipeline> CreatePipelines(Device device, IList<GraphicsPipelineCreateInfo> infos, PipelineCache cache) {
             if (device == null) throw new ArgumentNullException(nameof(device));
             if (infos == null) throw new ArgumentNullException(nameof(infos));
 
@@ -25,17 +28,17 @@ namespace CSGL.Vulkan {
                 nativeCache = cache.Native;
             }
 
-            var pipelines = new GraphicsPipeline[infos.Length];
+            var pipelines = new List<GraphicsPipeline>(infos.Count);
             var natives = GraphicsPipeline.CreatePipelinesInternal(device, infos, nativeCache);
 
-            for (int i = 0; i < infos.Length; i++) {
-                pipelines[i] = new GraphicsPipeline(device, natives[i]);
+            for (int i = 0; i < infos.Count; i++) {
+                pipelines.Add(new GraphicsPipeline(device, natives[i], infos[i]));
             }
 
             return pipelines;
         }
 
-        public static ComputePipeline[] CreatePipelines(Device device, ComputePipelineCreateInfo[] infos, PipelineCache cache) {
+        public static IList<ComputePipeline> CreatePipelines(Device device, IList<ComputePipelineCreateInfo> infos, PipelineCache cache) {
             if (device == null) throw new ArgumentNullException(nameof(device));
             if (infos == null) throw new ArgumentNullException(nameof(infos));
 
@@ -44,16 +47,16 @@ namespace CSGL.Vulkan {
                 nativeCache = cache.Native;
             }
 
-            var pipelines = new ComputePipeline[infos.Length];
+            var pipelines = new List<ComputePipeline>(infos.Count);
             var natives = ComputePipeline.CreatePipelinesInternal(device, infos, nativeCache);
 
-            for (int i = 0; i < infos.Length; i++) {
-                pipelines[i] = new ComputePipeline(device, natives[i]);
+            for (int i = 0; i < infos.Count; i++) {
+                pipelines.Add(new ComputePipeline(device, natives[i], infos[i]));
             }
 
             return pipelines;
         }
-        
+
         public void Dispose() {
             Dispose(true);
             GC.SuppressFinalize(this);
@@ -71,7 +74,7 @@ namespace CSGL.Vulkan {
         }
     }
 
-    public class PipelineException : Exception {
-        public PipelineException(string message) : base(message) { }
+    public class PipelineException : VulkanException {
+        public PipelineException(VkResult result, string message) : base(result, message) { }
     }
 }

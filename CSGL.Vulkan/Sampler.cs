@@ -31,13 +31,45 @@ namespace CSGL.Vulkan {
         }
 
         public Device Device { get; private set; }
+        public VkFilter MagFilter { get; private set; }
+        public VkFilter MinFilter { get; private set; }
+        public VkSamplerMipmapMode MipmapMode { get; private set; }
+        public VkSamplerAddressMode AddressModeU { get; private set; }
+        public VkSamplerAddressMode AddressModeV { get; private set; }
+        public VkSamplerAddressMode AddressModeW { get; private set; }
+        public float MipLodBias { get; private set; }
+        public bool AnisotropyEnable { get; private set; }
+        public float MaxAnisotropy { get; private set; }
+        public bool CompareEnable { get; private set; }
+        public VkCompareOp CompareOp { get; private set; }
+        public float MinLod { get; private set; }
+        public float MaxLod { get; private set; }
+        public VkBorderColor BorderColor { get; private set; }
+        public bool UnnormalizedCoordinates { get; private set; }
 
         public Sampler(Device device, SamplerCreateInfo info) {
             if (device == null) throw new ArgumentNullException(nameof(device));
+            if (info == null) throw new ArgumentNullException(nameof(info));
 
             Device = device;
 
             CreateSampler(info);
+
+            MagFilter = info.magFilter;
+            MinFilter = info.minFilter;
+            MipmapMode = info.mipmapMode;
+            AddressModeU = info.addressModeU;
+            AddressModeV = info.addressModeV;
+            AddressModeW = info.addressModeW;
+            MipLodBias = info.mipLodBias;
+            AnisotropyEnable = info.anisotropyEnable;
+            MaxAnisotropy = info.maxAnisotropy;
+            CompareEnable = info.compareEnable;
+            CompareOp = info.compareOp;
+            MinLod = info.minLod;
+            MaxLod = info.maxLod;
+            BorderColor = info.borderColor;
+            UnnormalizedCoordinates = info.unnormalizedCoordinates;
         }
 
         void CreateSampler(SamplerCreateInfo mInfo) {
@@ -60,7 +92,7 @@ namespace CSGL.Vulkan {
             info.unnormalizedCoordinates = mInfo.unnormalizedCoordinates ? 1u : 0u;
 
             var result = Device.Commands.createSampler(Device.Native, ref info, Device.Instance.AllocationCallbacks, out sampler);
-            if (result != VkResult.Success) throw new SamplerException(string.Format("Error creating sampler: {0}", result));
+            if (result != VkResult.Success) throw new SamplerException(result, string.Format("Error creating sampler: {0}", result));
         }
 
         public void Dispose() {
@@ -81,7 +113,7 @@ namespace CSGL.Vulkan {
         }
     }
 
-    public class SamplerException : Exception {
-        public SamplerException(string message) : base(message) { }
+    public class SamplerException : VulkanException {
+        public SamplerException(VkResult result, string message) : base(result, message) { }
     }
 }

@@ -9,14 +9,15 @@ namespace CSGL.Vulkan {
         public VkPipelineCreateFlags flags;
         public PipelineShaderStageCreateInfo stage;
         public PipelineLayout layout;
-        public Pipeline basePipelineHandle;
+        public ComputePipeline basePipelineHandle;
         public int basePipelineIndex;
     }
 
     public class ComputePipeline : Pipeline {
-        internal ComputePipeline(Device device, VkPipeline pipeline) {
+        internal ComputePipeline(Device device, VkPipeline pipeline, ComputePipelineCreateInfo info) {
             Device = device;
             this.pipeline = pipeline;
+            SetProperties(info);
         }
 
         public ComputePipeline(Device device, ComputePipelineCreateInfo info, PipelineCache cache) {
@@ -31,12 +32,19 @@ namespace CSGL.Vulkan {
             }
 
             pipeline = CreatePipelinesInternal(device, new ComputePipelineCreateInfo[] { info }, nativeCache)[0];
+
+            SetProperties(info);
         }
 
-        static internal VkPipeline[] CreatePipelinesInternal(Device device, ComputePipelineCreateInfo[] mInfos, VkPipelineCache cache) {
-            int count = mInfos.Length;
+        void SetProperties(ComputePipelineCreateInfo info) {
+            Flags = info.flags;
+            Layout = info.layout;
+        }
+
+        static internal IList<VkPipeline> CreatePipelinesInternal(Device device, IList<ComputePipelineCreateInfo> mInfos, VkPipelineCache cache) {
+            int count = mInfos.Count;
             var infosMarshalled = new MarshalledArray<VkComputePipelineCreateInfo>(count);
-            var pipelineResults = new VkPipeline[count];
+            var pipelineResults = new List<VkPipeline>(count);
             var marshalledArrays = new DisposableList<IDisposable>(count);
 
             for (int i = 0; i < count; i++) {
@@ -57,15 +65,23 @@ namespace CSGL.Vulkan {
             }
 
             using (infosMarshalled)
-            using (marshalledArrays)
-            using (var pipelinesMarshalled = new PinnedArray<VkPipeline>(pipelineResults)) {
-                var result = device.Commands.createComputePipelines(
-                    device.Native, cache,
-                    (uint)count, infosMarshalled.Address,
-                    device.Instance.AllocationCallbacks, pipelinesMarshalled.Address);
+            using (marshalledArrays) {
+                unsafe {
+                    var pipelinesNative = stackalloc VkPipeline[count];
 
-                if (result != VkResult.Success) throw new PipelineException(string.Format("Error creating pipeline: {0}", result));
-                return pipelineResults;
+                    var result = device.Commands.createComputePipelines(
+                        device.Native, cache,
+                        (uint)count, infosMarshalled.Address,
+                        device.Instance.AllocationCallbacks, (IntPtr)pipelinesNative);
+
+                    if (result != VkResult.Success) throw new PipelineException(result, string.Format("Error creating pipeline: {0}", result));
+
+                    for (int i = 0; i < count; i++) {
+                        pipelineResults.Add(pipelinesNative[i]);
+                    }
+
+                    return pipelineResults;
+                }
             }
         }
     }

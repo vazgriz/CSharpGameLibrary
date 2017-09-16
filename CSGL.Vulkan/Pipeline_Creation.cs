@@ -3,12 +3,19 @@ using System.Collections.Generic;
 
 namespace CSGL.Vulkan {
     public class SpecializationInfo {
-        public List<VkSpecializationMapEntry> mapEntries;
-        public byte[] data;
+        public IList<VkSpecializationMapEntry> mapEntries;
+        public IList<byte> data;
+
+        public SpecializationInfo() { }
+
+        internal SpecializationInfo(SpecializationInfo other) {
+            mapEntries = other.mapEntries.CloneReadOnly();
+            data = other.data.CloneReadOnly();
+        }
 
         internal IntPtr GetNative(DisposableList<IDisposable> marshalled) {
             var entriesMarshalled = new MarshalledArray<VkSpecializationMapEntry>(mapEntries);
-            var dataMarshalled = new PinnedArray<byte>(data);
+            var dataMarshalled = new NativeArray<byte>(data);
             marshalled.Add(entriesMarshalled);
             marshalled.Add(dataMarshalled);
 
@@ -31,6 +38,15 @@ namespace CSGL.Vulkan {
         public string name;
         public SpecializationInfo specializationInfo;
 
+        public PipelineShaderStageCreateInfo() { }
+
+        internal PipelineShaderStageCreateInfo(PipelineShaderStageCreateInfo other) {
+            stage = other.stage;
+            module = other.module;
+            name = other.name;
+            if (other.specializationInfo != null) specializationInfo = new SpecializationInfo(other.specializationInfo);
+        }
+
         internal VkPipelineShaderStageCreateInfo GetNative(DisposableList<IDisposable> marshalled) {
             var result = new VkPipelineShaderStageCreateInfo();
             result.sType = VkStructureType.PipelineShaderStageCreateInfo;
@@ -50,8 +66,15 @@ namespace CSGL.Vulkan {
     }
 
     public class PipelineVertexInputStateCreateInfo {
-        public List<VkVertexInputBindingDescription> vertexBindingDescriptions;
-        public List<VkVertexInputAttributeDescription> vertexAttributeDescriptions;
+        public IList<VkVertexInputBindingDescription> vertexBindingDescriptions;
+        public IList<VkVertexInputAttributeDescription> vertexAttributeDescriptions;
+
+        public PipelineVertexInputStateCreateInfo() { }
+
+        internal PipelineVertexInputStateCreateInfo(PipelineVertexInputStateCreateInfo other) {
+            vertexBindingDescriptions = other.vertexBindingDescriptions.CloneReadOnly();
+            vertexAttributeDescriptions = other.vertexAttributeDescriptions.CloneReadOnly();
+        }
 
         internal VkPipelineVertexInputStateCreateInfo GetNative(DisposableList<IDisposable> marshalled) {
             var result = new VkPipelineVertexInputStateCreateInfo();
@@ -76,6 +99,13 @@ namespace CSGL.Vulkan {
         public VkPrimitiveTopology topology;
         public bool primitiveRestartEnable;
 
+        public PipelineInputAssemblyStateCreateInfo() { }
+
+        internal PipelineInputAssemblyStateCreateInfo(PipelineInputAssemblyStateCreateInfo other) {
+            topology = other.topology;
+            primitiveRestartEnable = other.primitiveRestartEnable;
+        }
+
         internal VkPipelineInputAssemblyStateCreateInfo GetNative() {
             var result = new VkPipelineInputAssemblyStateCreateInfo();
             result.sType = VkStructureType.PipelineInputAssemblyStateCreateInfo;
@@ -89,6 +119,12 @@ namespace CSGL.Vulkan {
     public class PipelineTessellationStateCreateInfo {
         public uint patchControlPoints;
 
+        public PipelineTessellationStateCreateInfo() { }
+
+        internal PipelineTessellationStateCreateInfo(PipelineTessellationStateCreateInfo other) {
+            patchControlPoints = other.patchControlPoints;
+        }
+
         internal VkPipelineTessellationStateCreateInfo GetNative() {
             var result = new VkPipelineTessellationStateCreateInfo();
             result.sType = VkStructureType.PipelineTessellationStateCreateInfo;
@@ -99,8 +135,15 @@ namespace CSGL.Vulkan {
     }
 
     public class PipelineViewportStateCreateInfo {
-        public List<VkViewport> viewports;
-        public List<VkRect2D> scissors;
+        public IList<VkViewport> viewports;
+        public IList<VkRect2D> scissors;
+
+        public PipelineViewportStateCreateInfo() { }
+
+        internal PipelineViewportStateCreateInfo(PipelineViewportStateCreateInfo other) {
+            viewports = other.viewports.CloneReadOnly();
+            scissors = other.scissors.CloneReadOnly();
+        }
 
         internal VkPipelineViewportStateCreateInfo GetNative(DisposableList<IDisposable> marshalled) {
             var result = new VkPipelineViewportStateCreateInfo();
@@ -133,6 +176,21 @@ namespace CSGL.Vulkan {
         public float depthBiasSlopeFactor;
         public float lineWidth;
 
+        public PipelineRasterizationStateCreateInfo() { }
+
+        internal PipelineRasterizationStateCreateInfo(PipelineRasterizationStateCreateInfo other) {
+            depthClampEnable = other.depthClampEnable;
+            rasterizerDiscardEnable = other.rasterizerDiscardEnable;
+            polygonMode = other.polygonMode;
+            cullMode = other.cullMode;
+            frontFace = other.frontFace;
+            depthBiasEnable = other.depthBiasEnable;
+            depthBiasConstantFactor = other.depthBiasConstantFactor;
+            depthBiasClamp = other.depthBiasClamp;
+            depthBiasSlopeFactor = other.depthBiasSlopeFactor;
+            lineWidth = other.lineWidth;
+        }
+
         internal VkPipelineRasterizationStateCreateInfo GetNative() {
             var result = new VkPipelineRasterizationStateCreateInfo();
             result.sType = VkStructureType.PipelineRasterizationStateCreateInfo;
@@ -155,17 +213,34 @@ namespace CSGL.Vulkan {
         public VkSampleCountFlags rasterizationSamples;
         public bool sampleShadingEnable;
         public float minSampleShading;
-        public List<uint> sampleMask;
+        public IList<uint> sampleMask;
         public bool alphaToCoverageEnable;
         public bool alphaToOneEnable;
 
-        internal VkPipelineMultisampleStateCreateInfo GetNative() {
+        public PipelineMultisampleStateCreateInfo() { }
+
+        internal PipelineMultisampleStateCreateInfo(PipelineMultisampleStateCreateInfo other) {
+            rasterizationSamples = other.rasterizationSamples;
+            sampleShadingEnable = other.sampleShadingEnable;
+            minSampleShading = other.minSampleShading;
+            sampleMask = other.sampleMask.CloneReadOnly();
+            alphaToCoverageEnable = other.alphaToCoverageEnable;
+            alphaToOneEnable = other.alphaToOneEnable;
+        }
+
+        internal VkPipelineMultisampleStateCreateInfo GetNative(DisposableList<IDisposable> marshalled) {
             var result = new VkPipelineMultisampleStateCreateInfo();
             result.sType = VkStructureType.PipelineMultisampleStateCreateInfo;
             result.rasterizationSamples = rasterizationSamples;
             result.sampleShadingEnable = sampleShadingEnable ? 1u : 0u;
             result.minSampleShading = minSampleShading;
-            //result.pSampleMask = SampleMask;
+
+            if (sampleMask != null) {
+                NativeArray<uint> masks = new NativeArray<uint>(sampleMask);
+                result.pSampleMask = masks.Address;
+                marshalled.Add(masks);
+            }
+
             result.alphaToCoverageEnable = alphaToCoverageEnable ? 1u : 0u;
             result.alphaToOneEnable = alphaToOneEnable ? 1u : 0u;
 
@@ -183,6 +258,20 @@ namespace CSGL.Vulkan {
         public VkStencilOpState back;
         public float minDepthBounds;
         public float maxDepthBounds;
+
+        public PipelineDepthStencilStateCreateInfo() { }
+
+        internal PipelineDepthStencilStateCreateInfo(PipelineDepthStencilStateCreateInfo other) {
+            depthTestEnable = other.depthTestEnable;
+            depthWriteEnable = other.depthWriteEnable;
+            depthCompareOp = other.depthCompareOp;
+            depthBoundsTestEnable = other.depthBoundsTestEnable;
+            stencilTestEnable = other.stencilTestEnable;
+            front = other.front;
+            back = other.back;
+            minDepthBounds = other.minDepthBounds;
+            maxDepthBounds = other.maxDepthBounds;
+        }
 
         internal VkPipelineDepthStencilStateCreateInfo GetNative() {
             var result = new VkPipelineDepthStencilStateCreateInfo();
@@ -211,6 +300,19 @@ namespace CSGL.Vulkan {
         public VkBlendOp alphaBlendOp;
         public VkColorComponentFlags colorWriteMask;
 
+        public PipelineColorBlendAttachmentState() { }
+
+        internal PipelineColorBlendAttachmentState(PipelineColorBlendAttachmentState other) {
+            blendEnable = other.blendEnable;
+            srcColorBlendFactor = other.srcColorBlendFactor;
+            dstColorBlendFactor = other.dstColorBlendFactor;
+            colorBlendOp = other.colorBlendOp;
+            srcAlphaBlendFactor = other.srcAlphaBlendFactor;
+            dstAlphaBlendFactor = other.dstAlphaBlendFactor;
+            alphaBlendOp = other.alphaBlendOp;
+            colorWriteMask = other.colorWriteMask;
+        }
+
         internal VkPipelineColorBlendAttachmentState GetNative() {
             var result = new VkPipelineColorBlendAttachmentState();
             result.blendEnable = blendEnable ? 1u : 0u;
@@ -229,8 +331,23 @@ namespace CSGL.Vulkan {
     public class PipelineColorBlendStateCreateInfo {
         public bool logicOpEnable;
         public VkLogicOp logicOp;
-        public List<PipelineColorBlendAttachmentState> attachments;
-        public List<float> blendConstants;
+        public IList<PipelineColorBlendAttachmentState> attachments;
+        public IList<float> blendConstants;
+
+        public PipelineColorBlendStateCreateInfo() { }
+
+        internal PipelineColorBlendStateCreateInfo(PipelineColorBlendStateCreateInfo other) {
+            logicOpEnable = other.logicOpEnable;
+            logicOp = other.logicOp;
+            if (other.attachments != null) {
+                var attachments = new List<PipelineColorBlendAttachmentState>(other.attachments.Count);
+                foreach (var attachment in other.attachments) {
+                    attachments.Add(new PipelineColorBlendAttachmentState(attachment));
+                }
+                this.attachments = attachments.AsReadOnly();
+            }
+            blendConstants = other.blendConstants.CloneReadOnly();
+        }
 
         internal VkPipelineColorBlendStateCreateInfo GetNative(DisposableList<IDisposable> marshalled) {
             var result = new VkPipelineColorBlendStateCreateInfo();
@@ -262,7 +379,13 @@ namespace CSGL.Vulkan {
     }
 
     public class PipelineDynamicStateCreateInfo {
-        public List<VkDynamicState> dynamicStates;
+        public IList<VkDynamicState> dynamicStates;
+
+        public PipelineDynamicStateCreateInfo() { }
+
+        internal PipelineDynamicStateCreateInfo(PipelineDynamicStateCreateInfo other) {
+            dynamicStates = other.dynamicStates.CloneReadOnly();
+        }
 
         internal VkPipelineDynamicStateCreateInfo GetNative(DisposableList<IDisposable> marshalled) {
             var result = new VkPipelineDynamicStateCreateInfo();

@@ -20,13 +20,21 @@ namespace CSGL.Vulkan {
         }
 
         public Device Device { get; private set; }
+        public VkQueryType QueryType { get; private set; }
+        public uint QueryCount { get; private set; }
+        public VkQueryPipelineStatisticFlags PipelineStatistics { get; private set; }
 
         public QueryPool(Device device, QueryPoolCreateInfo info) {
             if (device == null) throw new ArgumentNullException(nameof(device));
+            if (info == null) throw new ArgumentNullException(nameof(info));
 
             Device = device;
 
             CreateQueryPool(info);
+
+            QueryType = info.queryType;
+            QueryCount = info.queryCount;
+            PipelineStatistics = info.pipelineStatistics;
         }
 
         void CreateQueryPool(QueryPoolCreateInfo mInfo) {
@@ -36,18 +44,41 @@ namespace CSGL.Vulkan {
             info.queryCount = mInfo.queryCount;
             info.pipelineStatistics = mInfo.pipelineStatistics;
 
-            Device.Commands.createQueryPool(Device.Native, ref info, Device.Instance.AllocationCallbacks, out queryPool);
+            var result = Device.Commands.createQueryPool(Device.Native, ref info, Device.Instance.AllocationCallbacks, out queryPool);
+            if (result != VkResult.Success) throw new QueryPoolException(result, string.Format("Error creating query pool: {0}", result));
         }
 
         public VkResult GetResults(uint firstQuery, uint queryCount, byte[] data, ulong stride, VkQueryResultFlags flags) {
             unsafe {
                 fixed (byte* ptr = data) {
-                    return Device.Commands.getQueryPoolResults(Device.Native, queryPool,
+                    var result = Device.Commands.getQueryPoolResults(
+                        Device.Native, queryPool,
                         firstQuery, queryCount,
                         (IntPtr)data.Length, (IntPtr)ptr,
                         stride, flags
                     );
+
+                    if (!(result == VkResult.Success || result == VkResult.NotReady)) throw new QueryPoolException(result, string.Format("Error getting results: {0}", result));
+                    return result;
                 }
+            }
+        }
+
+        public VkResult GetResults<T>(uint firstQuery, uint queryCount, IList<T> data, ulong stride, VkQueryResultFlags flags) where T : struct {
+            unsafe {
+                int size = (int)Interop.SizeOf(data);
+                byte* results = stackalloc byte[size];
+                var result = Device.Commands.getQueryPoolResults(
+                    Device.Native, queryPool,
+                    firstQuery, queryCount,
+                    (IntPtr)size, (IntPtr)results,
+                    stride, flags
+                );
+
+                Interop.Copy((IntPtr)results, data);
+
+                if (!(result == VkResult.Success || result == VkResult.NotReady)) throw new QueryPoolException(result, string.Format("Error getting results: {0}", result));
+                return result;
             }
         }
 
@@ -67,5 +98,9 @@ namespace CSGL.Vulkan {
         ~QueryPool() {
             Dispose(false);
         }
+    }
+
+    public class QueryPoolException : VulkanException {
+        public QueryPoolException(VkResult result, string message) : base(result, message) { }
     }
 }

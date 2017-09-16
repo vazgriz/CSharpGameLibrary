@@ -24,9 +24,9 @@ namespace CSGL.Vulkan {
         void CreateSemaphore() {
             VkSemaphoreCreateInfo info = new VkSemaphoreCreateInfo();
             info.sType = VkStructureType.SemaphoreCreateInfo;
-            
+
             var result = Device.Commands.createSemaphore(Device.Native, ref info, Device.Instance.AllocationCallbacks, out semaphore);
-            if (result != VkResult.Success) throw new SemaphoreException(string.Format("Error creating semaphore: {0}", result));
+            if (result != VkResult.Success) throw new SemaphoreException(result, string.Format("Error creating semaphore: {0}", result));
         }
 
         public void Dispose() {
@@ -47,7 +47,7 @@ namespace CSGL.Vulkan {
         }
     }
 
-    public class SemaphoreException : Exception {
-        public SemaphoreException(string message) : base(message) { }
+    public class SemaphoreException : VulkanException {
+        public SemaphoreException(VkResult result, string message) : base(result, message) { }
     }
 }

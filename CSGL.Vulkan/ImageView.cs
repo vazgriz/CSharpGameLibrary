@@ -7,12 +7,6 @@ namespace CSGL.Vulkan {
         public VkFormat format;
         public VkComponentMapping components;
         public VkImageSubresourceRange subresourceRange;
-
-        public ImageViewCreateInfo() { }
-
-        public ImageViewCreateInfo(Image image) {
-            this.image = image;
-        }
     }
 
     public class ImageView : IDisposable, INative<VkImageView> {
@@ -35,14 +29,21 @@ namespace CSGL.Vulkan {
         public ImageView(Device device, ImageViewCreateInfo info) {
             if (device == null) throw new ArgumentNullException(nameof(device));
             if (info == null) throw new ArgumentNullException(nameof(info));
-            if (info.image == null) throw new ArgumentNullException(nameof(info.image));
 
             Device = device;
 
             CreateImageView(info);
+
+            Image = info.image;
+            ViewType = info.viewType;
+            Format = info.format;
+            Components = info.components;
+            SubresourceRange = info.subresourceRange;
         }
 
         void CreateImageView(ImageViewCreateInfo mInfo) {
+            if (mInfo.image == null) throw new ArgumentNullException(nameof(mInfo.image));
+
             VkImageViewCreateInfo info = new VkImageViewCreateInfo();
             info.sType = VkStructureType.ImageViewCreateInfo;
             info.image = mInfo.image.Native;
@@ -50,15 +51,9 @@ namespace CSGL.Vulkan {
             info.format = mInfo.format;
             info.components = mInfo.components;
             info.subresourceRange = mInfo.subresourceRange;
-            
-            var result = Device.Commands.createImageView(Device.Native, ref info, Device.Instance.AllocationCallbacks, out imageView);
-            if (result != VkResult.Success) throw new ImageViewException(string.Format("Error creating image view: {0}", result));
 
-            Image = mInfo.image;
-            ViewType = mInfo.viewType;
-            Format = mInfo.format;
-            Components = mInfo.components;
-            SubresourceRange = mInfo.subresourceRange;
+            var result = Device.Commands.createImageView(Device.Native, ref info, Device.Instance.AllocationCallbacks, out imageView);
+            if (result != VkResult.Success) throw new ImageViewException(result, string.Format("Error creating image view: {0}", result));
         }
 
         public void Dispose() {
@@ -68,7 +63,7 @@ namespace CSGL.Vulkan {
 
         void Dispose(bool disposing) {
             if (disposed) return;
-            
+
             Device.Commands.destroyImageView(Device.Native, imageView, Device.Instance.AllocationCallbacks);
 
             disposed = true;
@@ -79,7 +74,7 @@ namespace CSGL.Vulkan {
         }
     }
 
-    public class ImageViewException : Exception {
-        public ImageViewException(string message) : base(message) { }
+    public class ImageViewException : VulkanException {
+        public ImageViewException(VkResult result, string message) : base(result, message) { }
     }
 }

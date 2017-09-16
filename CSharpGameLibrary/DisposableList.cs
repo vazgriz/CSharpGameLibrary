@@ -32,15 +32,7 @@ namespace CSGL {
             items = new List<T>();
         }
 
-        public DisposableList(List<T> items) {
-            if (items == null) {
-                this.items = new List<T>();
-            } else {
-                this.items = new List<T>(items);
-            }
-        }
-
-        public DisposableList(T[] items) {
+        public DisposableList(IList<T> items) {
             if (items == null) {
                 this.items = new List<T>();
             } else {

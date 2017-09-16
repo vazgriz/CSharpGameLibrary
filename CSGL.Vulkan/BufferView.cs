@@ -14,6 +14,8 @@ namespace CSGL.Vulkan {
         VkBufferView bufferView;
 
         public Device Device { get; private set; }
+        public Buffer Buffer { get; private set; }
+        public VkFormat Format { get; private set; }
         public ulong Offset { get; private set; }
         public ulong Range { get; private set; }
 
@@ -28,9 +30,18 @@ namespace CSGL.Vulkan {
             if (info == null) throw new ArgumentNullException(nameof(info));
 
             Device = device;
+
+            CreateBufferView(info);
+
+            Buffer = info.buffer;
+            Format = info.format;
+            Offset = info.offset;
+            Range = info.range;
         }
 
         void CreateBufferView(BufferViewCreateInfo mInfo) {
+            if (mInfo.buffer == null) throw new ArgumentNullException(nameof(mInfo.buffer));
+
             VkBufferViewCreateInfo info = new VkBufferViewCreateInfo();
             info.sType = VkStructureType.BufferViewCreateInfo;
             info.buffer = mInfo.buffer.Native;
@@ -39,10 +50,7 @@ namespace CSGL.Vulkan {
             info.range = mInfo.range;
 
             var result = Device.Commands.createBufferView(Device.Native, ref info, Device.Instance.AllocationCallbacks, out bufferView);
-            if (result != VkResult.Success) throw new BufferViewException(string.Format("Error creating buffer view: {0}", result));
-
-            Offset = mInfo.offset;
-            Range = mInfo.range;
+            if (result != VkResult.Success) throw new BufferViewException(result, string.Format("Error creating buffer view: {0}", result));
         }
 
         public void Dispose() {
@@ -63,7 +71,7 @@ namespace CSGL.Vulkan {
         }
     }
 
-    public class BufferViewException : Exception {
-        public BufferViewException(string message) : base(message) { }
+    public class BufferViewException : VulkanException {
+        public BufferViewException(VkResult result, string message) : base(result, message) { }
     }
 }

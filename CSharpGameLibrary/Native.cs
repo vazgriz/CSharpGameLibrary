@@ -42,8 +42,7 @@ namespace CSGL {
 
         public IntPtr Address {
             get {
-                unsafe
-                {
+                unsafe {
                     return (IntPtr)ptr;
                 }
             }
@@ -51,14 +50,12 @@ namespace CSGL {
 
         public T Value {
             get {
-                unsafe
-                {
+                unsafe {
                     return Unsafe.Read<T>(ptr);
                 }
             }
             set {
-                unsafe
-                {
+                unsafe {
                     Unsafe.Write<T>(ptr, value);
                 }
             }
@@ -72,8 +69,7 @@ namespace CSGL {
             if (disposed) return;
 
             if (allocated) {
-                unsafe
-                {
+                unsafe {
                     Marshal.FreeHGlobal((IntPtr)ptr);
                 }
             }

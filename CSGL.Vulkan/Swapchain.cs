@@ -15,25 +15,20 @@ namespace CSGL.Vulkan {
         public uint imageArrayLayers;
         public VkImageUsageFlags imageUsage;
         public VkSharingMode imageSharingMode;
-        public List<uint> queueFamilyIndices;
+        public IList<uint> queueFamilyIndices;
         public VkSurfaceTransformFlagsKHR preTransform;
         public VkCompositeAlphaFlagsKHR compositeAlpha;
         public VkPresentModeKHR presentMode;
         public bool clipped;
         public Swapchain oldSwapchain;
-
-        public SwapchainCreateInfo(Surface surface, Swapchain oldSwapchain) {
-            this.surface = surface;
-            this.oldSwapchain = oldSwapchain;
-        }
     }
 
     public class Swapchain : IDisposable, INative<VkSwapchainKHR> {
         VkSwapchainKHR swapchain;
         bool disposed;
-        
+
         vkGetSwapchainImagesKHRDelegate getImages;
-        
+
         public Device Device { get; private set; }
         public Surface Surface { get; private set; }
         public IList<Image> Images { get; private set; }
@@ -43,7 +38,11 @@ namespace CSGL.Vulkan {
         public uint ArrayLayers { get; private set; }
         public VkImageUsageFlags Usage { get; private set; }
         public VkSharingMode SharingMode { get; private set; }
+        public IList<uint> QueueFamilyIndices { get; private set; }
+        public VkSurfaceTransformFlagsKHR PreTransform { get; private set; }
+        public VkCompositeAlphaFlagsKHR CompositeAlpha { get; private set; }
         public VkPresentModeKHR PresentMode { get; private set; }
+        public bool Clipped { get; private set; }
 
         public VkSwapchainKHR Native {
             get {
@@ -54,16 +53,28 @@ namespace CSGL.Vulkan {
         public Swapchain(Device device, SwapchainCreateInfo info) {
             if (device == null) throw new ArgumentNullException(nameof(device));
             if (info == null) throw new ArgumentNullException(nameof(info));
-            if (info.surface == null) throw new ArgumentNullException(nameof(info.surface));
 
             Surface = info.surface;
             Device = device;
-            
+
             getImages = Device.Commands.getSwapchainImages;
 
             CreateSwapchain(info);
 
             GetImages();
+
+            Format = info.imageFormat;
+            ColorSpace = info.imageColorSpace;
+            Extent = info.imageExtent;
+            ArrayLayers = info.imageArrayLayers;
+            PresentMode = info.presentMode;
+            Usage = info.imageUsage;
+            SharingMode = info.imageSharingMode;
+            QueueFamilyIndices = info.queueFamilyIndices.CloneReadOnly();
+            PreTransform = info.preTransform;
+            CompositeAlpha = info.compositeAlpha;
+            PresentMode = info.presentMode;
+            Clipped = info.clipped;
         }
 
         void GetImages() {
@@ -85,6 +96,8 @@ namespace CSGL.Vulkan {
         }
 
         void CreateSwapchain(SwapchainCreateInfo mInfo) {
+            if (mInfo.surface == null) throw new ArgumentNullException(nameof(mInfo.surface));
+
             var info = new VkSwapchainCreateInfoKHR();
             info.sType = VkStructureType.SwapchainCreateInfoKhr;
             info.surface = mInfo.surface.Native;
@@ -111,46 +124,21 @@ namespace CSGL.Vulkan {
 
             using (indicesMarshalled) {
                 var result = Device.Commands.createSwapchain(Device.Native, ref info, Device.Instance.AllocationCallbacks, out swapchain);
-                if (result != VkResult.Success) throw new SwapchainException(string.Format("Error creating swapchain: {0}", result));
+                if (result != VkResult.Success) throw new SwapchainException(result, string.Format("Error creating swapchain: {0}", result));
             }
-
-            Format = info.imageFormat;
-            ColorSpace = info.imageColorSpace;
-            Extent = info.imageExtent;
-            ArrayLayers = info.imageArrayLayers;
-            PresentMode = info.presentMode;
-            Usage = info.imageUsage;
-            SharingMode = info.imageSharingMode;
         }
 
         public VkResult AcquireNextImage(ulong timeout, Semaphore semaphore, Fence fence, out uint index) {
-            VkSemaphore sTemp = VkSemaphore.Null;
-            VkFence fTemp = VkFence.Null;
-            if (semaphore != null) sTemp = semaphore.Native;
-            if (fence != null) fTemp = fence.Native;
+            VkSemaphore semaphoreNative = VkSemaphore.Null;
+            VkFence fenceNative = VkFence.Null;
+            if (semaphore != null) semaphoreNative = semaphore.Native;
+            if (fence != null) fenceNative = fence.Native;
 
-            var result = Device.Commands.acquireNextImage(Device.Native, swapchain, timeout, sTemp, fTemp, out index);
+            var result = Device.Commands.acquireNextImage(Device.Native, swapchain, timeout, semaphoreNative, fenceNative, out index);
+            if (!(result == VkResult.Success || result == VkResult.SuboptimalKhr || result == VkResult.NotReady || result == VkResult.Timeout)) {
+                throw new SwapchainException(result, string.Format("Error acquiring image: {0}", result));
+            }
             return result;
-        }
-
-        public VkResult AcquireNextImage(Semaphore semaphore, out uint index) {
-            return AcquireNextImage(ulong.MaxValue, semaphore, null, out index);
-        }
-
-        public VkResult AcquireNextImage(ulong timeout, Semaphore semaphore, out uint index) {
-            return AcquireNextImage(timeout, semaphore, null, out index);
-        }
-
-        public VkResult AcquireNextImage(Fence fence, out uint index) {
-            return AcquireNextImage(ulong.MaxValue, null, fence, out index);
-        }
-
-        public VkResult AcquireNextImage(ulong timeout, Fence fence, out uint index) {
-            return AcquireNextImage(timeout, null, fence, out index);
-        }
-
-        public VkResult AcquireNextImage(Semaphore semaphore, Fence fence, out uint index) {
-            return AcquireNextImage(ulong.MaxValue, semaphore, fence, out index);
         }
 
         public void Dispose() {
@@ -160,7 +148,7 @@ namespace CSGL.Vulkan {
 
         void Dispose(bool disposing) {
             if (disposed) return;
-            
+
             Device.Commands.destroySwapchain(Device.Native, swapchain, Device.Instance.AllocationCallbacks);
 
             foreach (var image in Images) {
@@ -175,7 +163,7 @@ namespace CSGL.Vulkan {
         }
     }
 
-    public class SwapchainException : Exception {
-        public SwapchainException(string message) : base(message) { }
+    public class SwapchainException : VulkanException {
+        public SwapchainException(VkResult result, string message) : base(result, message) { }
     }
 }

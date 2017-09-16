@@ -1,7 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
 namespace CSGL.Vulkan {
+    public class PipelineCacheCreateInfo {
+        public IList<byte> initialData;
+    }
+
     public class PipelineCache : INative<VkPipelineCache>, IDisposable {
         bool disposed;
         VkPipelineCache pipelineCache;
@@ -13,23 +18,28 @@ namespace CSGL.Vulkan {
             }
         }
 
-        public PipelineCache(Device device, byte[] initialData) {
+        public PipelineCache(Device device, PipelineCacheCreateInfo info) {
+            if (device == null) throw new ArgumentNullException(nameof(device));
+            if (info == null) throw new ArgumentNullException(nameof(info));
+
             Device = device;
 
-            CreateCache(initialData);
+            CreateCache(info);
         }
 
-        void CreateCache(byte[] initialData) {
+        void CreateCache(PipelineCacheCreateInfo mInfo) {
+            if (mInfo.initialData == null) throw new ArgumentNullException(nameof(mInfo.initialData));
+
             var info = new VkPipelineCacheCreateInfo();
             info.sType = VkStructureType.PipelineCacheCreateInfo;
-            info.initialDataSize = (IntPtr)initialData.Length;
+            info.initialDataSize = (IntPtr)mInfo.initialData.Count;
 
-            var initialDataMarshalled = new PinnedArray<byte>(initialData);
+            var initialDataMarshalled = new NativeArray<byte>(mInfo.initialData);
             info.pInitialData = initialDataMarshalled.Address;
 
             using (initialDataMarshalled) {
                 var result = Device.Commands.createPipelineCache(Device.Native, ref info, Device.Instance.AllocationCallbacks, out pipelineCache);
-                if (result != VkResult.Success) throw new PipelineCacheException(string.Format("Error creating pipeline cache: {0}", result));
+                if (result != VkResult.Success) throw new PipelineCacheException(result, string.Format("Error creating pipeline cache: {0}", result));
             }
         }
 
@@ -38,20 +48,21 @@ namespace CSGL.Vulkan {
             Device.Commands.getPipelineCacheData(Device.Native, pipelineCache, ref length, IntPtr.Zero);
             byte[] result = new byte[length];
 
-            GCHandle handle = GCHandle.Alloc(result, GCHandleType.Pinned);
-            Device.Commands.getPipelineCacheData(Device.Native, pipelineCache, ref length, handle.AddrOfPinnedObject());
-            handle.Free();
+            unsafe {
+                fixed (byte* ptr = result) {
+                    Device.Commands.getPipelineCacheData(Device.Native, pipelineCache, ref length, (IntPtr)ptr);
+                }
+            }
 
             return result;
         }
 
-        public void Merge(PipelineCache[] srcCaches) {
-            unsafe
-            {
-                VkPipelineCache* srcNative = stackalloc VkPipelineCache[srcCaches.Length];
-                Interop.Marshal(srcCaches, srcNative);
+        public void Merge(IList<PipelineCache> srcCaches) {
+            unsafe {
+                VkPipelineCache* srcNative = stackalloc VkPipelineCache[srcCaches.Count];
+                Interop.Marshal<VkPipelineCache, PipelineCache>(srcCaches, srcNative);
 
-                Device.Commands.mergePipelineCache(Device.Native, pipelineCache, (uint)srcCaches.Length, (IntPtr)srcNative);
+                Device.Commands.mergePipelineCache(Device.Native, pipelineCache, (uint)srcCaches.Count, (IntPtr)srcNative);
             }
         }
 
@@ -73,7 +84,7 @@ namespace CSGL.Vulkan {
         }
     }
 
-    public class PipelineCacheException : Exception {
-        public PipelineCacheException(string message) : base(message) { }
+    public class PipelineCacheException : VulkanException {
+        public PipelineCacheException(VkResult result, string message) : base(result, message) { }
     }
 }

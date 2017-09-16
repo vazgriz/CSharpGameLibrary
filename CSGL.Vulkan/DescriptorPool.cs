@@ -5,7 +5,7 @@ namespace CSGL.Vulkan {
     public class DescriptorPoolCreateInfo {
         public VkDescriptorPoolCreateFlags flags;
         public uint maxSets;
-        public List<VkDescriptorPoolSize> poolSizes;
+        public IList<VkDescriptorPoolSize> poolSizes;
     }
 
     public class DescriptorPool : IDisposable, INative<VkDescriptorPool> {
@@ -22,6 +22,10 @@ namespace CSGL.Vulkan {
         }
 
         public VkDescriptorPoolCreateFlags Flags { get; private set; }
+        public uint MaxSets { get; private set; }
+        public IList<VkDescriptorPoolSize> PoolSizes { get; private set; }
+
+        List<DescriptorSet> descriptorSets;
 
         public DescriptorPool(Device device, DescriptorPoolCreateInfo info) {
             if (device == null) throw new ArgumentNullException(nameof(device));
@@ -30,9 +34,17 @@ namespace CSGL.Vulkan {
             Device = device;
 
             CreateDescriptorPool(info);
+
+            Flags = info.flags;
+            MaxSets = info.maxSets;
+            PoolSizes = info.poolSizes.CloneReadOnly();
+
+            descriptorSets = new List<DescriptorSet>();
         }
 
         void CreateDescriptorPool(DescriptorPoolCreateInfo mInfo) {
+            if (mInfo.poolSizes == null) throw new ArgumentNullException(nameof(mInfo.poolSizes));
+
             var info = new VkDescriptorPoolCreateInfo();
             info.sType = VkStructureType.DescriptorPoolCreateInfo;
             info.flags = mInfo.flags;
@@ -44,43 +56,88 @@ namespace CSGL.Vulkan {
 
             using (poolSizesMarshalled) {
                 var result = Device.Commands.createDescriptorPool(Device.Native, ref info, Device.Instance.AllocationCallbacks, out descriptorPool);
-                if (result != VkResult.Success) throw new DescriptorPoolException(string.Format("Error creating descriptor pool: {0}", result));
+                if (result != VkResult.Success) throw new DescriptorPoolException(result, string.Format("Error creating descriptor pool: {0}", result));
             }
-
-            Flags = mInfo.flags;
         }
 
-        public DescriptorSet[] Allocate(DescriptorSetAllocateInfo info) {
-            var infoNative = new VkDescriptorSetAllocateInfo();
-            infoNative.sType = VkStructureType.DescriptorSetAllocateInfo;
-            infoNative.descriptorPool = descriptorPool;
-            infoNative.descriptorSetCount = info.descriptorSetCount;
+        public IList<DescriptorSet> Allocate(DescriptorSetAllocateInfo info) {
+            if (info == null) throw new ArgumentNullException(nameof(info));
+            if (info.setLayouts == null) throw new ArgumentNullException(nameof(info.setLayouts));
 
-            var layoutsMarshalled = new NativeArray<VkDescriptorSetLayout>(info.setLayouts.Count);
-            for (int i = 0; i < info.setLayouts.Count; i++) {
-                layoutsMarshalled[i] = info.setLayouts[i].Native;
-            }
-            infoNative.pSetLayouts = layoutsMarshalled.Address;
+            unsafe {
+                var infoNative = new VkDescriptorSetAllocateInfo();
+                infoNative.sType = VkStructureType.DescriptorSetAllocateInfo;
+                infoNative.descriptorPool = descriptorPool;
+                infoNative.descriptorSetCount = (uint)info.setLayouts.Count;
 
-            var descriptorSetsMarshalled = new NativeArray<VkDescriptorSet>((int)info.descriptorSetCount);
+                var layoutsNative = stackalloc VkDescriptorSetLayout[info.setLayouts.Count];
+                Interop.Marshal<VkDescriptorSetLayout, DescriptorSetLayout>(info.setLayouts, layoutsNative);
+                infoNative.pSetLayouts = (IntPtr)layoutsNative;
 
-            using (layoutsMarshalled)
-            using (descriptorSetsMarshalled) {
-                var result = Device.Commands.allocateDescriptorSets(Device.Native, ref infoNative, descriptorSetsMarshalled.Address);
-                if (result != VkResult.Success) throw new DescriptorPoolException(string.Format("Error allocating descriptor sets: {0}", result));
+                var resultsNative = stackalloc VkDescriptorSet[info.setLayouts.Count];
 
-                var results = new DescriptorSet[(int)info.descriptorSetCount];
+                var result = Device.Commands.allocateDescriptorSets(Device.Native, ref infoNative, (IntPtr)resultsNative);
+                if (result != VkResult.Success) throw new DescriptorPoolException(result, string.Format("Error allocating descriptor sets: {0}", result));
 
-                for (int i = 0; i < info.descriptorSetCount; i++) {
-                    results[i] = new DescriptorSet(Device, this, descriptorSetsMarshalled[i]);
+                var results = new List<DescriptorSet>(info.setLayouts.Count);
+
+                for (int i = 0; i < info.setLayouts.Count; i++) {
+                    results.Add(new DescriptorSet(Device, this, resultsNative[i], info.setLayouts[i]));
+                    descriptorSets.Add(results[i]);
                 }
 
                 return results;
             }
         }
 
+        public DescriptorSet Allocate(DescriptorSetLayout layout) {
+            if (layout == null) throw new ArgumentNullException(nameof(layout));
+
+            unsafe {
+                var info = new VkDescriptorSetAllocateInfo();
+                info.sType = VkStructureType.DescriptorSetAllocateInfo;
+                info.descriptorPool = descriptorPool;
+                info.descriptorSetCount = 1;
+
+                VkDescriptorSetLayout layoutNative = layout.Native;
+                info.pSetLayouts = (IntPtr)(&layoutNative);
+
+                VkDescriptorSet setNative;
+                var result = Device.Commands.allocateDescriptorSets(Device.Native, ref info, (IntPtr)(&setNative));
+                if (result != VkResult.Success) throw new DescriptorPoolException(result, string.Format("Error allocating descriptor set: {0}", result));
+
+                var set =  new DescriptorSet(Device, this, setNative, layout);
+
+                descriptorSets.Add(set);
+
+                return set;
+            }
+        }
+
         public void Reset(VkDescriptorPoolResetFlags flags) {
-            Device.Commands.resetDescriptorPool(Device.Native, descriptorPool, flags);
+            var result = Device.Commands.resetDescriptorPool(Device.Native, descriptorPool, flags);
+            if (result != VkResult.Success) throw new DescriptorPoolException(result, string.Format("Error resetting descriptor pool: {0}", result));
+
+            foreach (var descriptorSet in descriptorSets) {
+                descriptorSet.CanDispose = false;
+            }
+
+            descriptorSets.Clear();
+        }
+
+        public void Free(IList<DescriptorSet> descriptorSets) {
+            unsafe {
+                var descriptorSetsNative = stackalloc VkDescriptorSet[descriptorSets.Count];
+                Interop.Marshal<VkDescriptorSet, DescriptorSet>(descriptorSets, descriptorSetsNative);
+                Device.Commands.freeDescriptorSets(Device.Native, descriptorPool, (uint)descriptorSets.Count, (IntPtr)descriptorSetsNative);
+            }
+        }
+
+        public void Free(DescriptorSet descriptorSets) {
+            unsafe {
+                VkDescriptorSet descriptorSetNative = descriptorSets.Native;
+                Device.Commands.freeDescriptorSets(Device.Native, descriptorPool, 1, (IntPtr)(&descriptorSetNative));
+            }
         }
 
         public void Dispose() {
@@ -93,6 +150,10 @@ namespace CSGL.Vulkan {
 
             Device.Commands.destroyDescriptorPool(Device.Native, descriptorPool, Device.Instance.AllocationCallbacks);
 
+            foreach (var descriptorSet in descriptorSets) {
+                descriptorSet.CanDispose = false;
+            }
+
             disposed = true;
         }
 
@@ -101,7 +162,7 @@ namespace CSGL.Vulkan {
         }
     }
 
-    public class DescriptorPoolException : Exception {
-        public DescriptorPoolException(string message) : base(message) { }
+    public class DescriptorPoolException : VulkanException {
+        public DescriptorPoolException(VkResult result, string message) : base(result, message) { }
     }
 }

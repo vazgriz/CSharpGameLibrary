@@ -13,7 +13,7 @@ namespace CSGL.Vulkan {
         public VkImageTiling tiling;
         public VkImageUsageFlags usage;
         public VkSharingMode sharingMode;
-        public List<uint> queueFamilyIndices;
+        public IList<uint> queueFamilyIndices;
         public VkImageLayout initialLayout;
     }
 
@@ -22,7 +22,6 @@ namespace CSGL.Vulkan {
         bool disposed = false;
 
         VkMemoryRequirements requirements;
-        List<VkSparseImageMemoryRequirements> sparseRequirements;
 
         public Device Device { get; private set; }
 
@@ -55,6 +54,8 @@ namespace CSGL.Vulkan {
         public VkSampleCountFlags Samples { get; private set; }
         public VkImageTiling Tiling { get; private set; }
         public VkImageUsageFlags Usage { get; private set; }
+        public VkSharingMode SharingMode { get; private set; }
+        public IList<uint> QueueFamilyIndices { get; private set; }
 
         public ulong Offset { get; private set; }
         public DeviceMemory Memory { get; private set; }
@@ -67,50 +68,60 @@ namespace CSGL.Vulkan {
 
         public Image(Device device, ImageCreateInfo info) {
             if (device == null) throw new ArgumentNullException(nameof(device));
+            if (info == null) throw new ArgumentNullException(nameof(info));
+
             Device = device;
 
             CreateImage(info);
 
             Device.Commands.getImageMemoryRequirements(Device.Native, image, out requirements);
+
+            Flags = info.flags;
+            ImageType = info.imageType;
+            Format = info.format;
+            Extent = info.extent;
+            MipLevels = info.mipLevels;
+            ArrayLayers = info.arrayLayers;
+            Samples = info.samples;
+            Tiling = info.tiling;
+            Usage = info.usage;
+            SharingMode = info.sharingMode;
+            QueueFamilyIndices = info.queueFamilyIndices.CloneReadOnly();
         }
 
         void CreateImage(ImageCreateInfo mInfo) {
-            var info = new VkImageCreateInfo();
-            info.sType = VkStructureType.ImageCreateInfo;
-            info.flags = mInfo.flags;
-            info.imageType = mInfo.imageType;
-            info.format = mInfo.format;
-            info.extent = mInfo.extent;
-            info.mipLevels = mInfo.mipLevels;
-            info.arrayLayers = mInfo.arrayLayers;
-            info.samples = mInfo.samples;
-            info.tiling = mInfo.tiling;
-            info.usage = mInfo.usage;
-            info.sharingMode = mInfo.sharingMode;
+            unsafe {
+                int indicesCount = 0;
+                if (mInfo.queueFamilyIndices != null) indicesCount = mInfo.queueFamilyIndices.Count;
 
-            var indicesMarshalled = new NativeArray<uint>(mInfo.queueFamilyIndices);
-            info.queueFamilyIndexCount = (uint)indicesMarshalled.Count;
-            info.pQueueFamilyIndices = indicesMarshalled.Address;
-            info.initialLayout = mInfo.initialLayout;
+                var info = new VkImageCreateInfo();
+                info.sType = VkStructureType.ImageCreateInfo;
+                info.flags = mInfo.flags;
+                info.imageType = mInfo.imageType;
+                info.format = mInfo.format;
+                info.extent = mInfo.extent;
+                info.mipLevels = mInfo.mipLevels;
+                info.arrayLayers = mInfo.arrayLayers;
+                info.samples = mInfo.samples;
+                info.tiling = mInfo.tiling;
+                info.usage = mInfo.usage;
+                info.sharingMode = mInfo.sharingMode;
 
-            using (indicesMarshalled) {
+                var queueFamilyIndicesNative = stackalloc uint[indicesCount];
+                if (mInfo.queueFamilyIndices != null) Interop.Copy(mInfo.queueFamilyIndices, (IntPtr)queueFamilyIndicesNative);
+                
+                info.queueFamilyIndexCount = (uint)indicesCount;
+                info.pQueueFamilyIndices = (IntPtr)queueFamilyIndicesNative;
+
+                info.initialLayout = mInfo.initialLayout;
+                
                 var result = Device.Commands.createImage(Device.Native, ref info, Device.Instance.AllocationCallbacks, out image);
-                if (result != VkResult.Success) throw new ImageException(string.Format("Error creating image: {0}", result));
+                if (result != VkResult.Success) throw new ImageException(result, string.Format("Error creating image: {0}", result));
             }
-
-            Flags = mInfo.flags;
-            ImageType = mInfo.imageType;
-            Format = mInfo.format;
-            Extent = mInfo.extent;
-            MipLevels = mInfo.mipLevels;
-            ArrayLayers = mInfo.arrayLayers;
-            Samples = mInfo.samples;
-            Tiling = mInfo.tiling;
-            Usage = mInfo.usage;
         }
 
         void GetSparseRequirements() {
-            sparseRequirements = new List<VkSparseImageMemoryRequirements>();
+            var sparseRequirements = new List<VkSparseImageMemoryRequirements>();
 
             uint count = 0;
             Device.Commands.getImageSparseRequirements(Device.Native, image, ref count, IntPtr.Zero);
@@ -148,7 +159,7 @@ namespace CSGL.Vulkan {
 
         void Dispose(bool disposing) {
             if (disposed) return;
-            
+
             Device.Commands.destroyImage(Device.Native, image, Device.Instance.AllocationCallbacks);
 
             disposed = true;
@@ -159,7 +170,7 @@ namespace CSGL.Vulkan {
         }
     }
 
-    public class ImageException : Exception {
-        public ImageException(string message) : base(message) { }
+    public class ImageException : VulkanException {
+        public ImageException(VkResult result, string message) : base(result, message) { }
     }
 }

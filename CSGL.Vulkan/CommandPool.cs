@@ -19,6 +19,9 @@ namespace CSGL.Vulkan {
 
         public Device Device { get; private set; }
         public VkCommandPoolCreateFlags Flags { get; private set; }
+        public uint QueueFamilyIndex { get; private set; }
+
+        List<CommandBuffer> commandBuffers;
 
         public CommandPool(Device device, CommandPoolCreateInfo info) {
             if (device == null) throw new ArgumentNullException(nameof(device));
@@ -27,6 +30,11 @@ namespace CSGL.Vulkan {
             Device = device;
 
             CreateCommandPool(info);
+
+            Flags = info.flags;
+            QueueFamilyIndex = info.queueFamilyIndex;
+
+            commandBuffers = new List<CommandBuffer>();
         }
 
         void CreateCommandPool(CommandPoolCreateInfo mInfo) {
@@ -34,15 +42,9 @@ namespace CSGL.Vulkan {
             info.sType = VkStructureType.CommandPoolCreateInfo;
             info.flags = mInfo.flags;
             info.queueFamilyIndex = mInfo.queueFamilyIndex;
-            
+
             var result = Device.Commands.createCommandPool(Device.Native, ref info, Device.Instance.AllocationCallbacks, out commandPool);
-            if (result != VkResult.Success) throw new CommandPoolException(string.Format("Error creating command pool: {0}", result));
-
-            Flags = mInfo.flags;
-        }
-
-        public CommandBuffer[] Allocate(CommandBufferAllocateInfo info) {
-            return Allocate(info.level, (int)info.commandBufferCount);
+            if (result != VkResult.Success) throw new CommandPoolException(result, string.Format("Error creating command pool: {0}", result));
         }
 
         public CommandBuffer Allocate(VkCommandBufferLevel level) {
@@ -54,41 +56,42 @@ namespace CSGL.Vulkan {
 
             using (var commandBufferMarshalled = new Native<VkCommandBuffer>()) {
                 var result = Device.Commands.allocateCommandBuffers(Device.Native, ref info, commandBufferMarshalled.Address);
-                if (result != VkResult.Success) throw new CommandPoolException(string.Format("Error allocating command buffer: {0}", result));
+                if (result != VkResult.Success) throw new CommandPoolException(result, string.Format("Error allocating command buffer: {0}", result));
 
                 CommandBuffer commandBuffer = new CommandBuffer(Device, this, commandBufferMarshalled.Value, level);
+                commandBuffers.Add(commandBuffer);
 
                 return commandBuffer;
             }
         }
 
-        public CommandBuffer[] Allocate(VkCommandBufferLevel level, int count) {
-            var info = new VkCommandBufferAllocateInfo();
-            info.sType = VkStructureType.CommandBufferAllocateInfo;
-            info.level = level;
-            info.commandPool = commandPool;
-            info.commandBufferCount = (uint)count;
+        public IList<CommandBuffer> Allocate(CommandBufferAllocateInfo info) {
+            if (info == null) throw new ArgumentNullException(nameof(info));
 
-            using (var commandBuffersMarshalled = new NativeArray<VkCommandBuffer>(count)) {
-                CommandBuffer[] commandBuffers = new CommandBuffer[count];
-                var result = Device.Commands.allocateCommandBuffers(Device.Native, ref info, commandBuffersMarshalled.Address);
-                if (result != VkResult.Success) throw new CommandPoolException(string.Format("Error allocating command buffers: {0}", result));
+            var infoNative = new VkCommandBufferAllocateInfo();
+            infoNative.sType = VkStructureType.CommandBufferAllocateInfo;
+            infoNative.level = info.level;
+            infoNative.commandPool = commandPool;
+            infoNative.commandBufferCount = info.commandBufferCount;
 
-                for (int i = 0; i < count; i++) {
-                    commandBuffers[i] = new CommandBuffer(Device, this, commandBuffersMarshalled[i], level);
+            using (var commandBuffersMarshalled = new NativeArray<VkCommandBuffer>(info.commandBufferCount)) {
+                var results = new List<CommandBuffer>((int)info.commandBufferCount);
+
+                var result = Device.Commands.allocateCommandBuffers(Device.Native, ref infoNative, commandBuffersMarshalled.Address);
+                if (result != VkResult.Success) throw new CommandPoolException(result, string.Format("Error allocating command buffers: {0}", result));
+
+                for (int i = 0; i < (int)info.commandBufferCount; i++) {
+                    results.Add(new CommandBuffer(Device, this, commandBuffersMarshalled[i], info.level));
+                    commandBuffers.Add(results[i]);
                 }
 
-                return commandBuffers;
+                return results;
             }
         }
 
-        public void Free(CommandBuffer[] commandBuffers) {
-            using (var commandBuffersMarshalled = new NativeArray<VkCommandBuffer>(commandBuffers)) {
-                Device.Commands.freeCommandBuffers(Device.Native, commandPool, (uint)commandBuffers.Length, commandBuffersMarshalled.Address);
-            }
-        }
+        public void Free(IList<CommandBuffer> commandBuffers) {
+            if (commandBuffers == null) throw new ArgumentNullException(nameof(commandBuffers));
 
-        public void Free(List<CommandBuffer> commandBuffers) {
             using (var commandBuffersMarshalled = new NativeArray<VkCommandBuffer>(commandBuffers.Count)) {
                 for (int i = 0; i < commandBuffers.Count; i++) {
                     commandBuffersMarshalled[i] = commandBuffers[i].Native;
@@ -97,8 +100,24 @@ namespace CSGL.Vulkan {
             }
         }
 
+        public void Free(CommandBuffer commandBuffer) {
+            if (commandBuffer == null) throw new ArgumentNullException(nameof(commandBuffer));
+
+            unsafe {
+                VkCommandBuffer commandBufferNative = commandBuffer.Native;
+                Device.Commands.freeCommandBuffers(Device.Native, commandPool, 1, (IntPtr)(&commandBufferNative));
+            }
+        }
+
         public void Reset(VkCommandPoolResetFlags flags) {
-            Device.Commands.resetCommandPool(Device.Native, commandPool, flags);
+            var result = Device.Commands.resetCommandPool(Device.Native, commandPool, flags);
+            if (result != VkResult.Success) throw new CommandPoolException(result, string.Format("Error resetting command pool: {0}", result));
+
+            foreach (var commandBuffer in commandBuffers) {
+                commandBuffer.CanDispose = false;
+            }
+
+            commandBuffers.Clear();
         }
 
         public void Dispose() {
@@ -111,6 +130,10 @@ namespace CSGL.Vulkan {
 
             Device.Commands.destroyCommandPool(Device.Native, commandPool, Device.Instance.AllocationCallbacks);
 
+            foreach (var commandBuffer in commandBuffers) {
+                commandBuffer.CanDispose = false;
+            }
+
             disposed = true;
         }
 
@@ -119,7 +142,7 @@ namespace CSGL.Vulkan {
         }
     }
 
-    public class CommandPoolException : Exception {
-        public CommandPoolException(string message) : base(message) { }
+    public class CommandPoolException : VulkanException {
+        public CommandPoolException(VkResult result, string message) : base(result, message) { }
     }
 }

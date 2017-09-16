@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace CSGL.Vulkan {
     public class FramebufferCreateInfo {
         public RenderPass renderPass;
-        public List<ImageView> attachments;
+        public IList<ImageView> attachments;
         public uint width;
         public uint height;
         public uint layers;
@@ -22,6 +22,7 @@ namespace CSGL.Vulkan {
 
         public Device Device { get; private set; }
         public RenderPass RenderPass { get; private set; }
+        public IList<ImageView> Attachments { get; private set; }
         public uint Width { get; private set; }
         public uint Height { get; private set; }
         public uint Layers { get; private set; }
@@ -33,35 +34,36 @@ namespace CSGL.Vulkan {
             Device = device;
 
             CreateFramebuffer(info);
+
+            RenderPass = info.renderPass;
+            Attachments = info.attachments.CloneReadOnly();
+            Width = info.width;
+            Height = info.height;
+            Layers = info.layers;
         }
 
         void CreateFramebuffer(FramebufferCreateInfo mInfo) {
-            VkFramebufferCreateInfo info = new VkFramebufferCreateInfo();
-            info.sType = VkStructureType.FramebufferCreateInfo;
-            info.renderPass = mInfo.renderPass.Native;
-           
-            var attachmentsMarshalled = new NativeArray<VkImageView>(mInfo.attachments.Count);
+            unsafe {
+                int attachmentCount = 0;
+                if (mInfo.attachments != null) attachmentCount = mInfo.attachments.Count;
 
-            for (int i = 0; i < mInfo.attachments.Count; i++) {
-                attachmentsMarshalled[i] = mInfo.attachments[i].Native;
-            }
+                VkFramebufferCreateInfo info = new VkFramebufferCreateInfo();
+                info.sType = VkStructureType.FramebufferCreateInfo;
+                info.renderPass = mInfo.renderPass.Native;
 
-            info.attachmentCount = (uint)mInfo.attachments.Count; 
-            info.pAttachments = attachmentsMarshalled.Address;
+                var attachmentsNative = stackalloc VkImageView[attachmentCount];
+                if (mInfo.attachments != null) Interop.Marshal<VkImageView, ImageView>(mInfo.attachments, attachmentsNative);
 
-            info.width = mInfo.width;
-            info.height = mInfo.height;
-            info.layers = mInfo.layers;
+                info.attachmentCount = (uint)attachmentCount;
+                info.pAttachments = (IntPtr)attachmentsNative;
 
-            using (attachmentsMarshalled) {
+                info.width = mInfo.width;
+                info.height = mInfo.height;
+                info.layers = mInfo.layers;
+                
                 var result = Device.Commands.createFramebuffer(Device.Native, ref info, Device.Instance.AllocationCallbacks, out framebuffer);
-                if (result != VkResult.Success) throw new FramebufferException(string.Format("Error creating framebuffer: {0}", result));
+                if (result != VkResult.Success) throw new FramebufferException(result, string.Format("Error creating framebuffer: {0}", result));
             }
-
-            RenderPass = mInfo.renderPass;
-            Width = mInfo.width;
-            Height = mInfo.height;
-            Layers = mInfo.layers;
         }
 
         public void Dispose() {
@@ -82,7 +84,7 @@ namespace CSGL.Vulkan {
         }
     }
 
-    public class FramebufferException : Exception {
-        public FramebufferException(string message) : base(message) { }
+    public class FramebufferException : VulkanException {
+        public FramebufferException(VkResult result, string message) : base(result, message) { }
     }
 }

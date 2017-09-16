@@ -3,9 +3,9 @@ using System.Collections.Generic;
 
 namespace CSGL.Vulkan {
     public class RenderPassCreateInfo {
-        public List<AttachmentDescription> attachments;
-        public List<SubpassDescription> subpasses;
-        public List<SubpassDependency> dependencies;
+        public IList<AttachmentDescription> attachments;
+        public IList<SubpassDescription> subpasses;
+        public IList<SubpassDependency> dependencies;
     }
 
     public class AttachmentDescription {
@@ -18,20 +18,70 @@ namespace CSGL.Vulkan {
         public VkAttachmentStoreOp stencilStoreOp;
         public VkImageLayout initialLayout;
         public VkImageLayout finalLayout;
+
+        public AttachmentDescription() { }
+
+        internal AttachmentDescription(AttachmentDescription other) {
+            flags = other.flags;
+            format = other.format;
+            samples = other.samples;
+            loadOp = other.loadOp;
+            storeOp = other.storeOp;
+            stencilLoadOp = other.stencilLoadOp;
+            stencilStoreOp = other.stencilStoreOp;
+            initialLayout = other.initialLayout;
+            finalLayout = other.finalLayout;
+        }
     }
 
     public class AttachmentReference {
         public uint attachment;
         public VkImageLayout layout;
+
+        public AttachmentReference() { }
+
+        internal AttachmentReference(AttachmentReference other) {
+            attachment = other.attachment;
+            layout = other.layout;
+        }
     }
 
     public class SubpassDescription {
         public VkPipelineBindPoint pipelineBindPoint;
-        public List<AttachmentReference> inputAttachments;
-        public List<AttachmentReference> colorAttachments;
-        public List<AttachmentReference> resolveAttachments;
-        public List<uint> preserveAttachments;
+        public IList<AttachmentReference> inputAttachments;
+        public IList<AttachmentReference> colorAttachments;
+        public IList<AttachmentReference> resolveAttachments;
+        public IList<uint> preserveAttachments;
         public AttachmentReference depthStencilAttachment;
+
+        public SubpassDescription() { }
+
+        internal SubpassDescription(SubpassDescription other) {
+            pipelineBindPoint = other.pipelineBindPoint;
+            if (other.inputAttachments != null) {
+                var inputAttachments = new List<AttachmentReference>(other.inputAttachments.Count);
+                foreach (var input in other.inputAttachments) {
+                    inputAttachments.Add(new AttachmentReference(input));
+                }
+                this.inputAttachments = inputAttachments.AsReadOnly();
+            }
+            if (other.colorAttachments != null) {
+                var colorAttachments = new List<AttachmentReference>(other.colorAttachments.Count);
+                foreach (var color in other.colorAttachments) {
+                    colorAttachments.Add(new AttachmentReference(color));
+                }
+                this.colorAttachments = colorAttachments.AsReadOnly();
+            }
+            if (other.resolveAttachments != null) {
+                var resolveAttachments = new List<AttachmentReference>(other.resolveAttachments);
+                foreach (var resolve in other.resolveAttachments) {
+                    resolveAttachments.Add(new AttachmentReference(resolve));
+                }
+                this.resolveAttachments = resolveAttachments.AsReadOnly();
+            }
+            preserveAttachments = other.preserveAttachments.CloneReadOnly();
+            if (other.depthStencilAttachment != null) depthStencilAttachment = new AttachmentReference(other.depthStencilAttachment);
+        }
     }
 
     public class SubpassDependency {
@@ -42,6 +92,18 @@ namespace CSGL.Vulkan {
         public VkAccessFlags srcAccessMask;
         public VkAccessFlags dstAccessMask;
         public VkDependencyFlags dependencyFlags;
+
+        public SubpassDependency() { }
+
+        internal SubpassDependency(SubpassDependency other) {
+            srcSubpass = other.srcSubpass;
+            dstSubpass = other.dstSubpass;
+            srcStageMask = other.srcStageMask;
+            dstStageMask = other.dstStageMask;
+            srcAccessMask = other.srcAccessMask;
+            dstAccessMask = other.dstAccessMask;
+            dependencyFlags = other.dependencyFlags;
+        }
     }
 
     public class RenderPass : IDisposable, INative<VkRenderPass> {
@@ -63,6 +125,10 @@ namespace CSGL.Vulkan {
             }
         }
 
+        public IList<AttachmentDescription> Attachments { get; private set; }
+        public IList<SubpassDescription> Subpasses { get; private set; }
+        public IList<SubpassDependency> Dependencies { get; private set; }
+
         public RenderPass(Device device, RenderPassCreateInfo info) {
             if (device == null) throw new ArgumentNullException(nameof(device));
             if (info == null) throw new ArgumentNullException(nameof(info));
@@ -70,11 +136,36 @@ namespace CSGL.Vulkan {
             Device = device;
 
             CreateRenderPass(info);
+
+            if (info.attachments != null) {
+                var attachments = new List<AttachmentDescription>(info.attachments.Count);
+                foreach (var attachment in info.attachments) {
+                    attachments.Add(new AttachmentDescription(attachment));
+                }
+                Attachments = attachments.AsReadOnly();
+            }
+            if (info.subpasses != null) {
+                var subpasses = new List<SubpassDescription>(info.subpasses.Count);
+                foreach (var subpass in info.subpasses) {
+                    subpasses.Add(new SubpassDescription(subpass));
+                }
+
+                Subpasses = subpasses.AsReadOnly();
+            }
+            if (info.dependencies != null) {
+                var dependencies = new List<SubpassDependency>(info.dependencies.Count);
+                foreach (var dependency in  info.dependencies) {
+                    dependencies.Add(new SubpassDependency(dependency));
+                }
+
+                Dependencies = dependencies.AsReadOnly();
+            }
         }
 
         void CreateRenderPass(RenderPassCreateInfo mInfo) {
-            unsafe
-            {
+            if (mInfo.subpasses == null) throw new ArgumentNullException(nameof(mInfo.subpasses));
+
+            unsafe {
                 var info = new VkRenderPassCreateInfo();
                 info.sType = VkStructureType.RenderPassCreateInfo;
 
@@ -156,7 +247,7 @@ namespace CSGL.Vulkan {
                                 layout = subpass.colorAttachments[j].layout
                             };
                         }
-                        
+
                         subpasses[i].colorAttachmentCount = (uint)subpass.colorAttachments.Count;
                         subpasses[i].pColorAttachments = (IntPtr)(&colorAttachments[colorIndex]);
                         colorIndex += subpass.colorAttachments.Count;
@@ -168,7 +259,7 @@ namespace CSGL.Vulkan {
                                 layout = subpass.resolveAttachments[j].layout
                             };
                         }
-                        
+
                         subpasses[i].pResolveAttachments = (IntPtr)(&resolveAttachments[resolveIndex]);
                         resolveIndex += subpass.resolveAttachments.Count;
                     }
@@ -177,7 +268,7 @@ namespace CSGL.Vulkan {
                             attachment = subpass.depthStencilAttachment.attachment,
                             layout = subpass.depthStencilAttachment.layout
                         };
-                        
+
                         subpasses[i].pDepthStencilAttachment = (IntPtr)(&depthAttachments[depthIndex]);
                         depthIndex += 1;
                     }
@@ -213,7 +304,7 @@ namespace CSGL.Vulkan {
                 info.pDependencies = (IntPtr)dependencies;
 
                 var result = Device.Commands.createRenderPass(Device.Native, ref info, Device.Instance.AllocationCallbacks, out renderPass);
-                if (result != VkResult.Success) throw new RenderPassException(string.Format("Error creating render pass: {0}"));
+                if (result != VkResult.Success) throw new RenderPassException(result, string.Format("Error creating render pass: {0}"));
 
                 GetGranularity();
             }
@@ -241,7 +332,7 @@ namespace CSGL.Vulkan {
         }
     }
 
-    public class RenderPassException : Exception {
-        public RenderPassException(string message) : base(message) { }
+    public class RenderPassException : VulkanException {
+        public RenderPassException(VkResult result, string message) : base(result, message) { }
     }
 }

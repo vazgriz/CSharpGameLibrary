@@ -29,8 +29,7 @@ namespace CSGL {
         }
 
         public static string GetString(IntPtr ptr) {
-            unsafe
-            {
+            unsafe {
                 return GetString((byte*)ptr);
             }
         }
@@ -55,7 +54,7 @@ namespace CSGL {
             public static Func<List<T>, T[]> accessor;
 
             static ListAccessor() {
-                var dm = new DynamicMethod("get", MethodAttributes.Static | MethodAttributes.Public,CallingConventions.Standard,
+                var dm = new DynamicMethod("get", MethodAttributes.Static | MethodAttributes.Public, CallingConventions.Standard,
                     typeof(T[]), new Type[] { typeof(List<T>) }, typeof(ListAccessor<T>), true);
                 var il = dm.GetILGenerator();
                 il.Emit(OpCodes.Ldarg_0); // Load List<T> argument
@@ -66,159 +65,82 @@ namespace CSGL {
         }
 
         public static T[] GetInternalArray<T>(List<T> list) {
+            if (list == null) return null;
             //returns the internal backing array
             return ListAccessor<T>.accessor(list);
         }
 
         public static unsafe void Copy(void* source, void* dest, long size) {
-            //if source and dest are not congruent modulo
-            if ((long)source % 8 != (long)dest % 8) {
-                byte* _source = (byte*)source;
-                byte* _dest = (byte*)dest;
-
-                for (long i = 0; i < size; i++) {
-                    _dest[i] = _source[i];
-                }
-
-                return;
-            }
-
-            //copies start, middle end sections seperately so that the middle section can be copied by boundary aligned double words
-            long s = (long)source;
-
-            long startMod = s % 8;
-            long startOffset = (8 - startMod) % 8;
-
-            long endMod = (s + size) % 8;
-            long endOffset = ((s + size) - endMod) - s;
-
-            long wordCount = (endOffset - startOffset) / 8;
-
-            {
-                byte* _dest = (byte*)dest + endOffset;
-                byte* _source = (byte*)source + endOffset;
-                for (long i = endMod - 1; i >= 0; i--) {
-                    _dest[i] = _source[i];
-                }
-            }
-
-            {
-                long* _dest = (long*)dest + startOffset;
-                long* _source = (long*)source + startOffset;
-
-                for (long i = wordCount - 1; i >= 0; i--) {
-                    _dest[i] = _source[i];
-                }
-            }
-
-            {
-                byte* _dest = (byte*)dest;
-                byte* _source = (byte*)source;
-
-                for (long i = startMod - 1; i >= 0; i--) {
-                    _dest[i] = _source[i];
-                }
-            }
+            Buffer.MemoryCopy(source, dest, size, size);
         }
 
         public static void Copy(IntPtr source, IntPtr dest, long size) {
-            unsafe
-            {
+            unsafe {
                 Copy((void*)source, (void*)dest, size);
             }
         }
 
-        public static void Copy<T>(T[] source, IntPtr dest, int count) where T : struct {
-            GCHandle handle = GCHandle.Alloc(source, GCHandleType.Pinned);
-            Copy(handle.AddrOfPinnedObject(), dest, count * Unsafe.SizeOf<T>());
-            handle.Free();
+        public static void Copy<T>(IList<T> source, IntPtr dest, int count) where T : struct {
+            long size = SizeOf<T>();
+            for (int i = 0; i < count; i++) {
+                IntPtr ptr = (IntPtr)((long)dest + size * i);
+                Write(source[i], ptr);
+            }
         }
 
-        public static void Copy<T>(T[] source, IntPtr dest) where T : struct {
-            Copy(source, dest, source.Length);
+        public static void Copy<T>(IList<T> source, IntPtr dest) where T : struct {
+            Copy(source, dest, source.Count);
         }
 
-        public static void Copy<T>(IntPtr source, T[] dest, int count) where T : struct {
-            GCHandle handle = GCHandle.Alloc(dest, GCHandleType.Pinned);
-            Copy(source, handle.AddrOfPinnedObject(), count);
-            handle.Free();
+        public static void Copy<T>(IntPtr source, IList<T> dest, int count) where T : struct {
+            long size = SizeOf<T>();
+            for (int i = 0; i < count; i++) {
+                IntPtr ptr = (IntPtr)((long)source + size * i);
+                dest[i] = Read<T>(ptr);
+            }
         }
 
-        public static void Copy<T>(IntPtr source, T[] dest) where T : struct {
-            GCHandle handle = GCHandle.Alloc(dest, GCHandleType.Pinned);
-            Copy(source, handle.AddrOfPinnedObject(), dest.Length);
-            handle.Free();
+        public static void Copy<T>(IntPtr source, IList<T> dest) where T : struct {
+            Copy(source, dest, dest.Count);
         }
 
-        public static void Copy<T>(T source, IntPtr dest) where T : struct {
-            unsafe
-            {
+        public static void Write<T>(T source, IntPtr dest) where T : struct {
+            unsafe {
                 Unsafe.Write((void*)dest, source);
             }
         }
 
-        public static void Copy<T>(List<T> source, IntPtr dest) where T : struct {
-            Copy(GetInternalArray(source), dest, source.Count);
-        }
-
-        public static void Copy<T>(T data, byte[] dest, int offset) where T : struct {
-            unsafe
-            {
+        public static void Write<T>(T data, byte[] dest, int offset) where T : struct {
+            unsafe {
                 fixed (byte* ptr = dest) {
-                    Copy(data, (IntPtr)(ptr + offset));
+                    Write(data, (IntPtr)(ptr + offset));
                 }
             }
         }
 
-        public static void Copy<T, U>(T[] source, U[] dest) where T : struct
-                                                            where U : struct {
-            long size = System.Math.Min(SizeOf(source), SizeOf(dest));
-            GCHandle sourceHandle = GCHandle.Alloc(source, GCHandleType.Pinned);
-            GCHandle destHandle = GCHandle.Alloc(dest, GCHandleType.Pinned);
-            Copy(sourceHandle.AddrOfPinnedObject(), destHandle.AddrOfPinnedObject(), size);
-            destHandle.Free();
-            sourceHandle.Free();
+        public static T Read<T>(IntPtr source) where T : struct {
+            unsafe {
+                return Unsafe.Read<T>((byte*)source);
+            }
         }
 
         public static long SizeOf<T>() where T : struct {
             return Unsafe.SizeOf<T>();
         }
 
-        public static long SizeOf<T>(T[] array) where T : struct {
-            return Unsafe.SizeOf<T>() * array.Length;
-        }
-
-        public static long SizeOf<T>(List<T> list) where T : struct {
+        public static long SizeOf<T>(IList<T> list) where T : struct {
             return Unsafe.SizeOf<T>() * list.Count;
         }
 
         public static long Offset<T1, T2>(ref T1 type, ref T2 field)
             where T1 : struct
             where T2 : struct {
-            unsafe
-            {
+            unsafe {
                 return (byte*)Unsafe.AsPointer(ref field) - (byte*)Unsafe.AsPointer(ref type);
             }
         }
 
-        public static unsafe void Marshal<T>(INative<T>[] array, void* dest, int count) where T : struct {
-            if (array == null || array.Length == 0) return;
-
-            int size = (int)SizeOf<T>();
-            byte* curDest = (byte*)dest;
-
-            for (int i = 0; i < count; i++) {
-                Unsafe.Write(curDest, array[i].Native);
-                curDest += size;
-            }
-        }
-
-        public static unsafe void Marshal<T>(INative<T>[] array, void* dest) where T : struct {
-            if (array == null || array.Length == 0) return;
-            Marshal(array, dest, array.Length);
-        }
-
-        public static unsafe void Marshal<T, U>(List<U> list, void* dest, int count) where T : struct where U : INative<T> {
+        public static unsafe void Marshal<T, U>(IList<U> list, void* dest, int count) where T : struct where U : INative<T> {
             if (list == null || list.Count == 0) return;
 
             int size = (int)SizeOf<T>();
@@ -230,9 +152,23 @@ namespace CSGL {
             }
         }
 
-        public static unsafe void Marshal<T, U>(List<U> list, void* dest) where T : struct where U : INative<T> {
+        public static unsafe void Marshal<T, U>(IList<U> list, void* dest) where T : struct where U : INative<T> {
             if (list == null || list.Count == 0) return;
             Marshal<T, U>(list, dest, list.Count);
+        }
+        
+        public static void Marshal<T, U>(IList<U> list, IntPtr dest) where T : struct where U : INative<T> {
+            if (list == null || list.Count == 0) return;
+
+            unsafe {
+                Marshal<T, U>(list, (void*)dest, list.Count);
+            }
+        }
+
+        public static IntPtr AddressOf<T>(ref T data) where T : struct {
+            unsafe {
+                return (IntPtr)Unsafe.AsPointer(ref data);
+            }
         }
     }
 }

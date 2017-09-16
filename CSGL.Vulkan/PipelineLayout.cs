@@ -3,8 +3,8 @@ using System.Collections.Generic;
 
 namespace CSGL.Vulkan {
     public class PipelineLayoutCreateInfo {
-        public List<DescriptorSetLayout> setLayouts;
-        public List<VkPushConstantRange> pushConstantRanges;
+        public IList<DescriptorSetLayout> setLayouts;
+        public IList<VkPushConstantRange> pushConstantRanges;
     }
 
     public class PipelineLayout : IDisposable, INative<VkPipelineLayout> {
@@ -12,6 +12,8 @@ namespace CSGL.Vulkan {
         bool disposed = false;
 
         public Device Device { get; private set; }
+        public IList<DescriptorSetLayout> Layouts { get; private set; }
+        public IList<VkPushConstantRange> PushConstantRanges { get; private set; }
 
         public VkPipelineLayout Native {
             get {
@@ -25,30 +27,36 @@ namespace CSGL.Vulkan {
 
             Device = device;
             CreateLayout(info);
+
+            Layouts = info.setLayouts.CloneReadOnly();
+            PushConstantRanges = info.pushConstantRanges.CloneReadOnly();
         }
 
         void CreateLayout(PipelineLayoutCreateInfo mInfo) {
-            VkPipelineLayoutCreateInfo info = new VkPipelineLayoutCreateInfo();
-            info.sType = VkStructureType.PipelineLayoutCreateInfo;
+            unsafe {
+                int layoutCount = 0;
+                if (mInfo.setLayouts != null) layoutCount = mInfo.setLayouts.Count;
 
-            NativeArray<VkDescriptorSetLayout> layoutsMarshalled = null;
-            if (mInfo.setLayouts != null) {
-                layoutsMarshalled = new NativeArray<VkDescriptorSetLayout>(mInfo.setLayouts.Count);
-                for (int i = 0; i < mInfo.setLayouts.Count; i++) {
-                    layoutsMarshalled[i] = mInfo.setLayouts[i].Native;
-                }
-                info.setLayoutCount = (uint)layoutsMarshalled.Count;
-                info.pSetLayouts = layoutsMarshalled.Address;
-            }
+                int pushConstantsCount = 0;
+                if (mInfo.pushConstantRanges != null) pushConstantsCount = mInfo.pushConstantRanges.Count;
 
-            var pushConstantsMarshalled = new MarshalledArray<VkPushConstantRange>(mInfo.pushConstantRanges);
-            info.pushConstantRangeCount = (uint)pushConstantsMarshalled.Count;
-            info.pPushConstantRanges = pushConstantsMarshalled.Address;
+                VkPipelineLayoutCreateInfo info = new VkPipelineLayoutCreateInfo();
+                info.sType = VkStructureType.PipelineLayoutCreateInfo;
 
-            using (layoutsMarshalled)
-            using (pushConstantsMarshalled) {
+                var layoutsNative = stackalloc VkDescriptorSetLayout[layoutCount];
+                if (mInfo.setLayouts != null) Interop.Marshal<VkDescriptorSetLayout, DescriptorSetLayout>(mInfo.setLayouts, layoutsNative);
+
+                info.setLayoutCount = (uint)layoutCount;
+                info.pSetLayouts = (IntPtr)layoutsNative;
+
+                var pushConstantsNative = stackalloc VkPushConstantRange[pushConstantsCount];
+                if (mInfo.pushConstantRanges != null) Interop.Copy(mInfo.pushConstantRanges, (IntPtr)pushConstantsNative);
+
+                info.pushConstantRangeCount = (uint)pushConstantsCount;
+                info.pPushConstantRanges = (IntPtr)pushConstantsNative;
+                
                 var result = Device.Commands.createPipelineLayout(Device.Native, ref info, Device.Instance.AllocationCallbacks, out pipelineLayout);
-                if (result != VkResult.Success) throw new PipelineLayoutException(string.Format("Error creating pipeline layout: {0}", result));
+                if (result != VkResult.Success) throw new PipelineLayoutException(result, string.Format("Error creating pipeline layout: {0}", result));
             }
         }
 
@@ -68,7 +76,7 @@ namespace CSGL.Vulkan {
         }
     }
 
-    public class PipelineLayoutException : Exception {
-        public PipelineLayoutException(string message) : base(message) { }
+    public class PipelineLayoutException : VulkanException {
+        public PipelineLayoutException(VkResult result, string message) : base(result, message) { }
     }
 }

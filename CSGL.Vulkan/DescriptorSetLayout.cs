@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace CSGL.Vulkan {
     public class DescriptorSetLayoutCreateInfo {
-        public List<VkDescriptorSetLayoutBinding> bindings;
+        public IList<VkDescriptorSetLayoutBinding> bindings;
     }
 
     public class DescriptorSetLayout : IDisposable, INative<VkDescriptorSetLayout> {
@@ -12,6 +12,7 @@ namespace CSGL.Vulkan {
         bool disposed;
 
         public Device Device { get; private set; }
+        public IList<VkDescriptorSetLayoutBinding> Bindings { get; private set; }
 
         public VkDescriptorSetLayout Native {
             get {
@@ -26,9 +27,13 @@ namespace CSGL.Vulkan {
             Device = device;
 
             CreateDescriptorSetLayout(info);
+
+            Bindings = info.bindings.CloneReadOnly();
         }
 
         void CreateDescriptorSetLayout(DescriptorSetLayoutCreateInfo mInfo) {
+            if (mInfo.bindings == null) throw new ArgumentNullException(nameof(mInfo.bindings));
+
             var info = new VkDescriptorSetLayoutCreateInfo();
             info.sType = VkStructureType.DescriptorSetLayoutCreateInfo;
 
@@ -38,7 +43,7 @@ namespace CSGL.Vulkan {
 
             using (bindingsMarshalled) {
                 var result = Device.Commands.createDescriptorSetLayout(Device.Native, ref info, Device.Instance.AllocationCallbacks, out descriptorSetLayout);
-                if (result != VkResult.Success) throw new DescriptorSetLayoutException(string.Format("Error creating description set layout: {0}", result));
+                if (result != VkResult.Success) throw new DescriptorSetLayoutException(result, string.Format("Error creating description set layout: {0}", result));
             }
         }
 
@@ -60,7 +65,7 @@ namespace CSGL.Vulkan {
         }
     }
 
-    public class DescriptorSetLayoutException : Exception {
-        public DescriptorSetLayoutException(string message) : base(message) { }
+    public class DescriptorSetLayoutException : VulkanException {
+        public DescriptorSetLayoutException(VkResult result, string message) : base(result, message) { }
     }
 }

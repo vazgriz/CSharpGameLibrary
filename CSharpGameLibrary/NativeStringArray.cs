@@ -16,16 +16,7 @@ namespace CSGL {
             Init(count);
         }
 
-        public NativeStringArray(string[] array) {
-            if (array != null) {
-                Init(array.Length);
-                for (int i = 0; i < array.Length; i++) {
-                    this[i] = array[i]; //indexer takes care of converting the strings
-                }
-            }
-        }
-
-        public NativeStringArray(List<string> list) {
+        public NativeStringArray(IList<string> list) {
             if (list != null) {
                 Init(list.Count);
                 for (int i = 0; i < list.Count; i++) {

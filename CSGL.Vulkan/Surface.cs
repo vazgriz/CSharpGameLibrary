@@ -10,26 +10,7 @@ namespace CSGL.Vulkan {
         VkSurfaceKHR surface;
         bool disposed = false;
 
-        PhysicalDevice physicalDevice;
-        
-        vkGetPhysicalDeviceSurfaceCapabilitiesKHRDelegate getCapabilities = null;
-        vkGetPhysicalDeviceSurfaceFormatsKHRDelegate getFormats = null;
-        vkGetPhysicalDeviceSurfacePresentModesKHRDelegate getModes = null;
-
         public Instance Instance { get; private set; }
-
-        public IList<VkSurfaceFormatKHR> Formats { get; private set; }
-        public IList<VkPresentModeKHR> PresentModes { get; private set; }
-        public VkSurfaceCapabilitiesKHR Capabilities {
-            get {
-                unsafe
-                {
-                    VkSurfaceCapabilitiesKHR cap;
-                    getCapabilities(physicalDevice.Native, surface, (IntPtr)(&cap));
-                    return cap;
-                }
-            }
-        }
 
         public VkSurfaceKHR Native {
             get {
@@ -37,74 +18,71 @@ namespace CSGL.Vulkan {
             }
         }
 
-        public Surface(PhysicalDevice device, Window window) {
-            if (device == null) throw new ArgumentNullException(nameof(device));
+        public Surface(Instance instance, Window window) {
+            if (instance == null) throw new ArgumentNullException(nameof(instance));
             if (window == null) throw new ArgumentNullException(nameof(window));
 
-            Init(device, window.Native);
+            Init(instance, window.Native);
         }
 
-        public Surface(PhysicalDevice device, WindowPtr window) {
-            if (device == null) throw new ArgumentNullException(nameof(device));
+        public Surface(Instance instance, WindowPtr window) {
+            if (instance == null) throw new ArgumentNullException(nameof(instance));
             if (window == WindowPtr.Null) throw new ArgumentNullException(nameof(window));
 
-            Init(device, window);
+            Init(instance, window);
         }
 
-        void Init(PhysicalDevice device, WindowPtr window) {
-            physicalDevice = device;
-            Instance = device.Instance;
-            
-            getCapabilities = Instance.Commands.getCapabilities;
-            getFormats = Instance.Commands.getFormats;
-            getModes = Instance.Commands.getModes;
+        void Init(Instance instance, WindowPtr window) {
+            Instance = instance;
 
             CreateSurface(window);
-
-            GetFormats();
-            GetModes();
         }
 
         void CreateSurface(WindowPtr window) {
             var result = (VkResult)GLFW.GLFW.CreateWindowSurface(Instance.Native.native, window, Instance.AllocationCallbacks, out surface.native);
-            if (result != VkResult.Success) throw new SurfaceException(string.Format("Error creating surface: {0}", result));
+            if (result != VkResult.Success) throw new SurfaceException(result, string.Format("Error creating surface: {0}", result));
         }
 
-        void GetFormats() {
-            var formats = new List<VkSurfaceFormatKHR>();
-
-            uint count = 0;
-            getFormats(physicalDevice.Native, surface, ref count, IntPtr.Zero);
-            var formatsNative = new NativeArray<VkSurfaceFormatKHR>((int)count);
-            getFormats(physicalDevice.Native, surface, ref count, formatsNative.Address);
-
-            using (formatsNative) {
-                for (int i = 0; i < count; i++) {
-                    var format = formatsNative[i];
-                    formats.Add(format);
-                }
+        public VkSurfaceCapabilitiesKHR GetCapabilities(PhysicalDevice physicalDevice) {
+            unsafe {
+                VkSurfaceCapabilitiesKHR cap;
+                Instance.Commands.getCapabilities(physicalDevice.Native, surface, (IntPtr)(&cap));
+                return cap;
             }
-
-            Formats = formats.AsReadOnly();
         }
 
-        void GetModes() {
-            var presentModes = new List<VkPresentModeKHR>();
+        public IList<VkSurfaceFormatKHR> GetFormats(PhysicalDevice physicalDevice) {
+            unsafe {
+                var formats = new List<VkSurfaceFormatKHR>();
 
-            uint count = 0;
-            getModes(physicalDevice.Native, surface, ref count, IntPtr.Zero);
-            var modes = new int[(int)count];    //VkPresentModeKHR is an enum and can't be marshalled directly
-            var modesMarshalled = new PinnedArray<int>(modes);
-            getModes(physicalDevice.Native, surface, ref count, modesMarshalled.Address);
-
-            using (modesMarshalled) {
+                uint count = 0;
+                Instance.Commands.getFormats(physicalDevice.Native, surface, ref count, IntPtr.Zero);
+                var formatsNative = stackalloc VkSurfaceFormatKHR[(int)count];
+                Instance.Commands.getFormats(physicalDevice.Native, surface, ref count, (IntPtr)formatsNative);
+                
                 for (int i = 0; i < count; i++) {
-                    var mode = (VkPresentModeKHR)modes[i];
-                    presentModes.Add(mode);
+                    formats.Add(formatsNative[i]);
                 }
-            }
 
-            PresentModes = presentModes.AsReadOnly();
+                return formats;
+            }
+        }
+
+        public IList<VkPresentModeKHR> GetPresentModes(PhysicalDevice physicalDevice) {
+            unsafe {
+                var presentModes = new List<VkPresentModeKHR>();
+
+                uint count = 0;
+                Instance.Commands.getModes(physicalDevice.Native, surface, ref count, IntPtr.Zero);
+                var presentModesNative = stackalloc VkPresentModeKHR[(int)count];
+                Instance.Commands.getModes(physicalDevice.Native, surface, ref count, (IntPtr)presentModesNative);
+                
+                for (int i = 0; i < count; i++) {
+                    presentModes.Add(presentModesNative[i]);
+                }
+
+                return presentModes;
+            }
         }
 
         public void Dispose() {
@@ -114,7 +92,7 @@ namespace CSGL.Vulkan {
 
         void Dispose(bool disposing) {
             if (disposed) return;
-            
+
             Instance.Commands.destroySurface(Instance.Native, surface, Instance.AllocationCallbacks);
 
             disposed = true;
@@ -125,7 +103,7 @@ namespace CSGL.Vulkan {
         }
     }
 
-    public class SurfaceException : Exception {
-        public SurfaceException(string message) : base(message) { }
+    public class SurfaceException : VulkanException {
+        public SurfaceException(VkResult result, string message) : base(result, message) { }
     }
 }

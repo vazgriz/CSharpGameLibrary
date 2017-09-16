@@ -160,6 +160,7 @@ namespace CSGL.Vulkan {
                 for (int i = 0; i < fields.Length; i++) {
                     string command = Vulkan.GetCommand(fields[i].FieldType);
                     IntPtr ptr = device.GetProcAdddress(command);
+                    if (ptr == IntPtr.Zero) continue;   //null if extension is not enabled
                     fields[i].SetValue(this, Marshal.GetDelegateForFunctionPointer(ptr, fields[i].FieldType));
                 }
             }
@@ -200,6 +201,7 @@ namespace CSGL.Vulkan {
                 for (int i = 0; i < fields.Length; i++) {
                     string command = Vulkan.GetCommand(fields[i].FieldType);
                     IntPtr ptr = instance.GetProcAddress(command);
+                    if (ptr == IntPtr.Zero) continue;   //null if extension is not enabled
                     fields[i].SetValue(this, Marshal.GetDelegateForFunctionPointer(ptr, fields[i].FieldType));
                 }
             }

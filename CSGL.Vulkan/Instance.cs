@@ -11,43 +11,18 @@ namespace CSGL.Vulkan {
         public VkVersion applicationVersion;
         public string engineName;
         public string applicationName;
-
-        public ApplicationInfo() { }
-
-        public ApplicationInfo(VkVersion apiVersion, VkVersion applicationVersion, VkVersion engineVersion, string applicationName, string engineName) {
-            this.apiVersion = apiVersion;
-            this.applicationName = applicationName;
-            this.engineName = engineName;
-            this.applicationVersion = applicationVersion;
-            this.engineVersion = engineVersion;
-        }
     }
 
     public class InstanceCreateInfo {
         public ApplicationInfo applicationInfo;
-        public List<string> extensions;
-        public List<string> layers;
-
-        public InstanceCreateInfo() {
-            extensions = new List<string>();
-            layers = new List<string>();
-        }
-
-        public InstanceCreateInfo(ApplicationInfo applicationInfo, List<string> extensions, List<string> layers) {
-            this.applicationInfo = applicationInfo;
-            this.extensions = extensions;
-            this.layers = layers;
-        }
+        public IList<string> extensions;
+        public IList<string> layers;
     }
 
     public partial class Instance : IDisposable, INative<VkInstance> {
         VkInstance instance;
         IntPtr alloc = IntPtr.Zero;
         bool disposed = false;
-
-        List<string> extensions;
-        List<string> layers;
-        List<PhysicalDevice> physicalDevices;
 
         vkGetInstanceProcAddrDelegate getProcAddrDel;
         public InstanceCommands Commands { get; private set; }
@@ -60,7 +35,7 @@ namespace CSGL.Vulkan {
                 return instance;
             }
         }
-        
+
         public IntPtr AllocationCallbacks {
             get {
                 return alloc;
@@ -77,7 +52,7 @@ namespace CSGL.Vulkan {
 
             alloc = Marshal.AllocHGlobal(Marshal.SizeOf<VkAllocationCallbacks>());
             Marshal.StructureToPtr(callbacks, alloc, false);
-            
+
             Init(info);
         }
 
@@ -85,22 +60,13 @@ namespace CSGL.Vulkan {
             if (!GLFW.GLFW.VulkanSupported()) throw new InstanceException("Vulkan not supported");
             if (!initialized) Init();
 
-            if (mInfo.extensions == null) {
-                extensions = new List<string>();
-            } else {
-                extensions = new List<string>(mInfo.extensions);
-            }
+            Extensions = mInfo.extensions.CloneReadOnly();
+            Layers = mInfo.layers.CloneReadOnly();
 
-            if (mInfo.layers == null) {
-                layers = new List<string>();
-            } else {
-                layers = new List<string>(mInfo.layers);
-            }
+            ValidateExtensions();
+            ValidateLayers();
 
             CreateInstance(mInfo);
-
-            Extensions = extensions.AsReadOnly();
-            Layers = layers.AsReadOnly();
 
             Vulkan.Load(ref getProcAddrDel, instance);
 
@@ -147,7 +113,7 @@ namespace CSGL.Vulkan {
             using (extensionsMarshalled)
             using (layersMarshalled) {
                 var result = createInstance(ref info, alloc, out instance);
-                if (result != VkResult.Success) throw new InstanceException(string.Format("Error creating instance: {0}", result));
+                if (result != VkResult.Success) throw new InstanceException(result, string.Format("Error creating instance: {0}", result));
             }
         }
 
@@ -157,12 +123,42 @@ namespace CSGL.Vulkan {
             var devices = new NativeArray<VkPhysicalDevice>((int)count);
             Commands.enumeratePhysicalDevices(instance, ref count, devices.Address);
 
-            physicalDevices = new List<PhysicalDevice>();
+            var physicalDevices = new List<PhysicalDevice>();
             for (int i = 0; i < count; i++) {
                 physicalDevices.Add(new PhysicalDevice(this, devices[i]));
             }
 
             PhysicalDevices = physicalDevices.AsReadOnly();
+        }
+
+        void ValidateExtensions() {
+            foreach (var ex in Extensions) {
+                bool found = false;
+
+                foreach (var available in AvailableExtensions) {
+                    if (available.Name == ex) {
+                        found = true;
+                        break;
+                    }
+                }
+
+                if (!found) throw new InstanceException(string.Format("Requested extension not available: {0}", ex));
+            }
+        }
+
+        void ValidateLayers() {
+            foreach (var layer in Layers) {
+                bool found = false;
+
+                foreach (var available in AvailableLayers) {
+                    if (available.Name == layer) {
+                        found = true;
+                        break;
+                    }
+                }
+
+                if (!found) throw new InstanceException(string.Format("Requested layer not available: {0}", layer));
+            }
         }
 
         public IntPtr GetProcAddress(string command) {
@@ -188,7 +184,8 @@ namespace CSGL.Vulkan {
         }
     }
 
-    public class InstanceException : Exception {
+    public class InstanceException : VulkanException {
         public InstanceException(string message) : base(message) { }
+        public InstanceException(VkResult result, string message) : base(result, message) { }
     }
 }

@@ -8,27 +8,21 @@ namespace CSGL.Vulkan {
     public class DeviceQueueCreateInfo {
         public uint queueFamilyIndex;
         public uint queueCount;
-        public List<float> priorities;
-
-        public DeviceQueueCreateInfo(uint queueFamilyIndex, uint queueCount, List<float> priorities) {
-            this.queueFamilyIndex = queueFamilyIndex;
-            this.queueCount = queueCount;
-            this.priorities = priorities;
-        }
+        public IList<float> priorities;
     }
 
     public class SubmitInfo {
-        public List<Semaphore> waitSemaphores;
-        public List<VkPipelineStageFlags> waitDstStageMask;
-        public List<CommandBuffer> commandBuffers;
-        public List<Semaphore> signalSemaphores;
+        public IList<Semaphore> waitSemaphores;
+        public IList<VkPipelineStageFlags> waitDstStageMask;
+        public IList<CommandBuffer> commandBuffers;
+        public IList<Semaphore> signalSemaphores;
     }
 
     public class PresentInfo {
-        public List<Semaphore> waitSemaphores;
-        public List<Swapchain> swapchains;
-        public List<uint> imageIndices;
-        public List<VkResult> results;
+        public IList<Semaphore> waitSemaphores;
+        public IList<Swapchain> swapchains;
+        public IList<uint> imageIndices;
+        public IList<VkResult> results;
     }
 
     public class SparseMemoryBind {
@@ -50,25 +44,25 @@ namespace CSGL.Vulkan {
 
     public partial class SparseBufferMemoryBindInfo {
         public Buffer buffer;
-        public List<SparseMemoryBind> binds;
+        public IList<SparseMemoryBind> binds;
     }
 
     public partial class SparseImageOpaqueMemoryBindInfo {
         public Image image;
-        public List<SparseMemoryBind> binds;
+        public IList<SparseMemoryBind> binds;
     }
 
     public partial class SparseImageMemoryBindInfo {
         public Image image;
-        public List<SparseImageMemoryBind> binds;
+        public IList<SparseImageMemoryBind> binds;
     }
 
     public class BindSparseInfo {
-        public List<Semaphore> waitSemaphores;
-        public List<SparseBufferMemoryBindInfo> bufferBinds;
-        public List<SparseImageOpaqueMemoryBindInfo> imageOpaqueBinds;
-        public List<SparseImageMemoryBindInfo> imageBinds;
-        public List<Semaphore> signalSemaphores;
+        public IList<Semaphore> waitSemaphores;
+        public IList<SparseBufferMemoryBindInfo> bufferBinds;
+        public IList<SparseImageOpaqueMemoryBindInfo> imageOpaqueBinds;
+        public IList<SparseImageMemoryBindInfo> imageBinds;
+        public IList<Semaphore> signalSemaphores;
     }
 
     public class Queue {
@@ -78,12 +72,14 @@ namespace CSGL.Vulkan {
 
         public uint FamilyIndex { get; private set; }
         public QueueFamily Family { get; private set; }
+        public float Priority { get; private set; }
 
-        internal Queue(Device device, VkQueue queue, uint familyIndex) {
+        internal Queue(Device device, VkQueue queue, uint familyIndex, float priority) {
             this.device = device;
             this.queue = queue;
             FamilyIndex = familyIndex;
             Family = device.PhysicalDevice.QueueFamilies[(int)familyIndex];
+            Priority = priority;
         }
 
         public Device Device {
@@ -96,31 +92,49 @@ namespace CSGL.Vulkan {
             Device.Commands.queueWaitIdle(queue);
         }
 
-        public VkResult Submit(List<SubmitInfo> infos, Fence fence = null) {
+        public void Submit(IList<SubmitInfo> infos, Fence fence) {
             VkFence fenceNative = VkFence.Null;
             if (fence != null) {
                 fenceNative = fence.Native;
             }
 
             if (infos == null || infos.Count == 0) {
-                return Device.Commands.queueSubmit(queue, 0, IntPtr.Zero, fenceNative);
+                Device.Commands.queueSubmit(queue, 0, IntPtr.Zero, fenceNative);
             }
 
-            unsafe
-            {
+            unsafe {
+                var waitCounts = stackalloc int[infos.Count];
+                var signalCounts = stackalloc int[infos.Count];
+                var commandCounts = stackalloc int[infos.Count];
+
                 int totalWaitSemaphores = 0;
                 int totalCommandBuffers = 0;
                 int totalSignalSemaphores = 0;
 
                 for (int i = 0; i < infos.Count; i++) {    //get the total length needed for each array
                     var info = infos[i];
-                    if (info.waitSemaphores != null) totalWaitSemaphores += info.waitSemaphores.Count;
-                    if (info.commandBuffers != null) totalCommandBuffers += info.commandBuffers.Count;
-                    if (info.signalSemaphores != null) totalSignalSemaphores += info.signalSemaphores.Count;
+                    if (info.waitSemaphores != null) {
+                        totalWaitSemaphores += info.waitSemaphores.Count;
+                        waitCounts[i] = info.waitSemaphores.Count;
+                    } else {
+                        waitCounts[i] = 0;
+                    }
+                    if (info.commandBuffers != null) {
+                        totalCommandBuffers += info.commandBuffers.Count;
+                        commandCounts[i] = info.commandBuffers.Count;
+                    } else {
+                        commandCounts[i] = 0;
+                    }
+                    if (info.signalSemaphores != null) {
+                        totalSignalSemaphores += info.signalSemaphores.Count;
+                        signalCounts[i] = info.signalSemaphores.Count;
+                    } else {
+                        signalCounts[i] = 0;
+                    }
                 }
 
                 var waitSemaphoresNative = stackalloc VkSemaphore[totalWaitSemaphores];
-                var waitDstNative = stackalloc int[totalWaitSemaphores];    //required to be the same length as above
+                var waitDstNative = stackalloc VkPipelineStageFlags[totalWaitSemaphores];    //required to be the same length as above
                 var commandBuffersNative = stackalloc VkCommandBuffer[totalCommandBuffers];
                 var signalSemaphoresNative = stackalloc VkSemaphore[totalSignalSemaphores];
 
@@ -135,12 +149,12 @@ namespace CSGL.Vulkan {
                     info.sType = VkStructureType.SubmitInfo;
 
                     if (infos[i].waitSemaphores != null) {
-                        int waitCount = infos[i].waitSemaphores.Count;
+                        int waitCount = waitCounts[i];
 
                         Interop.Marshal<VkSemaphore, Semaphore>(infos[i].waitSemaphores, &waitSemaphoresNative[waitSemaphoresIndex]);
 
                         for (int j = 0; j < waitCount; j++) {
-                            waitDstNative[waitSemaphoresIndex + j] = (int)infos[i].waitDstStageMask[j];
+                            waitDstNative[waitSemaphoresIndex + j] = infos[i].waitDstStageMask[j];
                         }
 
                         info.waitSemaphoreCount = (uint)waitCount;
@@ -150,7 +164,7 @@ namespace CSGL.Vulkan {
                     }
 
                     if (infos[i].commandBuffers != null) {
-                        int commandCount = infos[i].commandBuffers.Count;
+                        int commandCount = commandCounts[i];
                         Interop.Marshal<VkCommandBuffer, CommandBuffer>(infos[i].commandBuffers, &commandBuffersNative[commandBuffersIndex]);
 
                         info.commandBufferCount = (uint)infos[i].commandBuffers.Count;
@@ -159,9 +173,9 @@ namespace CSGL.Vulkan {
                     }
 
                     if (infos[i].signalSemaphores != null) {
-                        int signalCount = infos[i].signalSemaphores.Count;
+                        int signalCount = signalCounts[i];
                         Interop.Marshal<VkSemaphore, Semaphore>(infos[i].signalSemaphores, &signalSemaphoresNative[signalSemaphoresIndex]);
-                        
+
                         info.signalSemaphoreCount = (uint)infos[i].signalSemaphores.Count;
                         info.pSignalSemaphores = (IntPtr)(&signalSemaphoresNative[signalSemaphoresIndex]);  //get address from index
                         signalSemaphoresIndex += infos[i].signalSemaphores.Count;  //increment index
@@ -170,13 +184,15 @@ namespace CSGL.Vulkan {
                     infosNative[i] = info;
                 }
 
-                return Device.Commands.queueSubmit(queue, (uint)infos.Count, (IntPtr)infosNative, fenceNative);
+                var result = Device.Commands.queueSubmit(queue, (uint)infos.Count, (IntPtr)infosNative, fenceNative);
+                if (result != VkResult.Success) throw new QueueException(result, string.Format("Error submitting command to queue: {0}", result));
             }
         }
 
         public VkResult Present(PresentInfo info) {
-            unsafe
-            {
+            if (info == null) throw new ArgumentNullException(nameof(info));
+
+            unsafe {
                 var waitSemaphoresNative = stackalloc VkSemaphore[info.waitSemaphores.Count];
                 Interop.Marshal<VkSemaphore, Semaphore>(info.waitSemaphores, waitSemaphoresNative);
 
@@ -193,7 +209,7 @@ namespace CSGL.Vulkan {
                 if (info.results != null) { //user may not request results
                     resultsLength = swapchainCount;
                 }
-                var results = stackalloc int[resultsLength];
+                var results = stackalloc VkResult[resultsLength];
 
                 var infoNative = new VkPresentInfoKHR();
                 infoNative.sType = VkStructureType.PresentInfoKhr;
@@ -204,11 +220,13 @@ namespace CSGL.Vulkan {
                 infoNative.pImageIndices = (IntPtr)imageIndices;
 
                 var result = Device.Commands.queuePresent(queue, ref infoNative);
-                
+
                 for (int i = 0; i < resultsLength; i++) {   //default resultsLength is 0, safe to iterate
-                    info.results[i] = (VkResult)results[i];
+                    info.results[i] = results[i];
                 }
-                
+
+                if (!(result == VkResult.Success || result == VkResult.SuboptimalKhr)) throw new QueueException(result, string.Format("Error presenting from queue: {0}", result));
+
                 return result;
             }
         }
@@ -236,18 +254,17 @@ namespace CSGL.Vulkan {
             return result;
         }
 
-        public VkResult BindSparse(List<BindSparseInfo> bindInfo, Fence fence) {
+        public void BindSparse(IList<BindSparseInfo> bindInfo, Fence fence) {
             VkFence fenceNative = VkFence.Null;
             if (fence != null) {
                 fenceNative = fence.Native;
             }
 
             if (bindInfo == null || bindInfo.Count == 0) {
-                return Device.Commands.queueBindSparse(queue, 0, IntPtr.Zero, fenceNative);
+                Device.Commands.queueBindSparse(queue, 0, IntPtr.Zero, fenceNative);
             }
 
-            unsafe
-            {
+            unsafe {
                 int totalWaitSemaphores = 0;
                 int totalSignalSemaphores = 0;
                 int totalBufferBinds = 0;
@@ -311,7 +328,7 @@ namespace CSGL.Vulkan {
                     if (bindInfo[i].waitSemaphores != null) {
                         int waitCount = bindInfo[i].waitSemaphores.Count;
                         Interop.Marshal<VkSemaphore, Semaphore>(bindInfo[i].waitSemaphores, &waitSemaphoresNative[waitSemaphoresIndex]);
-                        
+
                         info.waitSemaphoreCount = (uint)waitCount;
                         info.pWaitSemaphores = (IntPtr)(&waitSemaphoresNative[waitSemaphoresIndex]);    //get address from index
                         waitSemaphoresIndex += waitCount;  //increment index
@@ -398,8 +415,13 @@ namespace CSGL.Vulkan {
                     infosNative[i] = info;
                 }
 
-                return Device.Commands.queueBindSparse(queue, (uint)bindInfo.Count, (IntPtr)infosNative, fenceNative);
+                var result = Device.Commands.queueBindSparse(queue, (uint)bindInfo.Count, (IntPtr)infosNative, fenceNative);
+                if (result != VkResult.Success) throw new QueueException(result, string.Format("Error binding to queue: {0}", result));
             }
         }
+    }
+
+    public class QueueException : VulkanException {
+        public QueueException(VkResult result, string message) : base(result, message) { }
     }
 }

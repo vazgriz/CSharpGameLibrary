@@ -5,15 +5,9 @@ using CSGL.Vulkan.Unmanaged;
 
 namespace CSGL.Vulkan {
     public class DeviceCreateInfo {
-        public List<string> extensions;
-        public List<DeviceQueueCreateInfo> queueCreateInfos;
+        public IList<string> extensions;
+        public IList<DeviceQueueCreateInfo> queueCreateInfos;
         public VkPhysicalDeviceFeatures features;
-
-        public DeviceCreateInfo(List<String> extensions, List<DeviceQueueCreateInfo> queueCreateInfos, VkPhysicalDeviceFeatures features) {
-            this.extensions = extensions;
-            this.queueCreateInfos = queueCreateInfos;
-            this.features = features;
-        }
     }
 
     public partial class Device : IDisposable, INative<VkDevice> {
@@ -29,7 +23,7 @@ namespace CSGL.Vulkan {
         public Instance Instance { get; private set; }
         public PhysicalDevice PhysicalDevice { get; set; }
 
-        public List<string> Extensions { get; private set; }
+        public IList<string> Extensions { get; private set; }
 
         public VkDevice Native {
             get {
@@ -45,21 +39,20 @@ namespace CSGL.Vulkan {
             Instance = physicalDevice.Instance;
             queues = new Dictionary<QueueID, Queue>();
 
-            if (info.extensions == null) {
-                Extensions = new List<string>();
-            } else {
-                Extensions = new List<string>(info.extensions);
-            }
-
+            Extensions = info.extensions.CloneReadOnly();
             ValidateExtensions();
 
             CreateDevice(info);
 
             Vulkan.Load(ref getDeviceProcAddr, Instance);
             Commands = new DeviceCommands(this);
+
+            GetQueues(info);
         }
 
         void CreateDevice(DeviceCreateInfo mInfo) {
+            if (mInfo.queueCreateInfos == null) throw new ArgumentNullException(nameof(mInfo.queueCreateInfos));
+
             var extensionsMarshalled = new NativeStringArray(mInfo.extensions);
             MarshalledArray<VkDeviceQueueCreateInfo> queueInfos = null;
             DisposableList<NativeArray<float>> prioritiesMarshalled = null;
@@ -70,36 +63,34 @@ namespace CSGL.Vulkan {
             info.enabledExtensionCount = (uint)extensionsMarshalled.Count;
             info.ppEnabledExtensionNames = extensionsMarshalled.Address;
             info.pEnabledFeatures = features.Address;
+            
+            int length = mInfo.queueCreateInfos.Count;
+            info.queueCreateInfoCount = (uint)length;
+            queueInfos = new MarshalledArray<VkDeviceQueueCreateInfo>(length);
+            prioritiesMarshalled = new DisposableList<NativeArray<float>>(length);
 
-            if (mInfo.queueCreateInfos != null) {
-                int length = mInfo.queueCreateInfos.Count;
-                info.queueCreateInfoCount = (uint)length;
-                queueInfos = new MarshalledArray<VkDeviceQueueCreateInfo>(length);
-                prioritiesMarshalled = new DisposableList<NativeArray<float>>(length);
+            for (int i = 0; i < length; i++) {
+                var mi = mInfo.queueCreateInfos[i];
+                var qInfo = new VkDeviceQueueCreateInfo();
+                qInfo.sType = VkStructureType.DeviceQueueCreateInfo;
 
-                for (int i = 0; i < length; i++) {
-                    var mi = mInfo.queueCreateInfos[i];
-                    var qInfo = new VkDeviceQueueCreateInfo();
-                    qInfo.sType = VkStructureType.DeviceQueueCreateInfo;
+                var priorityMarshalled = new NativeArray<float>(mi.priorities);
+                prioritiesMarshalled.Add(priorityMarshalled);
+                qInfo.pQueuePriorities = priorityMarshalled.Address;
+                qInfo.queueCount = mi.queueCount;
+                qInfo.queueFamilyIndex = mi.queueFamilyIndex;
 
-                    var priorityMarshalled = new NativeArray<float>(mi.priorities);
-                    prioritiesMarshalled.Add(priorityMarshalled);
-                    qInfo.pQueuePriorities = priorityMarshalled.Address;
-                    qInfo.queueCount = mi.queueCount;
-                    qInfo.queueFamilyIndex = mi.queueFamilyIndex;
-
-                    queueInfos[i] = qInfo;
-                }
-
-                info.pQueueCreateInfos = queueInfos.Address;
+                queueInfos[i] = qInfo;
             }
+
+            info.pQueueCreateInfos = queueInfos.Address;
 
             using (extensionsMarshalled)
             using (queueInfos)
             using (features)
             using (prioritiesMarshalled) {
                 var result = Instance.Commands.createDevice(PhysicalDevice.Native, ref info, Instance.AllocationCallbacks, out device);
-                if (result != VkResult.Success) throw new DeviceException(string.Format("Error creating device: {0}", result));
+                if (result != VkResult.Success) throw new DeviceException(result, string.Format("Error creating device: {0}", result));
             }
         }
 
@@ -107,8 +98,8 @@ namespace CSGL.Vulkan {
             foreach (string ex in Extensions) {
                 bool found = false;
 
-                for (int i = 0; i < PhysicalDevice.AvailableExtensions.Count; i++) {
-                    if (PhysicalDevice.AvailableExtensions[i].Name == ex) {
+                foreach (var available in PhysicalDevice.AvailableExtensions) {
+                    if (available.Name == ex) {
                         found = true;
                         break;
                     }
@@ -118,19 +109,26 @@ namespace CSGL.Vulkan {
             }
         }
 
+        void GetQueues(DeviceCreateInfo info) {
+            for (int i = 0; i < info.queueCreateInfos.Count; i++) {
+                var queueInfo = info.queueCreateInfos[i];
+                for (int j = 0; j < (int)queueInfo.queueCount; j++) {
+                    QueueID id = new QueueID(queueInfo.queueFamilyIndex, (uint)j);
+                    VkQueue temp;
+                    Commands.getDeviceQueue(device, id.familyIndex, id.index, out temp);
+
+                    var queue = new Queue(this, temp, id.familyIndex, queueInfo.priorities[j]);
+                    queues.Add(id, queue);
+                }
+            }
+        }
+
         public Queue GetQueue(uint familyIndex, uint index) {
             QueueID id = new QueueID(familyIndex, index);
             if (queues.ContainsKey(id)) {
                 return queues[id];
-            } else {
-                VkQueue temp;
-                Commands.getDeviceQueue(device, familyIndex, index, out temp);
-
-                var result = new Queue(this, temp, familyIndex);
-                queues.Add(id, result);
-
-                return result;
             }
+            throw new DeviceException("Requested queue does not exist");
         }
 
         public IntPtr GetProcAdddress(string command) {
@@ -148,7 +146,7 @@ namespace CSGL.Vulkan {
 
         void Dispose(bool disposing) {
             if (disposed) return;
-            
+
             Instance.Commands.destroyDevice(device, Instance.AllocationCallbacks);
 
             disposed = true;
@@ -158,7 +156,7 @@ namespace CSGL.Vulkan {
             Dispose(false);
         }
 
-        struct QueueID {
+        struct QueueID : IEquatable<QueueID> {
             public uint familyIndex;
             public uint index;
 
@@ -170,10 +168,15 @@ namespace CSGL.Vulkan {
             public override int GetHashCode() {
                 return familyIndex.GetHashCode() ^ index.GetHashCode();
             }
+
+            public bool Equals(QueueID other) {
+                return familyIndex == other.familyIndex && index == other.index;
+            }
         }
     }
 
-    public class DeviceException : Exception {
+    public class DeviceException : VulkanException {
         public DeviceException(string message) : base(message) { }
+        public DeviceException(VkResult result, string message) : base(result, message) { }
     }
 }

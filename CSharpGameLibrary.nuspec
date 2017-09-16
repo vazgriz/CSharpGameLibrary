@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
   <metadata>
     <id>CSharpGameLibrary</id>
-    <version>0.1.2-alpha</version>
+    <version>0.1.5-alpha</version>
     <title>C# Game Library</title>
     <authors>Ryan Vazquez</authors>
     <owners>vazgriz</owners>
@@ -10,21 +10,157 @@
     <licenseUrl>https://github.com/vazgriz/CSharpGameLibrary/blob/master/license.txt</licenseUrl>
     <projectUrl>https://github.com/vazgriz/CSharpGameLibrary</projectUrl>
     <description>C# bindings for GLFW, OpenGL, and Vulkan</description>
-    <releaseNotes>- Add support for VK_EXT_debug_report extenstion
-- Add methods and properties to CSGL.GLFW.Window
-- Revert namespace changes
-  - CSGL.Vulkan1 renamed to CSGL.Vulkan
-  - CSGL.GL4 renamed to CSGL.OpenGL</releaseNotes>
+    <releaseNotes>- Vulkan
+  - Instance
+    - Fix bugs
+    - InstanceCreateInfo
+      - Remove non default constructors
+  - DebugReportCallback
+    - Fix bugs
+  - Device
+    - DeviceCreateInfo
+      - Remove non default constructor
+    - DeviceQueueCreateInfo
+      - Remove non default constructor
+  - Swapchain
+    - SwapchainCreateInfo
+      - Remove non default constructor
+  - ShaderModule
+    - ShaderModuleCreateInfo
+      - Remove non default constructors
+  - CommandBuffer
+    - Implement IDisposable
+    - Remove Draw overload
+    - Remove BindDescriptorSets overloads
+    - Remove CopyBuffer overload
+    - Rename BindVertexBuffer to BindVertexBuffers
+    - Remove overloads
+  - CommandPool
+    - Add Free overload
+    - Add QueueFamilyIndices property
+    - Remove Allocate overload
+  - DescriptorSet
+    - Implement IDisposable
+    - Add CopyDescriptorSet class
+    - Add support for copying descriptors
+    - Add Layouts property
+  - DescriptorPool
+    - Add MaxSets property
+    - Add PoolSizes property
+    - Add Allocate overload
+    - Add Free methods
+  - DescriptorSetLayout
+    - Add Bindings property
+  - Buffer
+    - Size property now returns the value of the size field in the BufferCreateInfo
+    - Add SharingMode property
+    - Add QueueFamilyIndices property
+  - BufferView
+    - Fix bug in constructor
+    - Add Buffer property
+    - Add Format property
+  - Pipeline
+    - Add Flags property
+    - Add Layout property
+    - GraphicsPipeline
+      - Add Stages property
+      - Add VertexInputState property
+      - Add InputAssemblyState property
+      - Add TessellationState property
+      - Add ViewportState property
+      - Add RasterizationState property
+      - Add MultisampleState property
+      - Add DepthStencilState property
+      - Add ColorBlendState property
+      - Add DynamicState property
+      - Add RenderPass property
+      - Add Subpass property
+  - Framebuffer
+    - Add Attachments property
+  - Image
+    - Add SharingMode property
+	- Add QueueFamilyIndices property
+  - ImageView
+    - ImageViewCreateInfo
+      - Remove non default constructor
+  - PipelineLayout
+    - Add Layouts property
+    - Add PushConstantRanges property
+  - QueryPool
+    - Add QueryType property
+    - Add QueryCount property
+    - Add PipelineStatistics property
+    - Add error handling to GetResults
+  - Queue
+    - Add Priority property
+    - Change return type of Submit to void
+    - Change return type of BindSparse to void
+  - Fence
+    - Remove FenceCreateInfo
+    - Constructor now accepts VkFenceCreateFlags parameter
+    - Add error handling to Wait
+    - Add error handling to Status
+  - RenderPass
+    - Add Attachments property
+    - Add Subpasses property
+    - Add Dependencies property
+  - Sampler
+    - Add MagFilter property
+    - Add MinFilter property
+    - Add MipmapMode property
+    - Add AddressModeU property
+    - Add AddressModeV property
+    - Add AddressModeW property
+    - Add MipLodBias property
+    - Add AnisotropyEnable property
+    - Add maxAnisotropy property
+    - Add compareEnable property
+    - Add compareOp property
+    - Add minLod property
+    - Add maxLod property
+    - Add borderColor property
+    - Add unnormalizedCoordinates property
+  - Swapchain
+    - Add QueueFamilyIndices property
+    - Add PreTransform property
+    - Add CompositeAlpha property
+    - Add Clipped property
+  - Exceptions
+    - Add VulkanException class
+    - Change all classes in CSGL.Vulkan to throw exceptions inheriting from VulkanException
+    - Add QueryPoolException
+    - Add CommandBufferException
+  - Fix structs in CSGL.Vulkan
+    - VkImageBlit
+    - VkPhysicalDeviceLimits
+  - Change enum value names for:
+    - VkQueryResultFlags
+    - VkSampleCountFlags
+    - VkSurfaceTransformsFlagsKHR
+    - VkBlendFactor
+    - VkFormat
+    - VkImageType
+    - VkImageViewType
+    - VkIndexType
+- GLFW
+  - Fix bug that caused managed delegate to be garbage collected
+- Interop
+  - Add AddressOf method
+  - Add Read method
+  - Fix bug in GetInternalArray
+  - Remove Marshal overloads
+  - Remove Copy overloads
+  - Rename some Copy overloads to Write</releaseNotes>
     <copyright>Copyright 2017</copyright>
     <tags>glfw opengl vulkan</tags>
   </metadata>
   <files>
     <!-- Manually include the other projects -->
-    <file src="../CSGL.Vulkan/bin/release/CSGL.Vulkan.dll" target="lib/net452" />
-    <file src="../CSGL.Vulkan/bin/release/CSGL.Vulkan.pdb" target="lib/net452" />
-    <file src="../CSGL.OpenGL/bin/release/CSGL.OpenGL.dll" target="lib/net452" />
-    <file src="../CSGL.OpenGL/bin/release/CSGL.OpenGL.pdb" target="lib/net452" />
-    <file src="../CSGL.STB/bin/release/CSGL.STB.dll" target="lib/net452" />
-    <file src="../CSGL.STB/bin/release/CSGL.STB.pdb" target="lib/net452" />
+    <file src="../CSGL.Vulkan/bin/release/CSGL.Vulkan.dll" target="lib/net46" />
+    <file src="../CSGL.Vulkan/bin/release/CSGL.Vulkan.pdb" target="lib/net46" />
+    <file src="../CSGL.OpenGL/bin/release/CSGL.OpenGL.dll" target="lib/net46" />
+    <file src="../CSGL.OpenGL/bin/release/CSGL.OpenGL.pdb" target="lib/net46" />
+    <file src="../CSGL.STB/bin/release/CSGL.STB.dll" target="lib/net46" />
+    <file src="../CSGL.STB/bin/release/CSGL.STB.pdb" target="lib/net46" />
   </files>
 </package>

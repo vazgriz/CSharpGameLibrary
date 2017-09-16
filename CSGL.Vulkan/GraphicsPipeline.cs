@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace CSGL.Vulkan {
     public class GraphicsPipelineCreateInfo {
         public VkPipelineCreateFlags flags;
-        public List<PipelineShaderStageCreateInfo> stages;
+        public IList<PipelineShaderStageCreateInfo> stages;
         public PipelineVertexInputStateCreateInfo vertexInputState;
         public PipelineInputAssemblyStateCreateInfo inputAssemblyState;
         public PipelineTessellationStateCreateInfo tessellationState;
@@ -17,14 +17,28 @@ namespace CSGL.Vulkan {
         public PipelineLayout layout;
         public RenderPass renderPass;
         public uint subpass;
-        public Pipeline basePipelineHandle;
+        public GraphicsPipeline basePipelineHandle;
         public int basePipelineIndex;
     }
 
     public class GraphicsPipeline : Pipeline {
-        internal GraphicsPipeline(Device device, VkPipeline pipeline) {
+        public IList<PipelineShaderStageCreateInfo> Stages { get; private set; }
+        public PipelineVertexInputStateCreateInfo VertexInputState { get; private set; }
+        public PipelineInputAssemblyStateCreateInfo InputAssemblyState { get; private set; }
+        public PipelineTessellationStateCreateInfo TessellationState { get; private set; }
+        public PipelineViewportStateCreateInfo ViewportState { get; private set; }
+        public PipelineRasterizationStateCreateInfo RasterizationState { get; private set; }
+        public PipelineMultisampleStateCreateInfo MultisampleState { get; private set; }
+        public PipelineDepthStencilStateCreateInfo DepthStencilState { get; private set; }
+        public PipelineColorBlendStateCreateInfo ColorBlendState { get; private set; }
+        public PipelineDynamicStateCreateInfo DynamicState { get; private set; }
+        public RenderPass RenderPass { get; private set; }
+        public uint Subpass { get; private set; }
+
+        internal GraphicsPipeline(Device device, VkPipeline pipeline, GraphicsPipelineCreateInfo info) {
             Device = device;
             this.pipeline = pipeline;
+            SetProperties(info);
         }
 
         public GraphicsPipeline(Device device, GraphicsPipelineCreateInfo info, PipelineCache cache) {
@@ -39,12 +53,37 @@ namespace CSGL.Vulkan {
             }
 
             pipeline = CreatePipelinesInternal(device, new GraphicsPipelineCreateInfo[] { info }, nativeCache)[0];
+
+            SetProperties(info);
         }
 
-        static internal VkPipeline[] CreatePipelinesInternal(Device device, GraphicsPipelineCreateInfo[] mInfos, VkPipelineCache cache) {
-            int count = mInfos.Length;
+        void SetProperties(GraphicsPipelineCreateInfo info) {
+            Flags = info.flags;
+            Layout = info.layout;
+            if (info.stages != null) {
+                var stages = new List<PipelineShaderStageCreateInfo>(info.stages.Count);
+                foreach (var stage in info.stages) {
+                    stages.Add(new PipelineShaderStageCreateInfo(stage));
+                }
+                Stages = stages.AsReadOnly();
+            }
+            if (info.vertexInputState != null) VertexInputState = new PipelineVertexInputStateCreateInfo(info.vertexInputState);
+            if (info.inputAssemblyState != null) InputAssemblyState = new PipelineInputAssemblyStateCreateInfo(info.inputAssemblyState);
+            if (info.tessellationState != null) TessellationState = new PipelineTessellationStateCreateInfo(info.tessellationState);
+            if (info.viewportState != null) ViewportState = new PipelineViewportStateCreateInfo(info.viewportState);
+            if (info.rasterizationState != null) RasterizationState = new PipelineRasterizationStateCreateInfo(info.rasterizationState);
+            if (info.multisampleState != null) MultisampleState = new PipelineMultisampleStateCreateInfo(info.multisampleState);
+            if (info.depthStencilState != null) DepthStencilState = new PipelineDepthStencilStateCreateInfo(info.depthStencilState);
+            if (info.colorBlendState != null) ColorBlendState = new PipelineColorBlendStateCreateInfo(info.colorBlendState);
+            if (info.dynamicState != null) DynamicState = new PipelineDynamicStateCreateInfo(info.dynamicState);
+            RenderPass = info.renderPass;
+            Subpass = info.subpass;
+        }
+
+        static internal IList<VkPipeline> CreatePipelinesInternal(Device device, IList<GraphicsPipelineCreateInfo> mInfos, VkPipelineCache cache) {
+            int count = mInfos.Count;
             var infosMarshalled = new MarshalledArray<VkGraphicsPipelineCreateInfo>(count);
-            var pipelineResults = new VkPipeline[count];
+            var pipelineResults = new List<VkPipeline>(count);
             var marshalledArrays = new DisposableList<IDisposable>(count);
 
             for (int i = 0; i < count; i++) {
@@ -95,7 +134,7 @@ namespace CSGL.Vulkan {
                 }
 
                 if (mInfo.multisampleState != null) {
-                    var m = new Marshalled<VkPipelineMultisampleStateCreateInfo>(mInfo.multisampleState.GetNative());
+                    var m = new Marshalled<VkPipelineMultisampleStateCreateInfo>(mInfo.multisampleState.GetNative(marshalledArrays));
                     info.pMultisampleState = m.Address;
                     marshalledArrays.Add(m);
                 }
@@ -134,15 +173,23 @@ namespace CSGL.Vulkan {
             }
 
             using (infosMarshalled)
-            using (marshalledArrays)
-            using (var pipelinesMarshalled = new PinnedArray<VkPipeline>(pipelineResults)) {
-                var result = device.Commands.createGraphicsPiplines(
-                    device.Native, cache,
-                    (uint)count, infosMarshalled.Address,
-                    device.Instance.AllocationCallbacks, pipelinesMarshalled.Address);
+            using (marshalledArrays) {
+                unsafe {
+                    var pipelinesNative = stackalloc VkPipeline[count];
 
-                if (result != VkResult.Success) throw new PipelineException(string.Format("Error creating pipeline: {0}", result));
-                return pipelineResults;
+                    var result = device.Commands.createGraphicsPiplines(
+                        device.Native, cache,
+                        (uint)count, infosMarshalled.Address,
+                        device.Instance.AllocationCallbacks, (IntPtr)pipelinesNative);
+
+                    if (result != VkResult.Success) throw new PipelineException(result, string.Format("Error creating pipeline: {0}", result));
+
+                    for (int i = 0; i < count; i++) {
+                        pipelineResults.Add(pipelinesNative[i]);
+                    }
+
+                    return pipelineResults;
+                }
             }
         }
     }

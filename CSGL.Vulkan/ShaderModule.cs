@@ -6,18 +6,7 @@ using CSGL.Vulkan.Unmanaged;
 
 namespace CSGL.Vulkan {
     public class ShaderModuleCreateInfo {
-        public byte[] Data { get; set; }
-
-        public ShaderModuleCreateInfo(byte[] data) {
-            Data = data;
-        }
-
-        public ShaderModuleCreateInfo(Stream stream) {
-            int length = (int)(stream.Length - stream.Position);
-            byte[] data = new byte[length];
-            stream.Read(data, 0, length);
-            Data = data;
-        }
+        public IList<byte> data;
     }
 
     public class ShaderModule : IDisposable, INative<VkShaderModule> {
@@ -38,7 +27,6 @@ namespace CSGL.Vulkan {
         public ShaderModule(Device device, ShaderModuleCreateInfo info) {
             if (device == null) throw new ArgumentNullException(nameof(device));
             if (info == null) throw new ArgumentNullException(nameof(info));
-            if (info.Data == null) throw new ArgumentNullException(nameof(info.Data));
 
             this.device = device;
 
@@ -49,16 +37,18 @@ namespace CSGL.Vulkan {
         }
 
         void CreateShader(ShaderModuleCreateInfo mInfo) {
+            if (mInfo.data == null) throw new ArgumentNullException(nameof(mInfo.data));
+
             VkShaderModuleCreateInfo info = new VkShaderModuleCreateInfo();
             info.sType = VkStructureType.ShaderModuleCreateInfo;
-            info.codeSize = (IntPtr)mInfo.Data.LongLength;
+            info.codeSize = (IntPtr)mInfo.data.Count;
 
-            var dataPinned = new PinnedArray<byte>(mInfo.Data);
+            var dataPinned = new NativeArray<byte>(mInfo.data);
             info.pCode = dataPinned.Address;
 
             using (dataPinned) {
                 var result = createShaderModule(device.Native, ref info, device.Instance.AllocationCallbacks, out shaderModule);
-                if (result != VkResult.Success) throw new ShaderModuleException(string.Format("Error creating shader module: {0}"));
+                if (result != VkResult.Success) throw new ShaderModuleException(result, string.Format("Error creating shader module: {0}"));
             }
         }
 
@@ -80,7 +70,7 @@ namespace CSGL.Vulkan {
         }
     }
 
-    public class ShaderModuleException : Exception {
-        public ShaderModuleException(string message) : base(message) { }
+    public class ShaderModuleException : VulkanException {
+        public ShaderModuleException(VkResult result, string message) : base(result, message) { }
     }
 }
