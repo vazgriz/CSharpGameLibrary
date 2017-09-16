@@ -35,11 +35,11 @@ namespace CSGL.Vulkan.Unmanaged {
             del = Marshal.GetDelegateForFunctionPointer<T>(ptr);
         }
 
-        public static void Load<T>(ref T del, Instance instance) {
+        public static void Load<T>(ref T del, Vulkan.VkInstance instance) {
             Load(ref del, instance.Native);
         }
 
-        public static void Load<T>(ref T del, Device device) {
+        public static void Load<T>(ref T del, Vulkan.VkDevice device) {
             var command = GetCommand<T>();
             IntPtr ptr = device.GetProcAdddress(command);
             del = Marshal.GetDelegateForFunctionPointer<T>(ptr);

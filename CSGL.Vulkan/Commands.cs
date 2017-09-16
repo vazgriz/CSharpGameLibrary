@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 using CSGL.Vulkan.Unmanaged;
 
 namespace CSGL.Vulkan {
-    public partial class Device {
+    public partial class VkDevice {
         public class DeviceCommands {
             public vkDeviceWaitIdleDelegate waitDeviceIdle;
 
@@ -154,7 +154,7 @@ namespace CSGL.Vulkan {
             public vkDestroyQueryPoolDelegate destroyQueryPool;
             public vkGetQueryPoolResultsDelegate getQueryPoolResults;
 
-            internal DeviceCommands(Device device) {
+            internal DeviceCommands(VkDevice device) {
                 Type t = typeof(DeviceCommands);
                 FieldInfo[] fields = t.GetFields();
                 for (int i = 0; i < fields.Length; i++) {
@@ -167,7 +167,7 @@ namespace CSGL.Vulkan {
         }
     }
 
-    public partial class Instance {
+    public partial class VkInstance {
         public class InstanceCommands {
             public vkCreateDeviceDelegate createDevice;
             public vkDestroyDeviceDelegate destroyDevice;
@@ -195,7 +195,7 @@ namespace CSGL.Vulkan {
             public vkDestroyDebugReportCallbackEXTDelegate destroyDebugReportCallback;
             public vkDebugReportMessageEXTDelegate debugReportMessage;
 
-            internal InstanceCommands(Instance instance) {
+            internal InstanceCommands(VkInstance instance) {
                 Type t = typeof(InstanceCommands);
                 FieldInfo[] fields = t.GetFields();
                 for (int i = 0; i < fields.Length; i++) {

@@ -34,7 +34,7 @@ namespace CSGL.Vulkan {
 
     public class PipelineShaderStageCreateInfo {
         public VkShaderStageFlags stage;
-        public ShaderModule module;
+        public VkShaderModule module;
         public string name;
         public SpecializationInfo specializationInfo;
 
