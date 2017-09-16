@@ -75,7 +75,7 @@ namespace CSGL.Vulkan {
         public VkDevice Device { get; private set; }
 
         public uint FamilyIndex { get; private set; }
-        public QueueFamily Family { get; private set; }
+        public VkQueueFamily Family { get; private set; }
         public float Priority { get; private set; }
 
         internal VkQueue(VkDevice device, Unmanaged.VkQueue queue, uint familyIndex, float priority) {

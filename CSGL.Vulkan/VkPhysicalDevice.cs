@@ -7,8 +7,8 @@ namespace CSGL.Vulkan {
 
         public string Name { get; private set; }
         public VkInstance Instance { get; private set; }
-        public PhysicalDeviceProperties Properties { get; private set; }
-        public IList<QueueFamily> QueueFamilies { get; private set; }
+        public VkPhysicalDeviceProperties Properties { get; private set; }
+        public IList<VkQueueFamily> QueueFamilies { get; private set; }
         public IList<VkExtension> AvailableExtensions { get; private set; }
 
         public Unmanaged.VkPhysicalDevice Native {
@@ -47,12 +47,12 @@ namespace CSGL.Vulkan {
         void GetDeviceProperties() {
             using (var prop = new Marshalled<Unmanaged.VkPhysicalDeviceProperties>()) {
                 Instance.Commands.getProperties(physicalDevice, prop.Address);
-                Properties = new PhysicalDeviceProperties(prop.Value);
+                Properties = new VkPhysicalDeviceProperties(prop.Value);
             }
         }
 
         void GetQueueProperties() {
-            List<QueueFamily> queueFamilies = new List<QueueFamily>();
+            List<VkQueueFamily> queueFamilies = new List<VkQueueFamily>();
             uint count = 0;
             Instance.Commands.getQueueFamilyProperties(physicalDevice, ref count, IntPtr.Zero);
             var props = new MarshalledArray<Unmanaged.VkQueueFamilyProperties>((int)count);
@@ -61,7 +61,7 @@ namespace CSGL.Vulkan {
             using (props) {
                 for (int i = 0; i < count; i++) {
                     var queueFamily = props[i];
-                    var fam = new QueueFamily(queueFamily, this, (uint)i);
+                    var fam = new VkQueueFamily(queueFamily, this, (uint)i);
                     queueFamilies.Add(fam);
                 }
             }
@@ -133,7 +133,7 @@ namespace CSGL.Vulkan {
         }
     }
 
-    public class QueueFamily {
+    public class VkQueueFamily {
         public VkQueueFlags Flags { get; private set; }
         public uint QueueCount { get; private set; }
         public uint TimestampValidBits { get; private set; }
@@ -142,7 +142,7 @@ namespace CSGL.Vulkan {
         VkPhysicalDevice pDevice;
         uint index;
 
-        internal QueueFamily(Unmanaged.VkQueueFamilyProperties prop, VkPhysicalDevice pDevice, uint index) {
+        internal VkQueueFamily(Unmanaged.VkQueueFamilyProperties prop, VkPhysicalDevice pDevice, uint index) {
             this.pDevice = pDevice;
             this.index = index;
 
@@ -159,7 +159,7 @@ namespace CSGL.Vulkan {
         }
     }
 
-    public class PhysicalDeviceProperties {
+    public class VkPhysicalDeviceProperties {
         public string Name { get; private set; }
         public VkVersion APIVersion { get; private set; }
         public VkPhysicalDeviceType Type { get; private set; }
@@ -170,7 +170,7 @@ namespace CSGL.Vulkan {
         public Unmanaged.VkPhysicalDeviceSparseProperties SparseProperties { get; private set; }
         public Guid PipelineCache { get; private set; }
 
-        internal PhysicalDeviceProperties(Unmanaged.VkPhysicalDeviceProperties prop) {
+        internal VkPhysicalDeviceProperties(Unmanaged.VkPhysicalDeviceProperties prop) {
             unsafe {
                 Name = Interop.GetString(&prop.deviceName);
                 byte[] uuid = new byte[16];
