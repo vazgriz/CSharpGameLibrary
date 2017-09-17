@@ -160,8 +160,8 @@ namespace CSGL.Vulkan {
                 Type t = typeof(DeviceCommands);
                 FieldInfo[] fields = t.GetFields();
                 for (int i = 0; i < fields.Length; i++) {
-                    string command = Unmanaged.VK.GetCommand(fields[i].FieldType);
-                    IntPtr ptr = device.GetProcAdddress(command);
+                    string command = VK.GetCommand(fields[i].FieldType);
+                    IntPtr ptr = VK.Load(device.Native, command);
                     if (ptr == IntPtr.Zero) continue;   //null if extension is not enabled
                     fields[i].SetValue(this, Marshal.GetDelegateForFunctionPointer(ptr, fields[i].FieldType));
                 }
@@ -203,8 +203,8 @@ namespace CSGL.Vulkan {
                 Type t = typeof(InstanceCommands);
                 FieldInfo[] fields = t.GetFields();
                 for (int i = 0; i < fields.Length; i++) {
-                    string command = Unmanaged.VK.GetCommand(fields[i].FieldType);
-                    IntPtr ptr = instance.GetProcAddress(command);
+                    string command = VK.GetCommand(fields[i].FieldType);
+                    IntPtr ptr = VK.Load(instance.Native, command);
                     if (ptr == IntPtr.Zero) continue;   //null if extension is not enabled
                     fields[i].SetValue(this, Marshal.GetDelegateForFunctionPointer(ptr, fields[i].FieldType));
                 }
