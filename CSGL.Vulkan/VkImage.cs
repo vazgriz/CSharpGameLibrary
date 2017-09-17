@@ -125,7 +125,7 @@ namespace CSGL.Vulkan {
 
             uint count = 0;
             Device.Commands.getImageSparseRequirements(Device.Native, image, ref count, IntPtr.Zero);
-            var sparseRequirementsNative = new MarshalledArray<Unmanaged.VkSparseImageMemoryRequirements>((int)count);
+            var sparseRequirementsNative = new NativeArray<Unmanaged.VkSparseImageMemoryRequirements>((int)count);
             Device.Commands.getImageSparseRequirements(Device.Native, image, ref count, sparseRequirementsNative.Address);
 
             using (sparseRequirementsNative) {
