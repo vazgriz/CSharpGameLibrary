@@ -387,4 +387,16 @@ namespace CSGL.Vulkan {
             };
         }
     }
+
+    public struct VkDescriptorPoolSize {
+        public VkDescriptorType type;
+        public int descriptorCount;
+
+        internal Unmanaged.VkDescriptorPoolSize GetNative() {
+            return new Unmanaged.VkDescriptorPoolSize {
+                type = type,
+                descriptorCount = (uint)descriptorCount
+            };
+        }
+    }
 }

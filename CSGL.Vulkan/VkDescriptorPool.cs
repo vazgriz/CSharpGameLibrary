@@ -5,7 +5,7 @@ namespace CSGL.Vulkan {
     public class VkDescriptorPoolCreateInfo {
         public VkDescriptorPoolCreateFlags flags;
         public int maxSets;
-        public IList<Unmanaged.VkDescriptorPoolSize> poolSizes;
+        public IList<VkDescriptorPoolSize> poolSizes;
     }
 
     public class VkDescriptorPool : IDisposable, INative<Unmanaged.VkDescriptorPool> {
@@ -23,7 +23,7 @@ namespace CSGL.Vulkan {
 
         public VkDescriptorPoolCreateFlags Flags { get; private set; }
         public int MaxSets { get; private set; }
-        public IList<Unmanaged.VkDescriptorPoolSize> PoolSizes { get; private set; }
+        public IList<VkDescriptorPoolSize> PoolSizes { get; private set; }
 
         List<VkDescriptorSet> descriptorSets;
 
@@ -50,7 +50,10 @@ namespace CSGL.Vulkan {
             info.flags = mInfo.flags;
             info.maxSets = (uint)mInfo.maxSets;
 
-            var poolSizesNative = new NativeArray<Unmanaged.VkDescriptorPoolSize>(mInfo.poolSizes);
+            var poolSizesNative = new NativeArray<Unmanaged.VkDescriptorPoolSize>(mInfo.poolSizes.Count);
+            for (int i = 0; i < mInfo.poolSizes.Count; i++) {
+                poolSizesNative[i] = mInfo.poolSizes[i].GetNative();
+            }
             info.poolSizeCount = (uint)poolSizesNative.Count;
             info.pPoolSizes = poolSizesNative.Address;
 
