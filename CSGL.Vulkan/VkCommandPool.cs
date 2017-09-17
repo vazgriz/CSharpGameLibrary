@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace CSGL.Vulkan {
     public class VkCommandPoolCreateInfo {
         public VkCommandPoolCreateFlags flags;
-        public uint queueFamilyIndex;
+        public int queueFamilyIndex;
     }
 
     public class VkCommandPool : IDisposable, INative<Unmanaged.VkCommandPool> {
@@ -19,7 +19,7 @@ namespace CSGL.Vulkan {
 
         public VkDevice Device { get; private set; }
         public VkCommandPoolCreateFlags Flags { get; private set; }
-        public uint QueueFamilyIndex { get; private set; }
+        public int QueueFamilyIndex { get; private set; }
 
         List<VkCommandBuffer> commandBuffers;
 
@@ -41,7 +41,7 @@ namespace CSGL.Vulkan {
             var info = new Unmanaged.VkCommandPoolCreateInfo();
             info.sType = VkStructureType.CommandPoolCreateInfo;
             info.flags = mInfo.flags;
-            info.queueFamilyIndex = mInfo.queueFamilyIndex;
+            info.queueFamilyIndex = (uint)mInfo.queueFamilyIndex;
 
             var result = Device.Commands.createCommandPool(Device.Native, ref info, Device.Instance.AllocationCallbacks, out commandPool);
             if (result != VkResult.Success) throw new CommandPoolException(result, string.Format("Error creating command pool: {0}", result));
@@ -72,7 +72,7 @@ namespace CSGL.Vulkan {
             infoNative.sType = VkStructureType.CommandBufferAllocateInfo;
             infoNative.level = info.level;
             infoNative.commandPool = commandPool;
-            infoNative.commandBufferCount = info.commandBufferCount;
+            infoNative.commandBufferCount = (uint)info.commandBufferCount;
 
             using (var commandBuffersMarshalled = new NativeArray<Unmanaged.VkCommandBuffer>(info.commandBufferCount)) {
                 var results = new List<VkCommandBuffer>((int)info.commandBufferCount);

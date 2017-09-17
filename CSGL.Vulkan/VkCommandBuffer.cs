@@ -25,8 +25,8 @@ namespace CSGL.Vulkan {
     public class VkRenderPassBeginInfo {
         public VkRenderPass renderPass;
         public VkFramebuffer framebuffer;
-        public Unmanaged.VkRect2D renderArea;
-        public IList<Unmanaged.VkClearValue> clearValues;
+        public VkRect2D renderArea;
+        public IList<VkClearValue> clearValues;
     }
 
     public class VkMemoryBarrier {
@@ -52,7 +52,7 @@ namespace CSGL.Vulkan {
         public int srcQueueFamilyIndex;
         public int dstQueueFamilyIndex;
         public VkImage image;
-        public Unmanaged.VkImageSubresourceRange subresourceRange;
+        public VkImageSubresourceRange subresourceRange;
     }
 
     public class VkCommandBuffer : IDisposable, INative<Unmanaged.VkCommandBuffer> {
@@ -140,7 +140,7 @@ namespace CSGL.Vulkan {
                 infoNative.sType = VkStructureType.RenderPassBeginInfo;
                 infoNative.renderPass = info.renderPass.Native;
                 infoNative.framebuffer = info.framebuffer.Native;
-                infoNative.renderArea = info.renderArea;
+                infoNative.renderArea = info.renderArea.GetNative();
 
                 if (info.clearValues != null) Interop.Copy(info.clearValues, (IntPtr)clearValuesNative);
                 infoNative.clearValueCount = (uint)clearValueCount;
@@ -251,35 +251,40 @@ namespace CSGL.Vulkan {
             Device.Commands.cmdDrawIndexed(commandBuffer, (uint)indexCount, (uint)instanceCount, (uint)firstIndex, vertexOffset, (uint)firstInstance);
         }
 
-        public void CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, IList<Unmanaged.VkBufferCopy> regions) {
+        public void CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, IList<VkBufferCopy> regions) {
             if (srcBuffer == null) throw new ArgumentNullException(nameof(srcBuffer));
             if (dstBuffer == null) throw new ArgumentNullException(nameof(dstBuffer));
             if (regions == null) throw new ArgumentNullException(nameof(regions));
 
             unsafe {
                 var regionsNative = stackalloc Unmanaged.VkBufferCopy[regions.Count];
-                Interop.Copy(regions, (IntPtr)regionsNative);
+                for (int i = 0; i < regions.Count; i++) {
+                    regionsNative[i] = regions[i].GetNative();
+                }
                 Device.Commands.cmdCopyBuffer(commandBuffer, srcBuffer.Native, dstBuffer.Native, (uint)regions.Count, (IntPtr)regionsNative);
             }
         }
 
-        public void CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, Unmanaged.VkBufferCopy region) {
+        public void CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkBufferCopy regions) {
             if (srcBuffer == null) throw new ArgumentNullException(nameof(srcBuffer));
             if (dstBuffer == null) throw new ArgumentNullException(nameof(dstBuffer));
 
             unsafe {
-                Device.Commands.cmdCopyBuffer(commandBuffer, srcBuffer.Native, dstBuffer.Native, 1, (IntPtr)(&region));
+                var regionsNative = regions.GetNative();
+                Device.Commands.cmdCopyBuffer(commandBuffer, srcBuffer.Native, dstBuffer.Native, 1, (IntPtr)(&regionsNative));
             }
         }
 
-        public void CopyImage(VkImage srcImage, VkImageLayout srcImageLayout, VkImage dstImage, VkImageLayout dstImageLayout, IList<Unmanaged.VkImageCopy> regions) {
+        public void CopyImage(VkImage srcImage, VkImageLayout srcImageLayout, VkImage dstImage, VkImageLayout dstImageLayout, IList<VkImageCopy> regions) {
             if (srcImage == null) throw new ArgumentNullException(nameof(srcImage));
             if (dstImage == null) throw new ArgumentNullException(nameof(dstImage));
             if (regions == null) throw new ArgumentNullException(nameof(regions));
 
             unsafe {
                 var regionsNative = stackalloc Unmanaged.VkImageCopy[regions.Count];
-                Interop.Copy(regions, (IntPtr)regionsNative);
+                for (int i = 0; i < regions.Count; i++) {
+                    regionsNative[i] = regions[i].GetNative();
+                }
 
                 Device.Commands.cmdCopyImage(commandBuffer,
                     srcImage.Native, srcImageLayout,
@@ -288,11 +293,13 @@ namespace CSGL.Vulkan {
             }
         }
 
-        public void CopyImage(VkImage srcImage, VkImageLayout srcImageLayout, VkImage dstImage, VkImageLayout dstImageLayout, Unmanaged.VkImageCopy regions) {
+        public void CopyImage(VkImage srcImage, VkImageLayout srcImageLayout, VkImage dstImage, VkImageLayout dstImageLayout, VkImageCopy regions) {
             if (srcImage == null) throw new ArgumentNullException(nameof(srcImage));
             if (dstImage == null) throw new ArgumentNullException(nameof(dstImage));
 
             unsafe {
+                var regionsNative = regions.GetNative();
+
                 Device.Commands.cmdCopyImage(commandBuffer,
                     srcImage.Native, srcImageLayout,
                     dstImage.Native, dstImageLayout,
@@ -354,7 +361,7 @@ namespace CSGL.Vulkan {
                     ibNative[i].srcQueueFamilyIndex = (uint)ib.srcQueueFamilyIndex;
                     ibNative[i].dstQueueFamilyIndex = (uint)ib.dstQueueFamilyIndex;
                     ibNative[i].image = ib.image.Native;
-                    ibNative[i].subresourceRange = ib.subresourceRange;
+                    ibNative[i].subresourceRange = ib.subresourceRange.GetNative();
                 }
 
                 Device.Commands.cmdPipelineBarrier(commandBuffer,
@@ -365,22 +372,25 @@ namespace CSGL.Vulkan {
             }
         }
 
-        public void ClearColorImage(VkImage image, VkImageLayout imageLayout, ref Unmanaged.VkClearColorValue clearColor, IList<Unmanaged.VkImageSubresourceRange> ranges) {
+        public void ClearColorImage(VkImage image, VkImageLayout imageLayout, VkClearColorValue clearColor, IList<VkImageSubresourceRange> ranges) {
             if (image == null) throw new ArgumentNullException(nameof(image));
             if (ranges == null) throw new ArgumentNullException(nameof(ranges));
 
             unsafe {
                 var rangesNative = stackalloc Unmanaged.VkImageSubresourceRange[ranges.Count];
                 Interop.Copy(ranges, (IntPtr)rangesNative);
-                Device.Commands.cmdClearColorImage(commandBuffer, image.Native, imageLayout, ref clearColor, (uint)ranges.Count, (IntPtr)rangesNative);
+                var clearColorNative = clearColor.GetNative();
+
+                Device.Commands.cmdClearColorImage(commandBuffer, image.Native, imageLayout, ref clearColorNative, (uint)ranges.Count, (IntPtr)rangesNative);
             }
         }
 
-        public void ClearColorImage(VkImage image, VkImageLayout imageLayout, ref Unmanaged.VkClearColorValue clearColor, Unmanaged.VkImageSubresourceRange ranges) {
+        public void ClearColorImage(VkImage image, VkImageLayout imageLayout, VkClearColorValue clearColor, VkImageSubresourceRange ranges) {
             if (image == null) throw new ArgumentNullException(nameof(image));
 
             unsafe {
-                Device.Commands.cmdClearColorImage(commandBuffer, image.Native, imageLayout, ref clearColor, 1, (IntPtr)(&ranges));
+                var clearColorNative = clearColor.GetNative();
+                Device.Commands.cmdClearColorImage(commandBuffer, image.Native, imageLayout, ref clearColorNative, 1, (IntPtr)(&ranges));
             }
         }
 
@@ -489,7 +499,7 @@ namespace CSGL.Vulkan {
                     ibNative[i].srcQueueFamilyIndex = (uint)ib.srcQueueFamilyIndex;
                     ibNative[i].dstQueueFamilyIndex = (uint)ib.dstQueueFamilyIndex;
                     ibNative[i].image = ib.image.Native;
-                    ibNative[i].subresourceRange = ib.subresourceRange;
+                    ibNative[i].subresourceRange = ib.subresourceRange.GetNative();
                 }
 
                 Device.Commands.cmdWaitEvents(commandBuffer,
@@ -517,7 +527,7 @@ namespace CSGL.Vulkan {
             }
         }
 
-        public void SetViewports(int firstViewport, IList<Unmanaged.VkViewport> viewports) {
+        public void SetViewports(int firstViewport, IList<VkViewport> viewports) {
             if (viewports == null) throw new ArgumentNullException(nameof(viewports));
 
             unsafe {
@@ -527,13 +537,14 @@ namespace CSGL.Vulkan {
             }
         }
 
-        public void SetViewports(int firstViewport, Unmanaged.VkViewport viewports) {
+        public void SetViewports(int firstViewport, VkViewport viewports) {
             unsafe {
-                Device.Commands.cmdSetViewports(commandBuffer, (uint)firstViewport, 1, (IntPtr)(&viewports));
+                var native = viewports.GetNative();
+                Device.Commands.cmdSetViewports(commandBuffer, (uint)firstViewport, 1, (IntPtr)(&native));
             }
         }
 
-        public void SetScissor(int firstScissor, IList<Unmanaged.VkRect2D> scissors) {
+        public void SetScissor(int firstScissor, IList<VkRect2D> scissors) {
             if (scissors == null) throw new ArgumentNullException(nameof(scissors));
 
             unsafe {
@@ -543,9 +554,10 @@ namespace CSGL.Vulkan {
             }
         }
 
-        public void SetScissor(int firstScissor, Unmanaged.VkRect2D scissors) {
+        public void SetScissor(int firstScissor, VkRect2D scissors) {
             unsafe {
-                Device.Commands.cmdSetScissor(commandBuffer, (uint)firstScissor, 1, (IntPtr)(&scissors));
+                var native = scissors.GetNative();
+                Device.Commands.cmdSetScissor(commandBuffer, (uint)firstScissor, 1, (IntPtr)(&native));
             }
         }
 
@@ -644,70 +656,82 @@ namespace CSGL.Vulkan {
             Device.Commands.cmdFillBuffer(commandBuffer, dstBuffer.Native, (ulong)dstOffset, (ulong)size, data);
         }
 
-        public void BlitImage(VkImage srcImage, VkImageLayout srcImageLayout, VkImage dstImage, VkImageLayout dstImageLayout, IList<Unmanaged.VkImageBlit> regions, VkFilter filter) {
+        public void BlitImage(VkImage srcImage, VkImageLayout srcImageLayout, VkImage dstImage, VkImageLayout dstImageLayout, IList<VkImageBlit> regions, VkFilter filter) {
             if (srcImage == null) throw new ArgumentNullException(nameof(srcImage));
             if (dstImage == null) throw new ArgumentNullException(nameof(dstImage));
             if (regions == null) throw new ArgumentNullException(nameof(regions));
 
             unsafe {
                 var regionsNative = stackalloc Unmanaged.VkImageBlit[regions.Count];
-                Interop.Copy(regions, (IntPtr)regionsNative);
+                for (int i = 0; i < regions.Count; i++) {
+                    regionsNative[i] = regions[i].GetNative();
+                }
+
                 Device.Commands.cmdBlitImage(commandBuffer, srcImage.Native, srcImageLayout, dstImage.Native, dstImageLayout, (uint)regions.Count, (IntPtr)regionsNative, filter);
             }
         }
 
-        public void BlitImage(VkImage srcImage, VkImageLayout srcImageLayout, VkImage dstImage, VkImageLayout dstImageLayout, Unmanaged.VkImageBlit regions, VkFilter filter) {
+        public void BlitImage(VkImage srcImage, VkImageLayout srcImageLayout, VkImage dstImage, VkImageLayout dstImageLayout, VkImageBlit regions, VkFilter filter) {
             if (srcImage == null) throw new ArgumentNullException(nameof(srcImage));
             if (dstImage == null) throw new ArgumentNullException(nameof(dstImage));
 
             unsafe {
-                Device.Commands.cmdBlitImage(commandBuffer, srcImage.Native, srcImageLayout, dstImage.Native, dstImageLayout, 1, (IntPtr)(&regions), filter);
+                var regionsNative = regions.GetNative();
+                Device.Commands.cmdBlitImage(commandBuffer, srcImage.Native, srcImageLayout, dstImage.Native, dstImageLayout, 1, (IntPtr)(&regionsNative), filter);
             }
         }
 
-        public void CopyBufferToImage(VkBuffer srcBuffer, VkImage dstImage, VkImageLayout dstImageLayout, IList<Unmanaged.VkBufferImageCopy> regions) {
+        public void CopyBufferToImage(VkBuffer srcBuffer, VkImage dstImage, VkImageLayout dstImageLayout, IList<VkBufferImageCopy> regions) {
             if (srcBuffer == null) throw new ArgumentNullException(nameof(srcBuffer));
             if (dstImage == null) throw new ArgumentNullException(nameof(dstImage));
             if (regions == null) throw new ArgumentNullException(nameof(regions));
 
             unsafe {
                 var regionsNative = stackalloc Unmanaged.VkBufferImageCopy[regions.Count];
-                Interop.Copy(regions, (IntPtr)regionsNative);
+                for (int i = 0; i < regions.Count; i++) {
+                    regionsNative[i] = regions[i].GetNative();
+                }
+
                 Device.Commands.cmdCopyBufferToImage(commandBuffer, srcBuffer.Native, dstImage.Native, dstImageLayout, (uint)regions.Count, (IntPtr)regionsNative);
             }
         }
 
-        public void CopyBufferToImage(VkBuffer srcBuffer, VkImage dstImage, VkImageLayout dstImageLayout, Unmanaged.VkBufferImageCopy regions) {
+        public void CopyBufferToImage(VkBuffer srcBuffer, VkImage dstImage, VkImageLayout dstImageLayout, VkBufferImageCopy regions) {
             if (srcBuffer == null) throw new ArgumentNullException(nameof(srcBuffer));
             if (dstImage == null) throw new ArgumentNullException(nameof(dstImage));
 
             unsafe {
-                Device.Commands.cmdCopyBufferToImage(commandBuffer, srcBuffer.Native, dstImage.Native, dstImageLayout, 1, (IntPtr)(&regions));
+                var regionsNative = regions.GetNative();
+                Device.Commands.cmdCopyBufferToImage(commandBuffer, srcBuffer.Native, dstImage.Native, dstImageLayout, 1, (IntPtr)(&regionsNative));
             }
         }
 
-        public void CopyImageToBuffer(VkImage srcImage, VkImageLayout srcImageLayout, VkBuffer dstBuffer, IList<Unmanaged.VkBufferImageCopy> regions) {
+        public void CopyImageToBuffer(VkImage srcImage, VkImageLayout srcImageLayout, VkBuffer dstBuffer, IList<VkBufferImageCopy> regions) {
             if (srcImage == null) throw new ArgumentNullException(nameof(srcImage));
             if (dstBuffer == null) throw new ArgumentNullException(nameof(dstBuffer));
             if (regions == null) throw new ArgumentNullException(nameof(regions));
 
             unsafe {
                 var regionsNative = stackalloc Unmanaged.VkBufferImageCopy[regions.Count];
-                Interop.Copy(regions, (IntPtr)regionsNative);
+                for (int i = 0; i < regions.Count; i++) {
+                    regionsNative[i] = regions[i].GetNative();
+                }
+
                 Device.Commands.cmdCopyImageToBuffer(commandBuffer, srcImage.Native, srcImageLayout, dstBuffer.Native, (uint)regions.Count, (IntPtr)regionsNative);
             }
         }
 
-        public void CopyImageToBuffer(VkImage srcImage, VkImageLayout srcImageLayout, VkBuffer dstBuffer, Unmanaged.VkBufferImageCopy regions) {
+        public void CopyImageToBuffer(VkImage srcImage, VkImageLayout srcImageLayout, VkBuffer dstBuffer, VkBufferImageCopy regions) {
             if (srcImage == null) throw new ArgumentNullException(nameof(srcImage));
             if (dstBuffer == null) throw new ArgumentNullException(nameof(dstBuffer));
 
             unsafe {
-                Device.Commands.cmdCopyImageToBuffer(commandBuffer, srcImage.Native, srcImageLayout, dstBuffer.Native, 1, (IntPtr)(&regions));
+                var regionsNative = regions.GetNative();
+                Device.Commands.cmdCopyImageToBuffer(commandBuffer, srcImage.Native, srcImageLayout, dstBuffer.Native, 1, (IntPtr)(&regionsNative));
             }
         }
 
-        public void ClearAttachments(IList<Unmanaged.VkClearAttachment> attachments, IList<Unmanaged.VkClearRect> rects) {
+        public void ClearAttachments(IList<VkClearAttachment> attachments, IList<VkClearRect> rects) {
             if (attachments == null) throw new ArgumentNullException(nameof(attachments));
             if (rects == null) throw new ArgumentNullException(nameof(rects));
 
@@ -715,36 +739,42 @@ namespace CSGL.Vulkan {
                 var attachmentsNative = stackalloc Unmanaged.VkClearAttachment[attachments.Count];
                 var rectsNative = stackalloc Unmanaged.VkClearRect[rects.Count];
                 Interop.Copy(attachments, (IntPtr)attachmentsNative);
-                Interop.Copy(rects, (IntPtr)rectsNative);
+                for (int i = 0; i < rects.Count; i++) {
+                    rectsNative[i] = rects[i].GetNative();
+                }
 
                 Device.Commands.cmdClearAttachments(commandBuffer, (uint)attachments.Count, (IntPtr)attachmentsNative, (uint)rects.Count, (IntPtr)rectsNative);
             }
         }
 
-        public void ClearAttachments(Unmanaged.VkClearAttachment attachments, Unmanaged.VkClearRect rects) {
+        public void ClearAttachments(VkClearAttachment attachments, VkClearRect rects) {
             unsafe {
                 Device.Commands.cmdClearAttachments(commandBuffer, 1, (IntPtr)(&attachments), 1, (IntPtr)(&rects));
             }
         }
 
-        public void ResolveImage(VkImage srcImage, VkImageLayout srcImageLayout, VkImage dstImage, VkImageLayout dstImageLayout, IList<Unmanaged.VkImageResolve> regions) {
+        public void ResolveImage(VkImage srcImage, VkImageLayout srcImageLayout, VkImage dstImage, VkImageLayout dstImageLayout, IList<VkImageResolve> regions) {
             if (srcImage == null) throw new ArgumentNullException(nameof(srcImage));
             if (dstImage == null) throw new ArgumentNullException(nameof(dstImage));
             if (regions == null) throw new ArgumentNullException(nameof(regions));
 
             unsafe {
                 var regionsNative = stackalloc Unmanaged.VkImageResolve[regions.Count];
-                Interop.Copy(regions, (IntPtr)regionsNative);
+                for (int i = 0; i < regions.Count; i++) {
+                    regionsNative[i] = regions[i].GetNative();
+                }
+
                 Device.Commands.cmdResolveImage(commandBuffer, srcImage.Native, srcImageLayout, dstImage.Native, dstImageLayout, (uint)regions.Count, (IntPtr)regionsNative);
             }
         }
 
-        public void ResolveImage(VkImage srcImage, VkImageLayout srcImageLayout, VkImage dstImage, VkImageLayout dstImageLayout, Unmanaged.VkImageResolve regions) {
+        public void ResolveImage(VkImage srcImage, VkImageLayout srcImageLayout, VkImage dstImage, VkImageLayout dstImageLayout, VkImageResolve regions) {
             if (srcImage == null) throw new ArgumentNullException(nameof(srcImage));
             if (dstImage == null) throw new ArgumentNullException(nameof(dstImage));
 
             unsafe {
-                Device.Commands.cmdResolveImage(commandBuffer, srcImage.Native, srcImageLayout, dstImage.Native, dstImageLayout, 1, (IntPtr)(&regions));
+                var regionsNative = regions.GetNative();
+                Device.Commands.cmdResolveImage(commandBuffer, srcImage.Native, srcImageLayout, dstImage.Native, dstImageLayout, 1, (IntPtr)(&regionsNative));
             }
         }
 
