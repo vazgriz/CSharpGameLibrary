@@ -79,8 +79,8 @@ namespace CSGL.Vulkan {
                 var priorityNative = new NativeArray<float>(mi.priorities);
                 prioritiesNative.Add(priorityNative);
                 qInfo.pQueuePriorities = priorityNative.Address;
-                qInfo.queueCount = mi.queueCount;
-                qInfo.queueFamilyIndex = mi.queueFamilyIndex;
+                qInfo.queueCount = (uint)mi.queueCount;
+                qInfo.queueFamilyIndex = (uint)mi.queueFamilyIndex;
 
                 queueInfosNative[i] = qInfo;
             }
