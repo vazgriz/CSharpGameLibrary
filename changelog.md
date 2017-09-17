@@ -13,6 +13,7 @@
   - Move all types in `structs.cs` to the `CSGL.Vulkan.Unmanaged` namespace
   - Move `Vulkan` class to `CSGL.Vulkan.Unmanaged`
   - Add "Vk" to all class names
+  - Make interface more C# idiomatic
   - Unmanaged
     - VK
       - Add Load(VkDevice, string) and Load(VkInstance, string) methods
