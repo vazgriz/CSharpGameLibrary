@@ -139,4 +139,96 @@ namespace CSGL.Vulkan {
             memoryTypeBits = native.memoryTypeBits;
         }
     }
+
+    public struct VkImageSubresourceRange {
+        public VkImageAspectFlags aspectMask;
+        public int baseMipLevel;
+        public int levelCount;
+        public int baseArrayLayer;
+        public int layerCount;
+
+        internal Unmanaged.VkImageSubresourceRange GetNative() {
+            return new Unmanaged.VkImageSubresourceRange {
+                aspectMask = aspectMask,
+                baseMipLevel = (uint)baseMipLevel,
+                levelCount = (uint)levelCount,
+                baseArrayLayer = (uint)baseArrayLayer,
+                layerCount = (uint)layerCount
+            };
+        }
+    }
+
+    public struct VkClearColorValue {
+        Unmanaged.VkClearColorValue value;
+
+        internal Unmanaged.VkClearColorValue GetNative() {
+            return value;
+        }
+
+        public void Set(int r, int g, int b, int a) {
+            value.int32_0 = r;
+            value.int32_1 = g;
+            value.int32_2 = b;
+            value.int32_3 = a;
+        }
+
+        public void Set(float r, float g, float b, float a) {
+            value.float32_0 = r;
+            value.float32_1 = g;
+            value.float32_2 = b;
+            value.float32_3 = a;
+        }
+
+        public void Set(uint r, uint g, uint b, uint a) {
+            value.uint32_0 = r;
+            value.uint32_1 = g;
+            value.uint32_2 = b;
+            value.uint32_3 = a;
+        }
+
+        public void Get(out int r, out int g, out int b, out int a) {
+            r = value.int32_0;
+            g = value.int32_1;
+            b = value.int32_2;
+            a = value.int32_3;
+        }
+
+        public void Get(out float r, out float g, out float b, out float a) {
+            r = value.float32_0;
+            g = value.float32_1;
+            b = value.float32_2;
+            a = value.float32_3;
+        }
+
+        public void Get(out uint r, out uint g, out uint b, out uint a) {
+            r = value.uint32_0;
+            g = value.uint32_1;
+            b = value.uint32_2;
+            a = value.uint32_3;
+        }
+    }
+
+    public struct VkClearDepthStencilValue {
+        float depth;
+        int stencil;
+
+        internal Unmanaged.VkClearDepthStencilValue GetNative() {
+            return new Unmanaged.VkClearDepthStencilValue {
+                depth = depth,
+                stencil = (uint)stencil
+            };
+        }
+    }
+
+    public struct VkClearValue {
+        public VkClearColorValue color;
+        public VkClearDepthStencilValue depthStencil;
+
+        internal Unmanaged.VkClearValue GetNative() {
+            return new Unmanaged.VkClearValue {
+                color = color.GetNative(),
+                depthStencil = depthStencil.GetNative()
+            };
+        }
+    }
 }
