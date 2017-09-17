@@ -51,42 +51,40 @@ namespace CSGL.Vulkan {
         void CreateDevice(VkDeviceCreateInfo mInfo) {
             if (mInfo.queueCreateInfos == null) throw new ArgumentNullException(nameof(mInfo.queueCreateInfos));
 
-            var extensionsMarshalled = new NativeStringArray(mInfo.extensions);
-            MarshalledArray<Unmanaged.VkDeviceQueueCreateInfo> queueInfos = null;
-            DisposableList<NativeArray<float>> prioritiesMarshalled = null;
-            var features = new Marshalled<Unmanaged.VkPhysicalDeviceFeatures>(mInfo.features);
+            var extensionsNative = new NativeStringArray(mInfo.extensions);
+            var featuresNative = new Native<Unmanaged.VkPhysicalDeviceFeatures>(mInfo.features);
 
             var info = new Unmanaged.VkDeviceCreateInfo();
             info.sType = VkStructureType.DeviceCreateInfo;
-            info.enabledExtensionCount = (uint)extensionsMarshalled.Count;
-            info.ppEnabledExtensionNames = extensionsMarshalled.Address;
-            info.pEnabledFeatures = features.Address;
+            info.enabledExtensionCount = (uint)extensionsNative.Count;
+            info.ppEnabledExtensionNames = extensionsNative.Address;
+            info.pEnabledFeatures = featuresNative.Address;
             
             int length = mInfo.queueCreateInfos.Count;
             info.queueCreateInfoCount = (uint)length;
-            queueInfos = new MarshalledArray<Unmanaged.VkDeviceQueueCreateInfo>(length);
-            prioritiesMarshalled = new DisposableList<NativeArray<float>>(length);
+            var queueInfosNative = new NativeArray<Unmanaged.VkDeviceQueueCreateInfo>(length);
+            var prioritiesNative = new DisposableList<NativeArray<float>>(length);
 
             for (int i = 0; i < length; i++) {
                 var mi = mInfo.queueCreateInfos[i];
                 var qInfo = new Unmanaged.VkDeviceQueueCreateInfo();
                 qInfo.sType = VkStructureType.DeviceQueueCreateInfo;
 
-                var priorityMarshalled = new NativeArray<float>(mi.priorities);
-                prioritiesMarshalled.Add(priorityMarshalled);
-                qInfo.pQueuePriorities = priorityMarshalled.Address;
+                var priorityNative = new NativeArray<float>(mi.priorities);
+                prioritiesNative.Add(priorityNative);
+                qInfo.pQueuePriorities = priorityNative.Address;
                 qInfo.queueCount = mi.queueCount;
                 qInfo.queueFamilyIndex = mi.queueFamilyIndex;
 
-                queueInfos[i] = qInfo;
+                queueInfosNative[i] = qInfo;
             }
 
-            info.pQueueCreateInfos = queueInfos.Address;
+            info.pQueueCreateInfos = queueInfosNative.Address;
 
-            using (extensionsMarshalled)
-            using (queueInfos)
-            using (features)
-            using (prioritiesMarshalled) {
+            using (extensionsNative)
+            using (queueInfosNative)
+            using (featuresNative)
+            using (prioritiesNative) {
                 var result = Instance.Commands.createDevice(PhysicalDevice.Native, ref info, Instance.AllocationCallbacks, out device);
                 if (result != VkResult.Success) throw new DeviceException(result, string.Format("Error creating device: {0}", result));
             }
