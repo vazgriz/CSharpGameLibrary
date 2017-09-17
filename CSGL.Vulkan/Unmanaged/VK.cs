@@ -33,10 +33,6 @@ namespace CSGL.Vulkan.Unmanaged {
             del = Marshal.GetDelegateForFunctionPointer<T>(ptr);
         }
 
-        public static void Load<T>(ref T del) {
-            Load(ref del, VkInstance.Null);
-        }
-
         public static void Load<T>(ref T del, VkDevice device) {
             var commandName = GetCommand<T>();
             IntPtr ptr = Load(device, commandName);
