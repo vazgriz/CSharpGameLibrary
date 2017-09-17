@@ -79,7 +79,7 @@ namespace CSGL.Vulkan {
         public float Priority { get; private set; }
 
         internal VkQueue(VkDevice device, Unmanaged.VkQueue queue, uint familyIndex, float priority) {
-            this.Device = device;
+            Device = device;
             this.queue = queue;
             FamilyIndex = (int)familyIndex;
             Family = device.PhysicalDevice.QueueFamilies[(int)familyIndex];
