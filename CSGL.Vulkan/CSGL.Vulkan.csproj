@@ -73,6 +73,7 @@
     <Compile Include="VkInstance.cs" />
     <Compile Include="VkLayer.cs" />
     <Compile Include="VkPhysicalDevice.cs" />
+    <Compile Include="VkPhysicalDeviceFeatures.cs" />
     <Compile Include="VkPipeline.cs" />
     <Compile Include="VkPipelineCache.cs" />
     <Compile Include="VkPipelineLayout.cs" />
