@@ -224,6 +224,7 @@ namespace CSGL.GLFW {
             GLFW.SetCursorPosCallback(window, CursorPos);
             GLFW.SetMouseButtonCallback(window, MouseButton);
             GLFW.SetScrollCallback(window, Scroll);
+            GLFW.SetDropCallback(window, PathDrop);
 
             stickyKeys = GLFW.GetInputMode(window, InputMode.StickyKeys) != 0;
             cursorMode = (CursorMode)GLFW.GetInputMode(window, InputMode.Cursor);

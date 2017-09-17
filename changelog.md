@@ -30,3 +30,5 @@
     - Add Native property
 - GLFW
   - Use IList<T> instead of T[]
+  - Window
+    - Fix PathDrop callback
