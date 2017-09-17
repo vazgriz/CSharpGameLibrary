@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace CSGL.Vulkan {
     public class VkPipelineLayoutCreateInfo {
         public IList<VkDescriptorSetLayout> setLayouts;
-        public IList<Unmanaged.VkPushConstantRange> pushConstantRanges;
+        public IList<VkPushConstantRange> pushConstantRanges;
     }
 
     public class VkPipelineLayout : IDisposable, INative<Unmanaged.VkPipelineLayout> {
@@ -13,7 +13,7 @@ namespace CSGL.Vulkan {
 
         public VkDevice Device { get; private set; }
         public IList<VkDescriptorSetLayout> Layouts { get; private set; }
-        public IList<Unmanaged.VkPushConstantRange> PushConstantRanges { get; private set; }
+        public IList<VkPushConstantRange> PushConstantRanges { get; private set; }
 
         public Unmanaged.VkPipelineLayout Native {
             get {
@@ -50,7 +50,11 @@ namespace CSGL.Vulkan {
                 info.pSetLayouts = (IntPtr)layoutsNative;
 
                 var pushConstantsNative = stackalloc Unmanaged.VkPushConstantRange[pushConstantsCount];
-                if (mInfo.pushConstantRanges != null) Interop.Copy(mInfo.pushConstantRanges, (IntPtr)pushConstantsNative);
+                if (mInfo.pushConstantRanges != null) {
+                    for (int i = 0; i < mInfo.pushConstantRanges.Count; i++) {
+                        pushConstantsNative[i] = mInfo.pushConstantRanges[i].GetNative();
+                    }
+                }
 
                 info.pushConstantRangeCount = (uint)pushConstantsCount;
                 info.pPushConstantRanges = (IntPtr)pushConstantsNative;

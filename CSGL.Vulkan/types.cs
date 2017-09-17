@@ -493,4 +493,18 @@ namespace CSGL.Vulkan {
             residencyNonResidentStrict = other.residencyNonResidentStrict != 0;
         }
     }
+
+    public struct VkPushConstantRange {
+        public VkShaderStageFlags stageFlags;
+        public int offset;
+        public int size;
+
+        internal Unmanaged.VkPushConstantRange GetNative() {
+            return new Unmanaged.VkPushConstantRange {
+                stageFlags = stageFlags,
+                offset = (uint)offset,
+                size = (uint)size
+            };
+        }
+    }
 }
