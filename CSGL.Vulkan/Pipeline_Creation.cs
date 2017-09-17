@@ -13,22 +13,22 @@ namespace CSGL.Vulkan {
             data = other.data.CloneReadOnly();
         }
 
-        internal IntPtr GetNative(DisposableList<IDisposable> marshalled) {
-            var entriesMarshalled = new MarshalledArray<Unmanaged.VkSpecializationMapEntry>(mapEntries);
-            var dataMarshalled = new NativeArray<byte>(data);
-            marshalled.Add(entriesMarshalled);
-            marshalled.Add(dataMarshalled);
+        internal IntPtr GetNative(DisposableList<IDisposable> natives) {
+            var entriesNative = new NativeArray<Unmanaged.VkSpecializationMapEntry>(mapEntries);
+            var dataNative = new NativeArray<byte>(data);
+            natives.Add(entriesNative);
+            natives.Add(dataNative);
 
             var info = new Unmanaged.VkSpecializationInfo();
-            info.mapEntryCount = (uint)entriesMarshalled.Count;
-            info.pMapEntries = entriesMarshalled.Address;
-            info.dataSize = (IntPtr)dataMarshalled.Count;
-            info.pData = dataMarshalled.Address;
+            info.mapEntryCount = (uint)entriesNative.Count;
+            info.pMapEntries = entriesNative.Address;
+            info.dataSize = (IntPtr)dataNative.Count;
+            info.pData = dataNative.Address;
 
-            var infoMarshalled = new Marshalled<Unmanaged.VkSpecializationInfo>(info);
-            marshalled.Add(infoMarshalled);
+            var infoNative = new Native<Unmanaged.VkSpecializationInfo>(info);
+            natives.Add(infoNative);
 
-            return infoMarshalled.Address;
+            return infoNative.Address;
         }
     }
 
@@ -47,7 +47,7 @@ namespace CSGL.Vulkan {
             if (other.specializationInfo != null) specializationInfo = new VkSpecializationInfo(other.specializationInfo);
         }
 
-        internal Unmanaged.VkPipelineShaderStageCreateInfo GetNative(DisposableList<IDisposable> marshalled) {
+        internal Unmanaged.VkPipelineShaderStageCreateInfo GetNative(DisposableList<IDisposable> natives) {
             var result = new Unmanaged.VkPipelineShaderStageCreateInfo();
             result.sType = VkStructureType.PipelineShaderStageCreateInfo;
             result.stage = stage;
@@ -55,10 +55,10 @@ namespace CSGL.Vulkan {
 
             var strInterop = new InteropString(name);
             result.pName = strInterop.Address;
-            marshalled.Add(strInterop);
+            natives.Add(strInterop);
 
             if (specializationInfo != null) {
-                result.pSpecializationInfo = specializationInfo.GetNative(marshalled);
+                result.pSpecializationInfo = specializationInfo.GetNative(natives);
             }
 
             return result;
@@ -76,20 +76,20 @@ namespace CSGL.Vulkan {
             vertexAttributeDescriptions = other.vertexAttributeDescriptions.CloneReadOnly();
         }
 
-        internal Unmanaged.VkPipelineVertexInputStateCreateInfo GetNative(DisposableList<IDisposable> marshalled) {
+        internal Unmanaged.VkPipelineVertexInputStateCreateInfo GetNative(DisposableList<IDisposable> natives) {
             var result = new Unmanaged.VkPipelineVertexInputStateCreateInfo();
             result.sType = VkStructureType.PipelineVertexInputStateCreateInfo;
 
-            var attMarshalled = new MarshalledArray<Unmanaged.VkVertexInputAttributeDescription>(vertexAttributeDescriptions);
-            result.vertexAttributeDescriptionCount = (uint)attMarshalled.Count;
-            result.pVertexAttributeDescriptions = attMarshalled.Address;
+            var attNative = new NativeArray<Unmanaged.VkVertexInputAttributeDescription>(vertexAttributeDescriptions);
+            result.vertexAttributeDescriptionCount = (uint)attNative.Count;
+            result.pVertexAttributeDescriptions = attNative.Address;
 
-            var bindMarshalled = new MarshalledArray<Unmanaged.VkVertexInputBindingDescription>(vertexBindingDescriptions);
-            result.vertexBindingDescriptionCount = (uint)bindMarshalled.Count;
-            result.pVertexBindingDescriptions = bindMarshalled.Address;
+            var bindNative = new NativeArray<Unmanaged.VkVertexInputBindingDescription>(vertexBindingDescriptions);
+            result.vertexBindingDescriptionCount = (uint)bindNative.Count;
+            result.pVertexBindingDescriptions = bindNative.Address;
 
-            marshalled.Add(attMarshalled);
-            marshalled.Add(bindMarshalled);
+            natives.Add(attNative);
+            natives.Add(bindNative);
 
             return result;
         }
@@ -145,26 +145,26 @@ namespace CSGL.Vulkan {
             scissors = other.scissors.CloneReadOnly();
         }
 
-        internal Unmanaged.VkPipelineViewportStateCreateInfo GetNative(DisposableList<IDisposable> marshalled) {
+        internal Unmanaged.VkPipelineViewportStateCreateInfo GetNative(DisposableList<IDisposable> natives) {
             var result = new Unmanaged.VkPipelineViewportStateCreateInfo();
             result.sType = VkStructureType.PipelineViewportStateCreateInfo;
 
-            var viewportMarshalled = new MarshalledArray<Unmanaged.VkViewport>(viewports.Count);
+            var viewportsNative = new NativeArray<Unmanaged.VkViewport>(viewports.Count);
             for (int i = 0; i < viewports.Count; i++) {
-                viewportMarshalled[i] = viewports[i].GetNative();
+                viewportsNative[i] = viewports[i].GetNative();
             }
-            result.viewportCount = (uint)viewportMarshalled.Count;
-            result.pViewports = viewportMarshalled.Address;
+            result.viewportCount = (uint)viewportsNative.Count;
+            result.pViewports = viewportsNative.Address;
 
-            var scissorMarshalled = new MarshalledArray<Unmanaged.VkRect2D>(scissors.Count);
+            var scissorsNative = new NativeArray<Unmanaged.VkRect2D>(scissors.Count);
             for (int i = 0; i < scissors.Count; i++) {
-                scissorMarshalled[i] = scissors[i].GetNative();
+                scissorsNative[i] = scissors[i].GetNative();
             }
-            result.scissorCount = (uint)scissorMarshalled.Count;
-            result.pScissors = scissorMarshalled.Address;
+            result.scissorCount = (uint)scissorsNative.Count;
+            result.pScissors = scissorsNative.Address;
 
-            marshalled.Add(viewportMarshalled);
-            marshalled.Add(scissorMarshalled);
+            natives.Add(viewportsNative);
+            natives.Add(scissorsNative);
 
             return result;
         }
@@ -234,7 +234,7 @@ namespace CSGL.Vulkan {
             alphaToOneEnable = other.alphaToOneEnable;
         }
 
-        internal Unmanaged.VkPipelineMultisampleStateCreateInfo GetNative(DisposableList<IDisposable> marshalled) {
+        internal Unmanaged.VkPipelineMultisampleStateCreateInfo GetNative(DisposableList<IDisposable> natives) {
             var result = new Unmanaged.VkPipelineMultisampleStateCreateInfo();
             result.sType = VkStructureType.PipelineMultisampleStateCreateInfo;
             result.rasterizationSamples = rasterizationSamples;
@@ -244,7 +244,7 @@ namespace CSGL.Vulkan {
             if (sampleMask != null) {
                 NativeArray<uint> masks = new NativeArray<uint>(sampleMask);
                 result.pSampleMask = masks.Address;
-                marshalled.Add(masks);
+                natives.Add(masks);
             }
 
             result.alphaToCoverageEnable = alphaToCoverageEnable ? 1u : 0u;
@@ -355,7 +355,7 @@ namespace CSGL.Vulkan {
             blendConstants = other.blendConstants.CloneReadOnly();
         }
 
-        internal Unmanaged.VkPipelineColorBlendStateCreateInfo GetNative(DisposableList<IDisposable> marshalled) {
+        internal Unmanaged.VkPipelineColorBlendStateCreateInfo GetNative(DisposableList<IDisposable> natives) {
             var result = new Unmanaged.VkPipelineColorBlendStateCreateInfo();
             result.sType = VkStructureType.PipelineColorBlendStateCreateInfo;
             result.logicOpEnable = logicOpEnable ? 1u : 0u;
@@ -367,9 +367,9 @@ namespace CSGL.Vulkan {
                 attachments[i] = this.attachments[i].GetNative();
             }
 
-            var attachMarshalled = new MarshalledArray<Unmanaged.VkPipelineColorBlendAttachmentState>(attachments);
-            result.attachmentCount = (uint)attachMarshalled.Count;
-            result.pAttachments = attachMarshalled.Address;
+            var attachNative = new NativeArray<Unmanaged.VkPipelineColorBlendAttachmentState>(attachments);
+            result.attachmentCount = (uint)attachNative.Count;
+            result.pAttachments = attachNative.Address;
 
             if (blendConstants != null) {
                 result.blendConstants_0 = blendConstants[0];
@@ -378,7 +378,7 @@ namespace CSGL.Vulkan {
                 result.blendConstants_3 = blendConstants[3];
             }
 
-            marshalled.Add(attachMarshalled);
+            natives.Add(attachNative);
 
             return result;
         }
@@ -393,18 +393,18 @@ namespace CSGL.Vulkan {
             dynamicStates = other.dynamicStates.CloneReadOnly();
         }
 
-        internal Unmanaged.VkPipelineDynamicStateCreateInfo GetNative(DisposableList<IDisposable> marshalled) {
+        internal Unmanaged.VkPipelineDynamicStateCreateInfo GetNative(DisposableList<IDisposable> natives) {
             var result = new Unmanaged.VkPipelineDynamicStateCreateInfo();
             result.sType = VkStructureType.PipelineDynamicStateCreateInfo;
 
-            var dynamicMarshalled = new NativeArray<int>(dynamicStates.Count);
+            var dynamicNative = new NativeArray<int>(dynamicStates.Count);
             for (int i = 0; i < dynamicStates.Count; i++) {
-                dynamicMarshalled[i] = (int)dynamicStates[i];
+                dynamicNative[i] = (int)dynamicStates[i];
             }
-            result.dynamicStateCount = (uint)dynamicMarshalled.Count;
-            result.pDynamicStates = dynamicMarshalled.Address;
+            result.dynamicStateCount = (uint)dynamicNative.Count;
+            result.pDynamicStates = dynamicNative.Address;
 
-            marshalled.Add(dynamicMarshalled);
+            natives.Add(dynamicNative);
 
             return result;
         }
