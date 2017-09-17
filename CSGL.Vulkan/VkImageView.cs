@@ -5,8 +5,8 @@ namespace CSGL.Vulkan {
         public VkImage image;
         public VkImageViewType viewType;
         public VkFormat format;
-        public Unmanaged.VkComponentMapping components;
-        public Unmanaged.VkImageSubresourceRange subresourceRange;
+        public VkComponentMapping components;
+        public VkImageSubresourceRange subresourceRange;
     }
 
     public class VkImageView : IDisposable, INative<Unmanaged.VkImageView> {
@@ -23,8 +23,8 @@ namespace CSGL.Vulkan {
         public VkImage Image { get; private set; }
         public VkImageViewType ViewType { get; private set; }
         public VkFormat Format { get; private set; }
-        public Unmanaged.VkComponentMapping Components { get; private set; }
-        public Unmanaged.VkImageSubresourceRange SubresourceRange { get; private set; }
+        public VkComponentMapping Components { get; private set; }
+        public VkImageSubresourceRange SubresourceRange { get; private set; }
 
         public VkImageView(VkDevice device, VkImageViewCreateInfo info) {
             if (device == null) throw new ArgumentNullException(nameof(device));
@@ -49,8 +49,8 @@ namespace CSGL.Vulkan {
             info.image = mInfo.image.Native;
             info.viewType = mInfo.viewType;
             info.format = mInfo.format;
-            info.components = mInfo.components;
-            info.subresourceRange = mInfo.subresourceRange;
+            info.components = mInfo.components.GetNative();
+            info.subresourceRange = mInfo.subresourceRange.GetNative();
 
             var result = Device.Commands.createImageView(Device.Native, ref info, Device.Instance.AllocationCallbacks, out imageView);
             if (result != VkResult.Success) throw new ImageViewException(result, string.Format("Error creating image view: {0}", result));
