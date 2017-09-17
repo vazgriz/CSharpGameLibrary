@@ -22,8 +22,7 @@ namespace CSGL.Vulkan {
         Unmanaged.VkInstance instance;
         IntPtr alloc = IntPtr.Zero;
         bool disposed = false;
-
-        Unmanaged.vkGetInstanceProcAddrDelegate getProcAddrDel;
+        
         public InstanceCommands Commands { get; private set; }
         public IList<string> Extensions { get; private set; }
         public IList<string> Layers { get; private set; }
@@ -95,8 +94,6 @@ namespace CSGL.Vulkan {
             ValidateLayers();
 
             CreateInstance(mInfo);
-
-            Unmanaged.VK.Load(ref getProcAddrDel, instance);
 
             Commands = new InstanceCommands(this);
             
@@ -190,7 +187,7 @@ namespace CSGL.Vulkan {
         }
 
         public IntPtr GetProcAddress(string command) {
-            return getProcAddrDel(instance, Interop.GetUTF8(command));
+            return Commands.getProcAddr(instance, Interop.GetUTF8(command));
         }
 
         internal static void Init() {

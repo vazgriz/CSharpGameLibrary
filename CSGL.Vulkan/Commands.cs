@@ -174,6 +174,8 @@ namespace CSGL.Vulkan {
             public vkCreateDeviceDelegate createDevice;
             public vkDestroyDeviceDelegate destroyDevice;
 
+            public vkGetInstanceProcAddrDelegate getProcAddr;
+
             public vkGetPhysicalDevicePropertiesDelegate getProperties;
             public vkGetPhysicalDeviceQueueFamilyPropertiesDelegate getQueueFamilyProperties;
             public vkGetPhysicalDeviceFeaturesDelegate getFeatures;
