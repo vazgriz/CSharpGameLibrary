@@ -365,4 +365,26 @@ namespace CSGL.Vulkan {
             };
         }
     }
+
+    public struct VkStencilOpState {
+        public VkStencilOp failOp;
+        public VkStencilOp passOp;
+        public VkStencilOp depthFailOp;
+        public VkCompareOp compareOp;
+        public uint compareMask;
+        public uint writeMask;
+        public int reference;
+
+        internal Unmanaged.VkStencilOpState GetNative() {
+            return new Unmanaged.VkStencilOpState {
+                failOp = failOp,
+                passOp = passOp,
+                depthFailOp = depthFailOp,
+                compareOp = compareOp,
+                compareMask = compareMask,
+                writeMask = writeMask,
+                reference = (uint)reference
+            };
+        }
+    }
 }

@@ -117,7 +117,7 @@ namespace CSGL.Vulkan {
     }
 
     public class VkPipelineTessellationStateCreateInfo {
-        public uint patchControlPoints;
+        public int patchControlPoints;
 
         public VkPipelineTessellationStateCreateInfo() { }
 
@@ -128,15 +128,15 @@ namespace CSGL.Vulkan {
         internal Unmanaged.VkPipelineTessellationStateCreateInfo GetNative() {
             var result = new Unmanaged.VkPipelineTessellationStateCreateInfo();
             result.sType = VkStructureType.PipelineTessellationStateCreateInfo;
-            result.patchControlPoints = patchControlPoints;
+            result.patchControlPoints = (uint)patchControlPoints;
 
             return result;
         }
     }
 
     public class VkPipelineViewportStateCreateInfo {
-        public IList<Unmanaged.VkViewport> viewports;
-        public IList<Unmanaged.VkRect2D> scissors;
+        public IList<VkViewport> viewports;
+        public IList<VkRect2D> scissors;
 
         public VkPipelineViewportStateCreateInfo() { }
 
@@ -149,11 +149,17 @@ namespace CSGL.Vulkan {
             var result = new Unmanaged.VkPipelineViewportStateCreateInfo();
             result.sType = VkStructureType.PipelineViewportStateCreateInfo;
 
-            var viewportMarshalled = new MarshalledArray<Unmanaged.VkViewport>(viewports);
+            var viewportMarshalled = new MarshalledArray<Unmanaged.VkViewport>(viewports.Count);
+            for (int i = 0; i < viewports.Count; i++) {
+                viewportMarshalled[i] = viewports[i].GetNative();
+            }
             result.viewportCount = (uint)viewportMarshalled.Count;
             result.pViewports = viewportMarshalled.Address;
 
-            var scissorMarshalled = new MarshalledArray<Unmanaged.VkRect2D>(scissors);
+            var scissorMarshalled = new MarshalledArray<Unmanaged.VkRect2D>(scissors.Count);
+            for (int i = 0; i < scissors.Count; i++) {
+                scissorMarshalled[i] = scissors[i].GetNative();
+            }
             result.scissorCount = (uint)scissorMarshalled.Count;
             result.pScissors = scissorMarshalled.Address;
 
@@ -254,8 +260,8 @@ namespace CSGL.Vulkan {
         public VkCompareOp depthCompareOp;
         public bool depthBoundsTestEnable;
         public bool stencilTestEnable;
-        public Unmanaged.VkStencilOpState front;
-        public Unmanaged.VkStencilOpState back;
+        public VkStencilOpState front;
+        public VkStencilOpState back;
         public float minDepthBounds;
         public float maxDepthBounds;
 
@@ -281,8 +287,8 @@ namespace CSGL.Vulkan {
             result.depthCompareOp = depthCompareOp;
             result.depthBoundsTestEnable = depthBoundsTestEnable ? 1u : 0u;
             result.stencilTestEnable = stencilTestEnable ? 1u : 0u;
-            result.front = front;
-            result.back = back;
+            result.front = front.GetNative();
+            result.back = back.GetNative();
             result.minDepthBounds = minDepthBounds;
             result.maxDepthBounds = maxDepthBounds;
 

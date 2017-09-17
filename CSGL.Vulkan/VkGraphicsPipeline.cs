@@ -16,7 +16,7 @@ namespace CSGL.Vulkan {
         public VkPipelineDynamicStateCreateInfo dynamicState;
         public VkPipelineLayout layout;
         public VkRenderPass renderPass;
-        public uint subpass;
+        public int subpass;
         public VkGraphicsPipeline basePipelineHandle;
         public int basePipelineIndex;
     }
@@ -33,7 +33,7 @@ namespace CSGL.Vulkan {
         public VkPipelineColorBlendStateCreateInfo ColorBlendState { get; private set; }
         public VkPipelineDynamicStateCreateInfo DynamicState { get; private set; }
         public VkRenderPass RenderPass { get; private set; }
-        public uint Subpass { get; private set; }
+        public int Subpass { get; private set; }
 
         internal VkGraphicsPipeline(VkDevice device, Unmanaged.VkPipeline pipeline, VkGraphicsPipelineCreateInfo info) {
             Device = device;
@@ -163,7 +163,7 @@ namespace CSGL.Vulkan {
                     info.renderPass = mInfo.renderPass.Native;
                 }
 
-                info.subpass = mInfo.subpass;
+                info.subpass = (uint)mInfo.subpass;
                 if (mInfo.basePipelineHandle != null) {
                     info.basePipelineHandle = mInfo.basePipelineHandle.Native;
                 }
