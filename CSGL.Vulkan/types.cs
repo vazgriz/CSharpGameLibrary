@@ -32,6 +32,11 @@ namespace CSGL.Vulkan {
         public int width;
         public int height;
 
+        internal VkExtent2D(Unmanaged.VkExtent2D other) {
+            width = (int)other.width;
+            height = (int)other.height;
+        }
+
         internal Unmanaged.VkExtent2D GetNative() {
             return new Unmanaged.VkExtent2D {
                 width = (uint)width,

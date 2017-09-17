@@ -35,7 +35,7 @@ namespace CSGL.Vulkan {
     }
 
     public class VkAttachmentReference {
-        public uint attachment;
+        public int attachment;
         public VkImageLayout layout;
 
         public VkAttachmentReference() { }
@@ -51,7 +51,7 @@ namespace CSGL.Vulkan {
         public IList<VkAttachmentReference> inputAttachments;
         public IList<VkAttachmentReference> colorAttachments;
         public IList<VkAttachmentReference> resolveAttachments;
-        public IList<uint> preserveAttachments;
+        public IList<int> preserveAttachments;
         public VkAttachmentReference depthStencilAttachment;
 
         public VkSubpassDescription() { }
@@ -85,8 +85,8 @@ namespace CSGL.Vulkan {
     }
 
     public class VkSubpassDependency {
-        public uint srcSubpass;
-        public uint dstSubpass;
+        public int srcSubpass;
+        public int dstSubpass;
         public VkPipelineStageFlags srcStageMask;
         public VkPipelineStageFlags dstStageMask;
         public VkAccessFlags srcAccessMask;
@@ -109,7 +109,6 @@ namespace CSGL.Vulkan {
     public class VkRenderPass : IDisposable, INative<Unmanaged.VkRenderPass> {
         Unmanaged.VkRenderPass renderPass;
         bool disposed = false;
-        Unmanaged.VkExtent2D granularity;
 
         public VkDevice Device { get; private set; }
 
@@ -119,11 +118,7 @@ namespace CSGL.Vulkan {
             }
         }
 
-        public Unmanaged.VkExtent2D Granularity {
-            get {
-                return granularity;
-            }
-        }
+        public VkExtent2D Granularity { get; private set; }
 
         public IList<VkAttachmentDescription> Attachments { get; private set; }
         public IList<VkSubpassDescription> Subpasses { get; private set; }
@@ -231,7 +226,7 @@ namespace CSGL.Vulkan {
                     if (subpass.inputAttachments != null) {
                         for (int j = 0; j < subpass.inputAttachments.Count; j++) {
                             inputAttachments[j + inputIndex] = new Unmanaged.VkAttachmentReference {
-                                attachment = subpass.inputAttachments[j].attachment,
+                                attachment = (uint)subpass.inputAttachments[j].attachment,
                                 layout = subpass.inputAttachments[j].layout
                             };
                         }
@@ -243,7 +238,7 @@ namespace CSGL.Vulkan {
                     if (subpass.colorAttachments != null) {
                         for (int j = 0; j < subpass.colorAttachments.Count; j++) {
                             colorAttachments[j + colorIndex] = new Unmanaged.VkAttachmentReference {
-                                attachment = subpass.colorAttachments[j].attachment,
+                                attachment = (uint)subpass.colorAttachments[j].attachment,
                                 layout = subpass.colorAttachments[j].layout
                             };
                         }
@@ -255,7 +250,7 @@ namespace CSGL.Vulkan {
                     if (subpass.resolveAttachments != null) {
                         for (int j = 0; j < subpass.resolveAttachments.Count; j++) {
                             resolveAttachments[j + resolveIndex] = new Unmanaged.VkAttachmentReference {
-                                attachment = subpass.resolveAttachments[j].attachment,
+                                attachment = (uint)subpass.resolveAttachments[j].attachment,
                                 layout = subpass.resolveAttachments[j].layout
                             };
                         }
@@ -265,7 +260,7 @@ namespace CSGL.Vulkan {
                     }
                     if (subpass.depthStencilAttachment != null) {
                         depthAttachments[depthIndex] = new Unmanaged.VkAttachmentReference {
-                            attachment = subpass.depthStencilAttachment.attachment,
+                            attachment = (uint)subpass.depthStencilAttachment.attachment,
                             layout = subpass.depthStencilAttachment.layout
                         };
 
@@ -274,7 +269,7 @@ namespace CSGL.Vulkan {
                     }
                     if (subpass.preserveAttachments != null) {
                         for (int j = 0; j < subpass.preserveAttachments.Count; j++) {
-                            preserveAttachments[j + preserveIndex] = subpass.preserveAttachments[j];
+                            preserveAttachments[j + preserveIndex] = (uint)subpass.preserveAttachments[j];
                         }
 
                         subpasses[i].preserveAttachmentCount = (uint)subpass.preserveAttachments.Count;
@@ -287,8 +282,8 @@ namespace CSGL.Vulkan {
 
                 //marshal CreateInfo.dependencies
                 for (int i = 0; i < dependencyCount; i++) {
-                    dependencies[i].srcSubpass = mInfo.dependencies[i].srcSubpass;
-                    dependencies[i].dstSubpass = mInfo.dependencies[i].dstSubpass;
+                    dependencies[i].srcSubpass = (uint)mInfo.dependencies[i].srcSubpass;
+                    dependencies[i].dstSubpass = (uint)mInfo.dependencies[i].dstSubpass;
                     dependencies[i].srcStageMask = mInfo.dependencies[i].srcStageMask;
                     dependencies[i].dstStageMask = mInfo.dependencies[i].dstStageMask;
                     dependencies[i].srcAccessMask = mInfo.dependencies[i].srcAccessMask;
@@ -311,7 +306,9 @@ namespace CSGL.Vulkan {
         }
 
         void GetGranularity() {
-            Device.Commands.getRenderAreaGranularity(Device.Native, renderPass, out granularity);
+            Unmanaged.VkExtent2D granularityNative;
+            Device.Commands.getRenderAreaGranularity(Device.Native, renderPass, out granularityNative);
+            Granularity = new VkExtent2D(granularityNative);
         }
 
         public void Dispose() {
