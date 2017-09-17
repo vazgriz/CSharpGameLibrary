@@ -43,9 +43,9 @@ namespace CSGL.Vulkan {
 
         static internal IList<Unmanaged.VkPipeline> CreatePipelinesInternal(VkDevice device, IList<VkComputePipelineCreateInfo> mInfos, Unmanaged.VkPipelineCache cache) {
             int count = mInfos.Count;
-            var infosMarshalled = new MarshalledArray<Unmanaged.VkComputePipelineCreateInfo>(count);
+            var infosNative = new NativeArray<Unmanaged.VkComputePipelineCreateInfo>(count);
             var pipelineResults = new List<Unmanaged.VkPipeline>(count);
-            var marshalledArrays = new DisposableList<IDisposable>(count);
+            var nativeArrays = new DisposableList<IDisposable>(count);
 
             for (int i = 0; i < count; i++) {
                 var mInfo = mInfos[i];
@@ -53,7 +53,7 @@ namespace CSGL.Vulkan {
                 info.sType = VkStructureType.ComputePipelineCreateInfo;
                 info.flags = mInfo.flags;
 
-                info.stage = mInfo.stage.GetNative(marshalledArrays);
+                info.stage = mInfo.stage.GetNative(nativeArrays);
 
                 info.layout = mInfo.layout.Native;
                 if (mInfo.basePipelineHandle != null) {
@@ -61,17 +61,17 @@ namespace CSGL.Vulkan {
                 }
                 info.basePipelineIndex = mInfo.basePipelineIndex;
 
-                infosMarshalled[i] = info;
+                infosNative[i] = info;
             }
 
-            using (infosMarshalled)
-            using (marshalledArrays) {
+            using (infosNative)
+            using (nativeArrays) {
                 unsafe {
                     var pipelinesNative = stackalloc Unmanaged.VkPipeline[count];
 
                     var result = device.Commands.createComputePipelines(
                         device.Native, cache,
-                        (uint)count, infosMarshalled.Address,
+                        (uint)count, infosNative.Address,
                         device.Instance.AllocationCallbacks, (IntPtr)pipelinesNative);
 
                     if (result != VkResult.Success) throw new PipelineException(result, string.Format("Error creating pipeline: {0}", result));
