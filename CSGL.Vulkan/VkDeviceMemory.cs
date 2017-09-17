@@ -25,14 +25,14 @@ namespace CSGL.Vulkan {
             }
         }
 
-        public ulong Size { get; private set; }
-        public uint MemoryTypeIndex { get; private set; }
+        public long Size { get; private set; }
+        public int MemoryTypeIndex { get; private set; }
 
-        public ulong Commitment {
+        public long Commitment {
             get {
                 ulong result = 0;
                 Device.Commands.getCommitedMemory(Device.Native, deviceMemory, ref result);
-                return result;
+                return (long)result;
             }
         }
 
@@ -43,6 +43,9 @@ namespace CSGL.Vulkan {
             Device = device;
 
             CreateDeviceMemory((ulong)info.allocationSize, (uint)info.memoryTypeIndex);
+
+            Size = info.allocationSize;
+            MemoryTypeIndex = info.memoryTypeIndex;
         }
 
         public VkDeviceMemory(VkDevice device, long allocationSize, int memoryTypeIndex) {
@@ -51,6 +54,9 @@ namespace CSGL.Vulkan {
             Device = device;
 
             CreateDeviceMemory((ulong)allocationSize, (uint)memoryTypeIndex);
+
+            Size = allocationSize;
+            MemoryTypeIndex = memoryTypeIndex;
         }
 
         void CreateDeviceMemory(ulong allocationSize, uint memoryTypeIndex) {
@@ -61,9 +67,6 @@ namespace CSGL.Vulkan {
 
             var result = Device.Commands.allocateMemory(Device.Native, ref info, Device.Instance.AllocationCallbacks, out deviceMemory);
             if (result != VkResult.Success) throw new DeviceMemoryException(result, string.Format("Error allocating device memory: {0}", result));
-
-            Size = allocationSize;
-            MemoryTypeIndex = memoryTypeIndex;
         }
 
         public IntPtr Map(ulong offset, ulong size) {
