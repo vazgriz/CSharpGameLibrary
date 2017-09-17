@@ -138,6 +138,8 @@ namespace CSGL.Vulkan {
         }
 
         public void Bind(VkDeviceMemory memory, long offset) {
+            if (memory == null) throw new ArgumentNullException(nameof(memory));
+
             Device.Commands.bindImageMemory(Device.Native, image, memory.Native, (ulong)offset);
             Memory = memory;
             Offset = offset;
