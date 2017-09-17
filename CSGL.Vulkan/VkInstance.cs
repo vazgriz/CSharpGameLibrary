@@ -40,19 +40,12 @@ namespace CSGL.Vulkan {
             }
         }
 
-        static Unmanaged.vkCreateInstanceDelegate createInstance;
-        static Unmanaged.vkEnumerateInstanceExtensionPropertiesDelegate enumerateExtensionProperties;
-        static Unmanaged.vkEnumerateInstanceLayerPropertiesDelegate enumerateLayerProperties;
-
         static ReadOnlyCollection<VkExtension> extensionsReadOnly;
         static ReadOnlyCollection<VkLayer> layersReadOnly;
-
-        static bool initialized = false;
 
         public static IList<VkExtension> AvailableExtensions {
             get {
                 if (extensionsReadOnly == null) {
-                    if (!initialized) Init();
                     GetExtensions();
                 }
                 return extensionsReadOnly;
@@ -62,7 +55,6 @@ namespace CSGL.Vulkan {
         public static IList<VkLayer> AvailableLayers {
             get {
                 if (layersReadOnly == null) {
-                    if (!initialized) Init();
                     GetLayers();
                 }
                 return layersReadOnly;
@@ -85,7 +77,6 @@ namespace CSGL.Vulkan {
 
         void Init(VkInstanceCreateInfo mInfo) {
             if (!GLFW.GLFW.VulkanSupported()) throw new InstanceException("Vulkan not supported");
-            if (!initialized) Init();
 
             Extensions = mInfo.extensions.CloneReadOnly();
             Layers = mInfo.layers.CloneReadOnly();
@@ -137,7 +128,7 @@ namespace CSGL.Vulkan {
             using (appInfoNative)
             using (extensionsNative)
             using (layersNative) {
-                var result = createInstance(ref info, alloc, out instance);
+                var result = Unmanaged.VK.CreateInstance(ref info, alloc, out instance);
                 if (result != VkResult.Success) throw new InstanceException(result, string.Format("Error creating instance: {0}", result));
             }
         }
@@ -190,21 +181,14 @@ namespace CSGL.Vulkan {
             return Commands.getProcAddr(instance, Interop.GetUTF8(command));
         }
 
-        internal static void Init() {
-            Unmanaged.VK.Load(ref createInstance);
-            Unmanaged.VK.Load(ref enumerateExtensionProperties);
-            Unmanaged.VK.Load(ref enumerateLayerProperties);
-            initialized = true;
-        }
-
         static void GetLayers() {
             var availableLayers = new List<VkLayer>();
 
             uint lCount = 0;
-            enumerateLayerProperties(ref lCount, IntPtr.Zero);
+            Unmanaged.VK.EnumerateInstanceLayerProperties(ref lCount, IntPtr.Zero);
 
             using (var layersNative = new NativeArray<Unmanaged.VkLayerProperties>((int)lCount)) {
-                enumerateLayerProperties(ref lCount, layersNative.Address);
+                Unmanaged.VK.EnumerateInstanceLayerProperties(ref lCount, layersNative.Address);
 
                 for (int i = 0; i < lCount; i++) {
                     var layer = layersNative[i];
@@ -219,10 +203,10 @@ namespace CSGL.Vulkan {
             var availableExtensions = new List<VkExtension>();
 
             uint exCount = 0;
-            enumerateExtensionProperties(null, ref exCount, IntPtr.Zero);
+            Unmanaged.VK.EnumerateInstanceExtensionProperties(null, ref exCount, IntPtr.Zero);
 
             using (var extensionsNative = new NativeArray<Unmanaged.VkExtensionProperties>((int)exCount)) {
-                enumerateExtensionProperties(null, ref exCount, extensionsNative.Address);
+                Unmanaged.VK.EnumerateInstanceExtensionProperties(null, ref exCount, extensionsNative.Address);
 
                 for (int i = 0; i < exCount; i++) {
                     var extension = extensionsNative[i];
