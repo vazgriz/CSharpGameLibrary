@@ -140,6 +140,20 @@ namespace CSGL.Vulkan {
         }
     }
 
+    public struct VkImageSubresource {
+        public VkImageAspectFlags aspectMask;
+        public int mipLevel;
+        public int arrayLayer;
+
+        internal Unmanaged.VkImageSubresource GetNative() {
+            return new Unmanaged.VkImageSubresource {
+                aspectMask = aspectMask,
+                mipLevel = (uint)mipLevel,
+                arrayLayer = (uint)arrayLayer
+            };
+        }
+    }
+
     public struct VkImageSubresourceRange {
         public VkImageAspectFlags aspectMask;
         public int baseMipLevel;
