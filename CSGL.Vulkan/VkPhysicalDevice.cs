@@ -10,6 +10,8 @@ namespace CSGL.Vulkan {
         public VkPhysicalDeviceProperties Properties { get; private set; }
         public IList<VkQueueFamily> QueueFamilies { get; private set; }
         public IList<VkExtension> AvailableExtensions { get; private set; }
+        public VkPhysicalDeviceFeatures Features { get; private set; }
+        public VkPhysicalDeviceMemoryProperties MemoryProperties { get; private set; }
 
         public Unmanaged.VkPhysicalDevice Native {
             get {
@@ -17,14 +19,6 @@ namespace CSGL.Vulkan {
             }
         }
         
-        public VkPhysicalDeviceFeatures Features { get; private set; }
-
-        Unmanaged.VkPhysicalDeviceMemoryProperties memoryProperties;
-        public Unmanaged.VkPhysicalDeviceMemoryProperties MemoryProperties {
-            get {
-                return memoryProperties;
-            }
-        }
 
         internal VkPhysicalDevice(VkInstance instance, Unmanaged.VkPhysicalDevice physicalDevice) {
             Instance = instance;
@@ -91,7 +85,7 @@ namespace CSGL.Vulkan {
         void GetMemoryProperties() {
             using (var prop = new Native<Unmanaged.VkPhysicalDeviceMemoryProperties>()) {
                 Instance.Commands.getMemoryProperties(physicalDevice, prop.Address);
-                memoryProperties = prop.Value;
+                MemoryProperties = new VkPhysicalDeviceMemoryProperties(prop.Value);
             }
         }
 
