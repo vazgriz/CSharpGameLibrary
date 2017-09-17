@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 
 namespace CSGL.Vulkan {
-    public partial struct VkMemoryType {
+    public struct VkMemoryType {
         public VkMemoryPropertyFlags propertyFlags;
         public int heapIndex;
 
@@ -12,7 +12,7 @@ namespace CSGL.Vulkan {
         }
     }
     
-    public partial struct VkMemoryHeap {
+    public struct VkMemoryHeap {
         public long size;
         public VkMemoryHeapFlags flags;
 
