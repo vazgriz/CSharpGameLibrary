@@ -189,6 +189,7 @@ namespace CSGL.Vulkan {
 
         public VkResult Present(VkPresentInfo info) {
             if (info == null) throw new ArgumentNullException(nameof(info));
+            if (info.swapchains == null) throw new ArgumentNullException(nameof(info.swapchains));
 
             unsafe {
                 var waitSemaphoresNative = stackalloc Unmanaged.VkSemaphore[info.waitSemaphores.Count];
