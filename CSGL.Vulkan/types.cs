@@ -45,6 +45,12 @@ namespace CSGL.Vulkan {
         public int height;
         public int depth;
 
+        internal VkExtent3D(Unmanaged.VkExtent3D other) {
+            width = (int)other.width;
+            height = (int)other.height;
+            depth = (int)other.depth;
+        }
+
         internal Unmanaged.VkExtent3D GetNative() {
             return new Unmanaged.VkExtent3D {
                 width = (uint)width,
@@ -397,6 +403,50 @@ namespace CSGL.Vulkan {
                 type = type,
                 descriptorCount = (uint)descriptorCount
             };
+        }
+    }
+
+    public struct VkSubresourceLayout {
+        public long offset;
+        public long size;
+        public long rowPitch;
+        public long arrayPitch;
+        public long depthPitch;
+
+        internal VkSubresourceLayout(Unmanaged.VkSubresourceLayout other) {
+            offset = (long)other.offset;
+            size = (long)other.size;
+            rowPitch = (long)other.rowPitch;
+            arrayPitch = (long)other.arrayPitch;
+            depthPitch = (long)other.depthPitch;
+        }
+    }
+
+    public struct VkSparseImageFormatProperties {
+        public VkImageAspectFlags aspectMask;
+        public VkExtent3D imageGranularity;
+        public VkSparseImageFormatFlags flags;
+
+        internal VkSparseImageFormatProperties(Unmanaged.VkSparseImageFormatProperties other) {
+            aspectMask = other.aspectMask;
+            imageGranularity = new VkExtent3D(other.imageGranularity);
+            flags = other.flags;
+        }
+    }
+
+    public struct VkSparseImageMemoryRequirements {
+        public VkSparseImageFormatProperties formatProperties;
+        public int imageMipTailFirstLod;
+        public long imageMipTailSize;
+        public long imageMipTailOffset;
+        public long imageMipTailStride;
+
+        internal VkSparseImageMemoryRequirements(Unmanaged.VkSparseImageMemoryRequirements other) {
+            formatProperties = new VkSparseImageFormatProperties(other.formatProperties);
+            imageMipTailFirstLod = (int)other.imageMipTailFirstLod;
+            imageMipTailSize = (long)other.imageMipTailSize;
+            imageMipTailOffset = (long)other.imageMipTailOffset;
+            imageMipTailStride = (long)other.imageMipTailStride;
         }
     }
 }

@@ -6,14 +6,14 @@ namespace CSGL.Vulkan {
         public VkImageCreateFlags flags;
         public VkImageType imageType;
         public VkFormat format;
-        public Unmanaged.VkExtent3D extent;
-        public uint mipLevels;
-        public uint arrayLayers;
+        public VkExtent3D extent;
+        public int mipLevels;
+        public int arrayLayers;
         public VkSampleCountFlags samples;
         public VkImageTiling tiling;
         public VkImageUsageFlags usage;
         public VkSharingMode sharingMode;
-        public IList<uint> queueFamilyIndices;
+        public IList<int> queueFamilyIndices;
         public VkImageLayout initialLayout;
     }
 
@@ -43,21 +43,21 @@ namespace CSGL.Vulkan {
             }
         }
 
-        public IList<Unmanaged.VkSparseImageMemoryRequirements> SparseRequirements { get; private set; }
+        public IList<VkSparseImageMemoryRequirements> SparseRequirements { get; private set; }
 
         public VkImageCreateFlags Flags { get; private set; }
         public VkImageType ImageType { get; private set; }
         public VkFormat Format { get; private set; }
-        public Unmanaged.VkExtent3D Extent { get; private set; }
-        public uint MipLevels { get; private set; }
-        public uint ArrayLayers { get; private set; }
+        public VkExtent3D Extent { get; private set; }
+        public int MipLevels { get; private set; }
+        public int ArrayLayers { get; private set; }
         public VkSampleCountFlags Samples { get; private set; }
         public VkImageTiling Tiling { get; private set; }
         public VkImageUsageFlags Usage { get; private set; }
         public VkSharingMode SharingMode { get; private set; }
-        public IList<uint> QueueFamilyIndices { get; private set; }
+        public IList<int> QueueFamilyIndices { get; private set; }
 
-        public ulong Offset { get; private set; }
+        public long Offset { get; private set; }
         public VkDeviceMemory Memory { get; private set; }
 
         internal VkImage(VkDevice device, Unmanaged.VkImage image, VkFormat format) { //for images that are implicitly created, eg a swapchains's images
@@ -99,9 +99,9 @@ namespace CSGL.Vulkan {
                 info.flags = mInfo.flags;
                 info.imageType = mInfo.imageType;
                 info.format = mInfo.format;
-                info.extent = mInfo.extent;
-                info.mipLevels = mInfo.mipLevels;
-                info.arrayLayers = mInfo.arrayLayers;
+                info.extent = mInfo.extent.GetNative();
+                info.mipLevels = (uint)mInfo.mipLevels;
+                info.arrayLayers = (uint)mInfo.arrayLayers;
                 info.samples = mInfo.samples;
                 info.tiling = mInfo.tiling;
                 info.usage = mInfo.usage;
@@ -121,7 +121,7 @@ namespace CSGL.Vulkan {
         }
 
         void GetSparseRequirements() {
-            var sparseRequirements = new List<Unmanaged.VkSparseImageMemoryRequirements>();
+            var sparseRequirements = new List<VkSparseImageMemoryRequirements>();
 
             uint count = 0;
             Device.Commands.getImageSparseRequirements(Device.Native, image, ref count, IntPtr.Zero);
@@ -130,26 +130,26 @@ namespace CSGL.Vulkan {
 
             using (sparseRequirementsNative) {
                 for (int i = 0; i < count; i++) {
-                    var requirement = sparseRequirementsNative[i];
-                    sparseRequirements.Add(requirement);
+                    sparseRequirements.Add(new VkSparseImageMemoryRequirements(sparseRequirementsNative[i]));
                 }
             }
 
             SparseRequirements = sparseRequirements.AsReadOnly();
         }
 
-        public void Bind(VkDeviceMemory memory, ulong offset) {
-            Device.Commands.bindImageMemory(Device.Native, image, memory.Native, offset);
+        public void Bind(VkDeviceMemory memory, long offset) {
+            Device.Commands.bindImageMemory(Device.Native, image, memory.Native, (ulong)offset);
             Memory = memory;
             Offset = offset;
         }
 
-        public Unmanaged.VkSubresourceLayout GetSubresourceLayout(Unmanaged.VkImageSubresource subresource) {
-            var result = new Unmanaged.VkSubresourceLayout();
+        public VkSubresourceLayout GetSubresourceLayout(VkImageSubresource subresource) {
+            var subresourceNative = subresource.GetNative();
+            var resultNative = new Unmanaged.VkSubresourceLayout();
 
-            Device.Commands.getSubresourceLayout(Device.Native, image, ref subresource, out result);
+            Device.Commands.getSubresourceLayout(Device.Native, image, ref subresourceNative, out resultNative);
 
-            return result;
+            return new VkSubresourceLayout(resultNative);
         }
 
         public void Dispose() {
