@@ -11,7 +11,7 @@ namespace CSGL.GLFW {
         WindowPtr window;
 
         Monitor monitor;
-        Bitmap<Color4b>[] icons;
+        IList<Bitmap<Color4b>> icons;
 
         string title;
 
@@ -56,7 +56,7 @@ namespace CSGL.GLFW {
             }
         }
 
-        public Bitmap<Color4b>[] Icons {
+        public IList<Bitmap<Color4b>> Icons {
             get {
                 return icons;
             }
@@ -168,7 +168,7 @@ namespace CSGL.GLFW {
         public event Action<MouseButton, KeyAction, KeyMod> OnMouseButton = delegate { };
         public event Action<double, double> OnScroll = delegate { };
 
-        public event Action<string[]> OnPathDrop = delegate { };
+        public event Action<IList<string>> OnPathDrop = delegate { };
 
         protected Window() {
             //empty constructor so derived classes can manually call CreateWindow
@@ -336,14 +336,14 @@ namespace CSGL.GLFW {
         }
 
         void PathDrop(WindowPtr window, int count, IntPtr stringArray) {
-            string[] result = new string[count];
+            IList<string> result = new List<string>(count);
 
             unsafe
             {
                 byte** paths = (byte**)stringArray;
 
                 for (int i = 0; i < count; i++) {
-                    result[i] = Interop.GetString(paths[i]);
+                    result.Add(Interop.GetString(paths[i]));
                 }
             }
 
