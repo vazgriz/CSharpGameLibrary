@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace CSGL.Vulkan {
     public class VkQueryPoolCreateInfo {
         public VkQueryType queryType;
-        public uint queryCount;
+        public int queryCount;
         public VkQueryPipelineStatisticFlags pipelineStatistics;
     }
 
@@ -21,7 +21,7 @@ namespace CSGL.Vulkan {
 
         public VkDevice Device { get; private set; }
         public VkQueryType QueryType { get; private set; }
-        public uint QueryCount { get; private set; }
+        public int QueryCount { get; private set; }
         public VkQueryPipelineStatisticFlags PipelineStatistics { get; private set; }
 
         public VkQueryPool(VkDevice device, VkQueryPoolCreateInfo info) {
@@ -41,7 +41,7 @@ namespace CSGL.Vulkan {
             var info = new Unmanaged.VkQueryPoolCreateInfo();
             info.sType = VkStructureType.QueryPoolCreateInfo;
             info.queryType = mInfo.queryType;
-            info.queryCount = mInfo.queryCount;
+            info.queryCount = (uint)mInfo.queryCount;
             info.pipelineStatistics = mInfo.pipelineStatistics;
 
             var result = Device.Commands.createQueryPool(Device.Native, ref info, Device.Instance.AllocationCallbacks, out queryPool);
