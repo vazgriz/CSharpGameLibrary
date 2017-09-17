@@ -7,14 +7,14 @@ using CSGL.Vulkan;
 namespace CSGL.Vulkan {
     public class VkSwapchainCreateInfo {
         public VkSurface surface;
-        public uint minImageCount;
+        public int minImageCount;
         public VkFormat imageFormat;
         public VkColorSpaceKHR imageColorSpace;
-        public Unmanaged.VkExtent2D imageExtent;
-        public uint imageArrayLayers;
+        public VkExtent2D imageExtent;
+        public int imageArrayLayers;
         public VkImageUsageFlags imageUsage;
         public VkSharingMode imageSharingMode;
-        public IList<uint> queueFamilyIndices;
+        public IList<int> queueFamilyIndices;
         public VkSurfaceTransformFlagsKHR preTransform;
         public VkCompositeAlphaFlagsKHR compositeAlpha;
         public VkPresentModeKHR presentMode;
@@ -31,11 +31,11 @@ namespace CSGL.Vulkan {
         public IList<VkImage> Images { get; private set; }
         public VkFormat Format { get; private set; }
         public VkColorSpaceKHR ColorSpace { get; private set; }
-        public Unmanaged.VkExtent2D Extent { get; private set; }
-        public uint ArrayLayers { get; private set; }
+        public VkExtent2D Extent { get; private set; }
+        public int ArrayLayers { get; private set; }
         public VkImageUsageFlags Usage { get; private set; }
         public VkSharingMode SharingMode { get; private set; }
-        public IList<uint> QueueFamilyIndices { get; private set; }
+        public IList<int> QueueFamilyIndices { get; private set; }
         public VkSurfaceTransformFlagsKHR PreTransform { get; private set; }
         public VkCompositeAlphaFlagsKHR CompositeAlpha { get; private set; }
         public VkPresentModeKHR PresentMode { get; private set; }
@@ -93,31 +93,36 @@ namespace CSGL.Vulkan {
         void CreateSwapchain(VkSwapchainCreateInfo mInfo) {
             if (mInfo.surface == null) throw new ArgumentNullException(nameof(mInfo.surface));
 
-            var info = new Unmanaged.VkSwapchainCreateInfoKHR();
-            info.sType = VkStructureType.SwapchainCreateInfoKhr;
-            info.surface = mInfo.surface.Native;
-            info.minImageCount = mInfo.minImageCount;
-            info.imageFormat = mInfo.imageFormat;
-            info.imageColorSpace = mInfo.imageColorSpace;
-            info.imageExtent = mInfo.imageExtent;
-            info.imageArrayLayers = mInfo.imageArrayLayers;
-            info.imageUsage = mInfo.imageUsage;
-            info.imageSharingMode = mInfo.imageSharingMode;
+            unsafe {
+                int indicesCount = 0;
+                if (mInfo.queueFamilyIndices != null) indicesCount = mInfo.queueFamilyIndices.Count;
 
-            var indicesMarshalled = new NativeArray<uint>(mInfo.queueFamilyIndices);
-            info.queueFamilyIndexCount = (uint)indicesMarshalled.Count;
-            info.pQueueFamilyIndices = indicesMarshalled.Address;
+                var info = new Unmanaged.VkSwapchainCreateInfoKHR();
+                info.sType = VkStructureType.SwapchainCreateInfoKhr;
+                info.surface = mInfo.surface.Native;
+                info.minImageCount = (uint)mInfo.minImageCount;
+                info.imageFormat = mInfo.imageFormat;
+                info.imageColorSpace = mInfo.imageColorSpace;
+                info.imageExtent = mInfo.imageExtent.GetNative();
+                info.imageArrayLayers = (uint)mInfo.imageArrayLayers;
+                info.imageUsage = mInfo.imageUsage;
+                info.imageSharingMode = mInfo.imageSharingMode;
 
-            info.preTransform = mInfo.preTransform;
-            info.compositeAlpha = mInfo.compositeAlpha;
-            info.presentMode = mInfo.presentMode;
-            info.clipped = mInfo.clipped ? 1u : 0u;
+                var indicesNative = stackalloc uint[indicesCount];
+                if (mInfo.queueFamilyIndices != null) Interop.Copy(mInfo.queueFamilyIndices, (IntPtr)indicesNative);
 
-            if (mInfo.oldSwapchain != null) {
-                info.oldSwapchain = mInfo.oldSwapchain.Native;
-            }
+                info.queueFamilyIndexCount = (uint)indicesCount;
+                info.pQueueFamilyIndices = (IntPtr)indicesNative;
 
-            using (indicesMarshalled) {
+                info.preTransform = mInfo.preTransform;
+                info.compositeAlpha = mInfo.compositeAlpha;
+                info.presentMode = mInfo.presentMode;
+                info.clipped = mInfo.clipped ? 1u : 0u;
+
+                if (mInfo.oldSwapchain != null) {
+                    info.oldSwapchain = mInfo.oldSwapchain.Native;
+                }
+                
                 var result = Device.Commands.createSwapchain(Device.Native, ref info, Device.Instance.AllocationCallbacks, out swapchain);
                 if (result != VkResult.Success) throw new SwapchainException(result, string.Format("Error creating swapchain: {0}", result));
             }
