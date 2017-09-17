@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace CSGL.Vulkan {
     public class VkSpecializationInfo {
-        public IList<Unmanaged.VkSpecializationMapEntry> mapEntries;
+        public IList<VkSpecializationMapEntry> mapEntries;
         public IList<byte> data;
 
         public VkSpecializationInfo() { }
@@ -14,16 +14,26 @@ namespace CSGL.Vulkan {
         }
 
         internal IntPtr GetNative(DisposableList<IDisposable> natives) {
-            var entriesNative = new NativeArray<Unmanaged.VkSpecializationMapEntry>(mapEntries);
-            var dataNative = new NativeArray<byte>(data);
-            natives.Add(entriesNative);
-            natives.Add(dataNative);
-
             var info = new Unmanaged.VkSpecializationInfo();
-            info.mapEntryCount = (uint)entriesNative.Count;
-            info.pMapEntries = entriesNative.Address;
-            info.dataSize = (IntPtr)dataNative.Count;
-            info.pData = dataNative.Address;
+
+            if (mapEntries != null) {
+                var entriesNative = new NativeArray<Unmanaged.VkSpecializationMapEntry>(mapEntries.Count);
+                for (int i = 0; i < mapEntries.Count; i++) {
+                    entriesNative[i] = mapEntries[i].GetNative();
+                }
+                natives.Add(entriesNative);
+
+                info.mapEntryCount = (uint)entriesNative.Count;
+                info.pMapEntries = entriesNative.Address;
+            }
+
+            if (data != null) {
+                var dataNative = new NativeArray<byte>(data);
+                natives.Add(dataNative);
+
+                info.dataSize = (IntPtr)dataNative.Count;
+                info.pData = dataNative.Address;
+            }
 
             var infoNative = new Native<Unmanaged.VkSpecializationInfo>(info);
             natives.Add(infoNative);
@@ -66,8 +76,8 @@ namespace CSGL.Vulkan {
     }
 
     public class VkPipelineVertexInputStateCreateInfo {
-        public IList<Unmanaged.VkVertexInputBindingDescription> vertexBindingDescriptions;
-        public IList<Unmanaged.VkVertexInputAttributeDescription> vertexAttributeDescriptions;
+        public IList<VkVertexInputBindingDescription> vertexBindingDescriptions;
+        public IList<VkVertexInputAttributeDescription> vertexAttributeDescriptions;
 
         public VkPipelineVertexInputStateCreateInfo() { }
 
@@ -80,16 +90,27 @@ namespace CSGL.Vulkan {
             var result = new Unmanaged.VkPipelineVertexInputStateCreateInfo();
             result.sType = VkStructureType.PipelineVertexInputStateCreateInfo;
 
-            var attNative = new NativeArray<Unmanaged.VkVertexInputAttributeDescription>(vertexAttributeDescriptions);
-            result.vertexAttributeDescriptionCount = (uint)attNative.Count;
-            result.pVertexAttributeDescriptions = attNative.Address;
+            if (vertexAttributeDescriptions != null) {
+                var attNative = new NativeArray<Unmanaged.VkVertexInputAttributeDescription>(vertexAttributeDescriptions.Count);
+                for (int i = 0; i < vertexAttributeDescriptions.Count; i++) {
+                    attNative[i] = vertexAttributeDescriptions[i].GetNative();
+                }
+                result.vertexAttributeDescriptionCount = (uint)attNative.Count;
+                result.pVertexAttributeDescriptions = attNative.Address;
 
-            var bindNative = new NativeArray<Unmanaged.VkVertexInputBindingDescription>(vertexBindingDescriptions);
-            result.vertexBindingDescriptionCount = (uint)bindNative.Count;
-            result.pVertexBindingDescriptions = bindNative.Address;
+                natives.Add(attNative);
+            }
 
-            natives.Add(attNative);
-            natives.Add(bindNative);
+            if (vertexBindingDescriptions != null) {
+                var bindNative = new NativeArray<Unmanaged.VkVertexInputBindingDescription>(vertexBindingDescriptions.Count);
+                for (int i = 0; i < vertexBindingDescriptions.Count; i++) {
+                    bindNative[i] = vertexBindingDescriptions[i].GetNative();
+                }
+                result.vertexBindingDescriptionCount = (uint)bindNative.Count;
+                result.pVertexBindingDescriptions = bindNative.Address;
+
+                natives.Add(bindNative);
+            }
 
             return result;
         }

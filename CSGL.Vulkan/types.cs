@@ -548,4 +548,48 @@ namespace CSGL.Vulkan {
             colorSpace = other.colorSpace;
         }
     }
+
+    public struct VkSpecializationMapEntry {
+        public int constantID;
+        public int offset;
+        public long size;
+
+        internal Unmanaged.VkSpecializationMapEntry GetNative() {
+            return new Unmanaged.VkSpecializationMapEntry {
+                constantID = (uint)constantID,
+                offset = (uint)offset,
+                size = (IntPtr)size
+            };
+        }
+    }
+
+    public struct VkVertexInputBindingDescription {
+        public int binding;
+        public int stride;
+        public VkVertexInputRate inputRate;
+
+        internal Unmanaged.VkVertexInputBindingDescription GetNative() {
+            return new Unmanaged.VkVertexInputBindingDescription {
+                binding = (uint)binding,
+                stride = (uint)stride,
+                inputRate = inputRate
+            };
+        }
+    }
+    
+    public struct VkVertexInputAttributeDescription {
+        public int location;
+        public int binding;
+        public VkFormat format;
+        public int offset;
+
+        internal Unmanaged.VkVertexInputAttributeDescription GetNative() {
+            return new Unmanaged.VkVertexInputAttributeDescription {
+                location = (uint)location,
+                binding = (uint)binding,
+                format = format,
+                offset = (uint)offset
+            };
+        }
+    }
 }
