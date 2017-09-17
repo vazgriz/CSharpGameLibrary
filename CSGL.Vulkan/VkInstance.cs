@@ -24,8 +24,8 @@ namespace CSGL.Vulkan {
         bool disposed = false;
         
         public InstanceCommands Commands { get; private set; }
-        public IList<string> Extensions { get; private set; }
-        public IList<string> Layers { get; private set; }
+        public IList<VkExtension> Extensions { get; private set; }
+        public IList<VkLayer> Layers { get; private set; }
         public IList<VkPhysicalDevice> PhysicalDevices { get; private set; }
 
         public Unmanaged.VkInstance Native {
@@ -78,11 +78,8 @@ namespace CSGL.Vulkan {
         void Init(VkInstanceCreateInfo mInfo) {
             if (!GLFW.GLFW.VulkanSupported()) throw new InstanceException("Vulkan not supported");
 
-            Extensions = mInfo.extensions.CloneReadOnly();
-            Layers = mInfo.layers.CloneReadOnly();
-
-            ValidateExtensions();
-            ValidateLayers();
+            ValidateExtensions(mInfo.extensions);
+            ValidateLayers(mInfo.layers);
 
             CreateInstance(mInfo);
 
@@ -147,34 +144,48 @@ namespace CSGL.Vulkan {
             PhysicalDevices = physicalDevices.AsReadOnly();
         }
 
-        void ValidateExtensions() {
-            foreach (var ex in Extensions) {
-                bool found = false;
+        void ValidateExtensions(IList<string> requested) {
+            var extensions = new List<VkExtension>();
 
-                foreach (var available in AvailableExtensions) {
-                    if (available.Name == ex) {
-                        found = true;
-                        break;
+            if (requested != null) {
+                foreach (var ex in requested) {
+                    bool found = false;
+
+                    foreach (var available in AvailableExtensions) {
+                        if (available.Name == ex) {
+                            found = true;
+                            extensions.Add(available);
+                            break;
+                        }
                     }
-                }
 
-                if (!found) throw new InstanceException(string.Format("Requested extension not available: {0}", ex));
+                    if (!found) throw new InstanceException(string.Format("Requested extension not available: {0}", ex));
+                }
             }
+
+            Extensions = extensions.AsReadOnly();
         }
 
-        void ValidateLayers() {
-            foreach (var layer in Layers) {
-                bool found = false;
+        void ValidateLayers(IList<string> requested) {
+            var layers = new List<VkLayer>();
 
-                foreach (var available in AvailableLayers) {
-                    if (available.Name == layer) {
-                        found = true;
-                        break;
+            if (requested != null) {
+                foreach (var layer in requested) {
+                    bool found = false;
+
+                    foreach (var available in AvailableLayers) {
+                        if (available.Name == layer) {
+                            found = true;
+                            layers.Add(available);
+                            break;
+                        }
                     }
-                }
 
-                if (!found) throw new InstanceException(string.Format("Requested layer not available: {0}", layer));
+                    if (!found) throw new InstanceException(string.Format("Requested layer not available: {0}", layer));
+                }
             }
+
+            Layers = layers.AsReadOnly();
         }
 
         public IntPtr GetProcAddress(string command) {
