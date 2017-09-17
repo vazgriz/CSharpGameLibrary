@@ -158,6 +158,22 @@ namespace CSGL.Vulkan {
         }
     }
 
+    public struct VkImageSubresourceLayers {
+        public VkImageAspectFlags aspectMask;
+        public int mipLevel;
+        public int baseArrayLayer;
+        public int layerCount;
+
+        internal Unmanaged.VkImageSubresourceLayers GetNative() {
+            return new Unmanaged.VkImageSubresourceLayers {
+                aspectMask = aspectMask,
+                mipLevel = (uint)mipLevel,
+                baseArrayLayer = (uint)baseArrayLayer,
+                layerCount = (uint)layerCount
+            };
+        }
+    }
+
     public struct VkClearColorValue {
         Unmanaged.VkClearColorValue value;
 
@@ -228,6 +244,110 @@ namespace CSGL.Vulkan {
             return new Unmanaged.VkClearValue {
                 color = color.GetNative(),
                 depthStencil = depthStencil.GetNative()
+            };
+        }
+    }
+
+    public struct VkBufferCopy {
+        public long srcOffset;
+        public long dstOffset;
+        public long size;
+
+        internal Unmanaged.VkBufferCopy GetNative() {
+            return new Unmanaged.VkBufferCopy {
+                srcOffset = (ulong)srcOffset,
+                dstOffset = (ulong)dstOffset,
+                size = (ulong)size
+            };
+        }
+    }
+
+    public struct VkImageCopy {
+        public VkImageSubresourceLayers srcSubresource;
+        public VkOffset3D srcOffset;
+        public VkImageSubresourceLayers dstSubresource;
+        public VkOffset3D dstOffset;
+        public VkExtent3D extent;
+
+        internal Unmanaged.VkImageCopy GetNative() {
+            return new Unmanaged.VkImageCopy {
+                srcSubresource = srcSubresource.GetNative(),
+                srcOffset = srcOffset.GetNative(),
+                dstSubresource = dstSubresource.GetNative(),
+                dstOffset = dstOffset.GetNative(),
+                extent = extent.GetNative()
+            };
+        }
+    }
+
+    public struct VkImageBlit {
+        public VkImageSubresourceLayers srcSubresource;
+        public VkOffset3D srcOffsets0;
+        public VkOffset3D srcOffsets1;
+        public VkImageSubresourceLayers dstSubresource;
+        public VkOffset3D dstOffsets0;
+        public VkOffset3D dstOffsets1;
+
+        internal Unmanaged.VkImageBlit GetNative() {
+            return new Unmanaged.VkImageBlit {
+                srcSubresource = srcSubresource.GetNative(),
+                srcOffsets_0 = srcOffsets0.GetNative(),
+                srcOffsets_1 = srcOffsets1.GetNative(),
+                dstSubresource = dstSubresource.GetNative(),
+                dstOffsets_0 = dstOffsets0.GetNative(),
+                dstOffsets_1 = dstOffsets1.GetNative()
+            };
+        }
+    }
+
+    public struct VkBufferImageCopy {
+        public long bufferOffset;
+        public int bufferRowLength;
+        public int bufferImageHeight;
+        public VkImageSubresourceLayers imageSubresource;
+        public VkOffset3D imageOffset;
+        public VkExtent3D imageExtent;
+
+        internal Unmanaged.VkBufferImageCopy GetNative() {
+            return new Unmanaged.VkBufferImageCopy {
+                bufferOffset = (ulong)bufferOffset,
+                bufferRowLength = (uint)bufferRowLength,
+                bufferImageHeight = (uint)bufferImageHeight,
+                imageSubresource = imageSubresource.GetNative(),
+                imageOffset = imageOffset.GetNative(),
+                imageExtent = imageExtent.GetNative()
+            };
+        }
+    }
+
+    public struct VkClearAttachment {
+        public VkImageAspectFlags aspectMask;
+        public int colorAttachment;
+        public VkClearValue clearValue;
+
+        internal Unmanaged.VkClearAttachment GetNative() {
+            return new Unmanaged.VkClearAttachment {
+                aspectMask = aspectMask,
+                colorAttachment = (uint)colorAttachment,
+                clearValue = clearValue.GetNative()
+            };
+        }
+    }
+
+    public struct VkImageResolve {
+        public VkImageSubresourceLayers srcSubresource;
+        public VkOffset3D srcOffset;
+        public VkImageSubresourceLayers dstSubresource;
+        public VkOffset3D dstOffset;
+        public VkExtent3D extent;
+
+        internal Unmanaged.VkImageResolve GetNative() {
+            return new Unmanaged.VkImageResolve {
+                srcSubresource = srcSubresource.GetNative(),
+                srcOffset = srcOffset.GetNative(),
+                dstSubresource = dstSubresource.GetNative(),
+                dstOffset = dstOffset.GetNative(),
+                extent = extent.GetNative()
             };
         }
     }
