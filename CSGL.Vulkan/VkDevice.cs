@@ -14,8 +14,6 @@ namespace CSGL.Vulkan {
 
         Dictionary<QueueID, VkQueue> queues;
 
-        Unmanaged.vkGetDeviceProcAddrDelegate getDeviceProcAddr;
-
         public DeviceCommands Commands { get; private set; }
 
         public VkInstance Instance { get; private set; }
@@ -42,8 +40,7 @@ namespace CSGL.Vulkan {
             ValidateExtensions();
 
             CreateDevice(info);
-
-            Unmanaged.VK.Load(ref getDeviceProcAddr, Instance);
+            
             Commands = new DeviceCommands(this);
 
             GetQueues(info);
@@ -134,7 +131,7 @@ namespace CSGL.Vulkan {
         }
 
         public IntPtr GetProcAdddress(string command) {
-            return getDeviceProcAddr(device, Interop.GetUTF8(command));
+            return Commands.getProcAddr(device, Interop.GetUTF8(command));
         }
 
         public void WaitIdle() {

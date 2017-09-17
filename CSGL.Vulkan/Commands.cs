@@ -9,6 +9,8 @@ namespace CSGL.Vulkan {
         public class DeviceCommands {
             public vkDeviceWaitIdleDelegate waitDeviceIdle;
 
+            public vkGetDeviceProcAddrDelegate getProcAddr;
+
             public vkGetDeviceQueueDelegate getDeviceQueue;
             public vkQueueSubmitDelegate queueSubmit;
             public vkQueuePresentKHRDelegate queuePresent;
