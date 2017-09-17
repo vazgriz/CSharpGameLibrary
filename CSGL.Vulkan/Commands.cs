@@ -173,7 +173,6 @@ namespace CSGL.Vulkan {
         public class InstanceCommands {
             public vkCreateDeviceDelegate createDevice;
             public vkDestroyDeviceDelegate destroyDevice;
-            public vkGetDeviceProcAddrDelegate getDeviceProcAddr;
 
             public vkGetPhysicalDevicePropertiesDelegate getProperties;
             public vkGetPhysicalDeviceQueueFamilyPropertiesDelegate getQueueFamilyProperties;
