@@ -61,7 +61,7 @@ namespace CSGL.Vulkan {
 
         public VkPhysicalDeviceFeatures() { }
 
-        internal VkPhysicalDeviceFeatures(VkPhysicalDeviceFeatures other) {
+        public VkPhysicalDeviceFeatures(VkPhysicalDeviceFeatures other) {
             robustBufferAccess = other.robustBufferAccess;
             fullDrawIndexUint32 = other.fullDrawIndexUint32;
             imageCubeArray = other.imageCubeArray;
