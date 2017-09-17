@@ -62,6 +62,8 @@ namespace CSGL.Vulkan {
         }
 
         public void Merge(IList<VkPipelineCache> srcCaches) {
+            if (srcCaches == null) throw new ArgumentNullException(nameof(srcCaches));
+
             unsafe {
                 Unmanaged.VkPipelineCache* srcNative = stackalloc Unmanaged.VkPipelineCache[srcCaches.Count];
                 Interop.Marshal<Unmanaged.VkPipelineCache, VkPipelineCache>(srcCaches, srcNative);
