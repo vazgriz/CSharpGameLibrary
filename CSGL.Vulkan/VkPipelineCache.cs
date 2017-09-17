@@ -30,14 +30,18 @@ namespace CSGL.Vulkan {
         void CreateCache(VkPipelineCacheCreateInfo mInfo) {
             if (mInfo.initialData == null) throw new ArgumentNullException(nameof(mInfo.initialData));
 
-            var info = new Unmanaged.VkPipelineCacheCreateInfo();
-            info.sType = VkStructureType.PipelineCacheCreateInfo;
-            info.initialDataSize = (IntPtr)mInfo.initialData.Count;
+            unsafe {
+                int dataSize = 0;
+                if (mInfo.initialData != null) dataSize = mInfo.initialData.Count;
 
-            var initialDataMarshalled = new NativeArray<byte>(mInfo.initialData);
-            info.pInitialData = initialDataMarshalled.Address;
+                var info = new Unmanaged.VkPipelineCacheCreateInfo();
+                info.sType = VkStructureType.PipelineCacheCreateInfo;
+                info.initialDataSize = (IntPtr)mInfo.initialData.Count;
 
-            using (initialDataMarshalled) {
+                var initialDataNative = stackalloc byte[dataSize];
+                if (mInfo.initialData != null) Interop.Copy(mInfo.initialData, (IntPtr)initialDataNative);
+                info.pInitialData = (IntPtr)initialDataNative;
+                
                 var result = Device.Commands.createPipelineCache(Device.Native, ref info, Device.Instance.AllocationCallbacks, out pipelineCache);
                 if (result != VkResult.Success) throw new PipelineCacheException(result, string.Format("Error creating pipeline cache: {0}", result));
             }
