@@ -449,4 +449,48 @@ namespace CSGL.Vulkan {
             imageMipTailStride = (long)other.imageMipTailStride;
         }
     }
+
+    public struct VkFormatProperties {
+        public VkFormatFeatureFlags linearTilingFeatures;
+        public VkFormatFeatureFlags optimalTilingFeatures;
+        public VkFormatFeatureFlags bufferFeatures;
+
+        internal VkFormatProperties(Unmanaged.VkFormatProperties other) {
+            linearTilingFeatures = other.linearTilingFeatures;
+            optimalTilingFeatures = other.optimalTilingFeatures;
+            bufferFeatures = other.bufferFeatures;
+        }
+    }
+
+    public struct VkImageFormatProperties {
+        public VkExtent3D maxExtent;
+        public int maxMipLevels;
+        public int maxArrayLayers;
+        public VkSampleCountFlags sampleCounts;
+        public long maxResourceSize;
+
+        internal VkImageFormatProperties(Unmanaged.VkImageFormatProperties other) {
+            maxExtent = new VkExtent3D(other.maxExtent);
+            maxMipLevels = (int)other.maxMipLevels;
+            maxArrayLayers = (int)other.maxArrayLayers;
+            sampleCounts = other.sampleCounts;
+            maxResourceSize = (long)other.maxResourceSize;
+        }
+    }
+
+    public struct VkPhysicalDeviceSparseProperties {
+        public bool residencyStandard2DBlockShape;
+        public bool residencyStandard2DMultisampleBlockShape;
+        public bool residencyStandard3DBlockShape;
+        public bool residencyAlignedMipSize;
+        public bool residencyNonResidentStrict;
+
+        internal VkPhysicalDeviceSparseProperties(Unmanaged.VkPhysicalDeviceSparseProperties other) {
+            residencyStandard2DBlockShape = other.residencyStandard2DBlockShape != 0;
+            residencyStandard2DMultisampleBlockShape = other.residencyStandard2DMultisampleBlockShape != 0;
+            residencyStandard3DBlockShape = other.residencyStandard3DBlockShape != 0;
+            residencyAlignedMipSize = other.residencyAlignedMipSize != 0;
+            residencyNonResidentStrict = other.residencyNonResidentStrict != 0;
+        }
+    }
 }

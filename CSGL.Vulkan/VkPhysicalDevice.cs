@@ -89,22 +89,22 @@ namespace CSGL.Vulkan {
             }
         }
 
-        public Unmanaged.VkFormatProperties GetFormatProperties(VkFormat format) {
+        public VkFormatProperties GetFormatProperties(VkFormat format) {
             using (var prop = new Native<Unmanaged.VkFormatProperties>()) {
                 Instance.Commands.getPhysicalDeviceFormatProperties(physicalDevice, format, prop.Address);
-                return prop.Value;
+                return new VkFormatProperties(prop.Value);
             }
         }
 
-        public Unmanaged.VkImageFormatProperties GetImageFormatProperties(VkFormat format, VkImageType type, VkImageTiling tiling, VkImageUsageFlags usage, VkImageCreateFlags flags) {
+        public VkImageFormatProperties GetImageFormatProperties(VkFormat format, VkImageType type, VkImageTiling tiling, VkImageUsageFlags usage, VkImageCreateFlags flags) {
             using (var prop = new Native<Unmanaged.VkImageFormatProperties>()) {
                 Instance.Commands.getPhysicalDeviceImageFormatProperties(physicalDevice, format, type, tiling, usage, flags, prop.Address);
-                return prop.Value;
+                return new VkImageFormatProperties(prop.Value);
             }
         }
 
-        public IList<Unmanaged.VkSparseImageFormatProperties> GetSparseImageFormatProperties(VkFormat format, VkImageType type, VkSampleCountFlags samples, VkImageUsageFlags usage, VkImageTiling tiling) {
-            var result = new List<Unmanaged.VkSparseImageFormatProperties>();
+        public IList<VkSparseImageFormatProperties> GetSparseImageFormatProperties(VkFormat format, VkImageType type, VkSampleCountFlags samples, VkImageUsageFlags usage, VkImageTiling tiling) {
+            var result = new List<VkSparseImageFormatProperties>();
 
             uint count = 0;
             Instance.Commands.getPhysicalDeviceSparseImageFormatProperties(physicalDevice, format, type, samples, usage, tiling, ref count, IntPtr.Zero);
@@ -113,8 +113,7 @@ namespace CSGL.Vulkan {
 
             using (resultNative) {
                 for (int i = 0; i < count; i++) {
-                    var prop = resultNative[i];
-                    result.Add(prop);
+                    result.Add(new VkSparseImageFormatProperties(resultNative[i]));
                 }
             }
 
@@ -124,9 +123,9 @@ namespace CSGL.Vulkan {
 
     public class VkQueueFamily {
         public VkQueueFlags Flags { get; private set; }
-        public uint QueueCount { get; private set; }
-        public uint TimestampValidBits { get; private set; }
-        public Unmanaged.VkExtent3D MinImageTransferGranularity { get; private set; }
+        public int QueueCount { get; private set; }
+        public int TimestampValidBits { get; private set; }
+        public VkExtent3D MinImageTransferGranularity { get; private set; }
 
         VkPhysicalDevice pDevice;
         uint index;
@@ -136,9 +135,9 @@ namespace CSGL.Vulkan {
             this.index = index;
 
             Flags = prop.queueFlags;
-            QueueCount = prop.queueCount;
-            TimestampValidBits = prop.timestampValidBits;
-            MinImageTransferGranularity = prop.minImageTransferGranularity;
+            QueueCount = (int)prop.queueCount;
+            TimestampValidBits = (int)prop.timestampValidBits;
+            MinImageTransferGranularity = new VkExtent3D(prop.minImageTransferGranularity);
         }
 
         public bool SurfaceSupported(VkSurface surface) {
@@ -156,7 +155,7 @@ namespace CSGL.Vulkan {
         public uint VendorID { get; private set; }
         public uint DeviceID { get; private set; }
         public Unmanaged.VkPhysicalDeviceLimits Limits { get; private set; }
-        public Unmanaged.VkPhysicalDeviceSparseProperties SparseProperties { get; private set; }
+        public VkPhysicalDeviceSparseProperties SparseProperties { get; private set; }
         public Guid PipelineCache { get; private set; }
 
         internal VkPhysicalDeviceProperties(Unmanaged.VkPhysicalDeviceProperties prop) {
@@ -174,7 +173,7 @@ namespace CSGL.Vulkan {
             VendorID = prop.vendorID;
             DeviceID = prop.deviceID;
             Limits = prop.limits;
-            SparseProperties = prop.sparseProperties;
+            SparseProperties = new VkPhysicalDeviceSparseProperties(prop.sparseProperties);
         }
     }
 }
