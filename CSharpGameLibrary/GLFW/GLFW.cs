@@ -12,7 +12,7 @@ namespace CSGL.GLFW {
         [ThreadStatic]
         static Exception exception;
         static ErrorCallback errorCallback; //store error callback so it doens't get collected
-        
+
         static MonitorConnectionCallback monitorConnection;
         static JoystickConnectionCallback joystickConnection;
 
@@ -48,7 +48,7 @@ namespace CSGL.GLFW {
             }
             return callbackMap[window];
         }
-        
+
         public static void CheckError() {      //convert GLFW error to managed exception
             if (exception != null) {    //the error callback creates an exception without throwing it
                 var ex = exception;     //and stores it in a thread local variable
@@ -76,22 +76,20 @@ namespace CSGL.GLFW {
         }
 
         public static string GetVersion() {
-            unsafe
-            {
+            unsafe {
                 return Interop.GetString(glfwGetVersionString());
             }
         }
 
-        public static MonitorPtr[] GetMonitors() {
-            unsafe
-            {
+        public static IList<MonitorPtr> GetMonitors() {
+            unsafe {
                 int count;
                 MonitorPtr* ptr = glfwGetMonitors(out count);
                 CheckError();
-                MonitorPtr[] result = new MonitorPtr[count];
+                var result = new List<MonitorPtr>(count);
 
                 for (int i = 0; i < count; i++) {
-                    result[i] = ptr[i];
+                    result.Add(ptr[i]);
                 }
 
                 return result;
@@ -115,8 +113,7 @@ namespace CSGL.GLFW {
         }
 
         public static string GetMonitorName(MonitorPtr monitor) {
-            unsafe
-            {
+            unsafe {
                 var s = glfwGetMonitorName(monitor);
                 CheckError();
                 string result = Interop.GetString(s);
@@ -132,16 +129,15 @@ namespace CSGL.GLFW {
             return old;
         }
 
-        public static VideoMode[] GetVideoModes(MonitorPtr monitor) {
-            unsafe
-            {
+        public static IList<VideoMode> GetVideoModes(MonitorPtr monitor) {
+            unsafe {
                 int count;
                 VideoMode* ptr = glfwGetVideoModes(monitor, out count);
                 CheckError();
-                VideoMode[] result = new VideoMode[count];
+                var result = new List<VideoMode>(count);
 
                 for (int i = 0; i < count; i++) {
-                    result[i] = ptr[i];
+                    result.Add(ptr[i]);
                 }
 
                 return result;
@@ -149,8 +145,7 @@ namespace CSGL.GLFW {
         }
 
         public static VideoMode GetVideoMode(MonitorPtr monitor) {
-            unsafe
-            {
+            unsafe {
                 VideoMode result = *glfwGetVideoMode(monitor);
                 CheckError();
                 return result;
@@ -162,8 +157,7 @@ namespace CSGL.GLFW {
         }
 
         public static GammaRamp GetGammaRamp(MonitorPtr monitor) {
-            unsafe
-            {
+            unsafe {
                 NativeGammaRamp ngr = *glfwGetGammaRamp(monitor);
                 CheckError();
                 return new GammaRamp(ngr);
@@ -171,8 +165,7 @@ namespace CSGL.GLFW {
         }
 
         public static void SetGammaRamp(MonitorPtr monitor, GammaRamp ramp) {
-            unsafe
-            {
+            unsafe {
                 fixed (ushort* r = &ramp.red[0])
                 fixed (ushort* g = &ramp.green[0])
                 fixed (ushort* b = &ramp.blue[0]) {
@@ -223,29 +216,28 @@ namespace CSGL.GLFW {
             CheckError();
         }
 
-        public static void SetWindowIcon(WindowPtr window, Bitmap<Color4b>[] images) {
-            unsafe
-            {
-                if (images == null || images.Length == 0) {
+        public static void SetWindowIcon(WindowPtr window, IList<Bitmap<Color4b>> images) {
+            unsafe {
+                if (images == null || images.Count == 0) {
                     glfwSetWindowIcon(window, 0, null);
                     return;
                 }
 
-                NativeImage[] nimgs = new NativeImage[images.Length];
-                GCHandle[] handles = new GCHandle[images.Length];
+                var nimgs = new NativeImage[images.Count];
+                var handles = new GCHandle[images.Count];
 
                 fixed (NativeImage* ptr = nimgs) {
-                    for (int i = 0; i < images.Length; i++) {
+                    for (int i = 0; i < images.Count; i++) {
                         if (images[i] == null) throw new ArgumentNullException(string.Format("Index {0} of {1}", i, nameof(images)));
 
                         handles[i] = GCHandle.Alloc(images[i].Data, GCHandleType.Pinned);
                         nimgs[i] = new NativeImage(images[i].Width, images[i].Height, (byte*)handles[i].AddrOfPinnedObject());
                     }
 
-                    glfwSetWindowIcon(window, images.Length, ptr);
+                    glfwSetWindowIcon(window, images.Count, ptr);
                     CheckError();
 
-                    for (int i = 0; i < images.Length; i++) {
+                    for (int i = 0; i < images.Count; i++) {
                         handles[i].Free();
                     }
                 }
@@ -459,8 +451,7 @@ namespace CSGL.GLFW {
         public static CursorPtr CreateCursor(Bitmap<Color4b> image, int xHotspot, int yHotspot) {
             if (image == null) throw new ArgumentNullException(nameof(image));
 
-            unsafe
-            {
+            unsafe {
                 fixed (Color4b* data = image.Data) {
                     NativeImage nimg = new NativeImage(image.Width, image.Height, (byte*)data);
                     NativeImage* ptr = &nimg;
@@ -565,39 +556,50 @@ namespace CSGL.GLFW {
             return result;
         }
 
-        public static float[] GetJoystickAxes(int joystick) {
-            unsafe
-            {
+        public static void GetJoystickAxes(int joystick, IList<float> axes) {
+            if (axes == null) throw new ArgumentNullException(nameof(axes));
+            axes.Clear();
+
+            unsafe {
                 int count;
                 float* ptr = glfwGetJoystickAxes(joystick, out count);
-                float[] axes = new float[count];
-                for (int i = 0; i < count; i++) {
-                    axes[i] = ptr[i];
-                }
-                var result = axes;
                 CheckError();
-                return result;
+
+                for (int i = 0; i < count; i++) {
+                    axes.Add(ptr[i]);
+                }
             }
         }
 
-        public static bool[] GetJoystickButtons(int joystick) {
-            unsafe
-            {
+        public static IList<float> GetJoystickAxes(int joystick) {
+            List<float> axes = new List<float>();
+            GetJoystickAxes(joystick, axes);
+            return axes;
+        }
+
+        public static void GetJoystickButtons(int joystick, IList<bool> buttons) {
+            if (buttons == null) throw new ArgumentNullException(nameof(buttons));
+            buttons.Clear();
+
+            unsafe {
                 int count;
                 bool* ptr = glfwGetJoystickButtons(joystick, out count);
-                bool[] buttons = new bool[count];
-                for (int i = 0; i < count; i++) {
-                    buttons[i] = ptr[i];
-                }
-                var result = buttons;
                 CheckError();
-                return result;
+
+                for (int i = 0; i < count; i++) {
+                    buttons.Add(ptr[i]);
+                }
             }
+        }
+
+        public static IList<bool> GetJoystickButtons(int joystick) {
+            List<bool> buttons = new List<bool>();
+            GetJoystickButtons(joystick, buttons);
+            return buttons;
         }
 
         public static string GetJoystickName(int joystick) {
-            unsafe
-            {
+            unsafe {
                 var s = glfwGetJoystickName(joystick);
                 CheckError();
                 var result = Interop.GetString(s);
@@ -619,8 +621,7 @@ namespace CSGL.GLFW {
         }
 
         public static string GetClipboardString(WindowPtr window) {
-            unsafe
-            {
+            unsafe {
                 var s = glfwGetClipboardString(window);
                 CheckError();
                 var result = Interop.GetString(s);
@@ -690,23 +691,24 @@ namespace CSGL.GLFW {
             return result;
         }
 
-        public static string[] GetRequiredInstanceExceptions() {
-            string[] result;
-            unsafe
-            {
+        public static IList<string> GetRequiredInstanceExceptions() {
+            List<string> result;
+
+            unsafe {
                 uint count;
                 byte** strings = glfwGetRequiredInstanceExtensions(out count);
+                CheckError();
 
                 if (strings == null) {
                     result = null;
                 } else {
-                    result = new string[count];
+                    result = new List<string>((int)count);
                     for (int i = 0; i < count; i++) {
-                        result[i] = Interop.GetString(strings[i]);
+                        result.Add(Interop.GetString(strings[i]));
                     }
                 }
             }
-            CheckError();
+
             return result;
         }
 

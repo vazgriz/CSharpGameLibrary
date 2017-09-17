@@ -28,3 +28,5 @@
     - Add Device property
   - VkQueue
     - Add Native property
+- GLFW
+  - Use IList<T> instead of T[]
