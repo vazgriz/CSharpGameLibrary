@@ -154,7 +154,7 @@ namespace CSGL.Vulkan {
         public uint DriverVersion { get; private set; }
         public uint VendorID { get; private set; }
         public uint DeviceID { get; private set; }
-        public Unmanaged.VkPhysicalDeviceLimits Limits { get; private set; }
+        public VkPhysicalDeviceLimits Limits { get; private set; }
         public VkPhysicalDeviceSparseProperties SparseProperties { get; private set; }
         public Guid PipelineCache { get; private set; }
 
@@ -172,7 +172,7 @@ namespace CSGL.Vulkan {
             DriverVersion = prop.driverVersion;
             VendorID = prop.vendorID;
             DeviceID = prop.deviceID;
-            Limits = prop.limits;
+            Limits = new VkPhysicalDeviceLimits(prop.limits);
             SparseProperties = new VkPhysicalDeviceSparseProperties(prop.sparseProperties);
         }
     }
