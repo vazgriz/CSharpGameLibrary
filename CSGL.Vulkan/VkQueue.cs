@@ -4,8 +4,8 @@ using System.Runtime.InteropServices;
 
 namespace CSGL.Vulkan {
     public class VkDeviceQueueCreateInfo {
-        public uint queueFamilyIndex;
-        public uint queueCount;
+        public int queueFamilyIndex;
+        public int queueCount;
         public IList<float> priorities;
     }
 
@@ -19,24 +19,24 @@ namespace CSGL.Vulkan {
     public class VkPresentInfo {
         public IList<VkSemaphore> waitSemaphores;
         public IList<VkSwapchain> swapchains;
-        public IList<uint> imageIndices;
+        public IList<int> imageIndices;
         public IList<VkResult> results;
     }
 
     public class VkSparseMemoryBind {
-        public ulong resourceOffset;
-        public ulong size;
+        public long resourceOffset;
+        public long size;
         public VkDeviceMemory memory;
-        public ulong memoryOffset;
+        public long memoryOffset;
         public VkSparseMemoryBindFlags flags;
     }
 
     public class VkSparseImageMemoryBind {
-        public Unmanaged.VkImageSubresource subresource;
-        public Unmanaged.VkOffset3D offset;
-        public Unmanaged.VkExtent3D extent;
+        public VkImageSubresource subresource;
+        public VkOffset3D offset;
+        public VkExtent3D extent;
         public VkDeviceMemory memory;
-        public ulong memoryOffset;
+        public long memoryOffset;
         public VkSparseMemoryBindFlags flags;
     }
 
@@ -74,14 +74,14 @@ namespace CSGL.Vulkan {
 
         public VkDevice Device { get; private set; }
 
-        public uint FamilyIndex { get; private set; }
+        public int FamilyIndex { get; private set; }
         public VkQueueFamily Family { get; private set; }
         public float Priority { get; private set; }
 
         internal VkQueue(VkDevice device, Unmanaged.VkQueue queue, uint familyIndex, float priority) {
             this.Device = device;
             this.queue = queue;
-            FamilyIndex = familyIndex;
+            FamilyIndex = (int)familyIndex;
             Family = device.PhysicalDevice.QueueFamilies[(int)familyIndex];
             Priority = priority;
         }
@@ -231,10 +231,10 @@ namespace CSGL.Vulkan {
 
         Unmanaged.VkSparseMemoryBind Marshal(VkSparseMemoryBind bind) {
             var result = new Unmanaged.VkSparseMemoryBind();
-            result.resourceOffset = bind.resourceOffset;
-            result.size = bind.size;
+            result.resourceOffset = (ulong)bind.resourceOffset;
+            result.size = (ulong)bind.size;
             result.memory = bind.memory.Native;
-            result.memoryOffset = bind.memoryOffset;
+            result.memoryOffset = (ulong)bind.memoryOffset;
             result.flags = bind.flags;
 
             return result;
@@ -242,11 +242,11 @@ namespace CSGL.Vulkan {
 
         Unmanaged.VkSparseImageMemoryBind MarshalImage(VkSparseImageMemoryBind bind) {
             var result = new Unmanaged.VkSparseImageMemoryBind();
-            result.subresource = bind.subresource;
-            result.offset = bind.offset;
-            result.extent = bind.extent;
+            result.subresource = bind.subresource.GetNative();
+            result.offset = bind.offset.GetNative();
+            result.extent = bind.extent.GetNative();
             result.memory = bind.memory.Native;
-            result.memoryOffset = bind.memoryOffset;
+            result.memoryOffset = (ulong)bind.memoryOffset;
             result.flags = bind.flags;
 
             return result;
