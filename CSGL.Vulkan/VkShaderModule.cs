@@ -23,7 +23,7 @@ namespace CSGL.Vulkan {
             if (device == null) throw new ArgumentNullException(nameof(device));
             if (info == null) throw new ArgumentNullException(nameof(info));
 
-            this.Device = device;
+            Device = device;
 
             CreateShader(info);
         }
