@@ -512,4 +512,40 @@ namespace CSGL.Vulkan {
             };
         }
     }
+
+    public struct VkSurfaceCapabilitiesKHR {
+        public int minImageCount;
+        public int maxImageCount;
+        public VkExtent2D currentExtent;
+        public VkExtent2D minImageExtent;
+        public VkExtent2D maxImageExtent;
+        public int maxImageArrayLayers;
+        public VkSurfaceTransformFlagsKHR supportedTransforms;
+        public VkSurfaceTransformFlagsKHR currentTransform;
+        public VkCompositeAlphaFlagsKHR supportedCompositeAlpha;
+        public VkImageUsageFlags supportedUsageFlags;
+
+        internal VkSurfaceCapabilitiesKHR(Unmanaged.VkSurfaceCapabilitiesKHR other) {
+            minImageCount = (int)other.minImageCount;
+            maxImageCount = (int)other.maxImageCount;
+            currentExtent = new VkExtent2D(other.currentExtent);
+            minImageExtent = new VkExtent2D(other.minImageExtent);
+            maxImageExtent = new VkExtent2D(other.maxImageExtent);
+            maxImageArrayLayers = (int)other.maxImageArrayLayers;
+            supportedTransforms = other.supportedTransforms;
+            currentTransform = other.currentTransform;
+            supportedCompositeAlpha = other.supportedCompositeAlpha;
+            supportedUsageFlags = other.supportedUsageFlags;
+        }
+    }
+
+    public struct VkSurfaceFormatKHR {
+        public VkFormat format;
+        public VkColorSpaceKHR colorSpace;
+
+        internal VkSurfaceFormatKHR(Unmanaged.VkSurfaceFormatKHR other) {
+            format = other.format;
+            colorSpace = other.colorSpace;
+        }
+    }
 }

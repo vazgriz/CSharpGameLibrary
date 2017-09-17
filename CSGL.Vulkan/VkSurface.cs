@@ -42,17 +42,17 @@ namespace CSGL.Vulkan {
             if (result != VkResult.Success) throw new SurfaceException(result, string.Format("Error creating surface: {0}", result));
         }
 
-        public Unmanaged.VkSurfaceCapabilitiesKHR GetCapabilities(VkPhysicalDevice physicalDevice) {
+        public VkSurfaceCapabilitiesKHR GetCapabilities(VkPhysicalDevice physicalDevice) {
             unsafe {
                 Unmanaged.VkSurfaceCapabilitiesKHR cap;
                 Instance.Commands.getCapabilities(physicalDevice.Native, surface, (IntPtr)(&cap));
-                return cap;
+                return new VkSurfaceCapabilitiesKHR(cap);
             }
         }
 
-        public IList<Unmanaged.VkSurfaceFormatKHR> GetFormats(VkPhysicalDevice physicalDevice) {
+        public IList<VkSurfaceFormatKHR> GetFormats(VkPhysicalDevice physicalDevice) {
             unsafe {
-                var formats = new List<Unmanaged.VkSurfaceFormatKHR>();
+                var formats = new List<VkSurfaceFormatKHR>();
 
                 uint count = 0;
                 Instance.Commands.getFormats(physicalDevice.Native, surface, ref count, IntPtr.Zero);
@@ -60,7 +60,7 @@ namespace CSGL.Vulkan {
                 Instance.Commands.getFormats(physicalDevice.Native, surface, ref count, (IntPtr)formatsNative);
                 
                 for (int i = 0; i < count; i++) {
-                    formats.Add(formatsNative[i]);
+                    formats.Add(new VkSurfaceFormatKHR(formatsNative[i]));
                 }
 
                 return formats;
