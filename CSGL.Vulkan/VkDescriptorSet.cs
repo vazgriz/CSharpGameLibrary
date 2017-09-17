@@ -8,8 +8,8 @@ namespace CSGL.Vulkan {
 
     public class VkDescriptorBufferInfo {
         public VkBuffer buffer;
-        public ulong offset;
-        public ulong range;
+        public long offset;
+        public long range;
     }
 
     public class VkDescriptorImageInfo {
@@ -20,8 +20,8 @@ namespace CSGL.Vulkan {
 
     public class VkWriteDescriptorSet {
         public VkDescriptorSet dstSet;
-        public uint dstBinding;
-        public uint dstArrayElement;
+        public int dstBinding;
+        public int dstArrayElement;
         public VkDescriptorType descriptorType;
         public IList<VkDescriptorImageInfo> imageInfo;
         public IList<VkDescriptorBufferInfo> bufferInfo;
@@ -30,12 +30,12 @@ namespace CSGL.Vulkan {
 
     public class VkCopyDescriptorSet {
         public VkDescriptorSet srcSet;
-        public uint srcBinding;
-        public uint srcArrayElement;
+        public int srcBinding;
+        public int srcArrayElement;
         public VkDescriptorSet dstSet;
-        public uint dstBinding;
-        public uint dstArrayElement;
-        public uint descriptorCount;
+        public int dstBinding;
+        public int dstArrayElement;
+        public int descriptorCount;
     }
 
     public class VkDescriptorSet : IDisposable, INative<Unmanaged.VkDescriptorSet> {
@@ -124,8 +124,8 @@ namespace CSGL.Vulkan {
 
                     writesNative[i].sType = VkStructureType.WriteDescriptorSet;
                     writesNative[i].dstSet = mWrite.dstSet.Native;
-                    writesNative[i].dstBinding = mWrite.dstBinding;
-                    writesNative[i].dstArrayElement = mWrite.dstArrayElement;
+                    writesNative[i].dstBinding = (uint)mWrite.dstBinding;
+                    writesNative[i].dstArrayElement = (uint)mWrite.dstArrayElement;
                     writesNative[i].descriptorType = mWrite.descriptorType;
 
                     if (mWrite.bufferInfo != null) {
@@ -135,8 +135,8 @@ namespace CSGL.Vulkan {
                         for (int j = 0; j < writesNative[i].descriptorCount; j++) {
                             var bufferInfo = new Unmanaged.VkDescriptorBufferInfo();
                             bufferInfo.buffer = mWrite.bufferInfo[j].buffer.Native;
-                            bufferInfo.offset = mWrite.bufferInfo[j].offset;
-                            bufferInfo.range = mWrite.bufferInfo[j].range;
+                            bufferInfo.offset = (ulong)mWrite.bufferInfo[j].offset;
+                            bufferInfo.range = (ulong)mWrite.bufferInfo[j].range;
 
                             bufferInfos[bufferIndex] = bufferInfo;
                             bufferIndex++;
@@ -179,12 +179,12 @@ namespace CSGL.Vulkan {
 
                     copiesNative[i].sType = VkStructureType.CopyDescriptorSet;
                     copiesNative[i].srcSet = mCopy.srcSet.Native;
-                    copiesNative[i].srcBinding = mCopy.srcBinding;
-                    copiesNative[i].srcArrayElement = mCopy.srcArrayElement;
+                    copiesNative[i].srcBinding = (uint)mCopy.srcBinding;
+                    copiesNative[i].srcArrayElement = (uint)mCopy.srcArrayElement;
                     copiesNative[i].dstSet = mCopy.dstSet.Native;
-                    copiesNative[i].dstBinding = mCopy.dstBinding;
-                    copiesNative[i].dstArrayElement = mCopy.dstArrayElement;
-                    copiesNative[i].descriptorCount = mCopy.descriptorCount;
+                    copiesNative[i].dstBinding = (uint)mCopy.dstBinding;
+                    copiesNative[i].dstArrayElement = (uint)mCopy.dstArrayElement;
+                    copiesNative[i].descriptorCount = (uint)mCopy.descriptorCount;
                 }
 
                 device.Commands.updateDescriptorSets(device.Native, (uint)writeCount, (IntPtr)writesNative, (uint)copyCount, (IntPtr)copiesNative);
