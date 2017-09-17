@@ -19,6 +19,8 @@
   - VkInstance
     - Change type of Layer property to IList<VkLayer>
     - Change type of Extension property to IList<VkExtension>
+  - VkDevice
+    - Change type of Extensions property to IList<VkExtension>
   - VkDebugReportCallback
     - Change `Callback` property to an event
   - VkShaderModule

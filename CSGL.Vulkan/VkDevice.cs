@@ -20,7 +20,7 @@ namespace CSGL.Vulkan {
         public VkPhysicalDevice PhysicalDevice { get; private set; }
         public VkPhysicalDeviceFeatures Features { get; private set; }
 
-        public IList<string> Extensions { get; private set; }
+        public IList<VkExtension> Extensions { get; private set; }
 
         public Unmanaged.VkDevice Native {
             get {
@@ -35,9 +35,8 @@ namespace CSGL.Vulkan {
             PhysicalDevice = physicalDevice;
             Instance = physicalDevice.Instance;
             queues = new Dictionary<QueueID, VkQueue>();
-
-            Extensions = info.extensions.CloneReadOnly();
-            ValidateExtensions();
+            
+            ValidateExtensions(info.extensions);
 
             CreateDevice(info);
             
@@ -93,19 +92,26 @@ namespace CSGL.Vulkan {
             }
         }
 
-        void ValidateExtensions() {
-            foreach (string ex in Extensions) {
-                bool found = false;
+        void ValidateExtensions(IList<string> requested) {
+            var extensions = new List<VkExtension>();
 
-                foreach (var available in PhysicalDevice.AvailableExtensions) {
-                    if (available.Name == ex) {
-                        found = true;
-                        break;
+            if (requested != null) {
+                foreach (string ex in requested) {
+                    bool found = false;
+
+                    foreach (var available in PhysicalDevice.AvailableExtensions) {
+                        if (available.Name == ex) {
+                            found = true;
+                            extensions.Add(available);
+                            break;
+                        }
                     }
-                }
 
-                if (!found) throw new DeviceException(string.Format("Requested extension not available: {0}", ex));
+                    if (!found) throw new DeviceException(string.Format("Requested extension not available: {0}", ex));
+                }
             }
+
+            Extensions = extensions.AsReadOnly();
         }
 
         void GetQueues(VkDeviceCreateInfo info) {
