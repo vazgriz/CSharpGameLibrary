@@ -48,14 +48,14 @@ namespace CSGL.Vulkan {
             if (result != VkResult.Success) throw new QueryPoolException(result, string.Format("Error creating query pool: {0}", result));
         }
 
-        public VkResult GetResults(uint firstQuery, uint queryCount, byte[] data, ulong stride, VkQueryResultFlags flags) {
+        public VkResult GetResults(int firstQuery, int queryCount, byte[] data, long stride, VkQueryResultFlags flags) {
             unsafe {
                 fixed (byte* ptr = data) {
                     var result = Device.Commands.getQueryPoolResults(
                         Device.Native, queryPool,
-                        firstQuery, queryCount,
+                        (uint)firstQuery, (uint)queryCount,
                         (IntPtr)data.Length, (IntPtr)ptr,
-                        stride, flags
+                        (ulong)stride, flags
                     );
 
                     if (!(result == VkResult.Success || result == VkResult.NotReady)) throw new QueryPoolException(result, string.Format("Error getting results: {0}", result));
@@ -64,15 +64,15 @@ namespace CSGL.Vulkan {
             }
         }
 
-        public VkResult GetResults<T>(uint firstQuery, uint queryCount, IList<T> data, ulong stride, VkQueryResultFlags flags) where T : struct {
+        public VkResult GetResults<T>(int firstQuery, int queryCount, IList<T> data, long stride, VkQueryResultFlags flags) where T : struct {
             unsafe {
                 int size = (int)Interop.SizeOf(data);
                 byte* results = stackalloc byte[size];
                 var result = Device.Commands.getQueryPoolResults(
                     Device.Native, queryPool,
-                    firstQuery, queryCount,
+                    (uint)firstQuery, (uint)queryCount,
                     (IntPtr)size, (IntPtr)results,
-                    stride, flags
+                    (ulong)stride, flags
                 );
 
                 Interop.Copy((IntPtr)results, data);
