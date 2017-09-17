@@ -176,7 +176,8 @@ namespace CSGL.Vulkan {
             public vkGetPhysicalDevicePropertiesDelegate getProperties;
             public vkGetPhysicalDeviceQueueFamilyPropertiesDelegate getQueueFamilyProperties;
             public vkGetPhysicalDeviceFeaturesDelegate getFeatures;
-            public vkEnumerateDeviceExtensionPropertiesDelegate getExtensions;
+            public vkEnumerateDeviceExtensionPropertiesDelegate getDeviceExtensions;
+            public vkEnumerateDeviceLayerPropertiesDelegate getDeviceLayers;
             public vkGetPhysicalDeviceSurfaceSupportKHRDelegate getPresentationSupport;
             public vkGetPhysicalDeviceMemoryPropertiesDelegate getMemoryProperties;
 

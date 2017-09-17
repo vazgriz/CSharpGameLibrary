@@ -68,9 +68,9 @@ namespace CSGL.Vulkan {
         void GetDeviceExtensions() {
             List<VkExtension> availableExtensions = new List<VkExtension>();
             uint count = 0;
-            Instance.Commands.getExtensions(physicalDevice, null, ref count, IntPtr.Zero);
+            Instance.Commands.getDeviceExtensions(physicalDevice, null, ref count, IntPtr.Zero);
             var props = new NativeArray<Unmanaged.VkExtensionProperties>((int)count);
-            Instance.Commands.getExtensions(physicalDevice, null, ref count, props.Address);
+            Instance.Commands.getDeviceExtensions(physicalDevice, null, ref count, props.Address);
 
             using (props) {
                 for (int i = 0; i < count; i++) {
