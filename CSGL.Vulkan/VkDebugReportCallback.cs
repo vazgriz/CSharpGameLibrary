@@ -5,8 +5,8 @@ namespace CSGL.Vulkan {
     public delegate void VkDebugReportCallbackDelegate(
         VkDebugReportFlagsEXT flags,
         VkDebugReportObjectTypeEXT objectType,
-        ulong _object,
-        ulong location,
+        long _object,
+        long location,
         int messageCode,
         string layerPrefix,
         string message
@@ -81,7 +81,7 @@ namespace CSGL.Vulkan {
             string _layerPrefix = Interop.GetString(layerPrefix);
             string _message = Interop.GetString(message);
 
-            Callback?.Invoke(flags, objectType, _object, _location, messageCode, _layerPrefix, _message);
+            Callback?.Invoke(flags, objectType, (long)_object, (long)_location, messageCode, _layerPrefix, _message);
 
             //specification allows the callback to set this value
             //however C# delegates are multicast, so potentially there is no single value to return.
