@@ -50,11 +50,11 @@ namespace CSGL.Vulkan {
             info.flags = mInfo.flags;
             info.maxSets = (uint)mInfo.maxSets;
 
-            var poolSizesMarshalled = new MarshalledArray<Unmanaged.VkDescriptorPoolSize>(mInfo.poolSizes);
-            info.poolSizeCount = (uint)poolSizesMarshalled.Count;
-            info.pPoolSizes = poolSizesMarshalled.Address;
+            var poolSizesNative = new NativeArray<Unmanaged.VkDescriptorPoolSize>(mInfo.poolSizes);
+            info.poolSizeCount = (uint)poolSizesNative.Count;
+            info.pPoolSizes = poolSizesNative.Address;
 
-            using (poolSizesMarshalled) {
+            using (poolSizesNative) {
                 var result = Device.Commands.createDescriptorPool(Device.Native, ref info, Device.Instance.AllocationCallbacks, out descriptorPool);
                 if (result != VkResult.Success) throw new DescriptorPoolException(result, string.Format("Error creating descriptor pool: {0}", result));
             }
