@@ -49,6 +49,8 @@ namespace CSGL.Vulkan {
         }
 
         public VkResult GetResults(int firstQuery, int queryCount, byte[] data, long stride, VkQueryResultFlags flags) {
+            if (data == null) throw new ArgumentNullException(nameof(data));
+
             unsafe {
                 fixed (byte* ptr = data) {
                     var result = Device.Commands.getQueryPoolResults(
@@ -65,6 +67,8 @@ namespace CSGL.Vulkan {
         }
 
         public VkResult GetResults<T>(int firstQuery, int queryCount, IList<T> data, long stride, VkQueryResultFlags flags) where T : struct {
+            if (data == null) throw new ArgumentNullException(nameof(data));
+
             unsafe {
                 int size = (int)Interop.SizeOf(data);
                 byte* results = stackalloc byte[size];
