@@ -43,6 +43,8 @@ namespace CSGL.Vulkan {
         }
 
         public VkSurfaceCapabilitiesKHR GetCapabilities(VkPhysicalDevice physicalDevice) {
+            if (physicalDevice == null) throw new ArgumentNullException(nameof(physicalDevice));
+
             unsafe {
                 Unmanaged.VkSurfaceCapabilitiesKHR cap;
                 Instance.Commands.getCapabilities(physicalDevice.Native, surface, (IntPtr)(&cap));
@@ -51,6 +53,8 @@ namespace CSGL.Vulkan {
         }
 
         public IList<VkSurfaceFormatKHR> GetFormats(VkPhysicalDevice physicalDevice) {
+            if (physicalDevice == null) throw new ArgumentNullException(nameof(physicalDevice));
+
             unsafe {
                 var formats = new List<VkSurfaceFormatKHR>();
 
@@ -68,6 +72,8 @@ namespace CSGL.Vulkan {
         }
 
         public IList<VkPresentModeKHR> GetPresentModes(VkPhysicalDevice physicalDevice) {
+            if (physicalDevice == null) throw new ArgumentNullException(nameof(physicalDevice));
+
             unsafe {
                 var presentModes = new List<VkPresentModeKHR>();
 
