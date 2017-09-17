@@ -3,14 +3,14 @@ using System.Collections.Generic;
 
 namespace CSGL.Vulkan {
     public class VkMemoryAllocateInfo {
-        public ulong allocationSize;
-        public uint memoryTypeIndex;
+        public long allocationSize;
+        public int memoryTypeIndex;
     }
 
     public class VkMappedMemoryRange {
         public VkDeviceMemory memory;
-        public ulong offset;
-        public ulong size;
+        public long offset;
+        public long size;
     }
 
     public class VkDeviceMemory : IDisposable, INative<Unmanaged.VkDeviceMemory> {
@@ -42,15 +42,15 @@ namespace CSGL.Vulkan {
 
             Device = device;
 
-            CreateDeviceMemory(info.allocationSize, info.memoryTypeIndex);
+            CreateDeviceMemory((ulong)info.allocationSize, (uint)info.memoryTypeIndex);
         }
 
-        public VkDeviceMemory(VkDevice device, ulong allocationSize, uint memoryTypeIndex) {
+        public VkDeviceMemory(VkDevice device, long allocationSize, int memoryTypeIndex) {
             if (device == null) throw new ArgumentNullException(nameof(device));
 
             Device = device;
 
-            CreateDeviceMemory(allocationSize, memoryTypeIndex);
+            CreateDeviceMemory((ulong)allocationSize, (uint)memoryTypeIndex);
         }
 
         void CreateDeviceMemory(ulong allocationSize, uint memoryTypeIndex) {
@@ -84,8 +84,8 @@ namespace CSGL.Vulkan {
             var result = new Unmanaged.VkMappedMemoryRange();
             result.sType = VkStructureType.MappedMemoryRange;
             result.memory = range.memory.Native;
-            result.offset = range.offset;
-            result.size = range.size;
+            result.offset = (ulong)range.offset;
+            result.size = (ulong)range.size;
 
             return result;
         }
@@ -127,12 +127,12 @@ namespace CSGL.Vulkan {
             Flush(Device, ranges);
         }
 
-        public void Flush(ulong offset, ulong size) {
+        public void Flush(long offset, long size) {
             var rangeNative = new Unmanaged.VkMappedMemoryRange();
             rangeNative.sType = VkStructureType.MappedMemoryRange;
             rangeNative.memory = deviceMemory;
-            rangeNative.offset = offset;
-            rangeNative.size = size;
+            rangeNative.offset = (ulong)offset;
+            rangeNative.size = (ulong)size;
 
             unsafe {
                 var result = Device.Commands.flushMemory(Device.Native, 1, (IntPtr)(&rangeNative));
@@ -177,12 +177,12 @@ namespace CSGL.Vulkan {
             Invalidate(Device, ranges);
         }
 
-        public void Invalidate(ulong offset, ulong size) {
+        public void Invalidate(long offset, long size) {
             var rangeNative = new Unmanaged.VkMappedMemoryRange();
             rangeNative.sType = VkStructureType.MappedMemoryRange;
             rangeNative.memory = deviceMemory;
-            rangeNative.offset = offset;
-            rangeNative.size = size;
+            rangeNative.offset = (ulong)offset;
+            rangeNative.size = (ulong)size;
 
             unsafe {
                 var result = Device.Commands.invalidateMemory(Device.Native, 1, (IntPtr)(&rangeNative));
