@@ -5,7 +5,7 @@ namespace CSGL.Vulkan {
     public class VkDeviceCreateInfo {
         public IList<string> extensions;
         public IList<VkDeviceQueueCreateInfo> queueCreateInfos;
-        public Unmanaged.VkPhysicalDeviceFeatures features;
+        public VkPhysicalDeviceFeatures features;
     }
 
     public partial class VkDevice : IDisposable, INative<Unmanaged.VkDevice> {
@@ -20,6 +20,7 @@ namespace CSGL.Vulkan {
 
         public VkInstance Instance { get; private set; }
         public VkPhysicalDevice PhysicalDevice { get; set; }
+        public VkPhysicalDeviceFeatures Features { get; private set; }
 
         public IList<string> Extensions { get; private set; }
 
@@ -46,19 +47,24 @@ namespace CSGL.Vulkan {
             Commands = new DeviceCommands(this);
 
             GetQueues(info);
+            if (info.features != null) Features = new VkPhysicalDeviceFeatures(info.features);
         }
 
         void CreateDevice(VkDeviceCreateInfo mInfo) {
             if (mInfo.queueCreateInfos == null) throw new ArgumentNullException(nameof(mInfo.queueCreateInfos));
 
             var extensionsNative = new NativeStringArray(mInfo.extensions);
-            var featuresNative = new Native<Unmanaged.VkPhysicalDeviceFeatures>(mInfo.features);
+            var featuresNative = new Native<Unmanaged.VkPhysicalDeviceFeatures>();
 
             var info = new Unmanaged.VkDeviceCreateInfo();
             info.sType = VkStructureType.DeviceCreateInfo;
             info.enabledExtensionCount = (uint)extensionsNative.Count;
             info.ppEnabledExtensionNames = extensionsNative.Address;
-            info.pEnabledFeatures = featuresNative.Address;
+
+            if (mInfo.features != null) {
+                featuresNative.Value = mInfo.features.GetNative();
+                info.pEnabledFeatures = featuresNative.Address;
+            }
             
             int length = mInfo.queueCreateInfos.Count;
             info.queueCreateInfoCount = (uint)length;
