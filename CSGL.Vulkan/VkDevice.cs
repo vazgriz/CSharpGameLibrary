@@ -54,7 +54,7 @@ namespace CSGL.Vulkan {
             if (mInfo.queueCreateInfos == null) throw new ArgumentNullException(nameof(mInfo.queueCreateInfos));
 
             var extensionsNative = new NativeStringArray(mInfo.extensions);
-            var featuresNative = new Native<Unmanaged.VkPhysicalDeviceFeatures>();
+            Native<Unmanaged.VkPhysicalDeviceFeatures> featuresNative = null;
 
             var info = new Unmanaged.VkDeviceCreateInfo();
             info.sType = VkStructureType.DeviceCreateInfo;
@@ -62,7 +62,7 @@ namespace CSGL.Vulkan {
             info.ppEnabledExtensionNames = extensionsNative.Address;
 
             if (mInfo.features != null) {
-                featuresNative.Value = mInfo.features.GetNative();
+                featuresNative = new Native<Unmanaged.VkPhysicalDeviceFeatures>(mInfo.features.GetNative());
                 info.pEnabledFeatures = featuresNative.Address;
             }
             
