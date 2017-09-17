@@ -242,7 +242,7 @@ namespace CSGL.Vulkan {
             result.minSampleShading = minSampleShading;
 
             if (sampleMask != null) {
-                NativeArray<uint> masks = new NativeArray<uint>(sampleMask);
+                var masks = new NativeArray<uint>(sampleMask);
                 result.pSampleMask = masks.Address;
                 natives.Add(masks);
             }
