@@ -118,17 +118,17 @@ namespace CSGL.Vulkan {
             for (int i = 0; i < info.queueCreateInfos.Count; i++) {
                 var queueInfo = info.queueCreateInfos[i];
                 for (int j = 0; j < queueInfo.queueCount; j++) {
-                    QueueID id = new QueueID((uint)queueInfo.queueFamilyIndex, (uint)j);
+                    QueueID id = new QueueID(queueInfo.queueFamilyIndex, j);
                     Unmanaged.VkQueue temp;
-                    Commands.getDeviceQueue(device, id.familyIndex, id.index, out temp);
+                    Commands.getDeviceQueue(device, (uint)id.familyIndex, (uint)id.index, out temp);
 
-                    var queue = new VkQueue(this, temp, id.familyIndex, queueInfo.priorities[j]);
+                    var queue = new VkQueue(this, temp, (uint)id.familyIndex, queueInfo.priorities[j]);
                     queues.Add(id, queue);
                 }
             }
         }
 
-        public VkQueue GetQueue(uint familyIndex, uint index) {
+        public VkQueue GetQueue(int familyIndex, int index) {
             QueueID id = new QueueID(familyIndex, index);
             if (queues.ContainsKey(id)) {
                 return queues[id];
@@ -162,10 +162,10 @@ namespace CSGL.Vulkan {
         }
 
         struct QueueID : IEquatable<QueueID> {
-            public uint familyIndex;
-            public uint index;
+            public int familyIndex;
+            public int index;
 
-            public QueueID(uint familyIndex, uint index) {
+            public QueueID(int familyIndex, int index) {
                 this.familyIndex = familyIndex;
                 this.index = index;
             }
