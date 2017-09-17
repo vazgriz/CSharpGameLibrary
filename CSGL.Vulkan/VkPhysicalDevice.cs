@@ -141,6 +141,8 @@ namespace CSGL.Vulkan {
         }
 
         public bool SurfaceSupported(VkSurface surface) {
+            if (surface == null) throw new ArgumentNullException(nameof(surface));
+
             bool supported;
             pDevice.Instance.Commands.getPresentationSupport(pDevice.Native, index, surface.Native, out supported);
             return supported;
