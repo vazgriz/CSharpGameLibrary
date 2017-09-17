@@ -19,7 +19,7 @@ namespace CSGL.Vulkan {
         public DeviceCommands Commands { get; private set; }
 
         public VkInstance Instance { get; private set; }
-        public VkPhysicalDevice PhysicalDevice { get; set; }
+        public VkPhysicalDevice PhysicalDevice { get; private set; }
         public VkPhysicalDeviceFeatures Features { get; private set; }
 
         public IList<string> Extensions { get; private set; }
