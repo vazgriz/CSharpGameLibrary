@@ -5,9 +5,9 @@ namespace CSGL.Vulkan {
     public class VkFramebufferCreateInfo {
         public VkRenderPass renderPass;
         public IList<VkImageView> attachments;
-        public uint width;
-        public uint height;
-        public uint layers;
+        public int width;
+        public int height;
+        public int layers;
     }
 
     public class VkFramebuffer : IDisposable, INative<Unmanaged.VkFramebuffer> {
@@ -23,9 +23,9 @@ namespace CSGL.Vulkan {
         public VkDevice Device { get; private set; }
         public VkRenderPass RenderPass { get; private set; }
         public IList<VkImageView> Attachments { get; private set; }
-        public uint Width { get; private set; }
-        public uint Height { get; private set; }
-        public uint Layers { get; private set; }
+        public int Width { get; private set; }
+        public int Height { get; private set; }
+        public int Layers { get; private set; }
 
         public VkFramebuffer(VkDevice device, VkFramebufferCreateInfo info) {
             if (device == null) throw new ArgumentNullException(nameof(device));
@@ -57,9 +57,9 @@ namespace CSGL.Vulkan {
                 info.attachmentCount = (uint)attachmentCount;
                 info.pAttachments = (IntPtr)attachmentsNative;
 
-                info.width = mInfo.width;
-                info.height = mInfo.height;
-                info.layers = mInfo.layers;
+                info.width = (uint)mInfo.width;
+                info.height = (uint)mInfo.height;
+                info.layers = (uint)mInfo.layers;
                 
                 var result = Device.Commands.createFramebuffer(Device.Native, ref info, Device.Instance.AllocationCallbacks, out framebuffer);
                 if (result != VkResult.Success) throw new FramebufferException(result, string.Format("Error creating framebuffer: {0}", result));
