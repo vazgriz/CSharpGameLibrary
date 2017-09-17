@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace CSGL.Vulkan {
     public class VkDescriptorPoolCreateInfo {
         public VkDescriptorPoolCreateFlags flags;
-        public uint maxSets;
+        public int maxSets;
         public IList<Unmanaged.VkDescriptorPoolSize> poolSizes;
     }
 
@@ -22,7 +22,7 @@ namespace CSGL.Vulkan {
         }
 
         public VkDescriptorPoolCreateFlags Flags { get; private set; }
-        public uint MaxSets { get; private set; }
+        public int MaxSets { get; private set; }
         public IList<Unmanaged.VkDescriptorPoolSize> PoolSizes { get; private set; }
 
         List<VkDescriptorSet> descriptorSets;
@@ -48,7 +48,7 @@ namespace CSGL.Vulkan {
             var info = new Unmanaged.VkDescriptorPoolCreateInfo();
             info.sType = VkStructureType.DescriptorPoolCreateInfo;
             info.flags = mInfo.flags;
-            info.maxSets = mInfo.maxSets;
+            info.maxSets = (uint)mInfo.maxSets;
 
             var poolSizesMarshalled = new MarshalledArray<Unmanaged.VkDescriptorPoolSize>(mInfo.poolSizes);
             info.poolSizeCount = (uint)poolSizesMarshalled.Count;
