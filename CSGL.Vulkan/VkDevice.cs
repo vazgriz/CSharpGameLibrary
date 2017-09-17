@@ -114,8 +114,8 @@ namespace CSGL.Vulkan {
         void GetQueues(VkDeviceCreateInfo info) {
             for (int i = 0; i < info.queueCreateInfos.Count; i++) {
                 var queueInfo = info.queueCreateInfos[i];
-                for (int j = 0; j < (int)queueInfo.queueCount; j++) {
-                    QueueID id = new QueueID(queueInfo.queueFamilyIndex, (uint)j);
+                for (int j = 0; j < queueInfo.queueCount; j++) {
+                    QueueID id = new QueueID((uint)queueInfo.queueFamilyIndex, (uint)j);
                     Unmanaged.VkQueue temp;
                     Commands.getDeviceQueue(device, id.familyIndex, id.index, out temp);
 
