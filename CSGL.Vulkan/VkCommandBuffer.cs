@@ -604,8 +604,8 @@ namespace CSGL.Vulkan {
             Device.Commands.cmdSetStencilWriteMask(commandBuffer, faceMask, writeMask);
         }
 
-        public void SetStencilReference(VkStencilFaceFlags faceMask, uint reference) {
-            Device.Commands.cmdSetStencilReference(commandBuffer, faceMask, reference);
+        public void SetStencilReference(VkStencilFaceFlags faceMask, int reference) {
+            Device.Commands.cmdSetStencilReference(commandBuffer, faceMask, (uint)reference);
         }
 
         public void DrawIndirect(VkBuffer buffer, long offset, int drawCount, int stride) {
