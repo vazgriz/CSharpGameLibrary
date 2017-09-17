@@ -128,16 +128,20 @@ namespace CSGL.Vulkan {
             }
         }
 
-        public VkResult AcquireNextImage(ulong timeout, VkSemaphore semaphore, VkFence fence, out uint index) {
+        public VkResult AcquireNextImage(long timeout, VkSemaphore semaphore, VkFence fence, out int index) {
             var semaphoreNative = Unmanaged.VkSemaphore.Null;
             var fenceNative = Unmanaged.VkFence.Null;
             if (semaphore != null) semaphoreNative = semaphore.Native;
             if (fence != null) fenceNative = fence.Native;
 
-            var result = Device.Commands.acquireNextImage(Device.Native, swapchain, timeout, semaphoreNative, fenceNative, out index);
+            uint temp;
+
+            var result = Device.Commands.acquireNextImage(Device.Native, swapchain, (ulong)timeout, semaphoreNative, fenceNative, out temp);
             if (!(result == VkResult.Success || result == VkResult.SuboptimalKhr || result == VkResult.NotReady || result == VkResult.Timeout)) {
                 throw new SwapchainException(result, string.Format("Error acquiring image: {0}", result));
             }
+
+            index = (int)temp;
             return result;
         }
 
