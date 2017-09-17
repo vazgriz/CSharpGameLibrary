@@ -16,13 +16,8 @@ namespace CSGL.Vulkan {
                 return physicalDevice;
             }
         }
-
-        Unmanaged.VkPhysicalDeviceFeatures features;
-        public Unmanaged.VkPhysicalDeviceFeatures Features {
-            get {
-                return features;
-            }
-        }
+        
+        public VkPhysicalDeviceFeatures Features { get; private set; }
 
         Unmanaged.VkPhysicalDeviceMemoryProperties memoryProperties;
         public Unmanaged.VkPhysicalDeviceMemoryProperties MemoryProperties {
@@ -72,7 +67,7 @@ namespace CSGL.Vulkan {
         void GetDeviceFeatures() {
             using (var feat = new Native<Unmanaged.VkPhysicalDeviceFeatures>()) {
                 Instance.Commands.getFeatures(physicalDevice, feat.Address);
-                features = feat.Value;
+                Features = new VkPhysicalDeviceFeatures(feat.Value);
             }
         }
 
