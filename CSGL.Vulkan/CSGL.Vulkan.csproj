@@ -74,6 +74,7 @@
     <Compile Include="VkLayer.cs" />
     <Compile Include="VkPhysicalDevice.cs" />
     <Compile Include="VkPhysicalDeviceFeatures.cs" />
+    <Compile Include="VkPhysicalDeviceLimits.cs" />
     <Compile Include="VkPhysicalDeviceMemoryProperties.cs" />
     <Compile Include="VkPipeline.cs" />
     <Compile Include="VkPipelineCache.cs" />
