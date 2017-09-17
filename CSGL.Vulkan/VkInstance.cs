@@ -106,17 +106,17 @@ namespace CSGL.Vulkan {
         void CreateInstance(VkInstanceCreateInfo mInfo) {
             InteropString appName = null;
             InteropString engineName = null;
-            Marshalled<Unmanaged.VkApplicationInfo> appInfoMarshalled = null;
+            Native<Unmanaged.VkApplicationInfo> appInfoNative = null;
 
-            var extensionsMarshalled = new NativeStringArray(mInfo.extensions);
-            var layersMarshalled = new NativeStringArray(mInfo.layers);
+            var extensionsNative = new NativeStringArray(mInfo.extensions);
+            var layersNative = new NativeStringArray(mInfo.layers);
 
             var info = new Unmanaged.VkInstanceCreateInfo();
             info.sType = VkStructureType.InstanceCreateInfo;
-            info.enabledExtensionCount = (uint)extensionsMarshalled.Count;
-            info.ppEnabledExtensionNames = extensionsMarshalled.Address;
-            info.enabledLayerCount = (uint)layersMarshalled.Count;
-            info.ppEnabledLayerNames = layersMarshalled.Address;
+            info.enabledExtensionCount = (uint)extensionsNative.Count;
+            info.ppEnabledExtensionNames = extensionsNative.Address;
+            info.enabledLayerCount = (uint)layersNative.Count;
+            info.ppEnabledLayerNames = layersNative.Address;
 
             if (mInfo.applicationInfo != null) {
                 var appInfo = new Unmanaged.VkApplicationInfo();
@@ -131,15 +131,15 @@ namespace CSGL.Vulkan {
                 engineName = new InteropString(mInfo.applicationInfo.engineName);
                 appInfo.pEngineName = engineName.Address;
 
-                appInfoMarshalled = new Marshalled<Unmanaged.VkApplicationInfo>(appInfo);
-                info.pApplicationInfo = appInfoMarshalled.Address;
+                appInfoNative = new Native<Unmanaged.VkApplicationInfo>(appInfo);
+                info.pApplicationInfo = appInfoNative.Address;
             }
 
             using (appName) //appName, engineName, and appInfoMarshalled may be null
             using (engineName)
-            using (appInfoMarshalled)
-            using (extensionsMarshalled)
-            using (layersMarshalled) {
+            using (appInfoNative)
+            using (extensionsNative)
+            using (layersNative) {
                 var result = createInstance(ref info, alloc, out instance);
                 if (result != VkResult.Success) throw new InstanceException(result, string.Format("Error creating instance: {0}", result));
             }
@@ -206,11 +206,11 @@ namespace CSGL.Vulkan {
             uint lCount = 0;
             enumerateLayerProperties(ref lCount, IntPtr.Zero);
 
-            using (var layersMarshalled = new MarshalledArray<Unmanaged.VkLayerProperties>((int)lCount)) {
-                enumerateLayerProperties(ref lCount, layersMarshalled.Address);
+            using (var layersNative = new NativeArray<Unmanaged.VkLayerProperties>((int)lCount)) {
+                enumerateLayerProperties(ref lCount, layersNative.Address);
 
                 for (int i = 0; i < lCount; i++) {
-                    var layer = layersMarshalled[i];
+                    var layer = layersNative[i];
                     availableLayers.Add(new VkLayer(layer));
                 }
 
@@ -224,11 +224,11 @@ namespace CSGL.Vulkan {
             uint exCount = 0;
             enumerateExtensionProperties(null, ref exCount, IntPtr.Zero);
 
-            using (var extensionsMarshalled = new MarshalledArray<Unmanaged.VkExtensionProperties>((int)exCount)) {
-                enumerateExtensionProperties(null, ref exCount, extensionsMarshalled.Address);
+            using (var extensionsNative = new NativeArray<Unmanaged.VkExtensionProperties>((int)exCount)) {
+                enumerateExtensionProperties(null, ref exCount, extensionsNative.Address);
 
                 for (int i = 0; i < exCount; i++) {
-                    var extension = extensionsMarshalled[i];
+                    var extension = extensionsNative[i];
                     availableExtensions.Add(new VkExtension(extension));
                 }
             }
