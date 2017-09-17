@@ -49,17 +49,17 @@ namespace CSGL.Vulkan {
             }
         }
 
-        public VkResult Wait(ulong timeout) {
+        public VkResult Wait(long timeout) {
             unsafe {
                 var fenceNative = fence;
-                var result = Device.Commands.waitFences(Device.Native, 1, (IntPtr)(&fenceNative), 0, timeout);
+                var result = Device.Commands.waitFences(Device.Native, 1, (IntPtr)(&fenceNative), 0, (ulong)timeout);
                 if (!(result == VkResult.Success || result == VkResult.Timeout)) throw new FenceException(result, string.Format("Error waiting on fence: {0}", result));
                 return result;
             }
         }
 
         public VkResult Wait() {
-            return Wait(ulong.MaxValue);
+            return Wait(-1);    //equivalent to ulong.MaxValue
         }
 
         public static void Reset(VkDevice device, IList<VkFence> fences) {
