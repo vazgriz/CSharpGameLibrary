@@ -69,9 +69,9 @@ namespace CSGL.Vulkan {
             if (result != VkResult.Success) throw new DeviceMemoryException(result, string.Format("Error allocating device memory: {0}", result));
         }
 
-        public IntPtr Map(ulong offset, ulong size) {
+        public IntPtr Map(long offset, long size) {
             IntPtr data;
-            var result = Device.Commands.mapMemory(Device.Native, deviceMemory, offset, size, VkMemoryMapFlags.None, out data);
+            var result = Device.Commands.mapMemory(Device.Native, deviceMemory, (ulong)offset, (ulong)size, VkMemoryMapFlags.None, out data);
             if (result != VkResult.Success) throw new DeviceMemoryException(result, string.Format("Error mapping memory: {0}", result));
 
             return data;
