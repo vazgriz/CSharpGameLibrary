@@ -17,8 +17,8 @@
     - VK
       - Add Load(VkDevice, string) and Load(VkInstance, string) methods
   - VkInstance
-    - Change type of Layer property to IList<VkLayer>
-    - Change type of Extension property to IList<VkExtension>
+    - Change type of Layers property to IList<VkLayer>
+    - Change type of Extensions property to IList<VkExtension>
   - VkDevice
     - Change type of Extensions property to IList<VkExtension>
   - VkDebugReportCallback
