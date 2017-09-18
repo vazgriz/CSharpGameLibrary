@@ -134,7 +134,6 @@ namespace CSGL.Vulkan {
                 int clearValueCount = 0;
                 if (info.clearValues != null) clearValueCount = info.clearValues.Count;
 
-
                 var infoNative = new Unmanaged.VkRenderPassBeginInfo();
                 infoNative.sType = VkStructureType.RenderPassBeginInfo;
                 infoNative.renderPass = info.renderPass.Native;
