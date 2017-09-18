@@ -396,7 +396,8 @@ namespace CSGL.Vulkan {
 
             unsafe {
                 var clearColorNative = clearColor.GetNative();
-                Device.Commands.cmdClearColorImage(commandBuffer, image.Native, imageLayout, ref clearColorNative, 1, (IntPtr)(&ranges));
+                var rangesNative = ranges.GetNative();
+                Device.Commands.cmdClearColorImage(commandBuffer, image.Native, imageLayout, ref clearColorNative, 1, (IntPtr)(&rangesNative));
             }
         }
 
