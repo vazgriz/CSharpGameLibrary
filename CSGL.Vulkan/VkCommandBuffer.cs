@@ -382,7 +382,9 @@ namespace CSGL.Vulkan {
 
             unsafe {
                 var rangesNative = stackalloc Unmanaged.VkImageSubresourceRange[ranges.Count];
-                Interop.Copy(ranges, (IntPtr)rangesNative);
+                for (int i = 0; i < ranges.Count; i++) {
+                    rangesNative[i] = ranges[i].GetNative();
+                }
                 var clearColorNative = clearColor.GetNative();
 
                 Device.Commands.cmdClearColorImage(commandBuffer, image.Native, imageLayout, ref clearColorNative, (uint)ranges.Count, (IntPtr)rangesNative);
