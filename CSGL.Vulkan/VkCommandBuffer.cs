@@ -209,6 +209,7 @@ namespace CSGL.Vulkan {
         }
 
         public void BindDescriptorSets(VkPipelineBindPoint pipelineBindPoint, VkPipelineLayout layout, int firstSet, IList<VkDescriptorSet> descriptorSets, IList<int> dynamicOffsets) {
+            if (layout == null) throw new ArgumentNullException(nameof(layout));
             if (descriptorSets == null) throw new ArgumentNullException(nameof(descriptorSets));
 
             unsafe {
