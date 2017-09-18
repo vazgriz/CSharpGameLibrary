@@ -58,6 +58,9 @@ namespace CSGL.Vulkan {
         }
 
         internal Unmanaged.VkPipelineShaderStageCreateInfo GetNative(DisposableList<IDisposable> natives) {
+            if (module == null) throw new ArgumentNullException(nameof(module));
+            if (name == null) throw new ArgumentNullException(nameof(name));
+
             var result = new Unmanaged.VkPipelineShaderStageCreateInfo();
             result.sType = VkStructureType.PipelineShaderStageCreateInfo;
             result.stage = stage;
