@@ -763,7 +763,9 @@ namespace CSGL.Vulkan {
 
         public void ClearAttachments(VkClearAttachment attachments, VkClearRect rects) {
             unsafe {
-                Device.Commands.cmdClearAttachments(commandBuffer, 1, (IntPtr)(&attachments), 1, (IntPtr)(&rects));
+                var attachmentsNative = attachments.GetNative();
+                var rectsNative = rects.GetNative();
+                Device.Commands.cmdClearAttachments(commandBuffer, 1, (IntPtr)(&attachmentsNative), 1, (IntPtr)(&rectsNative));
             }
         }
 
