@@ -396,7 +396,7 @@ namespace CSGL.Vulkan {
             result.attachmentCount = (uint)attachmentCount;
             result.pAttachments = attachmentsNative.Address;
 
-            if (blendConstants != null) {
+            if (blendConstants != null && blendConstants.Count >= 4) {
                 result.blendConstants_0 = blendConstants[0];
                 result.blendConstants_1 = blendConstants[1];
                 result.blendConstants_2 = blendConstants[2];
