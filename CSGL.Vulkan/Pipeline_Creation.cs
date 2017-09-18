@@ -419,6 +419,8 @@ namespace CSGL.Vulkan {
         }
 
         internal Unmanaged.VkPipelineDynamicStateCreateInfo GetNative(DisposableList<IDisposable> natives) {
+            if (dynamicStates == null) throw new ArgumentNullException(nameof(dynamicStates));
+
             var result = new Unmanaged.VkPipelineDynamicStateCreateInfo();
             result.sType = VkStructureType.PipelineDynamicStateCreateInfo;
 
