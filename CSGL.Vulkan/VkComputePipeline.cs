@@ -49,6 +49,9 @@ namespace CSGL.Vulkan {
 
             for (int i = 0; i < count; i++) {
                 var mInfo = mInfos[i];
+                if (mInfo.stage == null) throw new ArgumentNullException(nameof(mInfo.stage));
+                if (mInfo.layout == null) throw new ArgumentNullException(nameof(mInfo.layout));
+
                 var info = new Unmanaged.VkComputePipelineCreateInfo();
                 info.sType = VkStructureType.ComputePipelineCreateInfo;
                 info.flags = mInfo.flags;
