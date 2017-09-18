@@ -380,20 +380,21 @@ namespace CSGL.Vulkan {
         }
 
         internal Unmanaged.VkPipelineColorBlendStateCreateInfo GetNative(DisposableList<IDisposable> natives) {
+            int attachmentCount = 0;
+            if (attachments != null) attachmentCount = attachments.Count;
+
             var result = new Unmanaged.VkPipelineColorBlendStateCreateInfo();
             result.sType = VkStructureType.PipelineColorBlendStateCreateInfo;
             result.logicOpEnable = logicOpEnable ? 1u : 0u;
             result.logicOp = logicOp;
-            result.attachmentCount = (uint)this.attachments.Count;
+            result.attachmentCount = (uint)attachmentCount;
 
-            var attachments = new Unmanaged.VkPipelineColorBlendAttachmentState[this.attachments.Count];
-            for (int i = 0; i < attachments.Length; i++) {
-                attachments[i] = this.attachments[i].GetNative();
+            var attachmentsNative = new NativeArray<Unmanaged.VkPipelineColorBlendAttachmentState>(attachmentCount);
+            for (int i = 0; i < attachmentCount; i++) {
+                attachmentsNative[i] = attachments[i].GetNative();
             }
-
-            var attachNative = new NativeArray<Unmanaged.VkPipelineColorBlendAttachmentState>(attachments);
-            result.attachmentCount = (uint)attachNative.Count;
-            result.pAttachments = attachNative.Address;
+            result.attachmentCount = (uint)attachmentCount;
+            result.pAttachments = attachmentsNative.Address;
 
             if (blendConstants != null) {
                 result.blendConstants_0 = blendConstants[0];
@@ -402,7 +403,7 @@ namespace CSGL.Vulkan {
                 result.blendConstants_3 = blendConstants[3];
             }
 
-            natives.Add(attachNative);
+            natives.Add(attachmentsNative);
 
             return result;
         }
