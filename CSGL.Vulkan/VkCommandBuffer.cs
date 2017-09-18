@@ -134,7 +134,6 @@ namespace CSGL.Vulkan {
                 int clearValueCount = 0;
                 if (info.clearValues != null) clearValueCount = info.clearValues.Count;
 
-                var clearValuesNative = stackalloc Unmanaged.VkClearValue[clearValueCount];
 
                 var infoNative = new Unmanaged.VkRenderPassBeginInfo();
                 infoNative.sType = VkStructureType.RenderPassBeginInfo;
@@ -142,7 +141,12 @@ namespace CSGL.Vulkan {
                 infoNative.framebuffer = info.framebuffer.Native;
                 infoNative.renderArea = info.renderArea.GetNative();
 
-                if (info.clearValues != null) Interop.Copy(info.clearValues, (IntPtr)clearValuesNative);
+                var clearValuesNative = stackalloc Unmanaged.VkClearValue[clearValueCount];
+                if (info.clearValues != null) {
+                    for (int i = 0; i < clearValueCount; i++) {
+                        clearValuesNative[i] = info.clearValues[i].GetNative();
+                    }
+                }
                 infoNative.clearValueCount = (uint)clearValueCount;
                 infoNative.pClearValues = (IntPtr)clearValuesNative;
 
