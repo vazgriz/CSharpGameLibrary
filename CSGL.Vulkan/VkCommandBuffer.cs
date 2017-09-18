@@ -540,7 +540,9 @@ namespace CSGL.Vulkan {
 
             unsafe {
                 var viewportsNative = stackalloc Unmanaged.VkViewport[viewports.Count];
-                Interop.Copy(viewports, (IntPtr)viewportsNative);
+                for (int i = 0; i < viewports.Count; i++) {
+                    viewportsNative[i] = viewports[i].GetNative();
+                }
                 Device.Commands.cmdSetViewports(commandBuffer, (uint)firstViewport, (uint)viewports.Count, (IntPtr)viewportsNative);
             }
         }
@@ -557,7 +559,9 @@ namespace CSGL.Vulkan {
 
             unsafe {
                 var scissorsNative = stackalloc Unmanaged.VkRect2D[scissors.Count];
-                Interop.Copy(scissors, (IntPtr)scissorsNative);
+                for (int i = 0; i < scissors.Count; i++) {
+                    scissorsNative[i] = scissors[i].GetNative();
+                }
                 Device.Commands.cmdSetScissor(commandBuffer, (uint)firstScissor, (uint)scissors.Count, (IntPtr)scissorsNative);
             }
         }
