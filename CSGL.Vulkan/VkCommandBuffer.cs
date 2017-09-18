@@ -749,8 +749,10 @@ namespace CSGL.Vulkan {
 
             unsafe {
                 var attachmentsNative = stackalloc Unmanaged.VkClearAttachment[attachments.Count];
+                for (int i = 0; i < attachments.Count; i++) {
+                    attachmentsNative[i] = attachments[i].GetNative();
+                }
                 var rectsNative = stackalloc Unmanaged.VkClearRect[rects.Count];
-                Interop.Copy(attachments, (IntPtr)attachmentsNative);
                 for (int i = 0; i < rects.Count; i++) {
                     rectsNative[i] = rects[i].GetNative();
                 }
