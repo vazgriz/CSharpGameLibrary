@@ -61,7 +61,7 @@ namespace CSGL.Vulkan {
             if (srcCaches == null) throw new ArgumentNullException(nameof(srcCaches));
 
             unsafe {
-                Unmanaged.VkPipelineCache* srcNative = stackalloc Unmanaged.VkPipelineCache[srcCaches.Count];
+                var srcNative = stackalloc Unmanaged.VkPipelineCache[srcCaches.Count];
                 Interop.Marshal<Unmanaged.VkPipelineCache, VkPipelineCache>(srcCaches, srcNative);
 
                 Device.Commands.mergePipelineCache(Device.Native, pipelineCache, (uint)srcCaches.Count, (IntPtr)srcNative);
