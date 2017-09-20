@@ -37,12 +37,6 @@ namespace CSGL.Vulkan {
             }
         }
 
-        public ulong Size {
-            get {
-                return requirements.size;
-            }
-        }
-
         public IList<VkSparseImageMemoryRequirements> SparseRequirements { get; private set; }
 
         public VkImageCreateFlags Flags { get; private set; }
