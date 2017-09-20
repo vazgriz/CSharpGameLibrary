@@ -202,6 +202,21 @@ namespace CSGL.Vulkan {
     public struct VkClearColorValue {
         Unmanaged.VkClearColorValue value;
 
+        public VkClearColorValue(int r, int g, int b, int a) {
+            value = new Unmanaged.VkClearColorValue();
+            Set(r, g, b, a);
+        }
+
+        public VkClearColorValue(uint r, uint g, uint b, uint a) {
+            value = new Unmanaged.VkClearColorValue();
+            Set(r, g, b, a);
+        }
+
+        public VkClearColorValue(float r, float g, float b, float a) {
+            value = new Unmanaged.VkClearColorValue();
+            Set(r, g, b, a);
+        }
+
         internal Unmanaged.VkClearColorValue GetNative() {
             return value;
         }
