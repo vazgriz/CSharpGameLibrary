@@ -519,22 +519,6 @@ namespace CSGL.Vulkan {
             }
         }
 
-        public void WaitEvents(IList<VkEvent> events, VkPipelineStageFlags srcStageMask, VkPipelineStageFlags dstStageMask) {
-            if (events == null) throw new ArgumentNullException(nameof(events));
-
-            unsafe {
-                var eventsNative = stackalloc Unmanaged.VkEvent[events.Count];
-                Interop.Marshal<Unmanaged.VkEvent, VkEvent>(events, eventsNative);
-
-                Device.Commands.cmdWaitEvents(commandBuffer,
-                    (uint)events.Count, (IntPtr)eventsNative,
-                    srcStageMask, dstStageMask,
-                    0, IntPtr.Zero,
-                    0, IntPtr.Zero,
-                    0, IntPtr.Zero);
-            }
-        }
-
         public void SetViewports(int firstViewport, IList<VkViewport> viewports) {
             if (viewports == null) throw new ArgumentNullException(nameof(viewports));
 

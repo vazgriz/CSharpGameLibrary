@@ -7,6 +7,8 @@
     - VK
       - Remove extension commands
       - Remove Load<T>(ref T) method
+  - VkCommandBuffer
+    - Remove WaitEvents overload
       
 ### Changed
 - Vulkan
