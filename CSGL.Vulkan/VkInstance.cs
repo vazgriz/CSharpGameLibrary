@@ -197,10 +197,10 @@ namespace CSGL.Vulkan {
 
             uint lCount = 0;
             Unmanaged.VK.EnumerateInstanceLayerProperties(ref lCount, IntPtr.Zero);
+            var layersNative = new NativeArray<Unmanaged.VkLayerProperties>((int)lCount);
+            Unmanaged.VK.EnumerateInstanceLayerProperties(ref lCount, layersNative.Address);
 
-            using (var layersNative = new NativeArray<Unmanaged.VkLayerProperties>((int)lCount)) {
-                Unmanaged.VK.EnumerateInstanceLayerProperties(ref lCount, layersNative.Address);
-
+            using (layersNative) {
                 for (int i = 0; i < lCount; i++) {
                     var layer = layersNative[i];
                     availableLayers.Add(new VkLayer(layer));
@@ -215,8 +215,9 @@ namespace CSGL.Vulkan {
 
             uint exCount = 0;
             Unmanaged.VK.EnumerateInstanceExtensionProperties(null, ref exCount, IntPtr.Zero);
+            var extensionsNative = new NativeArray<Unmanaged.VkExtensionProperties>((int)exCount);
 
-            using (var extensionsNative = new NativeArray<Unmanaged.VkExtensionProperties>((int)exCount)) {
+            using (extensionsNative) {
                 Unmanaged.VK.EnumerateInstanceExtensionProperties(null, ref exCount, extensionsNative.Address);
 
                 for (int i = 0; i < exCount; i++) {
