@@ -16,8 +16,6 @@ namespace CSGL.Vulkan {
         Unmanaged.VkBuffer buffer;
         bool disposed;
 
-        Unmanaged.VkMemoryRequirements requirements;
-
         public VkDevice Device { get; private set; }
 
         public Unmanaged.VkBuffer Native {
@@ -26,11 +24,7 @@ namespace CSGL.Vulkan {
             }
         }
 
-        public Unmanaged.VkMemoryRequirements Requirements {
-            get {
-                return requirements;
-            }
-        }
+        public VkMemoryRequirements Requirements { get; private set; }
 
         public VkBufferCreateFlags Flags { get; private set; }
         public VkBufferUsageFlags Usage { get; private set; }
@@ -48,7 +42,9 @@ namespace CSGL.Vulkan {
 
             CreateBuffer(info);
 
-            Device.Commands.getMemoryRequirements(Device.Native, buffer, out requirements);
+            Unmanaged.VkMemoryRequirements requirementsNative;
+            Device.Commands.getMemoryRequirements(Device.Native, buffer, out requirementsNative);
+            Requirements = new VkMemoryRequirements(requirementsNative);
 
             Flags = info.flags;
             Usage = info.usage;

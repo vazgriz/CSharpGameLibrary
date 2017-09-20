@@ -21,8 +21,6 @@ namespace CSGL.Vulkan {
         Unmanaged.VkImage image;
         bool disposed = false;
 
-        Unmanaged.VkMemoryRequirements requirements;
-
         public VkDevice Device { get; private set; }
 
         public Unmanaged.VkImage Native {
@@ -31,11 +29,7 @@ namespace CSGL.Vulkan {
             }
         }
 
-        public Unmanaged.VkMemoryRequirements Requirements {
-            get {
-                return requirements;
-            }
-        }
+        public VkMemoryRequirements Requirements { get; private set; }
 
         public IList<VkSparseImageMemoryRequirements> SparseRequirements { get; private set; }
 
@@ -68,7 +62,9 @@ namespace CSGL.Vulkan {
 
             CreateImage(info);
 
-            Device.Commands.getImageMemoryRequirements(Device.Native, image, out requirements);
+            Unmanaged.VkMemoryRequirements requirementsNative;
+            Device.Commands.getImageMemoryRequirements(Device.Native, image, out requirementsNative);
+            Requirements = new VkMemoryRequirements(requirementsNative);
 
             Flags = info.flags;
             ImageType = info.imageType;
