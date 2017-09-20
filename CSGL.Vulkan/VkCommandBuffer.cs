@@ -567,6 +567,7 @@ namespace CSGL.Vulkan {
 
         public void SetBlendConstants(IList<float> blendConstants) {
             if (blendConstants == null) throw new ArgumentNullException(nameof(blendConstants));
+            if (blendConstants.Count < 4) throw new ArgumentException($"{nameof(blendConstants)} must have 4 items");
 
             unsafe {
                 var blendConstantsNative = stackalloc float[4]; //vulkan expects 4 floats
