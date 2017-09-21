@@ -43,7 +43,7 @@ namespace CSGL {
 
         public ref T this[int i] {
             get {
-                if (i < 0 || i >= count) throw new IndexOutOfRangeException(string.Format("Index {0} is out of range [0, {1}]", i, count));
+                if (i < 0 || i >= count) throw new IndexOutOfRangeException(string.Format("Index {0} is out of range [0, {1})", i, count));
                 unsafe {
                     return ref Unsafe.AsRef<T>(GetAddressInternal(i));
                 }
