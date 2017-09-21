@@ -92,11 +92,11 @@ namespace CSGL.Vulkan {
         public void Free(IList<VkCommandBuffer> commandBuffers) {
             if (commandBuffers == null) throw new ArgumentNullException(nameof(commandBuffers));
 
-            using (var commandBuffersMarshalled = new NativeArray<Unmanaged.VkCommandBuffer>(commandBuffers.Count)) {
-                for (int i = 0; i < commandBuffers.Count; i++) {
-                    commandBuffersMarshalled[i] = commandBuffers[i].Native;
-                }
-                Device.Commands.freeCommandBuffers(Device.Native, commandPool, (uint)commandBuffers.Count, commandBuffersMarshalled.Address);
+            unsafe {
+                var commandBuffersNative = stackalloc Unmanaged.VkCommandBuffer[commandBuffers.Count];
+                Interop.Marshal<Unmanaged.VkCommandBuffer, VkCommandBuffer>(commandBuffers, commandBuffersNative);
+
+                Device.Commands.freeCommandBuffers(Device.Native, commandPool, (uint)commandBuffers.Count, (IntPtr)commandBuffersNative);
             }
         }
 
