@@ -35,6 +35,10 @@ namespace CSGL {
         }
 
         public string this[int i] {
+            get {
+                var native = strings[i];
+                return Interop.GetString(native.Address);
+            }
             set {
                 var native = Interop.GetUTF8(value);
                 var nativeString = new NativeArray<byte>(native);

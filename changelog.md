@@ -1,6 +1,10 @@
 # Changelog
 
 ## [Unreleased]
+### Added
+- NativeStringArray
+  - Add getter for indexer
+  
 ### Removed
 - Vulkan
   - Unmanaged
