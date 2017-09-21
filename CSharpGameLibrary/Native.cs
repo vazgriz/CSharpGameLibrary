@@ -48,15 +48,10 @@ namespace CSGL {
             }
         }
 
-        public T Value {
+        public ref T Value {
             get {
                 unsafe {
-                    return Unsafe.Read<T>(ptr);
-                }
-            }
-            set {
-                unsafe {
-                    Unsafe.Write<T>(ptr, value);
+                    return ref Unsafe.AsRef<T>(ptr);
                 }
             }
         }

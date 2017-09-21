@@ -34,3 +34,5 @@
   - Use IList<T> instead of T[]
   - Window
     - Fix PathDrop callback
+- Native
+  - Value returns `ref T`
