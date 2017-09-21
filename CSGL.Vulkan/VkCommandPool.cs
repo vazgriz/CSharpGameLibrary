@@ -98,6 +98,11 @@ namespace CSGL.Vulkan {
 
                 Device.Commands.freeCommandBuffers(Device.Native, commandPool, (uint)commandBuffers.Count, (IntPtr)commandBuffersNative);
             }
+
+            foreach (var commandBuffer in commandBuffers) {
+                commandBuffer.CanDispose = false;
+                this.commandBuffers.Remove(commandBuffer);
+            }
         }
 
         public void Free(VkCommandBuffer commandBuffer) {
@@ -107,6 +112,9 @@ namespace CSGL.Vulkan {
                 Unmanaged.VkCommandBuffer commandBufferNative = commandBuffer.Native;
                 Device.Commands.freeCommandBuffers(Device.Native, commandPool, 1, (IntPtr)(&commandBufferNative));
             }
+
+            commandBuffer.CanDispose = false;
+            commandBuffers.Remove(commandBuffer);
         }
 
         public void Reset(VkCommandPoolResetFlags flags) {
