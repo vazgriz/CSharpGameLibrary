@@ -265,10 +265,8 @@ namespace CSGL.Vulkan {
     }
 
     public struct VkClearDepthStencilValue {
-#pragma warning disable 0649
-        float depth;
-        int stencil;
-#pragma warning restore 0649
+        public float depth;
+        public int stencil;
 
         internal Unmanaged.VkClearDepthStencilValue GetNative() {
             return new Unmanaged.VkClearDepthStencilValue {
