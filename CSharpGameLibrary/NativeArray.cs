@@ -16,6 +16,7 @@ namespace CSGL {
         }
 
         public NativeArray(int count) {
+            if (count < 0) throw new ArgumentOutOfRangeException(nameof(count), "Count must be positive");
             this.count = count;
             Allocate(count);
         }
