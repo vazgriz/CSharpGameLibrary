@@ -36,10 +36,12 @@ namespace CSGL {
 
         public string this[int i] {
             get {
+                if (i < 0 || i >= count) throw new IndexOutOfRangeException(string.Format("Index {0} is out of range [0, {1})", i, count));
                 var native = strings[i];
                 return Interop.GetString(native.Address);
             }
             set {
+                if (i < 0 || i >= count) throw new IndexOutOfRangeException(string.Format("Index {0} is out of range [0, {1})", i, count));
                 var native = Interop.GetUTF8(value);
                 var nativeString = new NativeArray<byte>(native);
                 strings[i] = nativeString;
