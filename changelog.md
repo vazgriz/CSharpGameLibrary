@@ -36,3 +36,5 @@
     - Fix PathDrop callback
 - Native
   - Value returns `ref T`
+- NativeArray
+  - Indexer returns `ref T`

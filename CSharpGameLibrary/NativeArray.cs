@@ -41,17 +41,11 @@ namespace CSGL {
             allocated = true;
         }
 
-        public T this[int i] {
+        public ref T this[int i] {
             get {
                 if (i < 0 || i >= count) throw new IndexOutOfRangeException(string.Format("Index {0} is out of range [0, {1}]", i, count));
                 unsafe {
-                    return Unsafe.Read<T>(GetAddressInternal(i));
-                }
-            }
-            set {
-                if (i < 0 || i >= count) throw new IndexOutOfRangeException(string.Format("Index {0} is out of range [0, {1}]", i, count));
-                unsafe {
-                    Unsafe.Write(GetAddressInternal(i), value);
+                    return ref Unsafe.AsRef<T>(GetAddressInternal(i));
                 }
             }
         }
