@@ -93,7 +93,14 @@ namespace CSGL.Vulkan {
             return result;
         }
 
+        static unsafe void FlushInternal(VkDevice device, int count, Unmanaged.VkMappedMemoryRange* ranges) {
+            var result = device.Commands.flushMemory(device.Native, (uint)count, (IntPtr)ranges);
+            if (result != VkResult.Success) throw new DeviceMemoryException(result, string.Format("Error flushing memory: {0}", result));
+        }
+
         public static void Flush(VkDevice device, IList<VkMappedMemoryRange> ranges) {
+            if (ranges == null) throw new ArgumentNullException(nameof(ranges));
+
             unsafe {
                 var rangesNative = stackalloc Unmanaged.VkMappedMemoryRange[ranges.Count];
 
@@ -101,33 +108,39 @@ namespace CSGL.Vulkan {
                     rangesNative[i] = Marshal(ranges[i]);
                 }
 
-                var result = device.Commands.flushMemory(device.Native, (uint)ranges.Count, (IntPtr)rangesNative);
-                if (result != VkResult.Success) throw new DeviceMemoryException(result, string.Format("Error flushing memory: {0}", result));
+                FlushInternal(device, ranges.Count, rangesNative);
             }
         }
 
         public static void Flush(VkDevice device, VkMappedMemoryRange ranges) {
+            if (ranges == null) throw new ArgumentNullException(nameof(ranges));
+
             var rangeNative = Marshal(ranges);
 
             unsafe {
-                var result = device.Commands.flushMemory(device.Native, 1, (IntPtr)(&rangeNative));
-                if (result != VkResult.Success) throw new DeviceMemoryException(result, string.Format("Error flushing memory: {0}", result));
+                FlushInternal(device, 1, &rangeNative);
             }
         }
 
         public void Flush(IList<VkMappedMemoryRange> ranges) {
             if (ranges == null) throw new ArgumentNullException(nameof(ranges));
 
-            for (int i = 0; i < ranges.Count; i++) {
-                ranges[i].memory = this;
-            }
+            unsafe {
+                var rangesNative = stackalloc Unmanaged.VkMappedMemoryRange[ranges.Count];
 
-            Flush(Device, ranges);
+                for (int i = 0; i < ranges.Count; i++) {
+                    rangesNative[i] = Marshal(ranges[i]);
+                    rangesNative[i].memory = deviceMemory;
+                }
+
+                FlushInternal(Device, ranges.Count, rangesNative);
+            }
         }
 
         public void Flush(VkMappedMemoryRange ranges) {
-            ranges.memory = this;
-            Flush(Device, ranges);
+            if (ranges == null) throw new ArgumentNullException(nameof(ranges));
+
+            Flush(ranges.offset, ranges.size);
         }
 
         public void Flush(long offset, long size) {
@@ -138,45 +151,57 @@ namespace CSGL.Vulkan {
             rangeNative.size = (ulong)size;
 
             unsafe {
-                var result = Device.Commands.flushMemory(Device.Native, 1, (IntPtr)(&rangeNative));
-                if (result != VkResult.Success) throw new DeviceMemoryException(result, string.Format("Error flushing memory: {0}", result));
+                FlushInternal(Device, 1, &rangeNative);
             }
         }
 
+        static unsafe void InvalidateInternal(VkDevice device, int count, Unmanaged.VkMappedMemoryRange* ranges) {
+            var result = device.Commands.invalidateMemory(device.Native, (uint)count, (IntPtr)ranges);
+            if (result != VkResult.Success) throw new DeviceMemoryException(result, string.Format("Error invalidating memory: {0}", result));
+        }
+
         public static void Invalidate(VkDevice device, IList<VkMappedMemoryRange> ranges) {
+            if (ranges == null) throw new ArgumentNullException(nameof(ranges));
+
             unsafe {
                 var rangesNative = stackalloc Unmanaged.VkMappedMemoryRange[ranges.Count];
 
                 for (int i = 0; i < ranges.Count; i++) {
                     rangesNative[i] = Marshal(ranges[i]);
                 }
-                
-                var result = device.Commands.invalidateMemory(device.Native, (uint)ranges.Count, (IntPtr)(&rangesNative));
-                if (result != VkResult.Success) throw new DeviceMemoryException(result, string.Format("Error invalidating memory: {0}", result));
+
+                InvalidateInternal(device, ranges.Count, rangesNative);
             }
         }
 
         public static void Invalidate(VkDevice device, VkMappedMemoryRange ranges) {
+            if (ranges == null) throw new ArgumentNullException(nameof(ranges));
+
             var rangeNative = Marshal(ranges);
 
             unsafe {
-                var result = device.Commands.invalidateMemory(device.Native, 1, (IntPtr)(&rangeNative));
-                if (result != VkResult.Success) throw new DeviceMemoryException(result, string.Format("Error invalidating memory: {0}", result));
+                InvalidateInternal(device, 1, &rangeNative);
             }
         }
 
         public void Invalidate(IList<VkMappedMemoryRange> ranges) {
             if (ranges == null) throw new ArgumentNullException(nameof(ranges));
 
-            for (int i = 0; i < ranges.Count; i++) {
-                ranges[i].memory = this;
-            }
+            unsafe {
+                var rangesNative = stackalloc Unmanaged.VkMappedMemoryRange[ranges.Count];
 
-            Invalidate(Device, ranges);
+                for (int i = 0; i < ranges.Count; i++) {
+                    rangesNative[i] = Marshal(ranges[i]);
+                    rangesNative[i].memory = deviceMemory;
+                }
+
+                InvalidateInternal(Device, ranges.Count, rangesNative);
+            }
         }
 
         public void Invalidate(VkMappedMemoryRange ranges) {
-            ranges.memory = this;
+            if (ranges == null) throw new ArgumentNullException(nameof(ranges));
+
             Invalidate(Device, ranges);
         }
 
@@ -188,8 +213,7 @@ namespace CSGL.Vulkan {
             rangeNative.size = (ulong)size;
 
             unsafe {
-                var result = Device.Commands.invalidateMemory(Device.Native, 1, (IntPtr)(&rangeNative));
-                if (result != VkResult.Success) throw new DeviceMemoryException(result, string.Format("Error invalidating memory: {0}", result));
+                InvalidateInternal(Device, 1, &rangeNative);
             }
         }
 
