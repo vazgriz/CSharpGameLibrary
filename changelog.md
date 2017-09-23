@@ -34,6 +34,8 @@
     - Add Device property
   - VkQueue
     - Add Native property
+  - VkEvent
+    - Make `GetStatus` method into `Status` property
 - GLFW
   - Use IList<T> instead of T[]
   - Window

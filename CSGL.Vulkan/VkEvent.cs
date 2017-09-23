@@ -14,6 +14,14 @@ namespace CSGL.Vulkan {
 
         public VkDevice Device { get; private set; }
 
+        public VkResult Status {
+            get {
+                var result = Device.Commands.getEventStatus(Device.Native, _event);
+                if (!(result == VkResult.EventSet || result == VkResult.EventReset)) throw new EventException(result, string.Format("Error getting event status: {0}", result));
+                return result;
+            }
+        }
+
         public VkEvent(VkDevice device) {
             if (device == null) throw new ArgumentNullException(nameof(device));
 
@@ -28,12 +36,6 @@ namespace CSGL.Vulkan {
 
             var result = Device.Commands.createEvent(Device.Native, ref info, Device.Instance.AllocationCallbacks, out _event);
             if (result != VkResult.Success) throw new EventException(result, string.Format("Error creating event: {0}", result));
-        }
-
-        public VkResult GetStatus() {
-            var result = Device.Commands.getEventStatus(Device.Native, _event);
-            if (!(result == VkResult.EventSet || result == VkResult.EventReset)) throw new EventException(result, string.Format("Error getting event status: {0}", result));
-            return result;
         }
 
         public void Set() {
