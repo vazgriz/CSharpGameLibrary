@@ -31,7 +31,9 @@ namespace CSGL.Vulkan {
         }
 
         public VkResult GetStatus() {
-            return Device.Commands.getEventStatus(Device.Native, _event);
+            var result = Device.Commands.getEventStatus(Device.Native, _event);
+            if (!(result == VkResult.EventSet || result == VkResult.EventReset)) throw new EventException(result, string.Format("Error getting event status: {0}", result));
+            return result;
         }
 
         public void Set() {
