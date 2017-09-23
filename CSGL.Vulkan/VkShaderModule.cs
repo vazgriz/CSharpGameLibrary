@@ -35,10 +35,10 @@ namespace CSGL.Vulkan {
             info.sType = VkStructureType.ShaderModuleCreateInfo;
             info.codeSize = (IntPtr)mInfo.data.Count;
 
-            var dataPinned = new NativeArray<byte>(mInfo.data);
-            info.pCode = dataPinned.Address;
+            var dataNative = new NativeArray<byte>(mInfo.data);
+            info.pCode = dataNative.Address;
 
-            using (dataPinned) {
+            using (dataNative) {
                 var result = Device.Commands.createShaderModule(Device.Native, ref info, Device.Instance.AllocationCallbacks, out shaderModule);
                 if (result != VkResult.Success) throw new ShaderModuleException(result, string.Format("Error creating shader module: {0}"));
             }
