@@ -19,7 +19,6 @@ namespace CSGL.Vulkan {
             }
         }
         
-
         internal VkPhysicalDevice(VkInstance instance, Unmanaged.VkPhysicalDevice physicalDevice) {
             Instance = instance;
             this.physicalDevice = physicalDevice;
