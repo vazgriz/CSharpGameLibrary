@@ -218,10 +218,14 @@ namespace CSGL.Vulkan {
                 infoNative.pSwapchains = (IntPtr)swapchainsNative;
                 infoNative.pImageIndices = (IntPtr)imageIndices;
 
+                if (info.results != null) infoNative.pResults = (IntPtr)results;
+
                 var result = Device.Commands.queuePresent(queue, ref infoNative);
 
-                for (int i = 0; i < resultsLength; i++) {   //default resultsLength is 0, safe to iterate
-                    info.results[i] = results[i];
+                if (info.results != null) {
+                    for (int i = 0; i < resultsLength; i++) {
+                        info.results[i] = results[i];
+                    }
                 }
 
                 if (!(result == VkResult.Success || result == VkResult.SuboptimalKhr)) throw new QueueException(result, string.Format("Error presenting from queue: {0}", result));
