@@ -17,7 +17,7 @@
 ### Changed
 - Vulkan
   - Move all types in structs.cs to the `CSGL.Vulkan.Unmanaged` namespace
-  - Move `Vulkan` class to `CSGL.Vulkan.Unmanaged`
+  - Merge `Vulkan` class with `CSGL.Vulkan.Unmanaged.VK`
   - Add "Vk" to all class names
   - Make interface more C# idiomatic
   - Unmanaged
