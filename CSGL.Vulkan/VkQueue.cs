@@ -101,34 +101,15 @@ namespace CSGL.Vulkan {
             }
 
             unsafe {
-                var waitCounts = stackalloc int[infos.Count];
-                var signalCounts = stackalloc int[infos.Count];
-                var commandCounts = stackalloc int[infos.Count];
-
                 int totalWaitSemaphores = 0;
                 int totalCommandBuffers = 0;
                 int totalSignalSemaphores = 0;
 
                 for (int i = 0; i < infos.Count; i++) {    //get the total length needed for each array
                     var info = infos[i];
-                    if (info.waitSemaphores != null) {
-                        totalWaitSemaphores += info.waitSemaphores.Count;
-                        waitCounts[i] = info.waitSemaphores.Count;
-                    } else {
-                        waitCounts[i] = 0;
-                    }
-                    if (info.commandBuffers != null) {
-                        totalCommandBuffers += info.commandBuffers.Count;
-                        commandCounts[i] = info.commandBuffers.Count;
-                    } else {
-                        commandCounts[i] = 0;
-                    }
-                    if (info.signalSemaphores != null) {
-                        totalSignalSemaphores += info.signalSemaphores.Count;
-                        signalCounts[i] = info.signalSemaphores.Count;
-                    } else {
-                        signalCounts[i] = 0;
-                    }
+                    if (info.waitSemaphores != null) totalWaitSemaphores += info.waitSemaphores.Count;
+                    if (info.commandBuffers != null) totalCommandBuffers += info.commandBuffers.Count;
+                    if (info.signalSemaphores != null) totalSignalSemaphores += info.signalSemaphores.Count;
                 }
 
                 var waitSemaphoresNative = stackalloc Unmanaged.VkSemaphore[totalWaitSemaphores];
@@ -147,7 +128,7 @@ namespace CSGL.Vulkan {
                     info.sType = VkStructureType.SubmitInfo;
 
                     if (infos[i].waitSemaphores != null) {
-                        int waitCount = waitCounts[i];
+                        int waitCount = infos[i].waitSemaphores.Count;
 
                         Interop.Marshal<Unmanaged.VkSemaphore, VkSemaphore>(infos[i].waitSemaphores, &waitSemaphoresNative[waitSemaphoresIndex]);
 
@@ -162,7 +143,7 @@ namespace CSGL.Vulkan {
                     }
 
                     if (infos[i].commandBuffers != null) {
-                        int commandCount = commandCounts[i];
+                        int commandCount = infos[i].commandBuffers.Count;
                         Interop.Marshal<Unmanaged.VkCommandBuffer, VkCommandBuffer>(infos[i].commandBuffers, &commandBuffersNative[commandBuffersIndex]);
 
                         info.commandBufferCount = (uint)infos[i].commandBuffers.Count;
@@ -171,7 +152,7 @@ namespace CSGL.Vulkan {
                     }
 
                     if (infos[i].signalSemaphores != null) {
-                        int signalCount = signalCounts[i];
+                        int signalCount = infos[i].signalSemaphores.Count;
                         Interop.Marshal<Unmanaged.VkSemaphore, VkSemaphore>(infos[i].signalSemaphores, &signalSemaphoresNative[signalSemaphoresIndex]);
 
                         info.signalSemaphoreCount = (uint)infos[i].signalSemaphores.Count;
