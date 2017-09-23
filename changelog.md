@@ -10,37 +10,37 @@
   - Unmanaged
     - VK
       - Remove extension commands
-      - Remove Load<T>(ref T) method
+      - Remove `Load<T>(ref T)` method
   - VkCommandBuffer
-    - Remove WaitEvents overload
+    - Remove `WaitEvents` overload
       
 ### Changed
 - Vulkan
-  - Move all types in `structs.cs` to the `CSGL.Vulkan.Unmanaged` namespace
+  - Move all types in structs.cs to the `CSGL.Vulkan.Unmanaged` namespace
   - Move `Vulkan` class to `CSGL.Vulkan.Unmanaged`
   - Add "Vk" to all class names
   - Make interface more C# idiomatic
   - Unmanaged
     - VK
-      - Add Load(VkDevice, string) and Load(VkInstance, string) methods
+      - Add `Load(VkDevice, string)` and `Load(VkInstance, string)` methods
   - VkInstance
-    - Change type of Layers property to IList<VkLayer>
-    - Change type of Extensions property to IList<VkExtension>
+    - Change type of `Layers` property to `IList<VkLayer>`
+    - Change type of `Extensions` property to `IList<VkExtension>`
   - VkDevice
-    - Change type of Extensions property to IList<VkExtension>
+    - Change type of Extensions property to `IList<VkExtension>`
   - VkDebugReportCallback
     - Change `Callback` property to an event
   - VkShaderModule
-    - Add Device property
+    - Add `Device` property
   - VkQueue
-    - Add Native property
+    - Add `Native` property
   - VkEvent
     - Make `GetStatus` method into `Status` property
 - GLFW
-  - Use IList<T> instead of T[]
+  - Use `IList<T>` instead of `T[]`
   - Window
-    - Fix PathDrop callback
+    - Fix `PathDrop` callback
 - Native
-  - Value returns `ref T`
+  - `Value` property returns `ref T`
 - NativeArray
   - Indexer returns `ref T`
