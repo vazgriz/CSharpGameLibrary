@@ -147,7 +147,11 @@ namespace CSGL {
             byte* curDest = (byte*)dest;
 
             for (int i = 0; i < count; i++) {
-                Unsafe.Write(curDest, list[i].Native);
+                if (list[i] != null) {
+                    Unsafe.Write(curDest, list[i].Native);
+                } else {
+                    Unsafe.Write(curDest, default(T));
+                }
                 curDest += size;
             }
         }
