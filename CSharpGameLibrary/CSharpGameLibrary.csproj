@@ -69,7 +69,6 @@
     <Compile Include="INative.cs" />
     <Compile Include="Interop.cs" />
     <Compile Include="InteropString.cs" />
-    <Compile Include="Marshalled.cs" />
     <Compile Include="Math\Vector2i.cs" />
     <Compile Include="Math\Vector3i.cs" />
     <Compile Include="NativeStringArray.cs" />
@@ -79,7 +78,6 @@
     <Compile Include="NativeArray.cs" />
     <Compile Include="PinnedArray.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="MarshalledArray.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

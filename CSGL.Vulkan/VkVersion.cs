@@ -5,7 +5,7 @@ namespace CSGL.Vulkan {
     public struct VkVersion {
         uint version;
 
-        public VkVersion(uint major, uint minor, uint revision) {
+        public VkVersion(int major, int minor, int revision) {
             version = 0;
             Major = major;
             Minor = minor;
@@ -24,33 +24,33 @@ namespace CSGL.Vulkan {
             return new VkVersion(v);
         }
 
-        public uint Major {
+        public int Major {
             get {
-                return (version >> 22);
+                return (int)(version >> 22);
             }
             set {
                 version &= ~0xffc00000;
-                version |= (value << 22);
+                version |= ((uint)value << 22);
             }
         }
 
-        public uint Minor {
+        public int Minor {
             get {
-                return (version >> 12) & 0x3ff;
+                return (int)(version >> 12) & 0x3ff;
             }
             set {
                 version &= ~((uint)0x3ff000);
-                version |= ((value << 12) & 0x3ff000);
+                version |= (((uint)value << 12) & 0x3ff000);
             }
         }
 
-        public uint Revision {
+        public int Revision {
             get {
-                return (version) & 0xfff;
+                return (int)(version) & 0xfff;
             }
             set {
                 version &= ~((uint)0xfff);
-                version |= (value & 0xfff);
+                version |= ((uint)value & 0xfff);
             }
         }
 
