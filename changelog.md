@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased]
+## [0.1.6] - 2017-10-1
 ### Added
 - NativeStringArray
   - Add getter for indexer
