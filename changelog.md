@@ -3,7 +3,14 @@
 ## Unreleased
 ### Added
 - GLFW
-  - Add `SetPosition` method
+  - Window
+    - Add `SetPosition` method
+
+### Changed
+- GLFW
+  - Monitor
+    - Change `Width` to `PhysicalWidth`
+    - Change `Height` to `PhysicalHeight`
 
 ## [0.1.6] - 2017-10-1
 ### Added

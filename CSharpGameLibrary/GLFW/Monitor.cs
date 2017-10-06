@@ -61,8 +61,8 @@ namespace CSGL.GLFW {
         public string Name { get; private set; }
         public bool Connected { get; private set; }
         public IList<VideoMode> VideoModes { get; private set; }
-        public int Width { get; private set; }
-        public int Height { get; private set; }
+        public int PhysicalWidth { get; private set; }
+        public int PhysicalHeight { get; private set; }
         public int X { get; private set; }
         public int Y { get; private set; }
 
@@ -87,8 +87,8 @@ namespace CSGL.GLFW {
             GLFW.GetMonitorPhysicalSize(monitor, out w, out h);
             GLFW.GetMonitorPos(monitor, out x, out y);
 
-            Width = w;
-            Height = h;
+            PhysicalWidth = w;
+            PhysicalHeight = h;
             X = x;
             Y = y;
 
