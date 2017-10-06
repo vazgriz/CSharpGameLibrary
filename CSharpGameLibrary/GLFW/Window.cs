@@ -280,6 +280,12 @@ namespace CSGL.GLFW {
             GLFW.SetWindowSize(window, width, height);
         }
 
+        public void SetPosition(int x, int y) {
+            X = x;
+            Y = y;
+            GLFW.SetWindowPos(window, x, y);
+        }
+
         void Pos(WindowPtr window, int x, int y) {
             X = x;
             Y = y;

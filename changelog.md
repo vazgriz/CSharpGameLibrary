@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+### Added
+- GLFW
+  - Add `SetPosition` method
+
 ## [0.1.6] - 2017-10-1
 ### Added
 - NativeStringArray
