@@ -64,6 +64,7 @@ namespace CSGL.GLFW {
         public static bool Init() {
             bool result = glfwInit();
             CheckError();
+            Monitor.Init();
             return result;
         }
 

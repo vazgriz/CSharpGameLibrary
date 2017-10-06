@@ -16,6 +16,7 @@ namespace CSGL.GLFW {
             monitors = new List<Monitor>();
             monitorMap = new Dictionary<MonitorPtr, Monitor>();
             Monitors = monitors.AsReadOnly();
+            GetMonitors();
         }
 
         internal Monitor GetMonitor(MonitorPtr ptr) {
@@ -93,6 +94,8 @@ namespace CSGL.GLFW {
             Y = y;
 
             gammaRamp = GLFW.GetGammaRamp(monitor);
+
+            Connected = true;
         }
 
         public void SetGamma(float gamma) {
