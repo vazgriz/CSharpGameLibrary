@@ -54,7 +54,16 @@ namespace CSGL.Vulkan {
 
         //set when pool is reset
         //prevents double free
-        internal bool CanDispose { get; set; }
+        internal bool canDispose;
+        internal bool CanDispose {
+            get {
+                return canDispose;
+            }
+            set {
+                canDispose = value;
+                if (value) GC.SuppressFinalize(this);
+            }
+        }
 
         internal VkDescriptorSet(VkDevice device, VkDescriptorPool pool, Unmanaged.VkDescriptorSet descriptorSet, VkDescriptorSetLayout setLayout) {
             Device = device;

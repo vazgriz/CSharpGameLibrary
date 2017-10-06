@@ -70,7 +70,16 @@ namespace CSGL.Vulkan {
 
         //set to false if pool is reset
         //prevents double free
-        internal bool CanDispose { get; set; } = true;
+        internal bool canDispose;
+        internal bool CanDispose {
+            get {
+                return canDispose;
+            }
+            set {
+                canDispose = value;
+                if (value) GC.SuppressFinalize(this);
+            }
+        }
 
         internal VkCommandBuffer(VkDevice device, VkCommandPool pool, Unmanaged.VkCommandBuffer commandBuffer, VkCommandBufferLevel level) {
             Device = device;
