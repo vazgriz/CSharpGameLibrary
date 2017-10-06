@@ -234,7 +234,7 @@ namespace CSGL.GLFW {
         RightAlt = 346,
         RightSuper = 347,
         Menu = 348,
-        _LastKey = Menu,
+        LastKey = Menu,
     }
 
     public enum KeyMod {
@@ -256,7 +256,7 @@ namespace CSGL.GLFW {
         Left   = Button1,
         Right  = Button2,
         Middle = Button3,
-        _ButtonLast   = Button8,
+        LastButton   = Button8,
     }
 
     public enum CursorMode {
