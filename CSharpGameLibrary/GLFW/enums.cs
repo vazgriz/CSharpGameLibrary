@@ -105,9 +105,7 @@ namespace CSGL.GLFW {
         HorizontalResize = 0x00036005,
         VerticalRezie = 0x00036006
     }
-}
 
-namespace CSGL.Input {
     public enum KeyAction {
         Release,
         Press,

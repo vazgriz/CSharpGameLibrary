@@ -8,6 +8,7 @@
 
 ### Changed
 - GLFW
+  - Move enums in `CSGL.Input` namespace to `CSGL.GLFW`
   - Monitor
     - Change `Width` to `PhysicalWidth`
     - Change `Height` to `PhysicalHeight`
