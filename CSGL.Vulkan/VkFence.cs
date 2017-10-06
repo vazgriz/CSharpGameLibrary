@@ -75,7 +75,7 @@ namespace CSGL.Vulkan {
             }
         }
 
-        public static VkResult Wait(VkDevice device, IList<VkFence> fences, bool waitAll, ulong timeout) {
+        public static VkResult Wait(VkDevice device, IList<VkFence> fences, bool waitAll, long timeout) {
             if (device == null) throw new ArgumentNullException(nameof(device));
             if (fences == null) throw new ArgumentNullException(nameof(fences));
 
@@ -84,7 +84,7 @@ namespace CSGL.Vulkan {
                 Interop.Marshal<Unmanaged.VkFence, VkFence>(fences, fencesNative);
 
                 uint waitAllNative = waitAll ? 1u : 0u;
-                var result = device.Commands.waitFences(device.Native, (uint)fences.Count, (IntPtr)fencesNative, waitAllNative, timeout);
+                var result = device.Commands.waitFences(device.Native, (uint)fences.Count, (IntPtr)fencesNative, waitAllNative, (ulong)timeout);
                 if (!(result == VkResult.Success || result == VkResult.Timeout)) throw new FenceException(result, string.Format("Error waiting on fences: {0}", result));
                 return result;
             }
