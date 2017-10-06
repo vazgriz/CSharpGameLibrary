@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
-using CSGL.Input;
 using CSGL.GLFW.Unmanaged;
 using CSGL.Graphics;
 using static CSGL.GLFW.Unmanaged.GLFW_native;

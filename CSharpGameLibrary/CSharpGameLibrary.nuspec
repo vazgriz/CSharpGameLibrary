@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
   <metadata>
     <id>CSharpGameLibrary</id>
-    <version>0.1.6-alpha</version>
+    <version>0.1.7-alpha</version>
     <title>C# Game Library</title>
     <authors>Ryan Vazquez</authors>
     <owners>vazgriz</owners>

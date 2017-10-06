@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 
-using CSGL.Input;
 using CSGL.GLFW.Unmanaged;
 
 namespace CSGL.GLFW {

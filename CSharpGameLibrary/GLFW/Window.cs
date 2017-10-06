@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 
-using CSGL.Input;
 using CSGL.Graphics;
 using CSGL.GLFW.Unmanaged;
 

@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 
-using CSGL.Input;
-
 namespace CSGL.GLFW.Unmanaged {
     public static unsafe class GLFW_native {
         const string lib = "glfw3";
