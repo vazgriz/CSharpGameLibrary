@@ -200,67 +200,83 @@ namespace CSGL.Vulkan {
     }
 
     public struct VkClearColorValue {
-        Unmanaged.VkClearColorValue value;
+        internal uint uint32_0;
+        internal uint uint32_1;
+        internal uint uint32_2;
+        internal uint uint32_3;
 
         public VkClearColorValue(int r, int g, int b, int a) {
-            value = new Unmanaged.VkClearColorValue();
+            uint32_0 = 0;
+            uint32_1 = 0;
+            uint32_2 = 0;
+            uint32_3 = 0;
             Set(r, g, b, a);
         }
 
         public VkClearColorValue(uint r, uint g, uint b, uint a) {
-            value = new Unmanaged.VkClearColorValue();
+            uint32_0 = 0;
+            uint32_1 = 0;
+            uint32_2 = 0;
+            uint32_3 = 0;
             Set(r, g, b, a);
         }
 
         public VkClearColorValue(float r, float g, float b, float a) {
-            value = new Unmanaged.VkClearColorValue();
+            uint32_0 = 0;
+            uint32_1 = 0;
+            uint32_2 = 0;
+            uint32_3 = 0;
             Set(r, g, b, a);
         }
 
-        internal Unmanaged.VkClearColorValue GetNative() {
-            return value;
-        }
-
         public void Set(int r, int g, int b, int a) {
-            value.int32_0 = r;
-            value.int32_1 = g;
-            value.int32_2 = b;
-            value.int32_3 = a;
+            uint32_0 = (uint)r;
+            uint32_1 = (uint)g;
+            uint32_2 = (uint)b;
+            uint32_3 = (uint)a;
         }
 
         public void Set(float r, float g, float b, float a) {
-            value.float32_0 = r;
-            value.float32_1 = g;
-            value.float32_2 = b;
-            value.float32_3 = a;
+            unsafe {
+                uint32_0 = *((uint*)(&r));
+                uint32_1 = *((uint*)(&g));
+                uint32_2 = *((uint*)(&b));
+                uint32_3 = *((uint*)(&a));
+            }
         }
 
         public void Set(uint r, uint g, uint b, uint a) {
-            value.uint32_0 = r;
-            value.uint32_1 = g;
-            value.uint32_2 = b;
-            value.uint32_3 = a;
+            uint32_0 = r;
+            uint32_1 = g;
+            uint32_2 = b;
+            uint32_3 = a;
         }
 
         public void Get(out int r, out int g, out int b, out int a) {
-            r = value.int32_0;
-            g = value.int32_1;
-            b = value.int32_2;
-            a = value.int32_3;
+            r = (int)uint32_0;
+            g = (int)uint32_1;
+            b = (int)uint32_2;
+            a = (int)uint32_3;
         }
 
         public void Get(out float r, out float g, out float b, out float a) {
-            r = value.float32_0;
-            g = value.float32_1;
-            b = value.float32_2;
-            a = value.float32_3;
+            uint uint32_0 = this.uint32_0;
+            uint uint32_1 = this.uint32_1;
+            uint uint32_2 = this.uint32_2;
+            uint uint32_3 = this.uint32_3;
+            unsafe {
+                r = *((float*)(&uint32_0));
+                g = *((float*)(&uint32_1));
+                b = *((float*)(&uint32_2));
+                a = *((float*)(&uint32_3));
+            }
         }
 
         public void Get(out uint r, out uint g, out uint b, out uint a) {
-            r = value.uint32_0;
-            g = value.uint32_1;
-            b = value.uint32_2;
-            a = value.uint32_3;
+            r = uint32_0;
+            g = uint32_1;
+            b = uint32_2;
+            a = uint32_3;
         }
     }
 
@@ -282,7 +298,6 @@ namespace CSGL.Vulkan {
 
         internal Unmanaged.VkClearValue GetNative() {
             return new Unmanaged.VkClearValue {
-                color = color.GetNative(),
                 depthStencil = depthStencil.GetNative()
             };
         }

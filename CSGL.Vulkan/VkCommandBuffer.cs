@@ -152,6 +152,10 @@ namespace CSGL.Vulkan {
                 if (info.clearValues != null) {
                     for (int i = 0; i < clearValueCount; i++) {
                         clearValuesNative[i] = info.clearValues[i].GetNative();
+                        clearValuesNative[i].color.uint32_0 = info.clearValues[i].color.uint32_0;
+                        clearValuesNative[i].color.uint32_1 = info.clearValues[i].color.uint32_1;
+                        clearValuesNative[i].color.uint32_2 = info.clearValues[i].color.uint32_2;
+                        clearValuesNative[i].color.uint32_3 = info.clearValues[i].color.uint32_3;
                     }
                 }
                 infoNative.clearValueCount = (uint)clearValueCount;
@@ -394,7 +398,11 @@ namespace CSGL.Vulkan {
                 for (int i = 0; i < ranges.Count; i++) {
                     rangesNative[i] = ranges[i].GetNative();
                 }
-                var clearColorNative = clearColor.GetNative();
+                var clearColorNative = new Unmanaged.VkClearColorValue();
+                clearColorNative.uint32_0 = clearColor.uint32_0;
+                clearColorNative.uint32_1 = clearColor.uint32_1;
+                clearColorNative.uint32_2 = clearColor.uint32_2;
+                clearColorNative.uint32_3 = clearColor.uint32_3;
 
                 Device.Commands.cmdClearColorImage(commandBuffer, image.Native, imageLayout, ref clearColorNative, (uint)ranges.Count, (IntPtr)rangesNative);
             }
@@ -404,7 +412,11 @@ namespace CSGL.Vulkan {
             if (image == null) throw new ArgumentNullException(nameof(image));
 
             unsafe {
-                var clearColorNative = clearColor.GetNative();
+                var clearColorNative = new Unmanaged.VkClearColorValue();
+                clearColorNative.uint32_0 = clearColor.uint32_0;
+                clearColorNative.uint32_1 = clearColor.uint32_1;
+                clearColorNative.uint32_2 = clearColor.uint32_2;
+                clearColorNative.uint32_3 = clearColor.uint32_3;
                 var rangesNative = ranges.GetNative();
                 Device.Commands.cmdClearColorImage(commandBuffer, image.Native, imageLayout, ref clearColorNative, 1, (IntPtr)(&rangesNative));
             }
@@ -744,6 +756,10 @@ namespace CSGL.Vulkan {
                 var attachmentsNative = stackalloc Unmanaged.VkClearAttachment[attachments.Count];
                 for (int i = 0; i < attachments.Count; i++) {
                     attachmentsNative[i] = attachments[i].GetNative();
+                    attachmentsNative[i].clearValue.color.uint32_0 = attachments[i].clearValue.color.uint32_0;
+                    attachmentsNative[i].clearValue.color.uint32_1 = attachments[i].clearValue.color.uint32_1;
+                    attachmentsNative[i].clearValue.color.uint32_2 = attachments[i].clearValue.color.uint32_2;
+                    attachmentsNative[i].clearValue.color.uint32_3 = attachments[i].clearValue.color.uint32_3;
                 }
                 var rectsNative = stackalloc Unmanaged.VkClearRect[rects.Count];
                 for (int i = 0; i < rects.Count; i++) {
@@ -757,6 +773,10 @@ namespace CSGL.Vulkan {
         public void ClearAttachments(VkClearAttachment attachments, VkClearRect rects) {
             unsafe {
                 var attachmentsNative = attachments.GetNative();
+                attachmentsNative.clearValue.color.uint32_0 = attachments.clearValue.color.uint32_0;
+                attachmentsNative.clearValue.color.uint32_1 = attachments.clearValue.color.uint32_1;
+                attachmentsNative.clearValue.color.uint32_2 = attachments.clearValue.color.uint32_2;
+                attachmentsNative.clearValue.color.uint32_3 = attachments.clearValue.color.uint32_3;
                 var rectsNative = rects.GetNative();
                 Device.Commands.cmdClearAttachments(commandBuffer, 1, (IntPtr)(&attachmentsNative), 1, (IntPtr)(&rectsNative));
             }
