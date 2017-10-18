@@ -72,8 +72,8 @@ namespace CSGL.Vulkan {
         public int maxViewports;
         public int maxViewportDimensionsX;
         public int maxViewportDimensionsY;
-        public float viewportBoundsRangeX;
-        public float viewportBoundsRangeY;
+        public float viewportBoundsRangeMin;
+        public float viewportBoundsRangeMax;
         public int viewportSubPixelBits;
         public long minMemoryMapAlignment;
         public long minTexelBufferOffsetAlignment;
@@ -188,8 +188,8 @@ namespace CSGL.Vulkan {
             maxViewports = (int)other.maxViewports;
             maxViewportDimensionsX = (int)other.maxViewportDimensions_0;
             maxViewportDimensionsY = (int)other.maxViewportDimensions_1;
-            viewportBoundsRangeX = other.viewportBoundsRange_0;
-            viewportBoundsRangeY = other.viewportBoundsRange_1;
+            viewportBoundsRangeMin = other.viewportBoundsRange_0;
+            viewportBoundsRangeMax = other.viewportBoundsRange_1;
             viewportSubPixelBits = (int)other.viewportSubPixelBits;
             minMemoryMapAlignment = (long)other.minMemoryMapAlignment;
             minTexelBufferOffsetAlignment = (long)other.minTexelBufferOffsetAlignment;
