@@ -120,12 +120,6 @@ namespace CSGL.Vulkan {
         public void Reset(VkCommandPoolResetFlags flags) {
             var result = Device.Commands.resetCommandPool(Device.Native, commandPool, flags);
             if (result != VkResult.Success) throw new CommandPoolException(result, string.Format("Error resetting command pool: {0}", result));
-
-            foreach (var commandBuffer in commandBuffers) {
-                commandBuffer.CanDispose = false;
-            }
-
-            commandBuffers.Clear();
         }
 
         public void Dispose() {

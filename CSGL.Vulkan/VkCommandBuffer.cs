@@ -68,7 +68,7 @@ namespace CSGL.Vulkan {
         public VkCommandPool Pool { get; private set; }
         public VkCommandBufferLevel Level { get; private set; }
 
-        //set to false if pool is reset
+        //set to false if pool is disposed
         //prevents double free
         internal bool canDispose;
         internal bool CanDispose {
