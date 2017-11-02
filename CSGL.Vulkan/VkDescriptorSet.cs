@@ -61,7 +61,6 @@ namespace CSGL.Vulkan {
             }
             set {
                 canDispose = value;
-                if (value) GC.SuppressFinalize(this);
             }
         }
 
@@ -73,11 +72,6 @@ namespace CSGL.Vulkan {
         }
 
         public void Dispose() {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        void Dispose(bool disposing) {
             if (disposed) return;
 
             if (CanDispose) {
@@ -85,10 +79,6 @@ namespace CSGL.Vulkan {
             }
 
             disposed = true;
-        }
-
-        ~VkDescriptorSet() {
-            Dispose(false);
         }
 
         public static void Update(VkDevice device, IList<VkWriteDescriptorSet> writes, IList<VkCopyDescriptorSet> copies) {
